@@ -54,7 +54,7 @@ fitpack: fitpack.o
 
 
 #	CFLAGS='-DMCORE=\"LAPACK-3.5\"' $(PYX) setup.matrix build
-#	CFLAGS='-DMCORE=\"OpenBLAS-0.2.20\"' $(PYX) setup.matrix build
+#	CFLAGS='-DMCORE=\"OpenBLAS-XXX\"' $(PYX) setup.matrix build
 #	CFLAGS='-DMCORE=\"Intel\ MKL-2017.2.163\"' $(PYX) setup.matrix build
 matrix: ilaenv_fix.o lapack_deps.o
 	CFLAGS='-DMCORE=\"LAPACK-3.5\"' $(PYX) setup.matrix build
