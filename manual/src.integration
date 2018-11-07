@@ -1,0 +1,39 @@
+\normalsize
+\subsection[integration]{integration.py}
+This module provides basic numerical integration, by means of three different approaches:
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+def Simpson( x, y )
+
+def Simpson_f( f, a, b, eps = 1.0e-3, n = None )
+
+# WARNING: Romberg can fail if the area to integrate is in the order of the selected tolerance (eps)
+def Romberg( f, a, b, eps = 1.0e-10 )
+
+def Gauss( f, a, b, _xi = gauss_legendre_xi, _wi = gauss_legendre_wi )
+\end{pyglist}
+
+only \func{Simpson} works on discrete sets of points, meanwhile the other three (\func{Simpson\_f}, \func{Romberg} and \func{Gauss})
+work on a given function in the integration interval [a,b]. In the case of \func{Simpson\_f} the amount of points
+in which the integration interval is splitted (\parm{n}) is an optional parameter that is determined based on the
+desired degree of integration error (\parm{eps}).
+
+\func{Gauss} method is currently based on the Gauss-Legendre quadrature integration method:
+\begin{equation*}
+\int_a^b{f(x) dx} \approx \frac{b-a}{2}\sum_{i=1}^n{w_i \cdot f \left(\frac{b-a}{2}\cdot x_i + \frac{b+a}{2}\right)}
+\end{equation*}
+The number of intervals (\parm{\_xi}) and weights (\parm{\_wi}) that are taken into account by default is 80, but this value can be changed using the \func{legendre.py} module, which provides a single function returning both parameters:
+\begin{pyglist}[language=python,fvset={frame=single}]
+def GL_coefficients( n, eps = 1.0e-8 )
+\end{pyglist}
+
+Both \func{Romberg} and \func{Gauss} can be used on discrete sets of points by making use of the interpolation module.
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.integration
+\end{pyglist}
+
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.integration.log
+\end{pyglist}

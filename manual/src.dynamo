@@ -1,0 +1,36 @@
+\normalsize
+\subsection[dynamo]{dynamo.py}
+This module allows to use fDynamo\footnote{https://sites.google.com/site/pdynamomodeling/fdynamo-2.2.tgz?attredirects=0}
+ as a MM engine (or semi-empirical QM/MM), as well as provides a child "mol\_io.molecule" for working with fDynamo files.
+The \func{dynamo} class makes use of a compiled binary (see last frame example), which hangs on a pipe for exchanging
+data. 
+The function \func{dynamo\_read} returns a molecule from a CRD file (\func{dynamo\_write} stores de molecule with this format).
+\func{dynamo\_sequence} allows to generate sequences from a molecule, and \func{dynamo\_selection}
+builds fortran subroutines for atom selections (ie, based on radial selections).
+%, or accesing "sys\_bin" files (\func{.sysbin\_read}) for reading masses ("molecule.mass", g/mol), charges ("molecule.chrg", a.u.),
+%epsilon values ("molecule.epsi", kJ/mol) or half of the equilibrium distances ("molecule.rmin", Å).
+\begin{pyglist}[language=python,fvset={frame=single}]
+def dynamo_read( fname = None )
+def dynamo_write( mol, fname = None )
+def dynamo_sequence( mol, fname = None )
+def dynamo_selection( mol, sele, radi = 20.0, fname = None )
+
+class dynamo( mol )
+    def start( timeout = 10 )
+    def stop()
+    def update_charges( mol )
+    def update_coor( mol )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.dynamo
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.dynamo.log
+\end{pyglist}
+\begin{pyglist}[language=fortran,fvset={frame=single}]
+#SOURCE@../samples/test.dynamo.f90
+\end{pyglist}

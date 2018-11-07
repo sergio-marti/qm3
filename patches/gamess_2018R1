@@ -1,0 +1,629 @@
+patch -p0 << EOD
+--- dclib.src	2018-02-07 22:15:24.000000000 +0100
++++ dclib.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -3508,7 +3508,8 @@
+ C-XYZ-DIMENSION TXBLK(784),TYBLK(784),TZBLK(784)
+ C-XYZ-DIMENSION FTX(784),FTY(784),FTZ(784)
+ C
+-      PARAMETER (MXCHRM=1)
++C-xexo
++      PARAMETER (MXCHRM=30000)
+ C
+       COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
+      *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
+EOD
+
+patch -p0 << EOD
+--- efpaul.src	2018-02-07 22:15:24.000000000 +0100
++++ efpaul.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -6048,7 +6048,8 @@
+      *          IX(84),IY(84),IZ(84),JX(84),JY(84),JZ(84)
+       DIMENSION CENTCD(3,MXFGPT),V(LL2)
+ C
+-      PARAMETER (MXCHRM=1)
++C-xexo
++      PARAMETER (MXCHRM=30000)
+ C
+       COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
+      *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
+EOD
+
+patch -p0 << EOD
+--- fmoesd.src	2018-02-07 22:15:24.000000000 +0100
++++ fmoesd.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -839,7 +839,8 @@
+       LOGICAL LCPHF,fastvesp
+ C
+       PARAMETER (MXSH=5000, MXGTOT=20000, MXATM=2000, MXAO=8192)
+-      PARAMETER (MXCHRM=1)
++C-xexo
++      PARAMETER (MXCHRM=30000)
+ C
+       DIMENSION DENAB(L2),DTINT(L2,3,NAT),DVINT(L2,3,NAT)
+       DIMENSION DIJ(225), IJX(35), IJY(35), IJZ(35),
+EOD
+
+patch -p0 << EOD
+--- gamess.src	2018-02-19 19:10:28.000000000 +0100
++++ gamess.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -493,8 +493,8 @@
+       INTEGER DDI_WORLD,DDI_GROUP,DDI_SUBGROUP,DDI_SUPERWORLD
+       parameter (DDI_WORLD=0, DDI_GROUP=1, DDI_SUPERWORLD=-1,
+      *          DDI_SUBGROUP=4)
+-
+-      PARAMETER (MXCHRM=1,MXUNIT=299,maxtstp=25,maxwarn=10)
++C-xexo
++      PARAMETER (MXCHRM=30000,MXUNIT=299,maxtstp=25,maxwarn=10)
+ C
+       COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
+      *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
+@@ -564,7 +564,8 @@
+ C     5. CHANGE -MXCHRM- FROM 1 TO 25120 IN ALL PARAMETER DEFINITIONS
+ C        FOUND IN GAMESS,GRD1,INPUTB,INPUTC,INT1 MODULES
+ C
+-      KCHRMM=0
++C-xexo
++      KCHRMM=1
+       NCHMAT=0
+ C
+ C     ----- ASSUME THIS IS NOT A NEO RUN -----
+@@ -600,15 +601,17 @@
+ C     NOT OPENING UNIT 6 ON UNIX LEAVES THE OUTPUT FROM GAMESS GOING
+ C     INTO 'STANDARD OUTPUT', I.E. INTO THE NORMAL JOB LOG FILE.
+ C
+-      IF(KCHRMM.EQ.0) THEN
++C-xexo
++C      IF(KCHRMM.EQ.0) THEN
+          CALL SEQOPN(IR,'INPUT', 'OLD',.TRUE., 'FORMATTED')
+ C--      CALL SEQOPN(IW,'OUTPUT','NEW',.FALSE.,'FORMATTED')
+          CALL SEQOPN(IP,'PUNCH', 'NEW',.FALSE.,'FORMATTED')
+-      ELSE
++C      ELSE
+ C                 FOR THE UNLIKELY CASE OF INTERFACING TO CHARMM...
+-         CALL CHGMIU(IR,IW)
+-         CALL SEQOPN(IP,'PUNCH', 'NEW',.FALSE.,'FORMATTED')
+-      END IF
++C         CALL CHGMIU(IR,IW)
++C         CALL SEQOPN(IP,'PUNCH', 'NEW',.FALSE.,'FORMATTED')
++C      END IF
++C ----------------------------------------------------------------------------------
+ C
+ C     ----- PRINT THE GAMESS VERSION BANNER -----
+ C     ----- START THE CLOCK TICKING -----
+@@ -822,6 +825,9 @@
+       CALL BIGFM(MAXMEM)
+       CALL TMDATE(TIMSTR)
+       IF (MASWRK) WRITE(IW,9002) TIMSTR
++C-xexo
++      if(nchmat.gt.0) call mm_summary
++C ----------------------------------------------------
+       CALL ENDING
+       STOP
+ C
+@@ -941,6 +947,30 @@
+  9200 FORMAT(/1X,'In-memory F10 used',I9,' words out of',I11,
+      *          ' allocated on rank',I10)
+       END
++
++C-xexo
++      subroutine mm_summary
++      implicit double precision(a-h,o-z)
++      parameter (mxchrm=30000)
++      parameter (mxatm=2000)
++      common /chmgms/ xchm(mxchrm),ychm(mxchrm),zchm(mxchrm),
++     *                dxelmm(mxchrm),dyelmm(mxchrm),dzelmm(mxchrm),
++     *                qchm(mxchrm),nchmat,kchrmm
++      common /coordn/ uznuc(mxatm),cuniq(mxatm,3),natrel,uatom(mxatm)
++      common /funct / e,eg(3*mxatm)
++      common /qmhess/ xhqm(3*mxatm*(3*mxatm+1)/2)
++      open(unit=99,file="mm_output",action="write",form="unformatted")
++      write(99) e
++      write(99) (eg(i),i=1,3*natrel)
++      write(99) (-dxelmm(i),i=1,nchmat)
++      write(99) (-dyelmm(i),i=1,nchmat)
++      write(99) (-dzelmm(i),i=1,nchmat)
++      write(99) (xhqm(i),i=1,3*natrel*(3*natrel+1)/2)
++      close(99)
++      return
++      end
++c ----------------------------------------------------
++
+ C*MODULE GAMESS  *DECK BRNCHX
+       SUBROUTINE BRNCHX(RUNTYP)
+ C
+EOD
+
+patch -p0 << EOD
+--- grd1.src	2018-02-07 22:15:24.000000000 +0100
++++ grd1.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -2046,7 +2046,8 @@
+       LOGICAL GOPARR,DSKWRK,MASWRK,NXT,SVDSKW,ESD
+ C
+       PARAMETER (MXSH=5000, MXGTOT=20000, MXATM=2000, MXAO=8192)
+-      PARAMETER (MXCHRM=1)
++C-xexo
++      PARAMETER (MXCHRM=30000)
+ C
+       DIMENSION DENAB(L2),DTINT(L2,3,NAT),DVINT(L2,3,NAT)
+       DIMENSION DIJ(225), IJX(35), IJY(35), IJZ(35),
+@@ -2092,6 +2093,8 @@
+      *                IESDPPC,IDOPROP,MP2RUN,ICURIT,IDMFMO,IDDFMO,
+      *                IDDCUR,NDDLEFT,IVMFMO,nzmtfmo,ifmobas,itmfmo(2)
+       COMMON /GRAD  / DE(3,MXATM)
++C-xexo
++      COMMON /GRADMM/ DEMM(3,MXATM)
+       COMMON /IJPAIR/ IA(MXAO)
+       COMMON /INFOA / NAT,ICH,MUL,NUM,NQMT,NE,NA,NB,
+      *                ZAN(MXATM),C(3,MXATM),IAN(MXATM)
+@@ -2198,6 +2201,15 @@
+             DZELMM(ICHARM)=ZERO
+   100    CONTINUE
+       END IF
++
++C-xexo
++      do ix = 1, mxatm
++         do jx = 1, 3
++             demm(jx,ix) = zero
++         end do
++      end do
++C -----------------------------------------------------------------
++
+       ESD=NFG.NE.0.AND. IFMOSTP.EQ.2.AND.MPLEVL.EQ.0.AND.
+      *                  RESDIM.NE.0.AND.IAND(IXESP,32).EQ.0
+       NEXTAT=NCHMAT
+@@ -2211,18 +2223,20 @@
+           if(IPBCFST.eq.1) NEXTAT=NATFMO
+         END IF
+       END IF
+-      if(nfg.ne.0) then
+-        call getmmchg(nqmmatm,dum)
+-      end if
+-      if(nqmmatm.ne.0) then
+-c       write(6,*) "nqmmatm =",nqmmatm
+-        CALL VALFM(LOADFM)
+-        lgeom = LOADFM + 1
+-        last  = lgeom  + nqmmatm * 4
+-        NEEDmm= LAST   - LOADFM -1
+-        CALL GETFM(NEEDmm)
+-        call getmmchg(nqmmatm,x(lgeom))
+-      end if
++C-xexo: warning!
++C      if(nfg.ne.0) then
++C        call getmmchg(nqmmatm,dum)
++C      end if
++C      if(nqmmatm.ne.0) then
++Cc       write(6,*) "nqmmatm =",nqmmatm
++C        CALL VALFM(LOADFM)
++C        lgeom = LOADFM + 1
++C        last  = lgeom  + nqmmatm * 4
++C        NEEDmm= LAST   - LOADFM -1
++C        CALL GETFM(NEEDmm)
++C        call getmmchg(nqmmatm,x(lgeom))
++C      end if
++C -----------------------------------------------------------------
+       nfg2=(nfg*nfg-nfg)/2
+       LFMODEi=LFMODE+3*NATFMO
+       if(nfg.ne.0.and.nbody.gt.2) LFMODEi=LFMODE+3*NATFMO*2
+@@ -2541,9 +2555,20 @@
+                    X(IOFF+2)=X(IOFF+2)+DUMZ*DUMINT
+ C                  WRITE(6,*) 'WWWADD1',IAZ,IAT
+                 ELSE
+-                   DE(1,IAT)=DE(1,IAT)+DUMX*DUMINT
+-                   DE(2,IAT)=DE(2,IAT)+DUMY*DUMINT
+-                   DE(3,IAT)=DE(3,IAT)+DUMZ*DUMINT
++C-xexo
++                   if( icharm .gt. 0 ) then
++                       demm(1,iat) = demm(1,iat) + dumx * dumint
++                       demm(2,iat) = demm(2,iat) + dumy * dumint
++                       demm(3,iat) = demm(3,iat) + dumz * dumint
++                   else
++                       DE(1,IAT)=DE(1,IAT)+DUMX*DUMINT
++                       DE(2,IAT)=DE(2,IAT)+DUMY*DUMINT
++                       DE(3,IAT)=DE(3,IAT)+DUMZ*DUMINT
++                   end if
++C                   DE(1,IAT)=DE(1,IAT)+DUMX*DUMINT
++C                   DE(2,IAT)=DE(2,IAT)+DUMY*DUMINT
++C                   DE(3,IAT)=DE(3,IAT)+DUMZ*DUMINT
++C -----------------------------------------------------------------
+                 ENDIF
+                 IF(ISEPS.AND.(IC.GT.NAT)) THEN
+                    DE(1,IAZ)=DE(1,IAZ)-DUMX*(DIJ(IJ)*AA1*PI212)
+EOD
+
+patch -p0 << EOD
+--- grd2a.src	2018-02-07 22:15:24.000000000 +0100
++++ grd2a.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -2472,6 +2472,8 @@
+      *           MXRT=100, MXNORO=250,
+      *           MXFRG=1050, MXFGPT=12000,
+      *           MXDFG=5, MXDPPT=MXFRG*MXDFG*12, MXGRID=10)
++C-xexo
++      PARAMETER (MXCHRM=30000)
+ C
+       DIMENSION M0(48),M1(48),M2(48),M3(48)
+ C
+@@ -2503,6 +2505,12 @@
+      *                NDPPTS(MXDPPT),NDPTTPT,IEFDP,LSTMPTS(MXFRG),
+      *                NBSFN(MXFRG),NMXMO(MXFRG)
+       COMMON /GRAD  / DE(3,MXATM)
++C-xexo
++      COMMON /GRADMM/ DEMM(3,MXATM)
++      COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
++     *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
++     *                QCHM(MXCHRM),NCHMAT,KCHRMM
++C -----------------------------------------------------------------
+       COMMON /GUGWFN/ NFZC,NMCC,NDOC,NAOS,NBOS,NALP,NVAL,NNEXT,NFZV,
+      *                IFORS,IEXCIT,ICICI,NOIRR
+       COMMON /IJPAIR/ IA(MXAO)
+@@ -3474,6 +3482,8 @@
+          CALL DDI_GSUMI(1601,IISKIP1,1)
+          CALL DDI_GSUMI(1601,IISKIP2,1)
+          CALL DDI_GSUMI(1602,IDID,1)
++C-xexo
++         call ddi_gsumf(1603,demm,3*nat)
+       END IF
+ C
+ C           ADD IN THE REST OF THE DFT GRADIENT
+@@ -3518,6 +3528,42 @@
+          CALL RETFM(NEEDP)
+       END IF
+ C
++C-xexo
++      if( mxchrm .gt. 0 ) then
++          if( maswrk ) 
++     &        write(iw,"(/a/)") " ADDING QM/MM INTERACTION..."
++          do ix = 1, mxatm
++              do jx = 1, 3
++                  de(jx,ix) = de(jx,ix) + demm(jx,ix)
++              end do
++          end do
++c - nuclear/MM gradients
++          do ix = 1, nat
++              do jx = 1, nchmat
++                  xx = c(1,ix) - xchm(jx)
++                  xy = c(2,ix) - ychm(jx)
++                  xz = c(3,ix) - zchm(jx)
++                  xd = xx * xx + xy * xy + xz * xz
++                  xtmp = zan(ix) * qchm(jx) / sqrt( xd )
++                  xtmp = - xtmp / xd
++                  de(1,ix) = de(1,ix) + xx * xtmp
++                  de(2,ix) = de(2,ix) + xy * xtmp
++                  de(3,ix) = de(3,ix) + xz * xtmp
++c - charmm use forces instead of gradients..
++                  if( maswrk ) then
++                      dxelmm(jx) = dxelmm(jx) + xx * xtmp
++                      dyelmm(jx) = dyelmm(jx) + xy * xtmp
++                      dzelmm(jx) = dzelmm(jx) + xz * xtmp
++                  end if
++              end do
++          end do
++      end if
++      if( goparr ) then
++         call ddi_gsumf(1604,dxelmm,nchmat)
++         call ddi_gsumf(1605,dyelmm,nchmat)
++         call ddi_gsumf(1606,dzelmm,nchmat)
++      end if
++C -----------------------------------------------------------------
+       CALL DFINAL(1)
+ C
+ C     ----- DEALLOCATE MEMORY -----
+EOD
+
+patch -p0 << EOD
+--- hess.src	2018-02-07 22:15:24.000000000 +0100
++++ hess.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -931,6 +931,8 @@
+       COMMON /PAR   / ME,MASTER,NPROC,IBTYP,IPTIM,GOPARR,DSKWRK,MASWRK
+       COMMON /RUNLAB/ TITLE(10),ANAM(MXATM),BNAM(MXATM),BFLAB(MXAO)
+       COMMON /RUNOPT/ RUNTYP,EXETYP,NEVALS,NGLEVL,NHLEVL
++C-xexo
++      COMMON /QMHESS/ XHQM(3*MXATM*(3*MXATM+1)/2)
+ C
+       DATA CLAB /4H   X,4H   Y,4H   Z/
+       DATA HSSIAN/8HHESSIAN /
+@@ -939,6 +941,16 @@
+       IF(.NOT.MASWRK) RETURN
+ C
+       WRITE(IW,9000)
++
++C-xexo
++      k = 0
++      do i = 1, ncoord
++          do j = 1, i
++              k = k + 1
++              xhqm(k) = fcm(i,j)
++          end do
++      end do
++C ------------------------------------------------------------------------------
+ C
+       IF(IFREEZ(1).NE.0.AND.RUNTYP.EQ.HSSIAN.AND.MASWRK)
+      *  WRITE (IW, 9005)
+EOD
+
+patch -p0 << EOD
+--- inputa.src	2018-02-07 22:15:24.000000000 +0100
++++ inputa.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -2430,6 +2430,10 @@
+ C     ----- ALL ATOMS HAVE NOW BEEN READ IN -----
+ C
+   900 CONTINUE
++C-xexo
++      natrel = nat
++      call read_charges
++C -----------------------------------------------------------------------------
+ C
+ C     --- IF PP=MCPINFO WAS SPECIFIED, TERMINATE AT THIS POINT
+ C
+@@ -3778,9 +3782,12 @@
+          NERR = NERR+1
+       END IF
+ C
+-      IF(IREST.EQ.0) GEOM=RINPUT
+-      IF(IREST.GT.0) GEOM=DAF
+-      IF(GEOM.EQ.BLANK) GEOM = DAF
++C-xexo
++C      IF(IREST.EQ.0) GEOM=RINPUT
++C      IF(IREST.GT.0) GEOM=DAF
++C      IF(GEOM.EQ.BLANK) GEOM = DAF
++      GEOM = RINPUT
++C ----------------------------------------------------------------
+ C
+ C        FOR PEDAGOGIC REASONS, KEYWORD PP= IS INPUT FOR ECP OR MCP
+ C        FOR HISTORICAL REASONS, NAMELY ECP CAME FIRST IN GAMESS,
+@@ -3822,8 +3829,10 @@
+ C        TRY TO SCARE PEOPLE OFF USING COORD=CART
+       IF(COORD.EQ.CART) THEN
+          COORD=PRINAX
+-         IF(MASWRK) WRITE(IW,9560)
+-         IF(MASWRK) WRITE(IW,9565)
++C-xexo
++C         IF(MASWRK) WRITE(IW,9560)
++C         IF(MASWRK) WRITE(IW,9565)
++c -----------------------------------------------------
+       END IF
+ C
+       ICOORD = 8
+EOD
+
+patch -p0 << EOD
+--- inputb.src	2018-02-07 22:15:24.000000000 +0100
++++ inputb.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -1114,7 +1114,8 @@
+ C
+       PARAMETER (MXATM=2000, MXGSH=30, MXGTOT=20000, MXAO=8192)
+       PARAMETER (MAXA=103, MAXL=7)
+-      PARAMETER (MXCHRM=1)
++C-xexo
++      PARAMETER (MXCHRM=30000)
+ C
+       COMMON /BASISC/ GBASIS,AEX(MAXA,MAXL),ABASIS(MAXA,MAXL),
+      *                IAGAUS(MAXA,MAXL),IRDBAS
+@@ -1286,7 +1287,8 @@
+       CHARACTER*8 DRC2(2),DIRCT2
+ C
+       PARAMETER (MXSH=5000, MXATM=2000)
+-      PARAMETER (MXCHRM=1)
++C-xexo
++      PARAMETER (MXCHRM=30000)
+ C
+       COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
+      *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
+EOD
+
+patch -p0 << EOD
+--- inputc.src	2018-02-07 22:15:24.000000000 +0100
++++ inputc.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -61,6 +61,64 @@
+       RETURN
+       END
+ C*MODULE INPUTC   *DECK MBLDR
++C-xexo
++      subroutine read_charges
++      implicit double precision(a-h,o-z)
++      logical goparr,dskwrk,maswrk
++      integer i, j
++      character*10 uatom
++      parameter (mxatm=2000, mxsh=5000)
++      parameter (mxchrm=30000)
++      parameter (toangs=0.52917724924d+00, tobohr=1.d0/toangs)
++      common /chmgms/ xchm(mxchrm),ychm(mxchrm),zchm(mxchrm),
++     *                dxelmm(mxchrm),dyelmm(mxchrm),dzelmm(mxchrm),
++     *                qchm(mxchrm),nchmat,kchrmm
++      common /coordn/ uznuc(mxatm),cuniq(mxatm,3),natrel,uatom(mxatm)
++      common /iofile/ ir,iw,ip,is,ipk,idaf,nav,ioda(950)
++      common /par   / me,master,nproc,ibtyp,iptim,goparr,dskwrk,maswrk
++      nchmat = 0
++      open(unit=99,file="mm_charges",action="read",form="unformatted",
++     &  iostat=i)
++      if(i.ne.0) return
++C
++C gfortran iostat on open is useless... so try again
++C
++      read(99,iostat=i) nchmat
++      if(i.ne.0) then
++          nchmat = 0
++          return
++      end if
++      schrg = .0d0
++      do i = 1, nchmat
++          read(99) xchm(i),ychm(i),zchm(i),qchm(i)
++          xchm(i) = xchm(i) * tobohr
++          ychm(i) = ychm(i) * tobohr
++          zchm(i) = zchm(i) * tobohr
++          schrg = schrg + qchm(i)
++      end do
++      close(99)
++c      xcatt = .0d0
++c      do i = 1, nchmat
++c          do j = 1, natrel
++c              rx = cuniq(j,1) * tobohr - xchm(i)
++c              ry = cuniq(j,2) * tobohr - ychm(i)
++c              rz = cuniq(j,3) * tobohr - zchm(i)
++c              xcatt = xcatt + uznuc(j) * qchm(i) / 
++c     &                sqrt( rx*rx + ry*ry + rz*rz )
++c          end do
++c      end do
++      if( maswrk ) then
++      write(iw,"(/a)") 
++     &    " mm_charges -------------------------------------"
++      write(iw,"(a,i20)")    " Number of charges         = ", nchmat
++      write(iw,"(a,f20.6)")  " Sum of input charges      = ", schrg
++c      write(iw,"(a,f20.10)") " Nuclear-Charge attraction = ", xcatt
++      write(iw,"(a/)") 
++     &    " ------------------------------------------------"
++      end if
++      return
++      end
++c -----------------------------------------------------------------------------
+       SUBROUTINE MBLDR(IUNTRD)
+ C
+       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+@@ -70,7 +128,8 @@
+       LOGICAL GOPARR,DSKWRK,MASWRK
+ C
+       PARAMETER (MXATM=2000, MXSH=5000)
+-      PARAMETER (MXCHRM=1)
++C-xexo
++      PARAMETER (MXCHRM=30000)
+ C
+       CHARACTER*10 ENDWRD, AATOM, UATOM
+ C
+@@ -114,7 +173,8 @@
+ C        READ ALL CARTESIAN COORDINATES
+ C        DMY ARGUMENT IS OK SINCE THIS CALL NEVER TRIES FOR HINT COORDS
+ C
+-      IF(KCHRMM.EQ.0) THEN
++C-xexo
++C      IF(KCHRMM.EQ.0) THEN
+   110    CONTINUE
+             NAT = NAT + 1
+             IF(NAT.GT.MXATM) GO TO 810
+@@ -126,10 +186,11 @@
+ C
+   120    CONTINUE
+          NAT=NAT - 1
+-      ELSE
+-         CALL CHMDAT(AATOM,AZNUC,CORD,NAT)
+-         RETURN
+-      END IF
++C      ELSE
++C         CALL CHMDAT(AATOM,AZNUC,CORD,NAT)
++C         RETURN
++C      END IF
++C -----------------------------------------------------------------------------
+ C
+ C     ----- DISCARD ANY DUMMY ATOMS -----
+ C     IN GAMESS DUMMY ATOMS MUST APPEAR LAST, AND SO CAN ONLY BE
+@@ -148,6 +209,11 @@
+             CUNIQ(NATREL,1) = CORD(I,1)
+             CUNIQ(NATREL,2) = CORD(I,2)
+             CUNIQ(NATREL,3) = CORD(I,3)
++C-xexo
++            CORD2(NATREL,1) = CORD(I,1)
++            CORD2(NATREL,2) = CORD(I,2)
++            CORD2(NATREL,3) = CORD(I,3)
++C -----------------------------------------------------------------------------
+          END IF
+   210 CONTINUE
+ C
+@@ -172,8 +238,10 @@
+ C     "OFF WITH HER HEAD!"
+ C        -LEWIS CARROLL
+ C
+-      CALL PRAXIS(CORD,AZNUC,NAT,MXATM,IXX,IYY,IZZ)
+-      IF (MASWRK) WRITE(IW,9020) IXX,IYY,IZZ
++C-xexo
++C      CALL PRAXIS(CORD,AZNUC,NAT,MXATM,IXX,IYY,IZZ)
++C      IF (MASWRK) WRITE(IW,9020) IXX,IYY,IZZ
++C -----------------------------------------------------------------------------
+ C
+ C SWITCH AXES IF NECESSARY; LIKE SO..
+ C 1.ALL SIX COMBINATIONS OF X,Y,Z ARE,IN TURN, SUBJECTED TO ALL
+EOD
+
+patch -p0 << EOD
+--- int1.src	2018-02-07 22:15:24.000000000 +0100
++++ int1.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -333,7 +333,8 @@
+ C-LXYZ-  DIMENSION LX(LL2),LY(LL2),LZ(LL2)
+ C-LXYZ-  DIMENSION LXBLK(784),LYBLK(784),LZBLK(784)
+ C
+-      PARAMETER (MXCHRM=1)
++C-xexo
++      PARAMETER (MXCHRM=30000)
+ C
+       COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
+      *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
+@@ -2129,7 +2130,8 @@
+      *           PI212=1.1283791670955D+00, SQRT3=1.73205080756888D+00,
+      *           SQRT5=2.23606797749979D+00, SQRT7=2.64575131106459D+00,
+      *           RLN10=2.30258D+00)
+-      PARAMETER (MXSH=5000, MXGTOT=20000, MXATM=2000, MXCHRM=1)
++C-xexo
++      PARAMETER (MXSH=5000, MXGTOT=20000, MXATM=2000, MXCHRM=30000)
+ C
+       COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
+      *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
+EOD
+
+patch -p0 << EOD
+--- qrel.src	2018-02-07 22:15:24.000000000 +0100
++++ qrel.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -40,7 +40,8 @@
+ C
+       DIMENSION PVP2(LL2)
+ C
+-      PARAMETER (MXSH=5000,MXGTOT=20000,MXATM=2000,MXCHRM=1)
++C-xexo
++      PARAMETER (MXSH=5000,MXGTOT=20000,MXATM=2000,MXCHRM=30000)
+ C
+       COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
+      *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
+EOD
+
+patch -p0 << EOD
+--- scflib.src	2018-02-07 22:15:24.000000000 +0100
++++ scflib.src.new	2018-05-16 10:49:37.000000000 +0200
+@@ -2136,9 +2136,15 @@
+       PARAMETER (MXFRG=1050, MXDFG=5, MXPT=2000,
+      *           MXFGPT=12000, MXATM=2000, MXAO=8192,
+      *           MXDPPT=MXFRG*MXDFG*12)
++C-xexo
++      PARAMETER (MXCHRM=30000)
+ C
+       DIMENSION Z(N),C(3,N)
+       DIMENSION ELTOT(11)
++C-xexo
++      COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
++     *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
++     *                QCHM(MXCHRM),NCHMAT,KCHRMM
+ C
+       COMMON /CENTRL/ RQM,XQM,YQM,ZQM,RMM,XMM,YMM,ZMM,ICENFD
+       COMMON /DFTB  / DFTBFL,SCC,SRSCC,DFTB3,DAMPXH,LRDFTB
+@@ -2625,6 +2631,24 @@
+       END IF
+ C
+   800 CONTINUE
++C-xexo
++      if( mxchrm .gt. 0 ) then
++      xrep = .0d0
++      do ix = 1, n
++          do jx = 1, nchmat
++              ox = c(1,ix) - xchm(jx)
++              oy = c(2,ix) - ychm(jx)
++              oz = c(3,ix) - zchm(jx)
++              od = dsqrt( ox * ox + oy * oy + oz * oz )
++              xrep = xrep + z(ix) * qchm(jx) / od
++          end do
++      end do
++      if( maswrk ) 
++     &  write(iw,"(/a,f20.10/)") 
++     &     " NUCLEAR CHARGE - MM CHARGE ENERGY =", xrep
++      repnuc = repnuc + xrep
++      end if
++C ----------------------------------------------------------------
+       ENUC = REPNUC
+       RETURN
+ C
+EOD
+

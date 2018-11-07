@@ -1,0 +1,52 @@
+\normalsize
+\subsection[fitting]{fitting.py}
+This module allows to perform data fitting by means of the least-squares\footnote{https://en.wikipedia.org/wiki/Least\_squares} method.
+It provides a generic class \func{problem} for inheritance, which accepts the following parameters: \parm{x} and \parm{y} lists data sets,
+an external function to be called \parm{ext\_func} for fitting/modelling the data, and a list containing a guess for all the paremeters
+ used in the fitting-function (\parm{ext\_parm}). Then several cycles of minimization are applied by calling the method \func{fit} (depends on "minimize" module, and the particular algorithm can be "tuned" by means of the \parm{minimize\_func} parameter.),
+until reaches the convergence.
+ The method \func{correlation} evaluates the coefficient of
+ determination\footnote{https://en.wikipedia.org/wiki/Coefficient\_of\_determination} ($R^2$); meanwhile \func{table}
+provides a table with the fitted values for the x set.\\
+The function \func{poly\_fit} performs a least-squares fitting of a set of data (\parm{vec\_x} vs \parm{vec\_y})
+to a polynomial of degree \parm{order} (which must be lesser than the size of the sample). The function \func{poly\_val}
+is a helper function for calculating the value of \parm{x} a polynomial, given a list \parm{v} with the coefficients ([$a_o$, $a_1$, ..., $a_{n-1}$]).\\
+The function \func{MLR} allows to perform Multiple Linear Regressions\footnote{https://en.wikipedia.org/wiki/Linear\_regression\#Simple\_and\_multiple\_regression},
+ accepting multiple sets of \parm{x}
+ ($\{ \{x_{1,1}, ..., x_{1,N}\}, ..., \{x_{M,1}, ..., x_{M,N}\} \}$ ) and a single response (\parm{y}: $\{y_1, ..., y_N\}$).
+It returns the coefficient of determination,
+ the coefficients of the linear combination of the \parm{x}'s ($\{a_1, ..., a_M\}$), and the values of the standard error for the regression coefficientes
+which can be used to test the significance of the regression ($\{s_1, ..., s_M\}$):
+\begin{equation*}
+t_i = \frac{\left|a_i\right|}{s_i} \geqslant t^{\alpha = 0.05}
+\end{equation*}
+Finally, the \func{PLS} offers Partial Least Squares\footnote{https://en.wikipedia.org/wiki/Partial\_least\_squares\_regression} fitting, 
+which internally makes use of principal components analysis for automatically discriminate those x sets which are not independant (ie, those ones which doesn't
+provide useful information, and can be derived from the rest of sets). This function returns also the averages of the data sets, since it works
+internally with pseudo-normalized data, and thus guesses must be derived from x values with zero means (ie, remove the mean of each x subset), and
+transformed back adding the mean of the signal.
+\begin{pyglist}[language=python,fvset={frame=single}]
+class problem( x, y, ext_func, ext_parm )
+    def get_func()
+    def get_grad()
+    def correlation()
+    def table( fname = None )
+    def fit( minimize_func = None )
+
+def poly_val( v, x )
+
+def poly_fit( vec_x, vec_y, order )
+
+def MLR( x, y )
+
+def PLS( x, y )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.fitting
+\end{pyglist}
+
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.fitting.log
+\end{pyglist}

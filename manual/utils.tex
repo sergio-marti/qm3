@@ -1,0 +1,176 @@
+\normalsize
+%\section[utils]{utils.py}
+This is basically a hotchpotch module containing geometric and hessian matrix utilities. 
+\begin{pyglist}[language=python,fvset={frame=single}]
+def distanceSQ( ci, cj )
+
+def angleRAD( ci, cj, ck )
+
+def dihedralRAD( ci, cj, ck, cl )
+
+def distance_PBC( ci, cj, box )
+
+def distance( ci, cj )
+
+def angle( ci, cj, ck )
+
+def dihedral( ci, cj, ck, cl )
+
+def center( mass, coor )
+
+def moments_of_inertia( mass, coor )
+
+def superimpose_quaternion( mass, coor_a, coor_b )
+
+def superimpose_kabsch( mass, coor_a, coor_b )
+
+# -- coor_b should be initially centered...
+def superimpose_vector( vec_a, vec_b, coor_b = None )
+
+def rotate( coor, center, axis, theta )
+
+def get_RT_modes( mass, coor )
+
+def project_RT_modes( mass, coor, grad, hess )
+
+def raise_hessian_RT( mass, coor, hess, large = 5.0e4 )
+
+def hessian_frequencies( mass, coor, hess, project_RT = True )
+
+def force_constants( mass, freq, mods )
+
+def normal_mode_view( coor, freq, mods, symb, who, temp = 298.15, afac = 1. )
+
+def gibbs_rrho( mass, coor, freq, temp = 298.15, press = 1.0, symm = 1.0, fcut = 10. )
+
+def sub_hessian( hess, atm_I, atm_J, size )
+
+def update_bfgs( dx, dg, hess )
+
+def update_sr1( dx, dg, hess )
+
+def update_psb( dx, dg, hess )
+
+def update_bofill( dx, dg, hess )
+
+def manage_hessian( coor, grad, hess, should_update = False, update_func = update_bofill,
+    dump_name = "update.dump" )
+\end{pyglist}
+The functions \func{distance}, \func{angle} and \func{dihedral} provide the corresponding geometric
+terms from the different coordinates (3-items lists) supplied as parameters. They are, indeed, wrappers
+of the \func{distanceSQ}, \func{angleRAD} and \func{dihedralRAD} functions which are also available 
+for commodity.\\
+The functions \func{center} and \func{moments\_of\_inertia} transform the coordinates present in \parm{coor}
+(single list of x,y,z..) centering them at the mass center or, in addition, aligning them along the principal moments of inertia. The
+\parm{mass} parameter is also a list with a third of the size of \parm{coor} (can be set up to a unit vector).
+\func{center} returns the mass center, meanwhile \func{moments\_of\_inertia} returns also de corresponding rotation matrix.\\
+Both \func{superimpose\_quaternion} and \func{superimpose\_kabsch} modifies the coordinates in \parm{coor\_b} in order to resemble those found in \parm{coor\_a}, using the weights present in \parm{mass}. Also, both functions returns the mass center of \parm{coor\_b}, of \parm{coor\_a} and the corresponding rotation matrix. The funcion \func{superimpose\_vector} provides the rotation matrix needed to convert \parm{vec\_b} into \parm{vec\_a} (thus being also useful for superimposing purposes...). If \parm{coor\_b} is different to \parm{None}, it should be initially centered as \parm{vec\_b}.\\
+The function \func{rotate} allows to clockwise-rotate the coordinates \parm{coor} along the (un-normalized) axis rotation \parm{axis}, centered on \parm{center}, an amount of \parm{theta} degrees.\\
+\func{project\_RT\_modes} (which makes use of \func{get\_RT\_modes}) allows to project the \textbf{six} rotational (3R) and translational (3T) modes out
+of the gradient vector (\parm{grad} ≠ \parm{None}) or the hessian matrix (\parm{hess} ≠ \parm{None}), once provided a coordinates list (\parm{coor}) and a mass list (\parm{mass}). In a similar way, \func{raise\_hessian\_RT} displaces the RT modes to a larger eigenvalues, thus avoiding them to interfere with the vibrational ones (in a TS search, for example). These functions are mainly used by \func{hessian\_frequencies}, which provides the frequencies (in $cm^{-1}$) and the normal modes (in $(g/mol)^{-1/2}$) of the hessian matrix. This information can be afterwards used by the \func{force\_constants} and \func{normal\_mode\_view} functions. The first one, returns the reduced masses (in g/mol) and the force constants (in mDyne/Å) of each normal mode; meanwhile the second one generates an XYZ file (\parm{nmode}.who) containing the animation of the normal mode. Also related with the hessian analysis, the funcion \func{gibbs\_rrho} evaluates the Gibbs free energy contribution derived from the R.R.H.O. approximation, returning both the ZPE and the Gibbs energies (in kJ/mol). Finally, the \func{sub\_hessian} function returns a 6x6 portion of the hessian for a given couple of atoms (\parm{atm\_I} and \parm{atm\_J}).\\
+The last block of functions are related to the hessian matrix management (\func{manage\_hessian}) and its updating from a previous one and current coordinates and gradient (\func{update\_}*).
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+import qm3.utils
+import qm3.elements
+import qm3.maths.matrix
+
+smb = [ "O", "H", "H" ]
+mas = [ qm3.elements.mass[qm3.elements.rsymbol[i]] for i in smb ]
+crd = [ -0.000050, -0.000050, -0.053402, -0.540040, 0.539989, -0.638619, 0.539989, -0.540040, -0.638619 ]
+hes = qm3.maths.matrix.from_upper_diagonal_columns( [ 3209.69558, -3210.83014, 3209.69558, -0.17702, -0.17702,
+    4210.58088, -1604.71796, 1605.39887, -1352.55138, 1741.36948, 1605.43127, -1604.97762, 1352.7284,
+     -1741.34898, 1741.62915, -1739.13819, 1739.31522, -2105.29043, 1545.8494, -1546.01718, 1995.47763,
+     -1604.97762, 1605.43127, 1352.7284, -136.65153, 135.9177, 193.28879, 1741.62915, 1605.39887,
+     -1604.71796, -1352.55137, 135.95011, -136.65153, -193.29803, -1741.34898, 1741.36948, 1739.31521,
+     -1739.13819, -2105.29043, -193.29803, 193.28879, 109.81281, -1546.01718, 1545.8494, 1995.47763 ], 9 )
+
+print( "Distances:\n", qm3.utils.distance( crd[0:3], crd[3:6] ), qm3.utils.distance( crd[0:3], crd[6:9] ) )
+
+print( "\nAngle:\n", qm3.utils.angle( crd[3:6], crd[0:3], crd[6:9] ) )
+
+tmp = crd[:]
+print( "Geometrical-center:\n", qm3.utils.center( [ 1., 1., 1. ], tmp ) )
+
+tmp = crd[:]
+print( "\nMass-center:\n", qm3.utils.center( mas, tmp ) )
+print( "\nMass-centered coordinates:\n", tmp )
+
+tmp = crd[:]
+print( "\nMass-center & rotation-matrix:\n", qm3.utils.moments_of_inertia( mas, tmp ) )
+print( "\nMoments-of-inertia coordinates:\n", tmp )
+
+qm3.utils.superimpose_quaternion( mas, crd, tmp )
+print( "\nSuperimposed (quaternion) coordinates:\n", tmp )
+
+qm3.utils.moments_of_inertia( mas, tmp )
+qm3.utils.superimpose_kabsch( mas, crd, tmp )
+print( "\nSuperimposed (kabsch) coordinates:\n", tmp )
+
+qm3.utils.rotate( tmp, tmp[0:3], [ tmp[3] - tmp[0], tmp[4] - tmp[1], tmp[5] - tmp[2] ], 90. )
+print( "\nO->H1 90_deg rotation:\n", tmp )
+
+frq, mds = qm3.utils.hessian_frequencies( mas, crd, hes, True )
+print( "\nFrequencies (cm^-1):" )
+print( frq )
+
+print( "\nGibbs energy (298K / 1atm): ", qm3.utils.gibbs_rrho( mas, crd, frq ), "_kJ/mol" )
+
+r, F = qm3.utils.force_constants( mas, frq, mds )
+print( "\nReduced masses (g/mol):" )
+print( r )
+print( "\nForce constants (mDyne/A):" )
+print( F )
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+Distances:
+ 0.96213837815 0.96213837815
+
+Angle:
+ 105.074402596
+
+Geometrical-center:
+ [-3.366666666663557e-05, -3.366666666663557e-05, -0.4435466666666667]
+
+Mass-center:
+ [-4.725849057021992e-05, -4.725849057021992e-05, -0.11888681322299736]
+
+Mass-centered coordinates:
+ [-2.7415094297800845e-06, -2.7415094297800845e-06, 0.06548481322299737, -0.5399927415094298, 0.5400362584905702,
+     -0.5197321867770027, 0.5400362584905702, -0.5399927415094298, -0.5197321867770027]
+
+Mass-center & rotation-matrix:
+ ([-4.725849057021992e-05, -4.725849057021992e-05, -0.11888681322299736], [0.7071067811865472, 4.186481246629128e-05,
+     0.7071067799472283, -0.7071067811865477, 4.186481246629121e-05, 0.7071067799472276, 1.827954612976922e-20,
+     -0.9999999982473375, 5.9205785576035293e-05])
+
+Moments-of-inertia coordinates:
+ [2.4675820849905525e-21, -0.06548481333777016, -6.009698760769261e-18, -0.7636958297781257, 0.5197321876879178,
+     -3.777292606303717e-16, 0.7636958297781257, 0.5197321876879178, 3.4391570537598004e-16]
+
+Superimposed (quaternion) coordinates:
+ [-4.99999999999858e-05, -4.999999999996763e-05, -0.05340199999999996, -0.54004, 0.5399889999999999, -0.6386190000000004,
+     0.5399889999999999, -0.5400400000000002, -0.6386189999999999]
+
+Superimposed (kabsch) coordinates:
+ [-4.999999999999398e-05, -5.0000000000003994e-05, -0.05340199999999996, -0.54004, 0.539989, -0.6386190000000002,
+     0.539989, -0.5400399999999997, -0.6386190000000002]
+
+O->H1 90_deg rotation:
+ [-4.999999999999398e-05, -5.0000000000003994e-05, -0.05340199999999996, -0.5400400000000002, 0.539989,
+     -0.6386190000000002, -0.5165366214591119, -0.7974231646015693, 0.09874222413299456]
+
+Frequencies (cm^-1):
+[-4.3446269375784025e-05, -2.453826449405218e-05, -2.7779491332727933e-06, 7.557624382927939e-06, 2.359461723710894e-05,
+     5.490950446636193e-05, 1602.3931360028664, 3815.973713534562, 3921.4808998463877]
+
+Gibbs energy (298K / 1atm):  (55.864695518920456, -48.04071894942562) _kJ/mol
+
+Reduced masses (g/mol):
+[1.0697341551609953, 1.194970280809906, 4.321553902474304, 10.549446891407309, 2.4108243384133576,
+     1.214140614306253, 1.0830496869018331, 1.0450375011681101, 1.0825393696379377]
+
+Force constants (mDyne/A):
+[1.1896824242710823e-15, 4.239308218567319e-16, 1.9648921363552536e-17, 3.550181030256087e-16, 7.907544452761526e-16,
+     2.1568216672562983e-15, 1.6384633639766764, 8.965878022013193, 9.808308331247698]
+\end{pyglist}

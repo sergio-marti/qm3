@@ -1,0 +1,47 @@
+\normalsize
+\subsection[minimize]{minimize.py}
+Module with some engines for minimizing "problem.template" child objects. Functions can be classified on
+the kind of imformation used: zero-order (\func{downhill}: "func"), first-order (\func{steepest\_descent},
+\func{fire}, \func{l\_bfgs} and \func{conjugate\_gradient\_plus}: "func" and "grad") and second-order
+(\func{baker} and \func{rfo}: "func", "grad" and "hess").\\
+Exists a compiled module (\func{\_minimize.so}) which provides faster versions, and \func{conjugate\_gradient\_plus} exclusively.
+This last engine has three posible flavours for gradient conjugation: \parm{Fletcher-Reeves}, \parm{Positive Polak-Ribiere}
+and \parm{Polak-Ribiere} (which defaults to).\\
+The functions \func{baker} and \func{rfo} allow to follow an specific mode of the hessian (C-indexing \parm{follow\_mode}, for
+transition states search), or to perform plain minimization (\parm{follow\_mode = -1}).\\
+Finally, the class \func{stepped\_fire}  allows the FIRE engine to be stepped (user must
+iterate each step of the minimization, allowing him to control what happens between each step).
+\begin{pyglist}[language=python,fvset={frame=single}]
+def downhill( obj, step_number = 1000, step_size = 0.1, print_frequency = 10, step_tolerance = 1.0e-6,
+    log_function = default_log )
+
+def steepest_descent( obj, step_number = 100, step_size = 0.1, print_frequency = 10,
+    gradient_tolerance = 10.0, log_function = default_log )
+
+def fire( obj, step_number = 100, step_size = 0.1, print_frequency = 10, gradient_tolerance = 0.01,
+    log_function = default_log )
+
+def l_bfgs( obj, step_number = 100, step_size = 0.1, print_frequency = 10, gradient_tolerance = 0.01,
+    history = 9, log_function = default_log )
+
+def conjugate_gradient_plus( obj, step_number = 100, print_frequency = 10, gradient_tolerance = 0.01,
+    method = "Polak-Ribiere", restart = True, log_function = default_log )
+
+def baker( obj, step_number = 100, step_size = 0.1, print_frequency = 10, gradient_tolerance = 0.01,
+    follow_mode = -1, allow_overlap = False, log_function = default_log )
+
+def rfo( obj, step_number = 100, step_size = 0.1, print_frequency = 10, gradient_tolerance = 0.01,
+    follow_mode = -1, log_function = default_log )
+
+class stepped_fire( obj, step_size = 0.1, print_frequency = 10, log_function = default_log )
+    def iterate()
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.minimize
+\end{pyglist}
+
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.minimize.log
+\end{pyglist}

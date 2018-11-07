@@ -1,0 +1,16 @@
+\normalsize
+\subsection[sqm]{sqm.py}
+The SQM binary used by this module is a \textbf{modified version} of the one coming in the free AmberTools\footnote{http://ambermd.org/AmberTools.php}.
+\begin{pyglist}[language=python,fvset={frame=single}]
+class sqm( mol, ini, sele, nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.sqm
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.sqm.log
+\end{pyglist}

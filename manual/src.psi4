@@ -1,0 +1,21 @@
+\normalsize
+\subsection[psi4]{psi4.py}
+For being able to use this module, Psi4\footnote{http://www.psicode.org} must be installed, and
+the appropriate \textbf{lib} folder\\ (for example: /Users/smarti/Devel/psi4/dist\_gnu/lib) should added
+to the PYTHONPATH environment variable.\\
+Also, the environment variable \textbf{PSI\_SCRATCH} can be defined for placing temporary files.
+\begin{pyglist}[language=python,fvset={frame=single}]
+class py_psi4( mol, sele, opts = { "reference" "rks", "basis": "6-31g*", "d_convergence": 6,
+    "scf_type": "direct", "guess": "read", "output": False, "charge": 0, "method": "b3lyp",
+    "ncpus": 1, "memory": "1024 MB" }, nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.psi4
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.psi4.log
+\end{pyglist}

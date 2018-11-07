@@ -1,0 +1,16 @@
+\normalsize
+\subsection[nwchem]{nwchem.py}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+class nwchem( mol, ini, sele, nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.nwchem
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.nwchem.log
+\end{pyglist}

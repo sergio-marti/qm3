@@ -1,0 +1,44 @@
+\normalsize
+\subsection[roots]{roots.py}
+Basic functionality for root finding in both: mono-dimensional (\func{bisect}, 
+\func{ridders}\footnote{https://en.wikipedia.org/wiki/Ridders\%27\_method},
+\func{newton\_raphson}\footnote{https://en.wikipedia.org/wiki/Newton\%27s\_method} and 
+\func{halley}\footnote{https://en.wikipedia.org/wiki/Halley\%27s\_method}) or
+multi-dimen\-sional (\func{multi\_newton\_raphson}) functions.
+
+In all the cases, the algorithm ends whenever it reaches the maximum number of iterations (\parm{max\_iter}) or
+the absolute value of the functions is equal or lesser thar the selected tolerance/threshold (\parm{eps}).
+
+Both Newton-Raphson based methods make use of the Newton's difference quotient\footnote{https://en.wikipedia.org/wiki/Difference\_quotient}
+(or forward finite difference: $f'(x) \approx \frac{f(x+h)-f(x)}{h}$),
+being the \parm{dsp} parameter the displacement taken ($h = dsp$).
+On the other hand, Halley's method makes use of the second derivative:
+\begin{equation*}
+x_{n+1} = x_n - \frac {2 f(x_n) f'(x_n)} {2 {[f'(x_n)]}^2 - f(x_n) f''(x_n)}
+\end{equation*}
+which is calculated numerically making use of the gradient function (must be provided).
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+def bisect( function, x0, xf, max_iter = 1000, eps = 1.0e-10 )
+
+def ridders( function, x0, xf, max_iter = 1000, eps = 1.0e-10 )
+
+def newton_raphson( function, x0, max_iter = 1000, max_stp = 1.0, eps = 1.0e-10, dsp = 1.0e-4 )
+
+def halley( function, gradient, x0, max_iter = 1000, max_stp = 1.0, eps = 1.0e-10, dsp = 1.0e-4 )
+
+def multi_newton_raphson( function, x0, max_iter = 1000, max_stp = 1.0, eps = 1.0e-10, dsp = 1.0e-4 )
+\end{pyglist}
+
+Finally, \func{multi\_newton\_raphson} accepts as parameters a list of functions (\parm{function}) and a list of starting points (\parm{x0}),
+returning also a list containing the values of the variables which provides a root of the system of equations (can be used
+for solving non-linear sets of equations). Functions must refer to the elements of the variable list (see the example).
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.roots
+\end{pyglist}
+
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.roots.log
+\end{pyglist}

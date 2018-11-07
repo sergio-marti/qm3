@@ -1,0 +1,102 @@
+\normalsize
+\subsection[mol]{mol.py}
+The \func{molecule} object includes internal variables for containing molecular information and
+several methods for performing IO with the molecule:
+\begin{description}
+\item[\func{natm}] number of atoms in the molecule
+\item[\func{labl}] list with the label of each atom ([0,...,natm-1])
+\item[\func{coor}] list of coordinates for all the atoms ([0,...,3*(natm-1)], [3*i:3*i+3])
+\item[\func{segn}] list of segment/chain names ([0,...,natm-1])
+\item[\func{resi}] list of residue numbers within a chain ([0,...,natm-1])
+\item[\func{resn}] list of residue names ([0,...,natm-1])
+
+\item[\func{anum}] list of atomic numbers ([0,...,natm-1])
+\item[\func{chrg}] list of atomic partial charges ([0,...,natm-1], a.u.)
+\item[\func{mass}] list of atomic masses ([0,...,natm-1], g/mol)
+\item[\func{indx}] list of atomic numbers for all the atoms ([0,...,(natm-1)])
+\item[\func{epsi}] list of the epsilon values (Lennard-Jones\footnote{https://en.wikipedia.org/wiki/Lennard-Jones\_potential}, kJ/mol)
+\item[\func{rmin}] list of $R_{min}/2$ values (Lennard-Jones, Å, $R_{min} = \sigma \cdot 2^{\frac{1}{6}}$)
+\item[\func{type}] list of atomic types ([0,...,natm-1])
+
+\item[\func{res\_lim}] list with the first atom of each residue (ending with natoms)
+\item[\func{seg\_lim}] list with the first atom of each segment/chain (relative to res\_lim, ending with natoms)
+\item[\func{indx}] dictionary (["segn"][resi]["labl"]) with the atom numbers (C-indexing)
+
+\item[\func{boxl}] dimension of the system (Å, for PBC purposes, defaults to $10^{300}$)
+
+\item[\func{atom\_number}( segn, resi, labl )] method for obtaining the atom number (C-indexing, slower than "indx")
+\item[\func{norm\_resid}( segn = None )] method for normalizing the residue numbers within a segment/chain
+\item[\func{sph\_sel}( sele, radius )] spherical selection of \parm{radius} by residue performed on each atom of selection \parm{sele}
+\item[\func{rotate}( center, axis, theta, sele = None )] rotates the coordinates of all/\parm{sele} atoms using the 3-list items \parm{center}
+around the 3-list items \parm{axis} the amount of \parm{theta} degrees (clockwise rotation)
+\item[\func{prune}( sele )] delete \parm{sele} atoms from molecule (caring about all dependencies...)
+\item[\func{append}( molec )] incorporate \parm{molec} obect to current molecule
+\item[\func{settle}()] method for fixing all the internal dependencies (res\_lim, ...) once a change in the molecule has been made
+\item[\func{guess\_boxl}()] try to guess the current size of the system
+\item[\func{guess\_atomic\_numbers}()] try to guess the atomic numbers (anum): from masses if avaliable or both (anum,mass) from the atom labels (labl)
+\item[\func{fill\_masses}()] fill the mass vector from atomic numbers (anum) if available or defaulting to \func{gues\_atomic\_numbers}
+\item[\func{guess\_symbols}( sele = None )] provides a list of all/\parm{sele} atomic symbols, ussing the masses if available or based on the atom labels
+\item[\func{pdb\_read}( fname = None, append = False )] reads (appending if selected) a PDB format modifying current molcule (reads from sys.stdin if not \parm{fname} is provided)
+\item[\func{pdb\_write}( fname = None, sele = None )] writes all/\parm{sele} atoms of the molecule in PDB format (writes from sys.stdout if not \parm{fname} is provided)
+\item[\func{dcd\_read}( dcd, advance = True )] read coordinates (internal structure must be previously defined, with a PDB for example) from DCD object
+\item[\func{dcd\_write}( dcd )] write coordinates to a previously open DCD object
+\item[\func{xyz\_read}( fname = None, append = False, replace = False )] reads (appending if selected) a XYZ format modifying current molcule (reads from sys.stdin if not \parm{fname} is provided). It can also replace only the coordinates of a previous molecule (\parm{replace} = True).
+
+\item[\func{xyz\_write}( fname = None, sele = None, formt = "\%20.10lf" )] writes all/\parm{sele} atoms of the molecule in XYZ format (writes from sys.stdout if not \parm{fname} is provided)
+
+\item[\func{zmat\_read}( fname = None, orig = [ 0.0, 0.0, 0.0 {]}, axis = [ 1.0, 0.0, 0.0 {]} )] provides a molecule object based on a condensed z-matrix
+\item[\func{zmat\_write}( conn, fname = None )] exports current molecule to a z-matrix based on the connectivity \parm{conn} (C-indexing)
+
+\item[\func{psf\_read}( fname )] allows to fill atom types (type), partial cahrges (chrg) and masses (mass) from a compatible XPLOR PSF file (\parm{fname}).
+\item[\func{nbnd\_read}( fname )] fills epsilon (epsi) and $R_{min}/2$ (rmin) values from the corresponding types (type) as present in the PSF file (which should be loaded previously).
+% >> PSF / NBND reading
+
+\end{description}
+\begin{pyglist}[language=python,fvset={frame=single}]
+class molecule( fname = None )
+    natm = 0
+    labl = []
+    coor = []
+    segn = []
+    resi = []
+    resn = []
+    anum = []
+    chrg = []
+    mass = []
+    epsi = []
+    rmin = []
+    type = []
+    res_lim = []
+    seg_lim = []
+    indx = {}
+    boxl = [ _mboxl, _mboxl, _mboxl ]
+    def atom_number( segn, resi, labl )
+    def norm_resid( segn = None )
+    def sph_sel( sele, radius )
+    def rotate( center, axis, theta, sele = None )
+    def prune( sele )
+    def append( molec )
+    def settle()
+    def guess_boxl()
+    def guess_atomic_numbers()
+    def fill_masses()
+    def guess_symbols( sele = None )
+    def pdb_read( fname = None, append = False )
+    def pdb_write( fname = None, sele = None )
+    def dcd_read( dcd, advance = True )
+    def dcd_write( dcd )
+    def xyz_read( fname = None, append = False )
+    def xyz_write( fname = None, sele = None )
+    def zmat_read( fname = None, orig = [ 0.0, 0.0, 0.0 ], axis = [ 1.0, 0.0, 0.0 ] )
+    def zmat_write( conn, fname = None )
+    def psf_read( fname )
+    def nbnd_read( fname )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.mol
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.mol.log
+\end{pyglist}

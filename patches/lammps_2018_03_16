@@ -1,0 +1,39 @@
+patch -p0 << EOD
+--- verlet.cpp	2018-05-23 13:46:08.000000000 +0200
++++ verlet.cpp.new	2018-05-23 15:31:09.000000000 +0200
+@@ -153,6 +153,34 @@
+   modify->setup(vflag);
+   output->setup(flag);
+   update->setupflag = 0;
++
++// xexo -----------------------------------
++if( comm->me == 0 && comm->nprocs == 1 ) {
++  double pot = 0.0;
++  if (force->pair)     pot += ( force->pair->eng_vdwl + force->pair->eng_coul );
++  if (force->pair && force->pair->tail_flag)
++    pot += force->pair->etail / ( domain->xprd * domain->yprd * domain->zprd );
++  if (force->bond)     pot += force->bond->energy;
++  if (force->angle)    pot += force->angle->energy;
++  if (force->dihedral) pot += force->dihedral->energy;
++  if (force->improper) pot += force->improper->energy;
++  if (force->kspace)   pot += force->kspace->energy;
++  char tmp[8];
++  bzero( tmp, 8 );
++  FILE *fd = fopen( "lammps.ener", "wb" );
++  memcpy( &tmp[0], &pot, 8 ); fwrite( tmp, 8, 1, fd );
++  fclose( fd );
++  fd = fopen( "lammps.force", "wb" );
++  long i;
++  for( i = 0; i < atom->natoms; i++ ) {
++      memcpy( &tmp[0],  &(atom->tag[i]), 4 ); fwrite( tmp, 4, 1, fd );
++      memcpy( &tmp[0], &(atom->f[i][0]), 8 ); fwrite( tmp, 8, 1, fd );
++      memcpy( &tmp[0], &(atom->f[i][1]), 8 ); fwrite( tmp, 8, 1, fd );
++      memcpy( &tmp[0], &(atom->f[i][2]), 8 ); fwrite( tmp, 8, 1, fd );
++  }
++  fclose( fd );
++}
++// ----------------------------------------
+ }
+ 
+ /* ----------------------------------------------------------------------
+EOD

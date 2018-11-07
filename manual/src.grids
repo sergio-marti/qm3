@@ -1,0 +1,55 @@
+\normalsize
+\subsection[grids]{grids.py}
+This module provides basic workout for grids, providing the following functions:
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+# returns Z into: fixed_X, changing_Y
+def parse( fname )
+
+# Transforms Z into: changing_X, fixed_Y
+def rotate( x, y, z )
+
+def regular( fname, points = ( 10, 10 ), gauss = ( 0.1, 0.1 ) )
+
+def save( fname, x, y, z )
+
+def get_ranges( fname )
+
+def plot_3D( x, y, z )
+\end{pyglist}
+
+The \func{parse} function expects the data to be arranged by blocks of 3 columns, and 
+whatever the initial ordering, it \textbf{always} returns data \textbf{sorted} and
+with the format \textbf{fixed\_X}, \textbf{changing\_Y}.
+On the other hand, the data must be initially \textbf{regular}:
+
+\begin{pyglist}[fvset={frame=single}]
+         -9.201972         -9.991975        159.386562
+         -9.201972         -9.302607        158.802396
+         -9.201972         -8.613239        154.322866
+         -9.201972         -7.923871        141.880976
+         -9.201972         -7.234503        131.039535
+[...]
+          8.917474          7.242224        124.829570
+          8.917474          7.931592        137.452974
+          8.917474          8.620960        145.303749
+          8.917474          9.310328        150.991309
+          8.917474          9.999696        156.757517
+\end{pyglist}
+
+If it is not the case (the grid is not regular), this can be fixed using the \func{regular} function,
+which includes a gaussian smoothing of the points, once the X and Y intervals have beed determined
+(by parsing the data and obtaining $d\xi = \frac{max_\xi - min_\xi}{points_\xi}$).
+Both functions return 3 lists with the minimimal range of X, Y and Z.
+
+The function \func{plot\_3D} is only available whenever \textbf{matplotlib.pyplot}, \textbf{mplot3d} and \textbf{numpy} modules
+are already installed on the system.
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.grids
+\end{pyglist}
+
+\begin{center}
+\includegraphics[width=.5\textwidth]{10.png}
+\end{center}

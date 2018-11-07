@@ -1,0 +1,231 @@
+\normalsize
+\subsection[matrix]{matrix.py}
+This module provides basic functionality to work with matrices. The whole module has been writen in python for
+portabilty, but it will try to load different binary versions to improve effiency (see \func{matrix.version}).
+Matrices are represented by a single list containing \textbf{all} the elements (even for symmetric ones) \textbf{by rows}. In those
+functions where the matrix is expected to be square, only the amount of rows (\parm{row}) is needed as a
+parameter. On the other wise, both number of rows and columns (\parm{col}) must be provided. Finally, the \func{inverse}
+function returns the pseudo-inverse for non-square matrices.
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+def norm( vec )
+
+def dot_product( va, vb )
+
+def cross_product( *vec )
+
+def from_diagonal( lst, row )
+
+def from_upper_diagonal_rows( lst, row )
+
+# Import from fortran column-packed symmetric matrix upper diagonal
+def from_upper_diagonal_columns( lst, row )
+
+def get_row( mat, row, col, i )
+
+def get_column( mat, row, col, j )
+
+def add_row( mat, row, col, lst ):
+
+def add_column( mat, row, col, lst ):
+
+def mprint( mat, row, col, fmt = "%8.3lf" )
+
+def det( mat, row )
+
+def T( mat, row, col )
+
+def mult( a_mat, a_row, a_col, b_mat, b_row, b_col )
+
+def diag( mat, row )
+
+def inverse( mat, row, col )
+\end{pyglist}
+The \func{diag} function is only available if a binary version of the module is active.
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+>>> import qm3.maths.matrix as matrix
+
+>>> matrix.version
+version macOS Accelerate
+
+>>> matrix.norm( [ 1, 2, 3, 4 ] )
+[0.18257418583505536, 0.3651483716701107, 0.5477225575051661, 0.7302967433402214]
+
+>>> matrix.dot_product( [1., .0, .0], [.0, 1., .0] )
+0.0
+
+>>> matrix.cross_product( [1., .0, .0], [.0, 1., .0] ) )
+[0.0, -0.0, 1.0]
+
+>>> matrix.mprint( matrix.from_diagonal( [ 1 for i in range( 10 ) ], 10 ), 10, 10, "%3.1lf" )
+10 rows x 10 columns
+1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
+0.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
+0.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
+0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 
+0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 
+0.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 
+0.0 0.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 
+0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 
+0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0 0.0 
+0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0 
+
+>>> matrix.mprint( matrix.from_upper_diagonal_rows( [5, 50, 25, 590, 262, 141], 3 ), 3, 3 )
+3 rows x 3 columns
+   5.000   50.000   25.000 
+  50.000  590.000  262.000 
+  25.000  262.000  141.000 
+
+>>> matrix.mprint( matrix.from_upper_diagonal_columns( [5, 50, 590, 25, 262, 141], 3 ), 3, 3 )
+3 rows x 3 columns
+   5.000   50.000   25.000 
+  50.000  590.000  262.000 
+  25.000  262.000  141.000 
+
+>>> m = [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+>>> matrix.mprint( m, 3, 3 )
+3 rows x 3 columns
+   1.000    2.000    3.000 
+   4.000    5.000    6.000 
+   7.000    8.000    9.000 
+
+>>> matrix.get_row( m, 3, 3, 1 )
+[4, 5, 6]
+
+>>> matrix.get_column( m, 3, 3, 1 )
+[2, 5, 8]
+
+>>> matrix.det( m, 3 )
+0.0
+
+>>> matrix.mprint( matrix.T( m, 3, 3 ), 3, 3 )
+3 rows x 3 columns
+   1.000    4.000    7.000 
+   2.000    5.000    8.000 
+   3.000    6.000    9.000 
+
+>>> matrix.add_row( m, 3, 3, [ 10, 11, 12 ] )
+>>> matrix.mprint( m, 4, 3 )
+4 rows x 3 columns
+   1.000    2.000    3.000 
+   4.000    5.000    6.000 
+   7.000    8.000    9.000 
+  10.000   11.000   12.000 
+
+>>> matrix.add_column( m, 4, 3, [ 13, 14, 15, 16 ] )
+>>> matrix.mprint( m, 4, 4 )
+4 rows x 4 columns
+   1.000    2.000    3.000   13.000 
+   4.000    5.000    6.000   14.000 
+   7.000    8.000    9.000   15.000 
+  10.000   11.000   12.000   16.000 
+
+>>> matrix.mprint( matrix.mult( m, 4, 4, m, 4, 4 ), 4, 4 )
+4 rows x 4 columns
+ 160.000  179.000  198.000  294.000 
+ 206.000  235.000  264.000  436.000 
+ 252.000  291.000  330.000  578.000 
+ 298.000  347.000  396.000  720.000 
+
+>>> m = [ 1,2,7, 2,5,8, 7,8,15 ]
+>>> matrix.mprint( m, 3, 3 )
+3 rows x 3 columns
+   1.000    2.000    7.000 
+   2.000    5.000    8.000 
+   7.000    8.000   15.000 
+
+>>> val, vec = matrix.diag( m, 3 )
+>>> val
+[-2.2703605163750216, 1.4104400696875399, 21.859920446687475]
+
+>>> matrix.mprint( vec, 3, 3 )
+3 rows x 3 columns
+   0.833    0.450    0.324 
+   0.290   -0.852    0.437 
+  -0.472    0.270    0.839 
+
+>>> matrix.mprint( vec, 3, 3 )
+3 rows x 3 columns
+   0.833   -0.450    0.324 
+   0.290    0.852    0.437 
+  -0.472   -0.270    0.839 
+
+>>> matrix.mprint( matrix.mult( vec, 3, 3, matrix.T( vec, 3, 3 ), 3, 3 ), 3, 3 )
+3 rows x 3 columns
+   1.000    0.000   -0.000 
+   0.000    1.000   -0.000 
+  -0.000   -0.000    1.000 
+
+>>> matrix.mprint( matrix.mult( vec, 3, 3, matrix.mult(
+    matrix.from_diagonal( val, 3 ), 3, 3, matrix.T( vec, 3, 3 ), 3, 3 ), 3, 3 ), 3, 3 )
+3 rows x 3 columns
+   1.000    2.000    7.000 
+   2.000    5.000    8.000 
+   7.000    8.000   15.000 
+
+>>> matrix.mprint( matrix.inverse( m, 3, 3 ), 3, 3 )
+3 rows x 3 columns
+  -0.157   -0.371    0.271 
+  -0.371    0.486   -0.086 
+   0.271   -0.086   -0.014 
+
+>>> matrix.mprint( matrix.mult( m, 3, 3, matrix.inverse( m, 3, 3 ), 3, 3 ), 3, 3 )
+3 rows x 3 columns
+   1.000    0.000    0.000 
+   0.000    1.000    0.000 
+   0.000   -0.000    1.000 
+
+>>> matrix.mprint( matrix.inverse( [1.,2.,7.], 3, 1 ), 1, 3 )
+1 rows x 3 columns
+   0.019    0.037    0.130 
+
+>>> matrix.mprint( matrix.inverse( [1.,2.,7.], 1, 3 ), 3, 1 )
+3 rows x 1 columns
+   0.019 
+   0.037 
+   0.130 
+
+>>> matrix.add_row( m, 3, 3, [ 1,21,17 ] )
+>>> matrix.mprint( m, 4, 3 )
+4 rows x 3 columns
+   1.000    2.000    7.000 
+   2.000    5.000    8.000 
+   7.000    8.000   15.000 
+   1.000   21.000   17.000 
+
+>>> p = matrix.inverse( m, 4, 3 )
+>>> matrix.mprint( p, 3, 4 )
+3 rows x 4 columns
+  -0.277   -0.071    0.208   -0.036 
+  -0.158   -0.050    0.028    0.064 
+   0.209    0.071   -0.047   -0.019 
+
+>>> matrix.mprint( matrix.mult( p, 3, 4, m, 4, 3 ), 3, 3 )
+3 rows x 3 columns
+   1.000   -0.000   -0.000 
+  -0.000    1.000   -0.000 
+  -0.000    0.000    1.000 
+
+>>> m = matrix.T( m, 4, 3 )
+>>> matrix.mprint( m, 3, 4 )
+3 rows x 4 columns
+   1.000    2.000    7.000    1.000 
+   2.000    5.000    8.000   21.000 
+   7.000    8.000   15.000   17.000 
+
+>>> p = matrix.inverse( m, 3, 4 )
+>>> matrix.mprint( p, 4, 3 )
+4 rows x 3 columns
+  -0.277   -0.158    0.209 
+  -0.071   -0.050    0.071 
+   0.208    0.028   -0.047 
+  -0.036    0.064   -0.019 
+
+>>> matrix.mprint( matrix.mult( m, 3, 4, p, 4, 3 ), 3, 3 )
+3 rows x 3 columns
+   1.000   -0.000   -0.000 
+  -0.000    1.000    0.000 
+  -0.000   -0.000    1.000 
+\end{pyglist}

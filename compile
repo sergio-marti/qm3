@@ -1,0 +1,3 @@
+#!/bin/bash
+
+make -f makefile.`uname -a | cut -f1 -d" "` $*

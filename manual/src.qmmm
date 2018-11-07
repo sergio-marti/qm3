@@ -1,0 +1,30 @@
+\normalsize
+\subsection[\_qmmm]{\_qmmm.so}
+The simplest way for mixing QM and MM within a single problem is to 
+freeze the QM atoms within the MM\_engine (nullifying their charges), and perform perturbed QM\_engine calculations
+ (including the MM charges around). If the QM\_engine provides the electrostatic interaction MM\_gradient
+the only term missing is the Lennard-Jones QM\_gradient. This can be calculated with this binary compiled module,
+using the \func{Int\_QMLJ} which applies on a molecule (\parm{mol}) once given a list of QM atoms (\parm{qm\_lst})
+and a list of MM atoms (\parm{mm\_lst}). To avoid direct interactions (1-4 and lower actually) an exlusion
+list can also be provided (\parm{ex\_lst}, containing three-elemnts sub-lists of shape:
+\textit{[ QM\_atom, MM\_atom, scale\_factor ]}).
+For those QM engines which doesn't provide the electrostatic interaction MM\_gradients, the class
+\func{Int\_QMLJ\_MMEL} evaluates them classically (Coulomb, no cut-off) using the charges stored in the molecule object ("mol.chrg"). Alternatively, change the order of the engines: QM.get\_grad >> Int\_QMLJ.get\_grad >> MM.update\_charges >> MM.get\_grad.\\
+In addition it also provides the QM\_Lennard-Jones gradient/hessian.\\
+\begin{pyglist}[language=python,fvset={frame=single}]
+class Int_QMLJ( mol, qm_lst, mm_lst, ex_lst )
+    def get_grad( mol )
+    def get_hess( mol )
+
+class Int_QMLJ_MMEL( mol, qm_lst, mm_lst, ex_lst )
+    def get_grad( mol )
+    def get_hess( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.qmmm
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.qmmm.log
+\end{pyglist}

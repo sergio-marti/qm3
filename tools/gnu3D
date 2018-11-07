@@ -1,0 +1,22 @@
+set term x11
+
+#set view 60., 45., 1., 0.816470
+set view .0, .0, 1.58, 1.0
+
+unset key
+unset colorbox
+set border 4095
+set grid
+#set dgrid3d 30,30 gauss .25,.25
+set surface
+set pm3d at s
+set contour
+set cntrparam cubicspline
+set cntrparam points 100
+set cntrparam levels 30
+
+set xlabel "X"
+set ylabel "Y"
+
+splot 'gnu.dat' with lines
+pause -1

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+source /usr/local/texlive/rc
+source /Users/smarti/Applications/Pygments-2.2.0/rc
+
+for ff in src.*; do
+	./parser.py $ff
+done
+xelatex -shell-escape manual
+xelatex -shell-escape manual
+rm manual.aux manual.log manual.pyg.* manual.out manual.toc
+for ff in src.*; do
+	rm -v `echo $ff | cut -c5-`.tex
+done
+
+open manual.pdf

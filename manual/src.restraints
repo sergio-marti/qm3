@@ -1,0 +1,35 @@
+\normalsize
+\subsection[restraints]{restraints.py}
+This (in process) module offers basic classes for applying harmonic restraints. The umbrella energy is
+accumulated to "molec.func", and the gradient (not hessian by the moment...) to "molec.grad". Additionally,
+all methods return the value of the geometrical parameter (distance, ...).\\
+For the \func{distance} class, \parm{indx} is a two-elements-list containing the indexes of the atoms. Also,
+the restraint won't be applied if the distance value is lower (or equal) than \parm{skip\_LE}, 
+or bigger (or equal) than \parm{skip\_BE}.\\
+The \func{angle} defines an angle constraint based on the three-elements-list \parm{indx} and the reference
+ value \parm{xref} expressed in \textbf{degrees}.\\
+In the \func{multiple\_distance}, the parameter \parm{indx} is a list containing as much indexes as twice the number of distances
+involved in the combination; and \parm{weigh} is a list with the coefficients for the linear combination (sized half 
+of \parm{indx}).
+\begin{pyglist}[language=python,fvset={frame=single}]
+class distance( kumb, xref, indx, skip_LE = 0.0, skip_BE = 9.e99 )
+    def get_func( molec )
+    def get_grad( molec )
+
+class angle( kumb, xref, indx ):
+    def get_func( molec )
+    def get_grad( molec )
+
+class multiple_distance( kumb, xref, indx, weigh )
+    def get_func( molec )
+    def get_grad( molec )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.restraints
+\end{pyglist}
+
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.restraints.log
+\end{pyglist}

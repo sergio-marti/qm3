@@ -1,0 +1,19 @@
+\normalsize
+\subsection[\_plumed]{\_plumed.so}
+reads plumed.dat for configuring Plumed2.
+arguments are not named, thus \parm{time\_step} must be defined if \parm{PBC} is provided.
+\begin{pyglist}[language=python,fvset={frame=single}]
+class Plumed( mol, time_step = 0.001, PBC = False )
+    def get_grad( mol, istep )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.plumed.meta
+\end{pyglist}
+\includegraphics[width=.5\textwidth]{21.png}
+\includegraphics[width=.5\textwidth]{22.png}
+
+%\begin{pyglist}[fvset={frame=single}]
+%#SOURCE@../samples/logs/test..log
+%\end{pyglist}

@@ -1,0 +1,13 @@
+\normalsize
+\subsection[ipi]{ipi.py}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.ipi
+\end{pyglist}
+\begin{pyglist}[language=shell,fvset={frame=single}]
+#SOURCE@../samples/test.ipi.setup
+\end{pyglist}

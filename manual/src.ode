@@ -1,0 +1,37 @@
+\normalsize
+\subsection[ode]{ode.py}
+Basic utilities for integrating ordinary differential equations, by means of the Euler\footnote{https://en.wikipedia.org/wiki/Euler\_method} method, or the Runge-Kutta\footnote{https://en.wikipedia.org/wiki/Runge–Kutta\_methods} one. For the Euler, the first call
+uses a forward difference (\func{Euler\_init}), meanwhile the rest of the steps are based on central finite differences\footnote{https://en.wikipedia.org/wiki/Finite\_difference} in order to improve convergence (\func{Euler\_step}).\\
+Additionally, Runge-Kutta method can also be applied to second order problems\footnote{https://academic.oup.com/comjnl/article-pdf/6/4/368/1068083/6-4-368.pdf} (\func{RK42\_step}).\\
+Finally, the function \func{least\_squares\_finite\_elements\_2d} allows to integrate bi-dimensional differential problems by means of least squares fitting (based on the FIRE minimization algorithm), as proposed by J. K\"astner\footnote{https://aip.scitation.org/doi/10.1063/1.3175798}.
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+#
+#   dx1 / dt = f1( t, x1, ..., xn )
+#   ...
+#   dxn / dt = fn( t, x1, ..., xn )
+#
+def Euler_init( function, dt, t, x )
+
+def Euler_step( function, dt, t, x, xo )
+
+#
+#   d^2x1 / dt^2 = f1( t, x1, ..., xn, v1, ..., vn )    vi = dxi / dt
+#    ...
+#   d^2xn / dt^2 = fn( t, x1, ..., xn, v1, ..., vn )
+#
+def RK4_step( function, dt, t, x )
+
+def RK42_step( function, dt, t, x, v )
+
+def least_squares_finite_elements_2d( nx, dx, ny, dy, grd )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.ode
+\end{pyglist}
+
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.ode.log
+\end{pyglist}

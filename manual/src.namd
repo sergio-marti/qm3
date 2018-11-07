@@ -1,0 +1,33 @@
+\normalsize
+\subsection[namd]{namd.py}
+%\func{molecule} is a child of "mol\_io.molecule" with methods for handling NAMD\footnote{http://www.ks.uiuc.edu/Development/Download/download.cgi?PackageName=NAMD}
+%binary coordinates (\func{.namd\_read} and \func{.namd\_write}), and basic parsing of CHARMM\footnote{https://www.charmm.org/charmm/} PSF and parameters files.
+\begin{pyglist}[language=python,fvset={frame=single}]
+def coordinates_read( mol, fname )
+def coordinates_write( mol, fname )
+def pdb_write( mol, fname = None, fixed = [] )
+def topology_read( mol, fname = None )
+def topology_write( mol, fname = None )
+
+class namd( cpu = multiprocessing.cpu_count() ):
+    def update_charges( mol )
+    def update_coor( mol )
+    def get_func( mol )
+    def get_grad( mol )
+
+class namd_pipe:
+    def stop()
+    def update_charges( mol )
+    def update_coor( mol )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+\func{namd\_pipe} uses an inhouse \textbf{patched} TCL-able version of namd2 which hangs on a pipe (thus avoiding an initialization for each run).
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.namd
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.namd.log
+\end{pyglist}

@@ -1,0 +1,55 @@
+\normalsize
+\subsection[mol\_mech]{mol\_mech.py}
+%This (optionally-binary compiled) module provides a "mol\_io.molecule" child with methods oriented to 
+%perform simple molecular mechanics analysis. We can find four big kinds of methods:
+%1) those for reading/parsing different formats (\func{xyz\_read}, \func{pdb\_read}, \func{sdf\_read} and \func{mol2\_read}), 
+%as well as for internet database accessing (\func{db\_download}: where \parm{code} is a pair composed by the server and the molecule
+%identifier, such as "pubchem:12039" / ":12039" or "chemspider:4573889").
+%2) methods for guessing molecular data (such as the internal connectivity and atoms types: \func{connectivity\_and\_types}, 
+%or Gasteiger-Marsilli sigma partial charges: \func{guess\_partial\_charges}, which uses molecule ".chrg" as a starting
+%point for those molecules with formal charges).
+%3) methods for calculating the internal energy of the molecule.
+%4) methods providing topological indexes (QSAR), once non-polar hydrogens have been purged.
+\begin{pyglist}[language=python,fvset={frame=single}]
+def mol2_read( mol, fname = None )
+def sdf_read( mol, fname = None )
+def db_download( code )
+
+class simple_force_field
+    ncpu     = C:{os.sysconf( 'SC_NPROCESSORS_ONLN' )} // Python:{1}
+    cut_on   = 10.0
+    cut_off  = 12.0
+    cut_list = 14.0
+
+    def guess_bonds( mol )
+    def calc_connectivity()
+    def guess_types( mol )
+    def guess_angles()
+    def guess_dihedrals()
+    def parse_molecule( mol )
+    def guess_partial_charges( mol )
+    
+    def load_parameters( mol, ffield = None )
+    def energy_bond( mol, gradient = False )
+    def energy_angle( mol, gradient = False )
+    def energy_dihedral( mol, gradient = False )
+    def energy_improper( mol, gradient = False )
+    def update_non_bonded( mol )
+    def energy_non_bonded( mol, gradient = False, epsilon = 1.0 )
+    def get_func( mol, qprint = False )
+    def get_grad( mol, qprint = False )
+    
+    def remove_non_polar_H( mol )
+    def topind_Randic()
+    def topind_Hosoya()
+    def topind_Wiener()
+    def topind_QNA( mol, u, v )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.mol_mech
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.mol_mech.log
+\end{pyglist}

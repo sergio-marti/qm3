@@ -1,0 +1,84 @@
+PYX = python
+PYL = -lpython
+
+PYX = python3
+PYL = -L/opt/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/lib -lpython3.7
+
+
+all: matrix minimize cions volume colvar_v qmmm mol_mech ode fitpack
+
+
+cions:
+	$(PYX) setup.cions build_ext --build-lib qm3/setup
+
+
+mpi:
+	CC=mpicc $(PYX) setup.mpi build_ext --build-lib qm3/utils
+
+
+volume:
+	$(PYX) setup.volume build_ext --build-lib qm3/utils
+
+
+plumed:
+	$(PYX) setup.plumed build_ext --build-lib qm3/engines
+
+
+colvar_v:
+	$(PYX) setup.colvar_v build_ext --build-lib qm3/engines
+
+
+long_elec:
+	$(PYX) setup.long_elec build_ext --build-lib qm3/engines
+
+
+qmmm:
+	$(PYX) setup.qmmm build_ext --build-lib qm3/engines
+
+
+mol_mech:
+	$(PYX) setup.mol_mech build_ext --build-lib qm3/engines
+
+
+ode:
+	$(PYX) setup.ode build_ext --build-lib qm3/maths
+
+
+fitpack: fitpack.o
+	$(PYX) setup.fitpack build
+	gcc -lpthread -dynamiclib -o qm3/maths/_fitpack.so \
+		fitpack.o \
+		`find build -name fitpack.o` \
+		-lm $(PYL)
+
+
+matrix: ilaenv_fix.o
+	CFLAGS='-DMCORE=\"macOS\ Accelerate\"' $(PYX) setup.matrix build
+	gcc -dynamiclib -o qm3/maths/_matrix.so \
+		ilaenv_fix.o \
+		`find build -name matrix.o` \
+		-lm $(PYL) -framework Accelerate 
+
+
+minimize: cgplus.o
+	$(PYX) setup.minimize build
+	gcc -lpthread -dynamiclib -o qm3/actions/_minimize.so \
+		cgplus.o \
+		`find build -name minimize.o` \
+		-lm $(PYL)
+
+
+clean:
+	rm -rf *.o build
+	
+	
+cgplus.o:
+	gfortran -c -w -O1 qm3/actions/cgplus.f
+
+
+fitpack.o:
+	gfortran -c -w -O1 qm3/maths/fitpack.f
+
+
+ilaenv_fix.o:
+	gfortran -c -w -O1 qm3/maths/ilaenv_fix.f

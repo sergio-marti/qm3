@@ -1,0 +1,23 @@
+\normalsize
+\subsection[openmm]{openmm.py}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+class py_openmm( omm_system, topology, qm_excl = [], platform = "CPU" )
+    def update_charges( mol )
+    def update_coor( mol )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.openmm
+\end{pyglist}
+
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.openmm.log
+\end{pyglist}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.openmm.setup
+\end{pyglist}

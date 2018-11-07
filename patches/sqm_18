@@ -1,0 +1,297 @@
+patch -p0 << EOD
+--- qm2_dftb_externalshift.F90	2017-08-01 04:27:51.000000000 +0200
++++ new/qm2_dftb_externalshift.F90	2018-05-05 09:07:25.000000000 +0200
+@@ -34,6 +34,7 @@
+ 
+    do j=1,qmmm_struct%nquant_nlink ! loop through real qm atoms
+ !   do j=qmmm_mpi%nquant_nlink_start, qmmm_mpi%nquant_nlink_end
++      if( qmmm_struct%skip_mmint(j) == 1 ) cycle
+       shiftE(j) = 0.0d0
+       do k=1,qmmm_struct%qm_mm_pairs ! loop through external charges
+          dif(1:3) = (qm_coords(1:3,j) - qmmm_struct%qm_xcrd(1:3,k))*A_TO_BOHRS
+EOD
+
+patch -p0 << EOD
+--- qm2_dftb_get_qmmm_forces.F90	2017-08-01 04:27:51.000000000 +0200
++++ new/qm2_dftb_get_qmmm_forces.F90	2018-05-05 09:07:18.000000000 +0200
+@@ -44,6 +44,7 @@
+ 
+ !  do i = 1,qmmm_struct%nquant_nlink
+   do i = qmmm_mpi%nquant_nlink_start,qmmm_mpi%nquant_nlink_end
++     if( qmmm_struct%skip_mmint(i) == 1 ) cycle
+      scf_mchgi = qm2_struct%scf_mchg(i)*AU_TO_KCAL*BOHRS_TO_A !Unit conversion
+      qmx = qmmm_struct%qm_coords(1,i)
+      qmy = qmmm_struct%qm_coords(2,i)
+EOD
+
+patch -p0 << EOD
+--- qm2_get_qmmm_forces.F90	2017-08-01 04:27:51.000000000 +0200
++++ new/qm2_get_qmmm_forces.F90	2018-05-05 09:07:08.000000000 +0200
+@@ -81,6 +81,8 @@
+          s_atom   = (n_atomic_orb==1)         
+          sp_atom  = (n_atomic_orb==4)
+          spd_atom = (n_atomic_orb==9)
++
++         if( qmmm_struct%skip_mmint(jj) == 1 ) cycle
+                   
+          fqm(1:3)=0.0d0
+ ! Split into heavy and light atoms here - means code duplication but is good for speed.
+EOD
+
+patch -p0 << EOD
+--- qm2_hcore_qmmm.F90	2017-08-01 04:27:51.000000000 +0200
++++ new/qm2_hcore_qmmm.F90	2018-05-05 09:07:00.000000000 +0200
+@@ -57,6 +57,8 @@
+ !       orb_loc(2,i) =  last atomic orbital on atom i
+ ! iqm_atomic_numbers(i) =    atomic number for atom i
+ !
++        if( qmmm_struct%skip_mmint(i) == 1 ) cycle
++
+         s_atom   = (qm2_params%natomic_orbs(i) ==1)
+         sp_atom  = (qm2_params%natomic_orbs(i) ==4)        
+         spd_atom = (qm2_params%natomic_orbs(i) ==9)
+EOD
+
+patch -p0 << EOD
+--- qm2_read_nm_and_alloc.F90	2017-08-11 21:04:33.000000000 +0200
++++ new/qm2_read_nm_and_alloc.F90	2018-05-05 09:06:52.000000000 +0200
+@@ -27,7 +27,7 @@
+ !+ Reads the qmmm namelist and calls the qmmm memory allocation routines
+ #ifdef SQM
+ subroutine read_qmmm_nm_and_alloc( natom_inout, igb, atnum, maxcyc, &
+-            grms_tol, ntpr, ncharge_in, excharge, chgatnum )
++            grms_tol, ntpr, ncharge_in, excharge, chgatnum, skip_mmint )
+ #else
+ subroutine read_qmmm_nm_and_alloc( igb, ih, ix, x, cut, use_pme, ntb, qmstep, &
+             isabfqm, abfqmcharge, read_file, options)
+@@ -78,6 +78,7 @@
+    _REAL_, intent(out)  :: grms_tol
+    _REAL_, intent(in) :: excharge(*)
+    integer, intent(in) :: chgatnum(*)
++   integer, intent(in) :: skip_mmint(*)
+    integer, intent(in) :: ncharge_in
+ #else
+    character(len=4) ih(*)
+@@ -1467,6 +1468,7 @@
+    !qmmm_struct%iqm_atomic_numbers(1:natom) = atnum(1:natom)
+    !qmmm_nml%iqmatoms(1:natom) = iqmatoms(1:natom)
+    qmmm_struct%iqm_atomic_numbers(1:qmmm_struct%nquant_nlink) = atnum(1:qmmm_struct%nquant_nlink)
++   qmmm_struct%skip_mmint(1:qmmm_struct%nquant_nlink) = skip_mmint(1:qmmm_struct%nquant_nlink)
+    qmmm_nml%iqmatoms(1:qmmm_struct%nquant_nlink) = iqmatoms(1:qmmm_struct%nquant_nlink)
+    if (ncharge_in > 0) then
+       qmmm_struct%qm_xcrd = 0.0D0
+EOD
+
+patch -p0 << EOD
+--- qmmm_struct_module.F90	2017-08-01 04:27:51.000000000 +0200
++++ new/qmmm_struct_module.F90	2018-05-05 09:05:46.000000000 +0200
+@@ -225,6 +225,8 @@
+      character(len=256) :: pdb_file           ! lam81
+      integer :: ntwpdb                        ! lam81
+ 
++     integer, dimension(:), pointer :: skip_mmint => null()
++
+   end type qmmm_struct_type
+ 
+   interface new
+@@ -300,6 +302,13 @@
+        call extend(self%iqm_atomic_numbers, nquant+nlink)
+     end if
+ 
++    if ( .not. associated ( self%skip_mmint ) ) then
++       allocate ( self%skip_mmint((nquant+nlink)), stat=ier )
++       REQUIRE(ier == 0)
++    else
++       call extend(self%skip_mmint, nquant+nlink)
++    end if
++
+     if ( .not. associated ( self%atom_mask ) ) then
+        allocate ( self%atom_mask(natom), stat=ier )
+        REQUIRE(ier == 0)
+@@ -411,6 +420,11 @@
+        REQUIRE(ier == 0)
+     end if
+ 
++    if ( associated ( self%skip_mmint) ) then
++       deallocate ( self%skip_mmint, stat=ier )
++       REQUIRE(ier == 0)
++    end if
++
+     if ( associated ( self%atom_mask ) ) then
+        deallocate ( self%atom_mask, stat=ier )
+        REQUIRE(ier == 0)
+EOD
+
+patch -p0 << EOD
+--- sqm.F90	2018-05-05 09:27:30.000000000 +0200
++++ new/sqm.F90	2018-05-05 09:28:10.000000000 +0200
+@@ -24,6 +24,7 @@
+    _REAL_ born_radii(1000), one_born_radii(1000)
+    _REAL_ intdiel, extdiel, Arad
+    integer natom, ier, atnum(1000), xmin_iter
++   integer skip_mmint(1000)
+    character(len=80) arg ! temp for each of the command line arguments
+    integer iarg !         index of the current argument
+    integer last_arg_index !   index of the last argument
+@@ -31,9 +32,9 @@
+    character owrite
+    character(len=MAX_FN_LEN) mdin, mdout 
+    ! external charge
+-   _REAL_ excharge(4000)
+-   integer chgatnum(1000)
+-   character(len=8) chgnam(1000)
++   _REAL_ excharge(40000)
++   integer chgatnum(40000)
++   character(len=8) chgnam(40000)
+    integer ncharge
+ 
+    integer :: igb, maxcyc
+@@ -72,6 +73,7 @@
+    mdout  = 'mdout'
+    iarg = 0
+    owrite = 'N'  ! output status: New
++   owrite = 'R'  ! output status: Replace
+    last_arg_index = command_argument_count()
+    do while (iarg < last_arg_index)
+ 
+@@ -116,9 +118,10 @@
+    write(6,*) '           --------------------------------------------------------'
+    write(6,*) ''                  
+ 
+-   call getsqmx( natom, x, atnam, atnum, ncharge, excharge, chgnam, chgatnum )
++   skip_mmint = 0
++   call getsqmx( natom, x, atnam, atnum, ncharge, excharge, chgnam, chgatnum, skip_mmint )
+    call read_qmmm_nm_and_alloc(natom,igb,atnum,maxcyc,grms_tol,ntpr, &
+-                               ncharge,excharge,chgatnum )
++                               ncharge,excharge,chgatnum, skip_mmint )
+    call qm_assign_atom_types
+ 
+    ! Set default QMMM MPI parameters - for single cpu operation.
+@@ -210,10 +213,13 @@
+       call qm2_print_bondorders()
+    end if
+ 
+-   if (qmmm_nml%verbosity > 3) then
++!   if (qmmm_nml%verbosity > 3) then
++       open(unit=999,file="mm_output",action="write",form="unformatted")
++       write(999) escf
+       ! Calculate and print also forces in final step
+-      call sqm_forces(natom, f)
+-   end if
++      call sqm_forces(natom, f, qm2_struct%scf_mchg)
++      close(999)
++!   end if
+ 
+    write(6,*)
+    
+@@ -389,7 +395,7 @@
+ 
+ end subroutine sqm_energy
+ 
+-subroutine sqm_forces(natom, forces)
++subroutine sqm_forces(natom, forces, scf_mchg)
+ 
+    !=============================
+    ! Calculation of QM Forces
+@@ -402,15 +408,24 @@
+ 
+   integer, intent(in) :: natom
+   _REAL_ , intent(out) :: forces(natom*3)
++  _REAL_ , intent(inout) :: scf_mchg(qmmm_struct%nquant_nlink)
++  _REAL_ , dimension(:), allocatable :: vectmp1, vectmp2, vectmp3, vectmp4
+ 
+   integer :: i, j, m
+ 
+   qmmm_struct%dxyzqm=zero
+    if (qmmm_nml%qmtheory%DFTB) then
+      call qm2_dftb_get_qm_forces(qmmm_struct%dxyzqm)
++     qmmm_struct%dxyzcl = zero
++     allocate( vectmp1(qmmm_struct%qm_mm_pairs), vectmp2(qmmm_struct%qm_mm_pairs), &
++               vectmp3(qmmm_struct%qm_mm_pairs), vectmp4(qmmm_struct%qm_mm_pairs) )
++     call qm2_dftb_get_qmmm_forces(qmmm_struct%dxyzcl,qmmm_struct%dxyzqm, vectmp1,vectmp2,vectmp3,vectmp4)
++     deallocate( vectmp1, vectmp2, vectmp3, vectmp4 )
+    else
+      !standard semi-empirical
+      call qm2_get_qm_forces(qmmm_struct%dxyzqm)
++     qmmm_struct%dxyzcl = zero
++     call qm2_get_qmmm_forces(qmmm_struct%dxyzqm,qmmm_struct%qm_xcrd,qmmm_struct%dxyzcl,scf_mchg)
+    end if
+ 
+    !NOW PUT THE CALCULATED gradient (not force!) INTO THE SANDER FORCE ARRAY
+@@ -422,6 +437,8 @@
+      forces(m+3) = qmmm_struct%dxyzqm(3,i)
+    enddo
+ 
++   write( 999 ) (qmmm_struct%dxyzqm(1,j), qmmm_struct%dxyzqm(2,j), qmmm_struct%dxyzqm(3,j), j=1,qmmm_struct%nquant_nlink)
++   write( 999 ) (qmmm_struct%dxyzcl(1,j), qmmm_struct%dxyzcl(2,j), qmmm_struct%dxyzcl(3,j), j=1,qmmm_struct%qm_mm_pairs)
+    if (qmmm_mpi%commqmmm_master .AND. qmmm_nml%verbosity > 3) then
+       
+       !If verbosity level is greater than 3 we also print the force array on the QM atoms
+@@ -509,7 +526,7 @@
+ end subroutine sander_bomb
+ !-------------------------------------------------
+ 
+-subroutine getsqmx(natom,x,atnam,atnum,ncharge,excharge,chgnam,chgatnum)
++subroutine getsqmx(natom,x,atnam,atnum,ncharge,excharge,chgnam,chgatnum,skip_mmint)
+    
+    !     --- reads initial coords,
+ 
+@@ -517,6 +534,7 @@
+    _REAL_ x(*)
+    integer i,i3,lun
+    integer natom,atnum(*)
++   integer skip_mmint(*)
+    character(len=8) atnam(*)
+    character(len=80) line
+    ! test-local
+@@ -536,7 +554,7 @@
+    ! check header names
+    ihead=0
+    iend=0
+-   do i=1,999
++   do i=1,39999
+       read(lun,'(a)',end=10) line
+       if (line(1:1) == "#") then
+          if (line(1:80) == "#EXCHARGES") then
+@@ -577,6 +595,8 @@
+          if (line(1:80) /= "#EXCHARGES") then
+             ia = ia + 1
+             read(line,*,err=15) atnum(ia),atnam(ia),x(i3+1),x(i3+2),x(i3+3)
++            if( atnum(ia) .lt. 0 ) skip_mmint(ia) = 1
++            atnum(ia) = abs( atnum(ia) )
+             i3 = i3 + 3
+          else
+             go to 12
+@@ -591,7 +611,7 @@
+    if (mdin_external_charge) then
+       i3=0
+       ic=0
+-      do i=1,999
++      do i=1,39999
+          read(lun,'(a)',end=14) line
+          if (line(1:80) /= "") then
+             if (line(1:80) /= "#END") then
+@@ -606,14 +626,14 @@
+    13 ncharge = ic
+ 
+       write(6,'(/80(1H-)/''  EXTERNAL CHARGES FOUND IN INPUT'',/80(1H-))')
+-      write(6,'(2x,"QMMM: External Charge Info")')
+-      write(6,'(2x,"QMMM:",1x,"ATOMIC",3x,"NAME",8x,"X",9x,"Y",9X,"Z",8X,"CHARGE")')
+-
+-      i3=0
+-      do i=1,ncharge
+-         write(6,'(2x,"QMMM:",3x,i2,6x,a6,4f10.4)') chgatnum(i), chgnam(i), excharge(i3+1:i3+4)
+-         i3=i3+4
+-      end do
++!      write(6,'(2x,"QMMM: External Charge Info")')
++!      write(6,'(2x,"QMMM:",1x,"ATOMIC",3x,"NAME",8x,"X",9x,"Y",9X,"Z",8X,"CHARGE")')
++!
++!      i3=0
++!      do i=1,ncharge
++!         write(6,'(2x,"QMMM:",3x,i2,6x,a6,4f10.4)') chgatnum(i), chgnam(i), excharge(i3+1:i3+4)
++!         i3=i3+4
++!      end do
+    end if
+ 
+    return
+EOD

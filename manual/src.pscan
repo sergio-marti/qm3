@@ -1,0 +1,26 @@
+\normalsize
+\subsection[Parallel Scans]{Parallel Scans}
+Setup of the model system (all generated files available at \textit{model.setup.zip}).
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/model.setup
+\end{pyglist}
+\normalsize
+Script for minimizing one point of the scan grid. This example uses NAMD coupled with DFTB+:
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.scan
+\end{pyglist}
+\normalsize
+Script for launching as many workers as desired (\parm{Np} = 4) to explore the surface in parallel. At the begining
+the processes will sleep until a node of the grid is available for minimizing.
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.scan.run
+\end{pyglist}
+\begin{center}
+\includegraphics[width=.5\textwidth]{23.png}
+\end{center}

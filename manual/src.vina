@@ -1,0 +1,21 @@
+\normalsize
+\subsection[vina]{vina.py}
+This module provides a child version of "mol\_io.molecule" with suitable methods for applying
+the docking program vinadock\footnote{http://vina.scripps.edu}. The PSF file is needed for determining the connectivity
+and the (internal) types of the atoms.
+\begin{pyglist}[language=python,fvset={frame=single}]
+class molecule( fname = None )
+    def psf_read( fname )
+    def receptor( fname = None, sele = None )
+    def ligand( fname = None, sele = None )
+    def config( center, fname = "vina.conf" )
+    def parse_dock( fname, model = 0 )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.vina
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.vina.log
+\end{pyglist}

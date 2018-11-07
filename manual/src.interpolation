@@ -1,0 +1,61 @@
+\normalsize
+\subsection[interpolation]{interpolation.py}
+This module provides basic classes for interpolation discrete sets of points. All of them (except \func{interpolate\_2d} which is
+intended for bi-dimensional interpolation) accept in the constructor the \parm{x} and \parm{y} sets (both of the same size), which
+can be initially disordered. Then, all provide a single method (\func{.calc}) for calculating the interpolated guess of a particular value of x (\parm{rx}), and it's derivative (returns a tuple).
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+class gaussian( x, y, sigma = 0.1 )
+    def calc( rx )
+
+class bezier( x, y )
+    def calc( rx )
+
+class bspline( x, y, order = 2 )
+    def calc( rx )
+
+class linear( x, y )
+    def calc( rx )
+
+class lagrange( x, y, points = 2 )
+    def calc( rx )
+
+class cubic_spline( x, y )
+    def calc( rx )
+
+class hermite_spline( x, y, method = "fritsch_carlson" )
+    def calc( rx )
+
+class interpolate_2d( x, y, z, interpolant = cubic_spline )
+    def calc( rx, ry )
+
+class tensioned_spline( x, y, tension = 0.0 )
+    def calc( rx )
+\end{pyglist}
+
+The \func{hermite\_spline}, in turn, allow up to three different flavours: \parm{akima},
+\parm{steffen} and \parm{fritsch\_carlson} (default).\\
+The \func{tensioned\_spline} is only available if the module \func{\_fitpack} has been compiled, and
+it defaults to a smoothed cubic spline if the tension applied is zero (\parm{tension}). This parameter should be possitive
+and smaller than the set size ({x,y}). The results that provides are kinda similar to the hermite\_spline interpolation.
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.interpolation
+\end{pyglist}
+
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.interpolation.log
+\end{pyglist}
+
+\includegraphics[width=.33\textwidth]{01.png}
+\includegraphics[width=.33\textwidth]{02.png}
+\includegraphics[width=.33\textwidth]{03.png}
+\par
+\includegraphics[width=.33\textwidth]{04.png}
+\includegraphics[width=.33\textwidth]{05.png}
+\includegraphics[width=.33\textwidth]{06.png}
+\par
+\includegraphics[width=.33\textwidth]{07.png}
+\includegraphics[width=.33\textwidth]{08.png}
+\includegraphics[width=.33\textwidth]{09.png}

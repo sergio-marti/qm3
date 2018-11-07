@@ -1,0 +1,30 @@
+\normalsize
+\subsection[tchem]{tchem.py}
+The \func{tchem\_sckt} makes use of the MPI interface of TeraChem, and thus
+needs an special configuration to be run (the file \textbf{x\_tchem.c} should
+be compiled with mpicc, serving as a bridge between the python class and TeraChem).
+\begin{pyglist}[language=python,fvset={frame=single}]
+class tchem( mol, ini, sele, nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
+
+class tchem_sckt( unx, mol, sele, nbnd = [], link = [] )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.tchem
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.tchem.log
+\end{pyglist}
+\normalsize
+Example of script for running the socket version:
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.tchem.sckt
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.tchem.sckt.log
+\end{pyglist}

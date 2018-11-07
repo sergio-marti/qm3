@@ -1,0 +1,20 @@
+import qm3.utils.grids
+try:
+    import cStringIO
+except:
+    import io as cStringIO
+import  random
+
+random.seed()
+nx = 40
+ny = 30
+f = cStringIO.StringIO()
+for i in [ random.uniform( -10, 10 ) for k in range( nx ) ]:
+    for j in [ random.uniform( -10, 10 ) for k in range( ny ) ]:
+        f.write( "%18.6lf%18.6lf%18.6lf\n"%( i, j, i*i+j*j ) )
+f.seek( 0 )
+obj = qm3.utils.grids.grid()
+obj.regular( f, points = ( nx, ny ), gauss = ( 1.0, 1.0 ) )
+f.close()
+obj.plot()
+print( obj.calc( 4, 4 ) )

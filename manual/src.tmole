@@ -1,0 +1,16 @@
+\normalsize
+\subsection[tmole]{tmole.py}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+class tmole( mol, ini, sele, nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.tmole
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.tmole.log
+\end{pyglist}

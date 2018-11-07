@@ -1,0 +1,43 @@
+\normalsize
+\subsection[elements]{elements.py}
+This module offers information about the chemical elements of the periodic table:
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+mass     # g/mol
+r_vdw    # Ang
+r_cov    # Ang
+r_sol    # Ang
+ionpot   # eV / Filimovov et al. [10.1080/10629360903438370]
+eafin    # eV / Filimovov et al. [10.1080/10629360903438370] / Myers [10.1021/ed067p307]
+symbol
+rsymbol
+
+def calc_mass( formula = "H2O1" )
+\end{pyglist}
+the information is coded using dictionaries for each variable: 
+\begin{itemize}
+\item atomic masses (\func{mass} in g/mol)
+\item van der Waals radiis (\func{r\_vdw} in Å)
+\item covalent radiis (\func{r\_cov} in Å)
+\item solvation radiis (\func{r\_sol} in Å)
+\item ionization potentials (\func{ionpot} in eV)
+\item electro-affinites (\func{eafin} in eV)
+\item atomic symbols (\func{symbol})
+\item atomic numbers (\func{rsymbol})
+\end{itemize}
+all except \func{rsymbol} provide the custom information using as index the atomic number; being \func{rsymbol} the opposite case.
+Finally, there is a function which provides basic calculation of molecular masses (\func{calc\_mass}), for which is mandatory
+to especify the number of atoms in the molecule (even if there is only one of this kind).
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+>>> import qm3.elements
+>>> qm3.elements.mass[16]
+32.065
+>>> qm3.elements.symbol[16]
+'S'
+>>> qm3.elements.rsymbol["S"]
+16
+>>> qm3.elements.calc_mass( "H2S1O4" )
+98.07848
+\end{pyglist}

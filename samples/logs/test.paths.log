@@ -1,0 +1,44 @@
+
+---------------------------------------- Minimum Path (Page-McIver)
+
+Degrees of Freedom:                    2
+Step Number:                        1000
+Step Size:                        0.0028
+Print Frequency:                      10
+Gradient Tolerance:                  0.1
+Project RT modes:                  False
+From Saddle:                        True
+Avoid Recrossing:                   True
+
+      Step            Function            Gradient     Nskip
+------------------------------------------------------------
+        10           -40.97349       15.9319753354         1
+        20           -41.95001       33.6280035865         1
+[...]
+       360          -146.55981        7.5078544214         0
+       369          -146.69931        0.2904171506         0
+------------------------------------------------------------
+
+[-0.5589310621385324, 1.4410177568450786]
+
+---------------------------------------- Minimum Path (Page-McIver)
+
+Degrees of Freedom:                    2
+Step Number:                        1000
+Step Size:                       -0.0028
+Print Frequency:                      10
+Gradient Tolerance:                  0.1
+Project RT modes:                  False
+From Saddle:                        True
+Avoid Recrossing:                   True
+
+      Step            Function            Gradient     Nskip
+------------------------------------------------------------
+        10           -40.94378       13.6910888762         1
+        20           -41.71697       24.9549131839         1
+[...]
+       280           -80.73173        2.8192396667         0
+       286           -80.76764        0.2008988756         0
+------------------------------------------------------------
+
+[-0.05128674054029047, 0.46685107624427397]

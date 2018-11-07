@@ -1,0 +1,16 @@
+\normalsize
+\subsection[qchem]{qchem.py}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+class qchem( mol, ini, sele, nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.qchem
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.qchem.log
+\end{pyglist}

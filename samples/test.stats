@@ -1,0 +1,29 @@
+import qm3.maths.stats
+import qm3.maths.matrix
+print( qm3.maths.stats.stats( [ 0.388, 0.389, 0.410 ] ) )
+print( qm3.maths.stats.autocorrelation( range( 10 ) ) )
+print( qm3.maths.stats.autocorrelation( range( 10 ), 2 ) )
+print( qm3.maths.stats.sampling_ratio( range( 10 ) ) )
+print( qm3.maths.stats.normal( 1.80 ) )
+import qm3.maths.integration
+print( qm3.maths.integration.Simpson_f( lambda x: qm3.maths.stats.normal( x, 0.0, 1.0 ), -100.0, 0.09 )[0] )
+print( qm3.maths.stats.student( 1.80, 30 ) )
+print( qm3.maths.stats.inverse_normal( 0.05 ) )
+print( qm3.maths.stats.inverse_student( 0.05, 6 ) )
+print( qm3.maths.stats.inverse_fisher( 0.05, 6, 6 ) )
+x = [ 0.388, 0.389, 0.410 ]
+na = len( x )
+ma, sa = qm3.maths.stats.stats( x )
+nb = na - 1
+mb, sb = qm3.maths.stats.stats( x[0:-1] )
+print( qm3.maths.stats.i_test( 1, x[-1], .0, nb, mb, sb ) )
+print( qm3.maths.stats.t_test( 2, x[-1], .0, nb, mb, sb ) )
+print( qm3.maths.stats.f_test( na, sa, nb, sb ) )
+o = qm3.maths.stats.k_means( [ 7, 4, 10, 16, 13, 7, 3, 5, 7, 3, 13, 14, 12, 11, 10, 7, 7, 5, 3, 3 ] ) 
+print( o.find_centers( 2 ) )
+print( o.find_centers( 3 ) )
+print( o.find_centers( 4 ) )
+x = [ [ 7, 4, 10, 16, 13 ], [ 7, 3, 5, 7, 3 ], [ 13, 14, 12, 11, 10 ], [ 7, 7, 5, 3, 3 ] ]
+qm3.maths.matrix.mprint( qm3.maths.matrix.T( sum( x, [] ), 4, 5 ), 5, 4 )
+o = qm3.maths.stats.PCA( x )
+o.select( [ 0, 1, 2 ] )

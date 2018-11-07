@@ -1,0 +1,16 @@
+\normalsize
+\subsection[demon]{demon.py}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+class demon( mol, ini, sele, nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.demon
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.demon.log
+\end{pyglist}

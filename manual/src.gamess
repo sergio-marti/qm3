@@ -1,0 +1,17 @@
+\normalsize
+\subsection[gamess]{gamess.py}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+class gamess( mol, ini, sele, nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
+    def get_hess( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.gamess
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.gamess.log
+\end{pyglist}

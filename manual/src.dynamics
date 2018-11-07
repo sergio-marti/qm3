@@ -1,0 +1,31 @@
+\normalsize
+\subsection[dynamics]{dynamics.py}
+Module intended for performing molecular dynamics on defined problem systems. The module provides
+a function: \func{assign\_velocities} which randomly initializes the "velo" vector of "obj"
+for a given temperature (being optative to remove the rotational and translational degrees of freedom);
+and two classes: \func{velocity\_verlet} (NVE: \parm{scale\_frequency $\leqslant 0$}, NVT) which implements the
+verlet integrator with direct scaling of the velocities (isokinetic trajectories), and the
+\func{langevin\_verlet} (NVT) which provides a langevin thermostat in addition to the verlet integrator.\\
+If the parameter \parm{step\_number} is bigger than 0 then it will perform this number of integrations and then reports the statistics.\\
+\begin{pyglist}[language=python,fvset={frame=single}]
+def assign_velocities( obj, temperature = 300.0, project_RT = True )
+
+class velocity_verlet( obj, step_size = 0.001, temperature = 300.0, scale_frequency = 100, 
+         print_frequency = 100, project_RT = True, step_number = -1, log_function = default_log )
+    def integrate()
+    def stats()
+
+class langevin_verlet( obj, step_size = 0.001, temperature = 300.0, gamma_factor = 50.0, 
+         print_frequency = 100, project_RT = True, step_number = -1, log_function = default_log )
+    def integrate()
+    def stats()
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.dynamics
+\end{pyglist}
+
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.dynamics.log
+\end{pyglist}

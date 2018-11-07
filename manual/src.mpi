@@ -1,0 +1,39 @@
+\normalsize
+\subsection[\_mpi]{\_mpi.so}
+This binary module (must be compiled) provides basic MPI functionality within python. \\
+Any python script using
+this module should be run via \func{mpirun}/\func{mpiexec}. Within the script, after initialization (\func{init})
+it recovers the number of the current process (\parm{node}) and the total amount of running/launched processes (\parm{ncpu}).
+There are four functions available for sharing data: two for sending and receiving lists of integers (\func{send\_i4} and \func{recv\_i4}),
+and two for floats (\func{send\_r8} and \func{recv\_r8}). The first parameter of the send-functions accounts for
+ the process number the information is going to be sended to; followed by the list of data (use [ x ] for sending a single variable).
+While for receiving data, the first
+parameter is the process number from which the data is going to be received, followed by the expected size (\parm{siz}) of the list.
+Finally, there is a basic synchronization function (\func{barrier}) to force the processes for waiting each other (the "barrier" is
+"lift" once all processes call the function).
+At the end, the script should be finalized with the \func{stop} call.
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+node, ncpu = _mpi.init()
+
+_mpi.barrier()
+
+_mpi.stop()
+
+_mpi.send_i4( dst, vec )
+
+vec = _mpi.recv_i4( src, siz )
+
+_mpi.send_r8( dst, vec )
+
+vec = _mpi.recv_r8( src, siz )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.mpi
+\end{pyglist}
+
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.mpi.log
+\end{pyglist}

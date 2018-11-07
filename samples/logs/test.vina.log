@@ -1,0 +1,47 @@
+#################################################################
+# If you used AutoDock Vina in your work, please cite:          #
+#                                                               #
+# O. Trott, A. J. Olson,                                        #
+# AutoDock Vina: improving the speed and accuracy of docking    #
+# with a new scoring function, efficient optimization and       #
+# multithreading, Journal of Computational Chemistry 31 (2010)  #
+# 455-461                                                       #
+#                                                               #
+# DOI 10.1002/jcc.21334                                         #
+#                                                               #
+# Please see http://vina.scripps.edu for more information.      #
+#################################################################
+
+Output will be x.lig_out.pdbqt
+Reading input ... done.
+Setting up the scoring function ... done.
+Analyzing the binding site ... done.
+Using random seed: 1195455382
+Performing search ... 
+0%   10   20   30   40   50   60   70   80   90   100%
+|----|----|----|----|----|----|----|----|----|----|
+***************************************************
+done.
+Refining results ... done.
+
+mode |   affinity | dist from best mode
+     | (kcal/mol) | rmsd l.b.| rmsd u.b.
+-----+------------+----------+----------
+   1         -0.2      0.000      0.000
+   2         -0.2      5.560      5.560
+   3         -0.2      5.623      5.623
+   4         -0.2      4.984      4.984
+   5         -0.2      4.205      4.205
+   6         -0.2      2.152      2.152
+   7         -0.2      3.705      3.705
+   8         -0.2      4.752      4.752
+   9         -0.2      2.238      2.238
+  10         -0.2      4.621      4.621
+Writing output ... done.
+ATOM      1  OH2 HOH     1       1.599   0.619   0.177  0.00  0.00      W   
+ATOM      2  H1  HOH     1       0.883   0.272   0.740  0.00  0.00      W   
+ATOM      3  H2  HOH     1       1.360   1.552   0.071  0.00  0.00      W   
+ATOM      4  OH2 HOH     2      -0.451   1.127   2.211  0.00  0.00      W   
+ATOM      5  H1  HOH     2      -0.292   0.595   1.399  0.00  0.00      W   
+ATOM      6  H2  HOH     2       0.058   1.927   2.010  0.00  0.00      W   
+END

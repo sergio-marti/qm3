@@ -1,0 +1,30 @@
+\normalsize
+\subsection[paths]{paths.py}
+This module provides two functions for evaluating minimum energy paths (\func{baker}) and
+intrinsic reaction paths (\func{page\_mciver}). Both needs as a parameter a "problem.template" child
+(\parm{obj}, \textbf{mass} must be defined!),
+ and the initial direction is taken from the sign of the \parm{step\_size} parameter 
+(+1:forward, -1:reverse). The \parm{from\_saddle} parameter allows for restarting the reaction
+path from an intermediate point. The \parm{avoid\_recrossing} parameter is an experimental
+feature which enforces the steps along the path to address in the same direction of the 
+initial step (eigenvector based from the transition state).
+\begin{pyglist}[language=python,fvset={frame=single}]
+def baker( obj, step_number = 100, step_size = 0.0028, gradient_tolerance = 0.1,
+    print_frequency = 10, project_RT = True, from_saddle = True,
+    avoid_recrossing = True, log_function = default_log )
+
+def page_mciver( obj, step_number = 100, step_size = 0.0028, gradient_tolerance = 0.1,
+    print_frequency = 10, project_RT = True, from_saddle = True,
+    avoid_recrossing = True, log_function = default_log )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.paths
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.paths.log
+\end{pyglist}
+\begin{center}
+\includegraphics[width=.5\textwidth]{14.png}
+\end{center}
