@@ -23,6 +23,3 @@ class charmm_pipe( charmm_path, fname )
 \begin{pyglist}[fvset={frame=single}]
 #SOURCE@../samples/logs/test.charmm.log
 \end{pyglist}
-\begin{pyglist}[language=fortran,fvset={frame=single}]
-#SOURCE@../samples/test.dynamo.f90
-\end{pyglist}
