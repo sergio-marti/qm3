@@ -16,7 +16,7 @@ class distance( kumb, xref, indx, skip_LE = 0.0, skip_BE = 9.e99 )
     def get_func( molec )
     def get_grad( molec )
 
-class angle( kumb, xref, indx ):
+class angle( kumb, xref, indx )
     def get_func( molec )
     def get_grad( molec )
 

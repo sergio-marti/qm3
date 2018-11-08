@@ -38,8 +38,8 @@ class wham( data )
     def setup( nbins = None )
     def integrate( temp = 300.0, maxit = 10000, toler = 1.0e-3 )
 
-class umbint_2d( data ):
-    def setup( nbins ):
+class umbint_2d( data )
+    def setup( nbins )
     def integrate( temp = 300.0 )
 
 def plot_data( data, dsigma = 2.0 )

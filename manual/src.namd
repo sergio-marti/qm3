@@ -9,13 +9,13 @@ def pdb_write( mol, fname = None, fixed = [] )
 def topology_read( mol, fname = None )
 def topology_write( mol, fname = None )
 
-class namd( cpu = multiprocessing.cpu_count() ):
+class namd( cpu = multiprocessing.cpu_count() )
     def update_charges( mol )
     def update_coor( mol )
     def get_func( mol )
     def get_grad( mol )
 
-class namd_pipe:
+class namd_pipe
     def stop()
     def update_charges( mol )
     def update_coor( mol )

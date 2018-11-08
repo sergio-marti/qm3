@@ -11,10 +11,6 @@
 %3) methods for calculating the internal energy of the molecule.
 %4) methods providing topological indexes (QSAR), once non-polar hydrogens have been purged.
 \begin{pyglist}[language=python,fvset={frame=single}]
-def mol2_read( mol, fname = None )
-def sdf_read( mol, fname = None )
-def db_download( code )
-
 class simple_force_field
     ncpu     = C:{os.sysconf( 'SC_NPROCESSORS_ONLN' )} // Python:{1}
     cut_on   = 10.0

@@ -1,8 +1,8 @@
 PYX = python
 PYL = -lpython
 
-PYX = python3
-PYL = -L/opt/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/lib -lpython3.7
+#PYX = python3
+#PYL = -L/opt/local/Cellar/python/3.7.0/Frameworks/Python.framework/Versions/3.7/lib -lpython3.7
 
 
 all: matrix minimize cions volume colvar_v qmmm mol_mech ode fitpack

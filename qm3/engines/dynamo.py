@@ -138,32 +138,23 @@ def sequence( mol, fname = None ):
 
 def selection( mol, sele, fname = None ):
 	f = qm3.io.open_w( fname )
-	S = []
-	R = []
+	t = [ False for i in range( mol.natm ) ]
 	for i in sele:
-		if( not mol.segn[i] in S ):
-			S.append( mol.segn[i] )
-			R.append( [] )
-		else:
-			w = S.index( mol.segn[i] )
-			if( not mol.resi[i] in R[w] ):
-				R[w].append( mol.resi[i] )
+		t[i] = True
 	f.write( """subroutine my_sele( selection )
 	use atoms,             only : natoms
-	use atom_manipulation, only : atom_selection
 	logical, dimension(1:natoms), intent( inout ) :: selection
 	selection = .false.
 """ )
-	for i in range( len( S ) ):
-		if( len( R[i] ) > 0 ):
-			f.write( "\tselection = selection .or. atom_selection( &\n\t\tsubsystem = (/ '%s' /), &\n\t\tresidue_number = (/"%( S[i] ) )
-			k = 0
-			for j in range( len( R[i] ) - 1 ):
-				k += 1
-				f.write( " %d,"%( R[i][j] ) )
-				if( k%12 == 0 ):
-					f.write( " &\n" )
-			f.write( " %d /) )\n"%( R[i][-1] ) )
+	for i in range( len( mol.res_lim ) - 1 ):
+		if( sum( t[mol.res_lim[i]:mol.res_lim[i+1]] ) == mol.res_lim[i+1] - mol.res_lim[i] ):
+			f.write( "\t! %s/%d\n"%( mol.segn[mol.res_lim[i]], mol.resi[mol.res_lim[i]] ) )
+			f.write( "\tselection(%d:%d) = .true.\n"%( mol.res_lim[i]+1, mol.res_lim[i+1] ) )
+		else:
+			for j in range( mol.res_lim[i], mol.res_lim[i+1] ):
+				if( t[j] ):
+					f.write( "\t! %s/%d/%s\n"%( mol.segn[j], mol.resi[j], mol.labl[j] ) )
+					f.write( "\tselection(%d) = .true.\n"%( j+1 ) )
 	f.write( "end subroutine" )
 	qm3.io.close( f, fname )
 
@@ -172,7 +163,7 @@ def selection( mol, sele, fname = None ):
 
 class dynamo( object ):
 
-	def __init__( self, mol ):
+	def __init__( self ):
 		self.exe = "./dynamo.exe"
 		self.inp = "dynamo.inp.%d"%( os.getpid() )
 		self.pfd = None

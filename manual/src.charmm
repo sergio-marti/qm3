@@ -1,0 +1,28 @@
+\normalsize
+\subsection[charmm]{charmm.py}
+This module allows to use charmm\footnote{http://charmm.chemistry.harvard.edu/charmm\_lite.php}
+ as a MM engine (or semi-empirical QM/MM), as well as provides functions for working with charmm files.
+The updating of the charges is only carried out for the QM atoms provided in the \parm{sele} list.
+\begin{pyglist}[language=python,fvset={frame=single}]
+def coordinates_read( fname = None )
+def coordinates_write( mol, fname = None )
+def selection( mol, sele, fname = None )
+
+class charmm_pipe( charmm_path, fname )
+    def stop()
+    def update_charges( mol, sele )
+    def update_coor( mol )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.charmm
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.charmm.log
+\end{pyglist}
+\begin{pyglist}[language=fortran,fvset={frame=single}]
+#SOURCE@../samples/test.dynamo.f90
+\end{pyglist}
