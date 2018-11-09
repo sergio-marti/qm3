@@ -11,6 +11,7 @@ import	qm3.maths.matrix
 import	qm3.io
 import	qm3.elements
 import	re
+import	collections
 
 
 
@@ -41,7 +42,7 @@ class molecule( object ):
 		# -- faster sequence stuff
 		self.res_lim = []
 		self.seg_lim = []
-		self.indx = {}
+		self.indx = collections.OrderedDict()
 
 		self._mboxl = 1.0e300
 		self.boxl = [ self._mboxl, self._mboxl, self._mboxl ]
@@ -192,7 +193,6 @@ class molecule( object ):
 	def settle( self ):
 		self.res_lim = []
 		self.seg_lim = []
-		self.indx = {}
 		l_seg = None
 		l_rsn = None
 		l_rsi = None
@@ -210,12 +210,12 @@ class molecule( object ):
 				l_seg = self.segn[self.res_lim[i]]
 		self.res_lim.append( self.natm )
 		self.seg_lim.append( len( self.res_lim ) - 1 )
-		## -- atom indexing... (memory consuming, but faster atom numbers...)
-		self.indx = {}
+		## -- atom indexing... (memory consuming, but faster atom numbers and selections...)
+		self.indx = collections.OrderedDict()
 		for i in self.seg_lim[:-1]:
-			self.indx[self.segn[self.res_lim[i]]] = {}
+			self.indx[self.segn[self.res_lim[i]]] = collections.OrderedDict()
 		for i in range( len( self.res_lim ) - 1 ):
-			self.indx[self.segn[self.res_lim[i]]][self.resi[self.res_lim[i]]] = {}
+			self.indx[self.segn[self.res_lim[i]]][self.resi[self.res_lim[i]]] = collections.OrderedDict()
 			for j in range( self.res_lim[i], self.res_lim[i+1] ):
 				self.indx[self.segn[self.res_lim[i]]][self.resi[self.res_lim[i]]][self.labl[j]] = j
 
