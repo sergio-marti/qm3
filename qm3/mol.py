@@ -14,6 +14,8 @@ import	re
 import	collections
 
 
+MXLAT = 1.0e300
+
 
 class molecule( object ):
 
@@ -44,8 +46,7 @@ class molecule( object ):
 		self.seg_lim = []
 		self.indx = collections.OrderedDict()
 
-		self._mboxl = 1.0e300
-		self.boxl = [ self._mboxl, self._mboxl, self._mboxl ]
+		self.boxl = [ MXLAT, MXLAT, MXLAT ]
 
 
 	def atom_number( self, segn, resi, labl ):

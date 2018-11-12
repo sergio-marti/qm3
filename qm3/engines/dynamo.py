@@ -65,7 +65,7 @@ Residue     1  SER
 def coordinates_write( mol, fname = None ):
 	f = qm3.io.open_w( fname )
 	f.write( "%d %d %d\n"%( mol.natm, len( mol.res_lim ) - 1, len( mol.seg_lim ) - 1 ) )
-	if( mol.boxl != [ mol._mboxl, mol._mboxl, mol._mboxl ]  ):
+	if( mol.boxl != [ qm3.mol.MXLAT, qm3.mol.MXLAT, qm3.mol.MXLAT ]  ):
 		f.write( "Symmetry  1\n" )
 		if( mol.boxl[0] == mol.boxl[1] and mol.boxl[0] == mol.boxl[2] ):
 			f.write( "CUBIC  %lf\n"%( mol.boxl[0] ) )
