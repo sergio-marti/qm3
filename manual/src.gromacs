@@ -1,0 +1,20 @@
+\normalsize
+\subsection[gromacs]{gromacs.py}
+a la espera de un módulo en C que deje un objeto de cálculo gromacs en memoria y permita calcular directemten sin parseo de archivos...
+\begin{pyglist}[language=python,fvset={frame=single}]
+def coordinates_read( fname = None )
+def coordinates_write( mol, fname = None )
+
+class gromacs( charmm_path, fname )
+    def update_coor( mol )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.gromacs
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.gromacs.log
+\end{pyglist}

@@ -110,66 +110,68 @@ class problem( qm3.problem.template ):
 # correlation (R^2)
 # coefficients: [ao, a1, ..., ak]
 # standard deviations for coefficients: [s(ao), s(a1), ..., s(ak)]
-def MLR( x, y ):
+def MLR( x, y, normalize = False ):
 	n = len( y )
 	k = len( x )
 	if( sum( [ len( x[i] ) for i in range( k ) ] ) != k * n ):
 		raise Exception( "MLR: Invalid dimensions: X_{N,k} vs Y_{N,1}" )
-	# --------------------------------------------------------------------------------
-	# Normalized X & Y: [a1, ..., ak]
-	#
-#	my = sum( y ) / float( n )
-#	ny = [ float( y[i] ) - my for i in range( n ) ]
-#	mx = []
-#	for i in range( k ):
-#		mx.append( sum( x[i] ) / float( n ) )
-#	nx = []
-#	for j in range( k ):
-#		t = []
-#		for i in range( n ):
-#			t.append( float( x[j][i] ) - mx[j] )
-#		nx.append( t[:] )
-#	v = []
-#	for j in range( k ):
-#		v.append( sum( [ ny[i]*nx[j][i] for i in range( n ) ] ) )
-#	m = []
-#	for i in range( k ):
-#		for j in range( i, k ):
-#			m.append( sum( [ nx[i][l]*nx[j][l] for l in range( n ) ] ) )
-#	b = qm3.maths.matrix.inverse( qm3.maths.matrix.from_upper_diagonal_rows( m, k ), k, k )
-#	c = qm3.maths.matrix.mult( b, k, k, v, k, 1 )
-#	r = sum( [ ny[i]*ny[i] for i in range( n ) ] )
-#	t = 0.0
-#	for i in range( n ):
-#		tt = 0.0
-#		for j in range( k ):
-#			tt += nx[j][i] * c[j]
-#		t += ( tt - ny[i] ) * ( tt - ny[i] )
-#	r = 1 - t / r
-#	return( r, c, [ b[i*k+i] for i in range( k ) ], mx, my )
+	if( normalize ):
+		# --------------------------------------------------------------------------------
+		# Normalized X & Y: [a1, ..., ak]
+		#
+		my = sum( y ) / float( n )
+		ny = [ float( y[i] ) - my for i in range( n ) ]
+		mx = []
+		for i in range( k ):
+			mx.append( sum( x[i] ) / float( n ) )
+		nx = []
+		for j in range( k ):
+			t = []
+			for i in range( n ):
+				t.append( float( x[j][i] ) - mx[j] )
+			nx.append( t[:] )
+		v = []
+		for j in range( k ):
+			v.append( sum( [ ny[i]*nx[j][i] for i in range( n ) ] ) )
+		m = []
+		for i in range( k ):
+			for j in range( i, k ):
+				m.append( sum( [ nx[i][l]*nx[j][l] for l in range( n ) ] ) )
+		b = qm3.maths.matrix.inverse( qm3.maths.matrix.from_upper_diagonal_rows( m, k ), k, k )
+		c = qm3.maths.matrix.mult( b, k, k, v, k, 1 )
+		r = sum( [ ny[i]*ny[i] for i in range( n ) ] )
+		t = 0.0
+		for i in range( n ):
+			tt = 0.0
+			for j in range( k ):
+				tt += nx[j][i] * c[j]
+			t += ( tt - ny[i] ) * ( tt - ny[i] )
+		r = 1 - t / r
+		return( r, c, [ b[i*k+i] for i in range( k ) ], mx, my )
+	else:
 	# --------------------------------------------------------------------------------
 	# UN-Normalized X & Y: [a0,a1, ..., ak]
 	#
-	v = [ float( sum( y ) ) ]
-	for i in range( k ):
-		v.append( float( sum( [ ii*jj for ii,jj in zip( y, x[i] ) ] ) ) )
-	m = [ float( n ) ]
-	for i in range( k ):
-		m.append( float( sum( x[i] ) ) )
-	for i in range( k ):
-		for j in range( i, k ):
-			m.append( float( sum( [ ii*jj for ii,jj in zip( x[i], x[j] ) ] ) ) )
-	b = qm3.maths.matrix.inverse( qm3.maths.matrix.from_upper_diagonal_rows( m, k+1 ), k+1, k+1 )
-	c = qm3.maths.matrix.mult( b, k+1, k+1, v, k+1, 1 )
-	r = sum( [ (float(i)-v[0]/float(n))*(float(i)-v[0]/float(n)) for i in y ] )
-	t = 0.0
-	for i in range( n ):
-		tt = c[0]
-		for j in range( k ):
-			tt += x[j][i] * c[j+1]
-		t += ( tt - y[i] ) * ( tt - y[i] )
-	r = 1 - t / r
-	return( r, c, [ t * b[i*(k+1)+i] / ( n - k - 1.0 ) for i in range( k+1 ) ] )
+		v = [ float( sum( y ) ) ]
+		for i in range( k ):
+			v.append( float( sum( [ ii*jj for ii,jj in zip( y, x[i] ) ] ) ) )
+		m = [ float( n ) ]
+		for i in range( k ):
+			m.append( float( sum( x[i] ) ) )
+		for i in range( k ):
+			for j in range( i, k ):
+				m.append( float( sum( [ ii*jj for ii,jj in zip( x[i], x[j] ) ] ) ) )
+		b = qm3.maths.matrix.inverse( qm3.maths.matrix.from_upper_diagonal_rows( m, k+1 ), k+1, k+1 )
+		c = qm3.maths.matrix.mult( b, k+1, k+1, v, k+1, 1 )
+		r = sum( [ (float(i)-v[0]/float(n))*(float(i)-v[0]/float(n)) for i in y ] )
+		t = 0.0
+		for i in range( n ):
+			tt = c[0]
+			for j in range( k ):
+				tt += x[j][i] * c[j+1]
+			t += ( tt - y[i] ) * ( tt - y[i] )
+		r = 1 - t / r
+		return( r, c, [ t * b[i*(k+1)+i] / ( n - k - 1.0 ) for i in range( k+1 ) ] )
 
 
 
