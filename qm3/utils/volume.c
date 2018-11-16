@@ -233,9 +233,9 @@ The result is that the multiple exclussion volumes are considered more than one
 
 Follow (someday) these analytical formulas:
 
-	MOLECULARPHYSICS,1991, VOL. 72, No. 6, 1313-1345
->>	J. Phys. Chem. 1987, 91, 4121-4122
-	Mathematical Notes, vol. 69, no. 3, 2001, pp. 421–428
+	Molecular physics, 1991, 72, 1313-1345
+>>	Journal of Physical Chemistry, 1987, 91, 4121-4122
+	Mathematical Notes, 2001, 69, 421–428
 	Nano Studies, 2015, 11, 111-126
 */
 static PyObject* __molecular_spheres( PyObject *self, PyObject *args ){
