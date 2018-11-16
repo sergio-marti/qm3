@@ -135,6 +135,7 @@ fprintf(stderr,"DSP: %lf\n",dsp);
 			bmin[i] -= mad; bmax[i] += mad;
 			npt[i] = (long)( ( bmax[i] - bmin[i] ) / dsp ) + 1;
 		}
+
 fprintf(stderr,"MIN: %8.3lf%8.3lf%8.3lf\n",bmin[0],bmin[1],bmin[2]);
 fprintf(stderr,"MAX: %8.3lf%8.3lf%8.3lf\n",bmax[0],bmax[1],bmax[2]);
 fprintf(stderr,"NPT: %8ld%8ld%8ld\n",npt[0],npt[1],npt[2]);
@@ -181,6 +182,8 @@ fprintf(stderr,"ERR: %.3lf _A^3\n",err*siz);
 		for( i = 0; i < npt[0]; i++ ) {
 			for( j = 0; j < npt[1]; j++ ) {
 				for( k = 0; k < npt[2]; k++ ) {
+					if( grd[i+j*npt[0]+k*nit] > 0 ) { vol += 1.0; }
+//					if( grd[i+j*npt[0]+k*nit] > 1 ) { exc += 1.0; }
 					fprintf( fd, "%13.5le", (float) grd[i + j * npt[0] + k * nit] );
 					l++;
 					if( l%6 == 0 ) { fprintf( fd, "\n" ); }
@@ -188,12 +191,13 @@ fprintf(stderr,"ERR: %.3lf _A^3\n",err*siz);
 			}
 		}
 		fclose( fd );
-		}
-
+	} else {
 		for( l = 0; l < npt[0] * npt[1] * npt[2]; l++ ) {
 			if( grd[l] > 0 ) { vol += 1.0; }
 //			if( grd[l] > 1 ) { exc += 1.0; }
 		}
+	}
+
 //fprintf(stderr,"EXC: %lf _A^3\n",exc*d3);
 fprintf(stderr,"VOL: %lf _A^3\n",vol*d3);
 
