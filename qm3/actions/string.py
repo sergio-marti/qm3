@@ -243,30 +243,30 @@ kumb ~ 3000
 	def s_grad( self, molec ):
 		# calculate current CVs
 		self.ccrd = []
-		self.jaco = [ 0.0 for i in range( self.ncrd * self.jcol ) ]
+		jaco = [ 0.0 for i in range( self.ncrd * self.jcol ) ]
 		for i in range( self.ncrd ):
-			self.func[i]( i, molec )
+			self.func[i]( i, molec, jaco )
 		# translate gradients into the molecule
-		diff = [ self.kumb[ii] * ( self.ccrd[ii] - self.rcrd[ii] ) for ii in range( self.ncrd ) ]
-		grad = qm3.maths.matrix.mult( diff, 1, self.ncrd, self.jaco, self.ncrd, self.jcol )
+		diff = [ self.kumb[i] * ( self.ccrd[i] - self.rcrd[i] ) for i in range( self.ncrd ) ]
+		grad = qm3.maths.matrix.mult( diff, 1, self.ncrd, jaco, self.ncrd, self.jcol )
 		for i in range( len( self.jidx ) ):
 			i3 = i * 3
 			for j in [0, 1, 2]:
 				molec.grad[3*self.idxj[i]+j] += grad[i3+j]
 		# flush current colective variables
-		self.fcvs.write( "".join( [ "%20.10lf"%( ii ) for ii in self.ccrd ] ) + "\n" )
+		self.fcvs.write( "".join( [ "%20.10lf"%( i ) for i in self.ccrd ] ) + "\n" )
 		self.fcvs.flush()
 		# flush current forces
-		self.ffrc.write( "".join( [ "%20.10lf"%( -ii ) for ii in diff ] ) + "\n" )
+		self.ffrc.write( "".join( [ "%20.10lf"%( -i ) for i in diff ] ) + "\n" )
 		self.ffrc.flush()
 		# calculate current metric tensor M (eq. 7 @ 10.1016/j.cplett.2007.08.017)
 		self.cmet = [ 0.0 for i in range( self.ncrd * self.ncrd ) ]
 		for i in range( self.ncrd ):
 			for j in range( i, self.ncrd ):
-				self.cmet[i*self.ncrd+j] = sum( [ self.jaco[i*self.jcol+k] * self.mass[k] * self.jaco[j*self.jcol+k] for k in range( self.jcol ) ] )
+				self.cmet[i*self.ncrd+j] = sum( [ jaco[i*self.jcol+k] * self.mass[k] * jaco[j*self.jcol+k] for k in range( self.jcol ) ] )
 				self.cmet[j*self.ncrd+i] = self.cmet[i*self.ncrd+j]
 		# flush current metric
-		self.fmet.write( "".join( [ "%20.10lf"%( ii ) for ii in self.cmet ] ) + "\n" )
+		self.fmet.write( "".join( [ "%20.10lf"%( i ) for i in self.cmet ] ) + "\n" )
 		self.fmet.flush()
 		# perform dynamics on the reference CVs and box'em (eq. 17 @ 10.1016/j.cplett.2007.08.017)
 		grad = qm3.maths.matrix.mult( diff, 1, self.ncrd, self.cmet, self.ncrd, self.ncrd )
@@ -314,15 +314,15 @@ kumb ~ 3000
 		self.s_dist()
 
 
-	def distance( self, icrd, molec ):
+	def distance( self, icrd, molec, jacob ):
 		ai = self.atom[icrd][0]
 		aj = self.atom[icrd][1]
 		dd = [ (jj-ii) for ii,jj in zip( molec.coor[3*ai:3*ai+3], molec.coor[3*aj:3*aj+3] ) ]
 		vv = math.sqrt( sum( [ ii*ii for ii in dd ] ) )
 		self.ccrd.append( vv )
 		for k in [0, 1, 2]:
-			self.jaco[icrd*self.jcol+3*self.jidx[ai]+k] -= dd[k] / vv
-			self.jaco[icrd*self.jcol+3*self.jidx[aj]+k] += dd[k] / vv
+			jacob[icrd*self.jcol+3*self.jidx[ai]+k] -= dd[k] / vv
+			jacob[icrd*self.jcol+3*self.jidx[aj]+k] += dd[k] / vv
 
 
 
