@@ -95,13 +95,13 @@ dist      atom_i    atom_j
 		nc2  = self.ncrd * self.ncrd
 		cdst = []
 		for i in range( self.nwin ):
-			tmp = [ ccrd[j] - self.rcrd[i*self.ncrd+j] for j in range( self.ncrd ) ]
+			vec = [ ccrd[j] - self.rcrd[i*self.ncrd+j] for j in range( self.ncrd ) ]
 ## -- constant metrics...
 ##			mat = qm3.maths.matrix.inverse( [ 0.5 * ( cmet[j] + self.rmet[i*nc2+j] ) for j in range( nc2 ) ], self.ncrd, self.ncrd )
-##			mat = qm3.maths.matrix.mult( mat, self.ncrd, self.ncrd, tmp, self.ncrd, 1 )
+##			mat = qm3.maths.matrix.mult( mat, self.ncrd, self.ncrd, vec, self.ncrd, 1 )
 ## ------------------------------------------------------------------
-			mat = qm3.maths.matrix.mult( self.rmet[i*nc2:(i+1)*nc2], self.ncrd, self.ncrd, tmp, self.ncrd, 1 )
-			cdst.append( math.sqrt( sum( [ tmp[j] * mat[j] for j in range( self.ncrd ) ] ) ) )
+			mat = qm3.maths.matrix.mult( self.rmet[i*nc2:(i+1)*nc2], self.ncrd, self.ncrd, vec, self.ncrd, 1 )
+			cdst.append( math.sqrt( sum( [ vec[j] * mat[j] for j in range( self.ncrd ) ] ) ) )
 		cexp = [ math.exp( - cdst[i] / self.delz ) for i in range( self.nwin ) ]
 		cval = sum( [ i * self.delz * cexp[i] for i in range( self.nwin ) ] ) / sum( cexp )
 		molec.func += 0.5 * self.kumb * math.pow( cval - self.xref, 2.0 )
@@ -109,7 +109,24 @@ dist      atom_i    atom_j
 
 
 	def get_grad( self, molec ):
-		pass
+		ccrd = []
+		jaco = [ 0.0 for i in range( self.ncrd * self.jcol ) ]
+		for i in range( self.ncrd ):
+			ccrd.append( self.func[i]( i, molec, jaco ) )
+		nc2  = self.ncrd * self.ncrd
+		cdst = []
+		jder = []
+		for i in range( self.nwin ):
+			vec = [ ccrd[j] - self.rcrd[i*self.ncrd+j] for j in range( self.ncrd ) ]
+			mat = qm3.maths.matrix.mult( self.rmet[i*nc2:(i+1)*nc2], self.ncrd, self.ncrd, vec, self.ncrd, 1 )
+			cdst.append( math.sqrt( sum( [ vec[j] * mat[j] for j in range( self.ncrd ) ] ) ) )
+		cexp = [ math.exp( - cdst[i] / self.delz ) for i in range( self.nwin ) ]
+		sumn = sum( [ i * self.delz * cexp[i] for i in range( self.nwin ) ] )
+		sumd = sum( cexp )
+		cval =  sumn / sumd
+		diff = self.kumb * ( cval - self.xref )
+		molec.func += 0.5 * diff * ( cval - self.xref )
+		return( cval )
 
 
 	def distance( self, icrd, molec, jacob ):
