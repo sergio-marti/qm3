@@ -6,7 +6,6 @@ if( sys.version_info[0] == 2 ):
 	range = xrange
 import	math
 import	qm3.maths.matrix
-import	qm3.constants
 import	qm3.maths.interpolation
 import	qm3.utils._mpi
 
@@ -18,26 +17,17 @@ import	qm3.utils._mpi
 # J. Phys. Chem. A v121, p9764 (2017) [10.1021/acs.jpca.7b10842]
 #
 
-def inverse_metrics( ncrd, nwin, metM ):
-	nc2 = ncrd * ncrd
-	out = []
-	for i in range( nwin ):
-		out += qm3.maths.matrix.inverse( metM[i*nc2:(i+1)*nc2], ncrd, ncrd )
-	return( out )
-
-
-
-def string_distribute( ncrd, nwin, rcrd, invM, interpolant = qm3.maths.interpolation.hermite_spline ):
+def string_distribute( ncrd, nwin, rcrd, rmet, interpolant = qm3.maths.interpolation.hermite_spline ):
 	nc2 = ncrd * ncrd
 	arc = [ 0.0 ]
 	for i in range( 1, nwin ):
 # -----------------------------------------------------------------
-		if( invM == None ):
+		if( rmet == None ):
 			arc.append( arc[i-1] + math.sqrt( sum( [ math.pow( rcrd[i*ncrd+j] - rcrd[(i-1)*ncrd+j], 2.0 ) for j in range( ncrd ) ] ) ) )
 		else:
-		# use the metric tensor for arc length calculation (eq 7 @ 10.1002/jcc.23673)
+			# use the metric tensor for arc length calculation (eq 7 @ 10.1002/jcc.23673)
 			tmp = [ rcrd[i*ncrd+j] - rcrd[(i-1)*ncrd+j] for j in range( ncrd ) ]
-			mat = [ 0.5 * ( invM[i*nc2+j] + invM[(i-1)*nc2+j] ) for j in range( nc2 ) ]
+			mat = qm3.maths.matrix.inverse( [ 0.5 * ( rmet[i*nc2+j] + rmet[(i-1)*nc2+j] ) for j in range( nc2 ) ], ncrd, ncrd )
 			mat = qm3.maths.matrix.mult( mat, ncrd, ncrd, tmp, ncrd, 1 )
 			arc.append( arc[i-1] + math.sqrt( sum( [ tmp[j] * mat[j] for j in range( ncrd ) ] ) ) )
 # -----------------------------------------------------------------
@@ -58,7 +48,7 @@ def string_distribute( ncrd, nwin, rcrd, invM, interpolant = qm3.maths.interpola
 def string_integrate( ncrd, nwin, i_from = 0, i_to = -1, interpolant = qm3.maths.interpolation.hermite_spline, kumb = None ):
 	# average metrics
 	ncr2 = ncrd * ncrd
-	metM = [ 0.0 for i in range( ncr2 * nwin ) ]
+	rmet = [ 0.0 for i in range( ncr2 * nwin ) ]
 	for i in range( nwin ):
 		f = open( "string.%03d.met"%( i ), "rt" )
 		k = 0
@@ -68,13 +58,13 @@ def string_integrate( ncrd, nwin, i_from = 0, i_to = -1, interpolant = qm3.maths
 			if( k >= i_from and ( k <= i_to or i_to == -1 ) ):
 				t = [ float( j ) for j in l.strip().split() ]
 				for j in range( ncr2 ):
-					metM[i*ncr2+j] += t[j]
+					rmet[i*ncr2+j] += t[j]
 				n += 1.0
 		f.close()
-	metM = [ metM[j] / n for j in range( ncr2 * nwin ) ]
+	rmet = [ rmet[j] / n for j in range( ncr2 * nwin ) ]
 	f = open( "string.metrics", "wt" )
 	for i in range( nwin ):
-		f.write( "".join( [ "%20.10lf"%( metM[i*ncr2+j] ) for j in range( ncr2 ) ] ) + "\n" )
+		f.write( "".join( [ "%20.10lf"%( rmet[i*ncr2+j] ) for j in range( ncr2 ) ] ) + "\n" )
 	f.close()
 	# average string collective variables
 	rcrd = [ 0.0 for i in range( ncrd * nwin ) ]
@@ -94,7 +84,7 @@ def string_integrate( ncrd, nwin, i_from = 0, i_to = -1, interpolant = qm3.maths
 	for i in range( nwin ):
 		f.write( "".join( [ "%20.10lf"%( rcrd[i*ncrd+j] ) for j in range( ncrd ) ] ) + "\n" )
 	f.close()
-	rcrd = string_distribute( ncrd, nwin, rcrd, inverse_metrics( ncrd, nwin, metM ), interpolant )[0]
+	rcrd = string_distribute( ncrd, nwin, rcrd, rmet, interpolant )[0]
 	f = open( "string.colvars", "wt" )
 	for i in range( nwin ):
 		f.write( "".join( [ "%20.10lf"%( rcrd[i*ncrd+j] ) for j in range( ncrd ) ] ) + "\n" )
@@ -231,7 +221,7 @@ kumb ~ 3000
 		self.jcol = 3 * len( self.jidx )
 		self.jaco = []
 		self.ccrd = []
-		self.metM = []
+		self.cmet = []
 		# file handlers
 		self.fcvs = open( "string.%03d.cvs"%( self.node ), "wt" )
 		self.ffrc = open( "string.%03d.frc"%( self.node ), "wt" )
@@ -270,16 +260,16 @@ kumb ~ 3000
 		self.ffrc.write( "".join( [ "%20.10lf"%( -ii ) for ii in diff ] ) + "\n" )
 		self.ffrc.flush()
 		# calculate current metric tensor M (eq. 7 @ 10.1016/j.cplett.2007.08.017)
-		self.metM = [ 0.0 for i in range( self.ncrd * self.ncrd ) ]
+		self.cmet = [ 0.0 for i in range( self.ncrd * self.ncrd ) ]
 		for i in range( self.ncrd ):
 			for j in range( i, self.ncrd ):
-				self.metM[i*self.ncrd+j] = sum( [ self.jaco[i*self.jcol+k] * self.mass[k] * self.jaco[j*self.jcol+k] for k in range( self.jcol ) ] )
-				self.metM[j*self.ncrd+i] = self.metM[i*self.ncrd+j]
+				self.cmet[i*self.ncrd+j] = sum( [ self.jaco[i*self.jcol+k] * self.mass[k] * self.jaco[j*self.jcol+k] for k in range( self.jcol ) ] )
+				self.cmet[j*self.ncrd+i] = self.cmet[i*self.ncrd+j]
 		# flush current metric
-		self.fmet.write( "".join( [ "%20.10lf"%( ii ) for ii in self.metM ] ) + "\n" )
+		self.fmet.write( "".join( [ "%20.10lf"%( ii ) for ii in self.cmet ] ) + "\n" )
 		self.fmet.flush()
 		# perform dynamics on the reference CVs and box'em (eq. 17 @ 10.1016/j.cplett.2007.08.017)
-		grad = qm3.maths.matrix.mult( diff, 1, self.ncrd, self.metM, self.ncrd, self.ncrd )
+		grad = qm3.maths.matrix.mult( diff, 1, self.ncrd, self.cmet, self.ncrd, self.ncrd )
 		for i in range( self.ncrd ):
 			self.rcrd[i] += grad[i] * self.tstp
 			self.rcrd[i] = min( max( self.rcrd[i], self.bcrd[i][0] ), self.bcrd[i][1] )
@@ -291,13 +281,12 @@ kumb ~ 3000
 		if( self.node == 0 ):
 			# get current string from nodes
 			tmp_c = self.rcrd[:]
-			tmp_m = self.metM[:]
+			tmp_m = self.cmet[:]
 			for i in range( 1, self.nwin ):
 				tmp_c += qm3.utils._mpi.recv_r8( i, self.ncrd )
 				tmp_m += qm3.utils._mpi.recv_r8( i, self.ncrd * self.ncrd )
 			# re-parametrize string
-			tmp_i = inverse_metrics( self.ncrd, self.nwin, tmp_m )
-			tmp_c = string_distribute( self.ncrd, self.nwin, tmp_c, tmp_i )[0]
+			tmp_c = string_distribute( self.ncrd, self.nwin, tmp_c, tmp_m )[0]
 			# send back new string to nodes
 			for i in range( 1, self.nwin ):
 				qm3.utils._mpi.send_r8( i, tmp_c[i*self.ncrd:(i+1)*self.ncrd] )
@@ -316,7 +305,7 @@ kumb ~ 3000
 			self.fcnv.flush()
 		else:
 			qm3.utils._mpi.send_r8( 0, self.rcrd )
-			qm3.utils._mpi.send_r8( 0, self.metM )
+			qm3.utils._mpi.send_r8( 0, self.cmet )
 			self.rcrd = qm3.utils._mpi.recv_r8( 0, self.ncrd )
 
 
