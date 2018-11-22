@@ -120,12 +120,24 @@ dist      atom_i    atom_j
 			vec = [ ccrd[j] - self.rcrd[i*self.ncrd+j] for j in range( self.ncrd ) ]
 			mat = qm3.maths.matrix.mult( self.rmet[i*nc2:(i+1)*nc2], self.ncrd, self.ncrd, vec, self.ncrd, 1 )
 			cdst.append( math.sqrt( sum( [ vec[j] * mat[j] for j in range( self.ncrd ) ] ) ) )
+			sd1 = qm3.maths.matrix.mult( mat, 1, self.ncrd, jaco, self.ncrd, self.jcol )
+			sd2 = qm3.maths.matrix.mult( self.rmet[i*nc2:(i+1)*nc2], self.ncrd, self.ncrd, jaco, self.ncrd, self.jcol )
+			sd3 = qm3.maths.matrix.mult( vec, 1, self.ncrd, sd2, self.ncrd, self.jcol )
+			jder.append( [ 0.5 * ( sd1[j] + sd3[j] ) / cdst[-1] for j in range( self.jcol ) ] )
 		cexp = [ math.exp( - cdst[i] / self.delz ) for i in range( self.nwin ) ]
 		sumn = sum( [ i * self.delz * cexp[i] for i in range( self.nwin ) ] )
 		sumd = sum( cexp )
-		cval =  sumn / sumd
+		cval = sumn / sumd
 		diff = self.kumb * ( cval - self.xref )
 		molec.func += 0.5 * diff * ( cval - self.xref )
+		sder = [ 0.0 for i in range( self.jcol ) ]
+		for i in range( self.jcol ):
+			for j in range( self.nwin ):
+				sder[i] += diff * jder[j][i] * ( cval / self.delz - j ) * cexp[j] / sumd
+		for i in range( len( self.jidx ) ):
+			i3 = i * 3
+			for j in [0, 1, 2]:
+				molec.grad[3*self.idxj[i]+j] += sder[i3+j]
 		return( cval )
 
 

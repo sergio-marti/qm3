@@ -157,13 +157,12 @@ for i in range( 20000 ):
         tmp_m = []
         for j in range( size ):
             tmp_c += obj_list[j].cvs.rcrd[:]
-            tmp_m += obj_list[j].cvs.metM[:]
+            tmp_m += obj_list[j].cvs.cmet[:]
         for k in range( 1, ncpu ):
             for j in range( size ):
                 tmp_c += qm3.utils._mpi.recv_r8( k, ncrd )
                 tmp_m += qm3.utils._mpi.recv_r8( k, ncrd * ncrd )
-        tmp_i = qm3.actions.string.inverse_metrics( ncrd, nwin, tmp_m )
-        tmp_c = qm3.actions.string.string_distribute( ncrd, nwin, tmp_c, tmp_i )[0]
+        tmp_c = qm3.actions.string.string_distribute( ncrd, nwin, tmp_c, tmp_m )[0]
         for j in range( size ):
             obj_list[j].cvs.rcrd = tmp_c[j*ncrd:(j+1)*ncrd][:]
         for k in range( 1, ncpu ):
@@ -176,14 +175,14 @@ for i in range( 20000 ):
         tmp_b = []
         for i in range( nwin ):
             tmp_a += [ tmp_c[i*ncrd+j] - obj_list[0].cvs.icrd[i*ncrd+j] for j in range( ncrd ) ]
-            tmp_b += qm3.maths.matrix.mult( tmp_i[i*ncrd2:(i+1)*ncrd2], ncrd, ncrd, tmp_a[i*ncrd:(i+1)*ncrd], ncrd, 1 )
+            tmp_b += qm3.maths.matrix.mult( tmp_m[i*ncrd2:(i+1)*ncrd2], ncrd, ncrd, tmp_a[i*ncrd:(i+1)*ncrd], ncrd, 1 )
         obj_list[0].cvs.fcnv.write( "%20.10lf\n"%( math.sqrt( sum( [ tmp_a[i] * tmp_b[i] for i in range( ncrd * nwin ) ] )
              / float( nwin ) ) ) )
         obj_list[0].cvs.fcnv.flush()
     else:
         for j in range( size ):
             qm3.utils._mpi.send_r8( 0, obj_list[j].cvs.rcrd )
-            qm3.utils._mpi.send_r8( 0, obj_list[j].cvs.metM )
+            qm3.utils._mpi.send_r8( 0, obj_list[j].cvs.cmet )
         for j in range( size ):
             obj_list[j].cvs.rcrd = qm3.utils._mpi.recv_r8( 0, ncrd )
 

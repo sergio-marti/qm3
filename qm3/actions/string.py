@@ -45,7 +45,7 @@ def string_distribute( ncrd, nwin, rcrd, rmet, interpolant = qm3.maths.interpola
 
 
 
-def string_integrate( ncrd, nwin, i_from = 0, i_to = -1, interpolant = qm3.maths.interpolation.hermite_spline, kumb = None ):
+def string_integrate( ncrd, nwin, i_from = 0, i_to = -1, interpolant = qm3.maths.interpolation.hermite_spline, kumb = None, spline_derivatives = True ):
 	# average metrics
 	ncr2 = ncrd * ncrd
 	rmet = [ 0.0 for i in range( ncr2 * nwin ) ]
@@ -126,22 +126,24 @@ def string_integrate( ncrd, nwin, i_from = 0, i_to = -1, interpolant = qm3.maths
 		f.write( "\n" )
 	f.close()
 # -------------------------------------------------------------------------------
-	# spline interpolated collective variables derivative
-	dzds = [ 0.0 for j in range( ncrd * nwin ) ]
-	for i in range( ncrd ):
-		tmp = [ rcrd[j*ncrd+i] for j in range( nwin ) ]
-		eng = interpolant( range( nwin ), tmp )
-		for j in range( nwin ):
-			dzds[j*ncrd+i] = eng.calc( j )[1]
+	if( spline_derivatives ):
+		# spline interpolated collective variables derivative
+		dzds = [ 0.0 for j in range( ncrd * nwin ) ]
+		for i in range( ncrd ):
+			tmp = [ rcrd[j*ncrd+i] for j in range( nwin ) ]
+			eng = interpolant( range( nwin ), tmp )
+			for j in range( nwin ):
+				dzds[j*ncrd+i] = eng.calc( j )[1]
 # -------------------------------------------------------------------------------
-#	# linear interpolation of the collective variables derivative (ds = 1)
-#	dzds = [ 0.0 for j in range( ncrd * nwin ) ]
-#	for j in range( ncrd ):
-#		dzds[j] = ( rcrd[ncrd+j] - rcrd[j] )
-#		dzds[(nwin-1)*ncrd+j] = ( rcrd[(nwin-1)*ncrd+j] - rcrd[(nwin-2)*ncrd+j] )
-#	for i in range( 1, nwin - 1 ):
-#		for j in range( ncrd ):
-#			dzds[i*ncrd+j] = ( rcrd[(i+1)*ncrd+j] - rcrd[(i-1)*ncrd+j] ) * 0.5
+	else:
+		# linear interpolation of the collective variables derivative (ds = 1)
+		dzds = [ 0.0 for j in range( ncrd * nwin ) ]
+		for j in range( ncrd ):
+			dzds[j] = ( rcrd[ncrd+j] - rcrd[j] )
+			dzds[(nwin-1)*ncrd+j] = ( rcrd[(nwin-1)*ncrd+j] - rcrd[(nwin-2)*ncrd+j] )
+		for i in range( 1, nwin - 1 ):
+			for j in range( ncrd ):
+				dzds[i*ncrd+j] = ( rcrd[(i+1)*ncrd+j] - rcrd[(i-1)*ncrd+j] ) * 0.5
 # -------------------------------------------------------------------------------
 	f = open( "string.dzds", "wt" )
 	for i in range( nwin ):
