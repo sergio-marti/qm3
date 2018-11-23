@@ -27,7 +27,9 @@ f.close()
 
 plt.clf()
 plt.grid( True )
-plt.plot( [ ene[i] / 4.184 for i in range( win ) ], "-o" )
+f, = plt.plot( [ ene[i] / 4.184 for i in range( win ) ], "-o" )
+f.set_label( "mfep" )
+plt.legend()
 pdf.savefig()
 plt.close()
 

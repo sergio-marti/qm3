@@ -32,15 +32,15 @@ def fep_integrate( dene, temperature = 300.0, clusters = 1, tries = 10 )
 
 class umbint( data )
     def setup( nbins = None )
-    def integrate( temp = 300.0 )
+    def integrate( temperature = 300.0 )
 
 class wham( data )
     def setup( nbins = None )
-    def integrate( temp = 300.0, maxit = 10000, toler = 1.0e-3 )
+    def integrate( temperature = 300.0, maxit = 10000, toler = 1.0e-3 )
 
 class umbint_2d( data )
     def setup( nbins )
-    def integrate( temp = 300.0 )
+    def integrate( temperature = 300.0 )
 
 def plot_data( data, dsigma = 2.0 )
 \end{pyglist}
@@ -52,7 +52,7 @@ def plot_data( data, dsigma = 2.0 )
 \begin{pyglist}[fvset={frame=single}]
 #SOURCE@../samples/logs/test.free_energy.log
 \end{pyglist}
-\begin{center}
-\includegraphics[width=.4\textwidth]{15.png}
-\includegraphics[width=.4\textwidth]{16.png}
-\end{center}
+%\begin{center}
+%\includegraphics[width=.4\textwidth]{15.png}
+%\includegraphics[width=.4\textwidth]{16.png}
+%\end{center}

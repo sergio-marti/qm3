@@ -1,0 +1,33 @@
+\normalsize
+\subsection[colvar\_s]{colvar\_s.py}
+Based on Branduardi \& Zinovjev works:
+\begin{align*}
+&x\left(\theta\right)=\lim_{\lambda \rightarrow \infty} \frac{\int_{0}^{1}{t e^{-\lambda|\theta - z|} dt}}{\int_{0}^{1}{e^{-\lambda|\theta - z|} dt}}
+\sim
+\frac{ \sum_{i=0}^{N-1}{ i\delta_z e^{ -\frac{|\theta - z|}{\delta_z} } } }{ \sum_{i=0}^{N-1}{ e^{ -\frac{|\theta - z|}{\delta_z} } } }
+\\
+&\delta_z = \left< | x_{i+1} - x_{i} | \right>= \frac{L}{N-1}
+\\
+&|\theta - z| = \left( \left(\theta-z\right)^{T} M^{-1} \left(\theta-z\right) \right)^{\frac{1}{2}}
+\\
+&M_{i,j}=\sum_{k=1}^{3n}{ \frac{\partial\theta_{i}}{\partial x_{k}} m_{k}^{-1} \frac{\partial\theta_{j}}{\partial x_{k}} } 
+\end{align*}
+\begin{pyglist}[language=python,fvset={frame=single}]
+\end{pyglist}
+The shape of the "colvar.def" config file (\parm{conf}) should be like the following:
+\footnotesize
+\begin{pyglist}[fvset={frame=single}]
+ncrd      nwin
+dist      atom_i    atom_j
+...
+dist      atom_i    atom_j
+\end{pyglist}
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.colvar_s
+\end{pyglist}
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.colvar_s.integrate
+\end{pyglist}
+\includegraphics[width=.33\textwidth]{24.png}
+\includegraphics[width=.33\textwidth]{25.png}
+\includegraphics[width=.33\textwidth]{26.png}
