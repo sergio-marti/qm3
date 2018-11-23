@@ -277,7 +277,7 @@ static PyObject* ewald__calc( PyObject *self, PyObject *args ) {
 	PyObject	*o_mol, *o_coor, *o_chrg, *o_grad, *o_boxl, *o_sqm, *o_smm;
 	long		i, j, i3, I3, jj, j3, k, natm, nqm, nmm, *sqm;
 	double		*coor = NULL, *chrg = NULL, *cos_ = NULL, *sin_ = NULL, *grd = NULL;
-	double		boxl[3], dr[3], r2, r1, df;
+	double		boxl[3], dr[3], r2, r1, df, sqpi = sqrt( M_PI );
 	oEwald		*obj = NULL;
 
 	obj = (oEwald*) self;
@@ -321,9 +321,9 @@ static PyObject* ewald__calc( PyObject *self, PyObject *args ) {
 				}
 				r2  = dr[0] * dr[0] + dr[1] * dr[1] + dr[2] * dr[2];
 				r1  = sqrt( r2 );
-				// df  = _EC_ * chrg[jj] * chrg[sqm[i]] * ( erfc( obj->beta * r1 ) / r1  + 2.0 * obj->beta * exp( - obj->beta * obj->beta * r2 ) / sqrt( M_PI ) ) / r2;
+				// df  = _EC_ * chrg[jj] * chrg[sqm[i]] * ( erfc( obj->beta * r1 ) / r1  + 2.0 * obj->beta * exp( - obj->beta * obj->beta * r2 ) / sqpi ) / r2;
 				// unscaled direct gradient removed...
-				df  = _EC_ * chrg[jj] * chrg[sqm[i]] * ( ( erfc( obj->beta * r1 ) - 1.0 ) / r1  + 2.0 * obj->beta * exp( - obj->beta * obj->beta * r2 ) / sqrt( M_PI ) ) / r2;
+				df  = _EC_ * chrg[jj] * chrg[sqm[i]] * ( ( erfc( obj->beta * r1 ) - 1.0 ) / r1  + 2.0 * obj->beta * exp( - obj->beta * obj->beta * r2 ) / sqpi ) / r2;
 				for( k = 0; k < 3; k++ ) grd[I3+k] -= df * dr[k];
 			}
 		}
