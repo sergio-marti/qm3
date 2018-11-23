@@ -81,6 +81,7 @@ class velocity_verlet( object ):
 							print_frequency = 100,
 							project_RT = True,
 							step_number = -1,
+							temperature_coupling = 0.1,
 							log_function = default_log ):
 		self.obj = obj
 		self.temperature = temperature
@@ -91,11 +92,19 @@ class velocity_verlet( object ):
 
 		if( scale_frequency > 0 ):
 			self.log_function( "---------------------------------------- Dynamics: Velocity-Verlet (NVT)\n" )
+			self.log_function( "Temperature:        %20.10lg (K)"%( temperature ) )
+			self.log_function( "Scale Frequency:    %20d"%( scale_frequency ) )
+			self.integrate = self.integrate_scale
+		elif( temperature_coupling > 0.0 ):
+			self.log_function( "---------------------------------------- Dynamics: Velocity-Verlet (NVT, Berendsen)\n" )
+			self.log_function( "Temperature:        %20.10lg (K)"%( temperature ) )
+			self.log_function( "Temp. coupling:     %20.10lg (ps)"%( temperature_coupling ) )
+			self.tc = step_size / temperature_coupling
+			self.integrate = self.integrate_berendsen
 		else:
 			self.log_function( "---------------------------------------- Dynamics: Velocity-Verlet (NVE)\n" )
+			self.integrate = self.integrate_nve
 		self.log_function( "Step Size:          %20.10lg (ps)"%( step_size ) )
-		self.log_function( "Temperature:        %20.10lg (K)"%( temperature ) )
-		self.log_function( "Scale Frequency:    %20d"%( scale_frequency ) )
 		if( step_number > 0 ):
 			self.log_function( "Step Number:        %20d"%( step_number ) )
 		self.log_function( "Print Frequency:    %20d"%( print_frequency ) )
@@ -132,7 +141,7 @@ class velocity_verlet( object ):
 			self.stats()
 
 
-	def integrate( self ):
+	def integrate_nve( self ):
 		self.time += self.fc
 		self.istp += 1
 		vtmp = []
@@ -150,11 +159,78 @@ class velocity_verlet( object ):
 		for i in range( self.obj.size ):
 			self.obj.velo[i] += self.fv * ( vtmp[i] + self.vacc[i] )
 		self.T, self.Kin = current_temperature( self.obj, self.project_RT )
-		if( self.scale_frequency > 0 and self.istp%self.scale_frequency == 0 ): 
+		self.xavr[0] += self.obj.func
+		self.xavr[1] += self.Kin
+		self.xavr[2] += self.obj.func + self.Kin
+		self.xavr[3] += self.T
+		self.xrms[0] += self.obj.func * self.obj.func
+		self.xrms[1] += self.Kin * self.Kin
+		self.xrms[2] += ( self.obj.func + self.Kin ) * ( self.obj.func + self.Kin )
+		self.xrms[3] += self.T * self.T
+		if( self.istp % self.print_frequency == 0 ):
+			self.log_function( "%20.5lf%20.5lf%20.5lf%20.5lf%20.5lf"%( self.time, self.obj.func, self.Kin, self.obj.func + self.Kin, self.T ) )
+		self.obj.current_step( self.istp )
+
+
+	def integrate_scale( self ):
+		self.time += self.fc
+		self.istp += 1
+		vtmp = []
+		for i in range( self.obj.size ):
+			self.obj.coor[i] += self.fc * self.obj.velo[i] + self.fa * self.vacc[i]
+		self.obj.get_grad()
+		vtmp = self.vacc[:]
+		self.vacc = []
+		for i in range( self.obj.size // 3 ):
+			i3 = i * 3
+			for j in [0, 1, 2]:
+				self.vacc.append( - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0 )
+		if( self.project_RT ):
+			qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.vacc, None )
+		for i in range( self.obj.size ):
+			self.obj.velo[i] += self.fv * ( vtmp[i] + self.vacc[i] )
+		self.T, self.Kin = current_temperature( self.obj, self.project_RT )
+		if( self.istp%self.scale_frequency == 0 ): 
 			scf = math.sqrt( self.temperature / self.T )
 			for i in range( self.obj.size ):
 				self.obj.velo[i] *= scf
 			self.T, self.Kin = current_temperature( self.obj, self.project_RT )
+		self.xavr[0] += self.obj.func
+		self.xavr[1] += self.Kin
+		self.xavr[2] += self.obj.func + self.Kin
+		self.xavr[3] += self.T
+		self.xrms[0] += self.obj.func * self.obj.func
+		self.xrms[1] += self.Kin * self.Kin
+		self.xrms[2] += ( self.obj.func + self.Kin ) * ( self.obj.func + self.Kin )
+		self.xrms[3] += self.T * self.T
+		if( self.istp % self.print_frequency == 0 ):
+			self.log_function( "%20.5lf%20.5lf%20.5lf%20.5lf%20.5lf"%( self.time, self.obj.func, self.Kin, self.obj.func + self.Kin, self.T ) )
+		self.obj.current_step( self.istp )
+
+
+	def integrate_berendsen( self ):
+		self.time += self.fc
+		self.istp += 1
+		vtmp = []
+		for i in range( self.obj.size ):
+			self.obj.coor[i] += self.fc * self.obj.velo[i] + self.fa * self.vacc[i]
+		self.obj.get_grad()
+		vtmp = self.vacc[:]
+		self.vacc = []
+		for i in range( self.obj.size // 3 ):
+			i3 = i * 3
+			for j in [0, 1, 2]:
+				self.vacc.append( - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0 )
+		if( self.project_RT ):
+			qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.vacc, None )
+		for i in range( self.obj.size ):
+			self.obj.velo[i] += self.fv * ( vtmp[i] + self.vacc[i] )
+		self.T, self.Kin = current_temperature( self.obj, self.project_RT )
+		scf = math.sqrt( 1.0 + self.tc * ( self.temperature / self.T - 1.0 ) )
+		scf = min( max( scf, 0.9 ), 1.1 )
+		for i in range( self.obj.size ):
+			self.obj.velo[i] *= scf
+		self.T, self.Kin = current_temperature( self.obj, self.project_RT )
 		self.xavr[0] += self.obj.func
 		self.xavr[1] += self.Kin
 		self.xavr[2] += self.obj.func + self.Kin
@@ -269,7 +345,6 @@ class langevin_verlet( object ):
 			for j in [0, 1, 2]:
 				self.vacc.append( - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0 )
 		if( self.project_RT ):
-#			qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.vacc, None )
 			RT = qm3.utils.get_RT_modes( self.obj.mass, self.obj.coor )
 			for i in range( 6 ):
 				t = sum( [ ii * jj  for ii,jj in zip( self.vacc, RT[i] ) ] )
