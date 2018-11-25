@@ -1,0 +1,15 @@
+\normalsize
+\subsection[Potential of Mean Force]{Potential of Mean Force}
+All "data" generated files available at \textit{samples/test.pmf.zip}).
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.pmf
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.pmf.integrate
+\end{pyglist}
+
+% -- figuras del PMF (copy/paste del colvar_s)

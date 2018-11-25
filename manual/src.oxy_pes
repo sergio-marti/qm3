@@ -1,6 +1,6 @@
 \normalsize
-\subsection[Parallel Scans]{Parallel Scans}
-Setup of the model system (all generated files available at \textit{model.setup.zip}).
+\subsection[Potential Energy Surface]{Potential Energy Surface}
+Setup of the model system (all generated files available at \textit{samples/model.setup.zip}).
 
 \footnotesize
 \begin{pyglist}[language=python,fvset={frame=single}]
