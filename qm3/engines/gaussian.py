@@ -148,18 +148,19 @@ class gaussian( qm3.engines.qmbase ):
 					fl = False
 					mol.func -= float( ln.split()[-2] ) * self._ce
 				ln = fd.readline()
-			fl = True
-			while( ln and fl ):
-				if( ln.strip() == "Potential          X             Y             Z" ):
-					fl = False
-					for i in range( 1 + len( self.sel ) + len( self.lnk ) ):
-						fd.readline()
-					for i in self.nbn:
-						i3 = i * 3
-						t = fd.readline().split()[2:]
-						for j in [0, 1, 2]:
-							mol.grad[i3+j] += - self._cg * mol.chrg[i] * float( t[j] )
-				ln = fd.readline()
+			if( run in [ "grad", "hess" ] ):
+				fl = True
+				while( ln and fl ):
+					if( ln.strip() == "Potential          X             Y             Z" ):
+						fl = False
+						for i in range( 1 + len( self.sel ) + len( self.lnk ) ):
+							fd.readline()
+						for i in self.nbn:
+							i3 = i * 3
+							t = fd.readline().split()[2:]
+							for j in [0, 1, 2]:
+								mol.grad[i3+j] += - self._cg * mol.chrg[i] * float( t[j] )
+					ln = fd.readline()
 			fd.close()
 		# return
 		os.unlink( "Test.FChk" )
