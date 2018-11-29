@@ -137,8 +137,9 @@ static PyObject* QMLJ__get_grad( PyObject *self, PyObject *args ) {
 			r2 = 0.0;
 			for( k = 0; k < 3; k++ ) {
 				dr[k] = coor[3*obj->qm[i]+k] - coor[3*obj->mm[i]+k];
-				if( dr[k] >    boxl[k] * 0.5 ) { dr[k] -= boxl[k]; }
-				if( dr[k] <= - boxl[k] * 0.5 ) { dr[k] += boxl[k]; }
+//				if( dr[k] >    boxl[k] * 0.5 ) { dr[k] -= boxl[k]; }
+//				if( dr[k] <= - boxl[k] * 0.5 ) { dr[k] += boxl[k]; }
+				dr[k] -= boxl[k] * round( dr[k] / boxl[k] );
 				r2 += dr[k] * dr[k];
 			}
 			s  = 1.0 / sqrt( r2 );
@@ -188,13 +189,14 @@ static PyObject* QMLJ__get_hess( PyObject *self, PyObject *args ) {
 		lst_i = obj->qm[0];
 		cur_i = 0;
 		for( i = 0; i < obj->ni; i++ ) {
-			if( lst_i != obj->qm[i] ) { lst_i++; cur_i = obj->qm[i]; }
+			if( lst_i != obj->qm[i] ) { cur_i++; lst_i = obj->qm[i]; }
 
 			r2 = 0.0;
 			for( k = 0; k < 3; k++ ) {
 				dr[k] = coor[3*obj->qm[i]+k] - coor[3*obj->mm[i]+k];
-				if( dr[k] >    boxl[k] * 0.5 ) { dr[k] -= boxl[k]; }
-				if( dr[k] <= - boxl[k] * 0.5 ) { dr[k] += boxl[k]; }
+//				if( dr[k] >    boxl[k] * 0.5 ) { dr[k] -= boxl[k]; }
+//				if( dr[k] <= - boxl[k] * 0.5 ) { dr[k] += boxl[k]; }
+				dr[k] -= boxl[k] * round( dr[k] / boxl[k] );
 				r2 += dr[k] * dr[k];
 			}
 			s  = 1.0 / sqrt( r2 );
@@ -383,8 +385,9 @@ static PyObject* QMLJ_MMEL__get_grad( PyObject *self, PyObject *args ) {
 			r2 = 0.0;
 			for( k = 0; k < 3; k++ ) {
 				dr[k] = coor[3*obj->qm[i]+k] - coor[3*obj->mm[i]+k];
-				if( dr[k] >    boxl[k] * 0.5 ) { dr[k] -= boxl[k]; }
-				if( dr[k] <= - boxl[k] * 0.5 ) { dr[k] += boxl[k]; }
+//				if( dr[k] >    boxl[k] * 0.5 ) { dr[k] -= boxl[k]; }
+//				if( dr[k] <= - boxl[k] * 0.5 ) { dr[k] += boxl[k]; }
+				dr[k] -= boxl[k] * round( dr[k] / boxl[k] );
 				r2 += dr[k] * dr[k];
 			}
 			s  = 1.0 / sqrt( r2 );
@@ -445,13 +448,14 @@ static PyObject* QMLJ_MMEL__get_hess( PyObject *self, PyObject *args ) {
 		cur_i = 0;
 		for( i = 0; i < obj->ni; i++ ) {
 
-			if( lst_i != obj->qm[i] ) { lst_i++; cur_i = obj->qm[i]; }
+			if( lst_i != obj->qm[i] ) { cur_i++; lst_i = obj->qm[i]; }
 
 			r2 = 0.0;
 			for( k = 0; k < 3; k++ ) {
 				dr[k] = coor[3*obj->qm[i]+k] - coor[3*obj->mm[i]+k];
-				if( dr[k] >    boxl[k] * 0.5 ) { dr[k] -= boxl[k]; }
-				if( dr[k] <= - boxl[k] * 0.5 ) { dr[k] += boxl[k]; }
+//				if( dr[k] >    boxl[k] * 0.5 ) { dr[k] -= boxl[k]; }
+//				if( dr[k] <= - boxl[k] * 0.5 ) { dr[k] += boxl[k]; }
+				dr[k] -= boxl[k] * round( dr[k] / boxl[k] );
 				r2 += dr[k] * dr[k];
 			}
 			s  = 1.0 / sqrt( r2 );

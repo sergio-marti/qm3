@@ -399,7 +399,7 @@ static PyObject* w_guess_dihedrals( PyObject *self, PyObject *args ) {
 void* __update_non_bonded( void *args ) {
 	nbn_arg		*arg = (nbn_arg*) args;
 	long		w, i, j, k, i3, j3, f;
-	double		r2, i_xyz[3], j_xyz[3];
+	double		r2, dr; //i_xyz[3], j_xyz[3];
 	con_bnd		*p;
 
 	p = arg->nbn;
@@ -408,9 +408,7 @@ void* __update_non_bonded( void *args ) {
 		if( i == -1 || j == -1 ) { continue; }
 		i3  = 3 * i;
 		j3  = 3 * j;
-//		r2  = ( arg->xyz[i3] - arg->xyz[j3] ) * ( arg->xyz[i3] - arg->xyz[j3] ) +
-//				( arg->xyz[i3+1] - arg->xyz[j3+1] ) * ( arg->xyz[i3+1] - arg->xyz[j3+1] ) +
-//				( arg->xyz[i3+2] - arg->xyz[j3+2] ) * ( arg->xyz[i3+2] - arg->xyz[j3+2] );
+/*
 		for( k = 0; k < 3; k++ ) {
 			i_xyz[k] = arg->xyz[i3+k] - arg->box[k] * round( arg->xyz[i3+k] / arg->box[k] );
 			j_xyz[k] = arg->xyz[j3+k] - arg->box[k] * round( arg->xyz[j3+k] / arg->box[k] );
@@ -418,6 +416,13 @@ void* __update_non_bonded( void *args ) {
 		r2  = ( i_xyz[0] - j_xyz[0] ) * ( i_xyz[0] - j_xyz[0] ) +
 				( i_xyz[1] - j_xyz[1] ) * ( i_xyz[1] - j_xyz[1] ) +
 				( i_xyz[2] - j_xyz[2] ) * ( i_xyz[2] - j_xyz[2] );
+*/
+		r2 = 0.0;
+		for( k = 0; k < 3; k++ ) {
+			dr  = arg->xyz[i3+k] - arg->xyz[j3+k];
+			dr -= arg->box[k] * round( dr / arg->box[k] );
+			r2 += dr * dr;
+		}
 		if( r2 <= arg->cut ) {
 			f = 0;
 			k = 0;
