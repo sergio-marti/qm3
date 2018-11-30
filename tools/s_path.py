@@ -13,10 +13,8 @@ class pmf2d:
 		self.coor = [ 0, 0 ]
 		self.grad = [ 0, 0 ]
 		self.hess = [ 0, 0, 0 ]
-		x, y, z = qm3.utils.grids.parse( data )
-#		self.spln = qm3.maths.interpolation.interpolate_2d( x, y, z, qm3.maths.interpolation.cubic_spline )
-#		self.spln = qm3.maths.interpolation.interpolate_2d( x, y, z, qm3.maths.interpolation.hermite_spline )
-		self.spln = qm3.maths.interpolation.interpolate_2d( x, y, z, lambda x,y: qm3.maths.interpolation.hermite_spline( x, y, "akima" ) )
+		self.grid = qm3.utils.grids.grid( data, qm3.maths.interpolation.cubic_spline )
+#		self.grid = qm3.utils.grids.grid( data, lambda x,y: qm3.maths.interpolation.hermite_spline( x, y, "akima" ) )
 		self.fd = None
 
 	def current_step( self, istep ):
@@ -24,31 +22,31 @@ class pmf2d:
 		self.fd.write( "%20.10lf%20.10lf%20.10lf\n"%( self.coor[0], self.coor[1], self.func ) )
 
 	def check_coor( self ):
-		self.coor[0] = min( max( self.coor[0], self.spln.x[0] ), self.spln.x[-1] )
-		self.coor[1] = min( max( self.coor[1], self.spln.y[0] ), self.spln.y[-1] )
+		self.coor[0] = min( max( self.coor[0], self.grid.x[0] ), self.grid.x[-1] )
+		self.coor[1] = min( max( self.coor[1], self.grid.y[0] ), self.grid.y[-1] )
 
 	def get_func( self ):
 		self.check_coor()
-		o = self.spln.calc( self.coor[0], self.coor[1] )
+		o = self.grid.calc( self.coor[0], self.coor[1] )
 		self.func = o[0]
 
 	def get_grad( self ):
 		self.check_coor()
-		o = self.spln.calc( self.coor[0], self.coor[1] )
+		o = self.grid.calc( self.coor[0], self.coor[1] )
 		self.func = o[0]
 		self.grad = [ o[1], o[2] ]
 
 	def get_hess( self ):
 		self.check_coor()
-		o = self.spln.calc( self.coor[0], self.coor[1] )
+		o = self.grid.calc( self.coor[0], self.coor[1] )
 		self.func = o[0]
 		self.grad = [ o[1], o[2] ]
 		dh = 1.e-6
-		of = self.spln.calc( self.coor[0] + dh, self.coor[1] )
-		ob = self.spln.calc( self.coor[0] - dh, self.coor[1] )
+		of = self.grid.calc( self.coor[0] + dh, self.coor[1] )
+		ob = self.grid.calc( self.coor[0] - dh, self.coor[1] )
 		r1 = [ ( of[1] - ob[1] ) / ( 2. * dh ), ( of[2] - ob[2] ) / ( 2. * dh ) ]
-		of = self.spln.calc( self.coor[0], self.coor[1] + dh )
-		ob = self.spln.calc( self.coor[0], self.coor[1] - dh )
+		of = self.grid.calc( self.coor[0], self.coor[1] + dh )
+		ob = self.grid.calc( self.coor[0], self.coor[1] - dh )
 		r2 = [ ( of[1] - ob[1] ) / ( 2. * dh ), ( of[2] - ob[2] ) / ( 2. * dh ) ]
 		self.hess = [ r1[0], ( r1[1] + r2[0] ) / 2., ( r1[1] + r2[0] ) / 2., r2[1] ]
 
