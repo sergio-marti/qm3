@@ -313,7 +313,7 @@ class simple_force_field( object ):
 			else:
 				mol.epsi.append( None )
 				mol.rmin.append( None )
-				print( "- missing atom type [%s]: %d", mol.type[i], i+1 )
+				print( "- missing atom type [%s]: %d"%( mol.type[i], i+1 ) )
 				out = False
 		for i,j in self.bond:
 			td = "%s:%s"%( mol.type[i], mol.type[j] )

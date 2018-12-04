@@ -12,4 +12,6 @@ All "data" generated files available at \textit{samples/test.pmf.zip}).
 #SOURCE@../samples/test.pmf.integrate
 \end{pyglist}
 
-% -- figuras del PMF (copy/paste del colvar_s)
+\includegraphics[width=.33\textwidth]{27.png}
+\includegraphics[width=.33\textwidth]{28.png}
+\includegraphics[width=.33\textwidth]{29.png}

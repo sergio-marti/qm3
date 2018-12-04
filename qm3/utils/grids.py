@@ -22,6 +22,11 @@ except:
 	has_mplot3d = False
 
 
+try:
+	import	qm3.utils._grids
+except:
+	pass
+
 
 
 def get_ranges( fname ):
@@ -139,26 +144,29 @@ class grid( object ):
 					dat.append( [ rx, ry, float( t[2] ) ] )
 		qm3.io.close( f, fname )
 		dx = ( max_x - min_x ) / float( points[0] - 1.0 )
-		print( "[X] delta: %.4lf  points: %d  range: %8.2lf / %8.2lf"%( dx, points[0], min_x, max_x ) )
+		print( "[X] delta: %.4lf  points: %3d  range: %8.2lf / %8.2lf"%( dx, points[0], min_x, max_x ) )
 		dy = ( max_y - min_y ) / float( points[1] - 1.0 )
-		print( "[Y] delta: %.4lf  points: %d  range: %8.2lf / %8.2lf"%( dy, points[1], min_y, max_y ) )
+		print( "[Y] delta: %.4lf  points: %3d  range: %8.2lf / %8.2lf"%( dy, points[1], min_y, max_y ) )
 		self.x = []
 		for i in range( points[0] ):
 			self.x.append( min_x + dx * i )
 		self.y = []
 		for i in range( points[1] ):
 			self.y.append( min_y + dy * i )
-		self.z = []
-		for i in self.x:
-			for j in self.y:
-				rz = 0.0
-				rw = 0.0
-				for a,b,c in dat:
-					dst = __pythag( ( a - i ) / gauss[0], ( b - j ) / gauss[1] )
-					w = math.exp( - dst * dst )
-					rz += c * w
-					rw += w
-				self.z.append( rz / rw )
+		try:
+			self.z = qm3.utils._grids.regular( self.x, self.y, dat, gauss )
+		except:
+			self.z = []
+			for i in self.x:
+				for j in self.y:
+					rz = 0.0
+					rw = 0.0
+					for a,b,c in dat:
+						dst = __pythag( ( a - i ) / gauss[0], ( b - j ) / gauss[1] )
+						w = math.exp( - dst * dst )
+						rz += c * w
+						rw += w
+					self.z.append( rz / rw )
 		if( self.__intp ):
 			self.__spln = qm3.maths.interpolation.interpolate_2d( self.x, self.y, self.z, self.__intp )
 			self.calc = self.__spln.calc

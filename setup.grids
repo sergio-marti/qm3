@@ -1,0 +1,8 @@
+from distutils.core import setup, Extension
+
+setup( 
+	name = "Grids utilities", 
+	ext_modules = [ 
+		Extension( "_grids", [ "qm3/utils/grids.c" ] )
+	]
+)

@@ -100,7 +100,8 @@ while { [ gets $fd cmd ] >= 0 } {
         kmb = 2400.
         # -1.8 ... 1.7 / 0 ... 35 windows
         ref = -1.8 + 0.1 * float( self.node )
-        idx = [ self.mol.indx["A"][1]["C2"], self.mol.indx["A"][1]["C3"], self.mol.indx["A"][1]["C5"], self.mol.indx["A"][1]["C6"] ]
+        idx = [ self.mol.indx["A"][1]["C2"], self.mol.indx["A"][1]["C3"],
+                self.mol.indx["A"][1]["C5"], self.mol.indx["A"][1]["C6"] ]
         wei = [ 1., -1. ]
         self.dat = open( "pmf.%03d.dat"%( self.node ), "wt" )
         self.dat.write( "%20.10lf%20.10lf\n"%( kmb, ref ) )
