@@ -90,6 +90,7 @@ static PyObject* w_lsfe_2d( PyObject *self, PyObject *args ) {
 
 		step_number = 100000;
 		step_size = 1.0;
+		step_size = 10.0;
 		print_frequency = 100;
 		tolerance = 0.01;
 
