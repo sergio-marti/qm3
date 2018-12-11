@@ -1,40 +1,50 @@
 #!/usr/bin/env python
+# -*- coding: iso-8859-1 -*-
+
+from __future__ import print_function, division
+import	sys
+if( sys.version_info[0] == 2 ):
+	range = xrange
 
 import	struct
+import	qm3.mol
 import	qm3.utils
 import	qm3.elements
 import	qm3.maths.matrix
-import	sys
 import	os, stat
 
+if( len( sys.argv ) == 1 ):
+	print( "%s NMODE_int SMB DMP [AMP=10.0]"%( sys.argv[0] ) )
+	sys.exit( 1 )
 
-f = file( "symbols", "rt" )
-symb = f.read().upper().split()
+sele = int( sys.argv[1] )
+
+f = file( sys.argv[2], "rt" )
+symb = [ i.title() for i in f.read().split() ]
 f.close()
+#m = qm3.mol.molecule()
+#m.xyz_read( sys.argv[2] )
+#symb = m.labl
+
 mass = [ qm3.elements.mass[qm3.elements.rsymbol[i]] for i in symb ]
+print( zip( symb, mass ) )
 size = len( symb ) * 3
-flen = os.stat( "update.dump" )[stat.ST_SIZE]
-coor = []
-hess = []
-f = file( "update.dump", "rb" )
-if( flen == 2*size*8+4*size*(size+1) ):
-	print ">> C format"
-	coor = struct.unpack( "%dd"%( size / 3 ), f.read( size * 8 )  )
-	f.read( size * 8 )
-	hess = f.read()
-elif( flen == 2*size*8+4*size*(size+1) + 24 ):
-	print ">> Fortran format"
-	f.read( 4 )
+flen = os.stat( sys.argv[3] )[stat.ST_SIZE]
+if( flen == size*(2+size)*8 ):
+	f = file( sys.argv[3], "rb" )
 	coor = struct.unpack( "%dd"%( size ), f.read( size * 8 )  )
-	f.read( 12 + size * 8 )
-	n = struct.unpack( "i", f.read(4) )[0]
-	hess = struct.unpack( "%dd"%( n / 8 ), f.read( n ) )
-f.close()
-if( coor and hess ):
-	hess = qm3.maths.matrix.swap_upper_diagonal_to_rows( size, hess )
+	f.read( size * 8 )
+	hess = struct.unpack( "%dd"%( size * size ), f.read( size * size * 8 )  )
+	f.close()
+# ------------------------------------------------------------
+#	f = open( "hess", "wb" )
+#	for i in range( size * size ):
+#		f.write( struct.pack( "d", hess[i] ) )
+#	f.close()
+# ------------------------------------------------------------
 	val, vec = qm3.utils.hessian_frequencies( mass, coor, hess, True )
-	print val[0:10]
-	fc = 10.
-	if( len( sys.argv ) == 3 ):
-		fc = float( sys.argv[2] )
-	qm3.utils.normal_mode_view( coor, val, vec, symb, int( sys.argv[1] ), afac = fc )
+	print( val[0:min(10,max(10,sele+1))] )
+	ampl = 10.
+	if( len( sys.argv ) == 5 ):
+		ampl = float( sys.argv[4] )
+	qm3.utils.normal_mode_view( coor, val, vec, symb, sele, afac = ampl )

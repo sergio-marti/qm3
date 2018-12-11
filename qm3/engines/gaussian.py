@@ -255,7 +255,7 @@ class gaussian_MMEL( qm3.engines.qmbase ):
 				if( run == "hess" ):
 					ln = fd.readline()
 					i = int( ln.split()[-1] )
-					j = int(i/5) + (i%5!=0)
+					j = int( i // 5 ) + (i%5!=0)
 					i = 0
 					h = []
 					while( i < j ):
@@ -265,7 +265,7 @@ class gaussian_MMEL( qm3.engines.qmbase ):
 						i += 1
 					# truncate LAs and swap hessian (cols>>rows)
 					i = 3 * len( self.sel )
-					j = i * ( i + 1 ) / 2
+					j = i * ( i + 1 ) // 2
 					mol.hess = qm3.maths.matrix.from_upper_diagonal_columns( h[0:j], i )
 			# read charges
 			if( ln[0:11] == "ESP Charges" ):
