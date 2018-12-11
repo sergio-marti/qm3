@@ -132,34 +132,35 @@ def steepest_descent( obj,
 	obj.get_grad()
 	norm, grms = __grms( obj.grad )
 	if( norm > step_size ):
-			ss = step_size
+		ssiz = step_size
 	elif( norm > gradient_tolerance ):
-			ss = norm
+		ssiz = norm
 	else:
-		ss = gradient_tolerance
+		ssiz = gradient_tolerance
 	log_function( "%10s%20s%20s%20s"%( "Step", "Function", "Gradient", "Displacement" ) )
 	log_function( "-" * 70 )
-	log_function( "%10s%20.5lf%20.8lf%20.10lf"%( "", obj.func, grms, ss ) )
+	log_function( "%10s%20.5lf%20.8lf%20.10lf"%( "", obj.func, grms, ssiz ) )
 	i = 0
 	while( i < step_number and grms > gradient_tolerance ):
 		# -- perform step
 		for j in range( obj.size ):
-			obj.coor[j] -= obj.grad[j] / norm * ss
+			obj.coor[j] -= obj.grad[j] / norm * ssiz
 		# -- check new point
 		obj.get_grad()
 		norm, grms = __grms( obj.grad )
+		fcur = round( obj.func, 0 )
 		if( norm > step_size ):
-				ss = step_size
+			ssiz = step_size
 		elif( norm > gradient_tolerance ):
-				ss = norm
+			ssiz = norm
 		else:
-			ss = gradient_tolerance
+			ssiz = gradient_tolerance
 		i = i + 1
 		if( i%print_frequency == 0 ):
-			log_function( "%10d%20.5lf%20.10lf%20.10lf"%( i, obj.func, grms, ss ) )
+			log_function( "%10d%20.5lf%20.10lf%20.10lf"%( i, obj.func, grms, ssiz ) )
 		obj.current_step( i )
 	if( i%print_frequency != 0 ):
-		log_function( "%10d%20.5lf%20.10lf%20.10lf"%( i + 1, obj.func, grms, ss ) )
+		log_function( "%10d%20.5lf%20.10lf%20.10lf"%( i + 1, obj.func, grms, ssiz ) )
 	log_function( "-" * 70 + "\n" )
 
 
