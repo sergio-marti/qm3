@@ -9,14 +9,15 @@ if( sys.version_info[0] == 2 ):
 import	random as py_random
 import	os
 import	struct
+import	math
 
 import	numpy
 
 
 
 def random():
-#	return( py_random.random() )
 #	return( float( struct.unpack( "Q", os.urandom( 8 ) )[0] ) / 18446744073709551616.0 )
+#	return( py_random.random() )
 	return( numpy.random.random() )
 
 
@@ -30,15 +31,8 @@ def randint( a, b ):
 	return( numpy.random.random_integers( a, b ) )
 
 
-# --- Box–Muller:
-# two_pi = 2.0 * 3.14159265358979323846;
-# u1 = rand() * ( 1.0 / RAND_MAX );
-# u2 = rand() * ( 1.0 / RAND_MAX );
-# z0 = sqrt( -2.0 * log( u1 ) ) * cos( two_pi * u2 );
-# z1 = sqrt( -2.0 * log( u1 ) ) * sin( two_pi * u2 );
-# return( z0 * sigma + mu );
-# ----------------------------------------------
 def gauss( mean, stdv ):
+#	return( mean + stdv * math.sqrt( -2.0 * math.log( random() ) ) * math.cos( 2.0 * math.pi * random() ) )
 #	return( py_random.gauss( mean, stdv ) )
 	return( numpy.random.normal( mean, stdv ) )
 
