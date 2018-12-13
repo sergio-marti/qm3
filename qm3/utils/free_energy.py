@@ -8,7 +8,7 @@ import	math
 import	qm3.constants
 import	qm3.maths.ode
 import	qm3.maths.stats
-import	random
+import	qm3.maths.rand
 import	time
 
 
@@ -118,7 +118,6 @@ def fep_integrate( dene, temperature = 300.0, clusters = 1, tries = 10 ):
 	if( clusters == 1 ):
 		out = [ __integrate( dene, temperature ) ]
 	else:
-		random.seed()
 		out = []
 		rt  = temperature * 1.0e-3 * qm3.constants.R
 		exp = [ math.exp( - dene[i] / rt ) for i in range( len( dene ) ) ]
@@ -130,7 +129,7 @@ def fep_integrate( dene, temperature = 300.0, clusters = 1, tries = 10 ):
 				e = [ dene[exp.index(k)] for k in grp[j] ]
 				k = "%d:%.3lf"%( n, sum( e ) / float( n ) )
 				dat[k] = e[:]
-			time.sleep( random.randint( 1, 3 ) )
+			time.sleep( qm3.maths.rand.randint( 1, 3 ) )
 		for k in iter( dat ):
 			if( len( dat[k] ) > 1 ):
 				out.append( __integrate( dat[k], temperature ) )

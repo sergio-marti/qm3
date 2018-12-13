@@ -6,12 +6,11 @@ import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
 import	math
-import	random
+import	qm3.maths.rand
 import	qm3.utils
 import	qm3.constants
 
 
-random.seed()
 
 _Tfac = 10.0 / ( qm3.constants.KB * qm3.constants.NA )
 _Gfac = 1000.0 * qm3.constants.NA					# g/mol > kg
@@ -40,7 +39,7 @@ def assign_velocities( obj, temperature = 300.0, project_RT = True ):
 	KT = qm3.constants.KB * temperature * _Gfac
 	for i in range( obj.size // 3 ):
 		SD = math.sqrt( KT / obj.mass[i] )
-		obj.velo += [ random.gauss( 0.0, SD ) * 1.0e-2 for ii in [0, 1, 2] ]	 # ang/ps
+		obj.velo += [ qm3.maths.rand.gauss( 0.0, SD ) * 1.0e-2 for ii in [0, 1, 2] ]	 # ang/ps
 	if( project_RT ):
 		qm3.utils.project_RT_modes( obj.mass, obj.coor, obj.velo, None )
 	T, Kin = current_temperature( obj, project_RT )
@@ -334,8 +333,8 @@ class langevin_verlet( object ):
 		for i in range( self.obj.size ):
 			self.obj.coor[i] += self.fr1 * self.obj.velo[i] + self.fr2 * self.vacc[i]
 			# random forces
-			r1 = random.gauss( 0.0, 1.0 )
-			r2 = random.gauss( 0.0, 1.0 )
+			r1 = qm3.maths.rand.gauss( 0.0, 1.0 )
+			r2 = qm3.maths.rand.gauss( 0.0, 1.0 )
 			self.obj.coor[i] += self.ff[i//3] * self.sr * r1
 			vtmp.append( self.c0 * self.obj.velo[i] + self.fv1 * self.vacc[i] + self.ff[i//3] * self.sv * ( self.cv1 * r1 + self.cv2 * r2 ) )
 		self.obj.get_grad()

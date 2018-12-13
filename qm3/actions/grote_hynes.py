@@ -5,12 +5,8 @@ import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
 import	math
-import	random
 import	qm3.utils
 import	qm3.actions.dynamics
-
-
-random.seed()
 
 
 

@@ -7,7 +7,7 @@ if( sys.version_info[0] == 2 ):
 import	math
 import	qm3.maths.integration
 import	qm3.maths.roots
-import	random
+import	qm3.maths.rand
 import	qm3.maths.matrix
 
 
@@ -94,16 +94,16 @@ class k_means( object ):
 		s = sum( d2 )
 		p = [ i / s for i in d2 ]
 		c = [ sum( p[0:i+1] ) for i in range( len( p ) ) ]
-		r = random.random()
+		r = qm3.maths.rand.random()
 		i = c.index( [ j for j in c if j >= r ][0] )
 		return( self._x[i] )
  
 
 	def _init_centers(self):
 # ---------------------------------------------------
-#		self._mu = random.sample( self._x, self._k )
+#		self._mu = qm3.maths.rand.random.sample( self._x, self._k )
 # ---------------------------------------------------
-		self._mu = random.sample( self._x, 1 )
+		self._mu = qm3.maths.rand.sample( self._x, 1 )
 		while( len( self._mu ) < self._k ):
 			self._mu.append( self._choose_next_center() )
 # ---------------------------------------------------
@@ -111,7 +111,7 @@ class k_means( object ):
 
 	def find_centers( self, k ):
 		self._k = k
-		self._omu = random.sample( self._x, self._k )
+		self._omu = qm3.maths.rand.sample( self._x, self._k )
 		self._init_centers()
 		while( not self._has_converged() ):
 			self._omu = self._mu[:]
