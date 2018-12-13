@@ -27,6 +27,7 @@ def sample( lst, num ):
 
 
 def randint( a, b ):
+#	return( a + int( random() * ( b - a + 1 ) ) )
 #	return( py_random.randint( a, b ) )
 	return( numpy.random.random_integers( a, b ) )
 
