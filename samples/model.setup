@@ -65,7 +65,7 @@ structure hoh
 end structure
 """%( n, v - 0.5 ) )
 f.close()
-os.system( "/Users/smarti/Devel/packmol/packmol < inp" )
+os.system( "/Users/smarti/Devel/packmol/bin/packmol < inp" )
 
 # -----------------------------------------------------------------------------
 # solvation

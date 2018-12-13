@@ -11,7 +11,7 @@ import	qm3.utils
 import	qm3.elements
 import	qm3.constants
 import	multiprocessing, qm3.utils.queue
-import	random
+import	qm3.maths.rand
 import	time
 
 
@@ -101,7 +101,6 @@ def solvate( molec, solvnt, transform = qm3.utils.center, radii = qm3.elements.r
 
 
 def ionic_strength( molec, temp = 300.0, conc = 0.15, chains = None, mdst = 5.0 ):
-	random.seed()
 	t0 = time.time()
 	sys.stderr.write( "+ Computing geometrical center (by residue)... " )
 	gcm = []
@@ -150,7 +149,7 @@ def ionic_strength( molec, temp = 300.0, conc = 0.15, chains = None, mdst = 5.0 
 	S = []
 	for i in range( NION ):
 		s = Q.data[:]
-		w = random.randint( 0, len( s ) - 1 )
+		w = qm3.maths.rand.randint( 0, len( s ) - 1 )
 		iml.labl.append( t[i%2][0] )
 		iml.resi.append( i+1 )
 		iml.resn.append( t[i%2][1] )
