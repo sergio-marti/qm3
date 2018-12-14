@@ -14,6 +14,9 @@ import	math
 import	numpy
 
 
+#
+# comment/uncomment code depending on your dependencies/preferences...
+#
 
 def random():
 #	return( float( struct.unpack( "Q", os.urandom( 8 ) )[0] ) / 18446744073709551616.0 )
