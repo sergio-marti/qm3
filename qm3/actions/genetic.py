@@ -46,6 +46,8 @@ def differential_evolution( obj,
 						crossover_probability = 0.75,
 						log_function = default_log ):
 	# -------------------------------------------------------------------------
+	# the larger the population, the better the performance (but the larger the calculation...)
+	population_size = max( population_size, size * 2 )
 	mutation_factor = min( max( mutation_factor, 0.1 ), 1.0 )
 	crossover_probability = min( max( crossover_probability, 0.1 ), 1.0 )
 	# -------------------------------------------------------------------------
@@ -286,7 +288,7 @@ def smp_diffevo( objs,
 	# -------------------------------------------------------------------------
 	ncpu = len( objs )
 	size = objs[0].size
-	population_size = max( population_size, size * 5 )
+	population_size = max( population_size, size * 2 )
 	population_size = ( population_size // ncpu + ( population_size % ncpu != 0 ) ) * ncpu
 	chnk = population_size // ncpu
 	mutation_factor = min( max( mutation_factor, 0.1 ), 1.0 )
