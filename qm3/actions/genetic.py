@@ -16,6 +16,8 @@ def default_log( txt ):
 
 
 """
+the larger the population, the better the performance (but the larger the calculation...)
+	a value of: population = 5 * size   would be ideal whether it is affordable...
 
 diffevo [differential_evolution] is the standard (serialized) implementation, and works
 	(pretty) well for large population_sizes. During the 'intercourses', the improved
@@ -47,7 +49,7 @@ def differential_evolution( obj,
 						log_function = default_log ):
 	# -------------------------------------------------------------------------
 	# the larger the population, the better the performance (but the larger the calculation...)
-	population_size = max( population_size, size * 2 )
+	population_size = max( population_size, obj.size * 2 )
 	mutation_factor = min( max( mutation_factor, 0.1 ), 1.0 )
 	crossover_probability = min( max( crossover_probability, 0.1 ), 1.0 )
 	# -------------------------------------------------------------------------
@@ -84,7 +86,7 @@ def differential_evolution( obj,
 	while( it < step_number and ok_stp > step_tolerance ):
 		for i in range( population_size ):
 			# -------------------------------------------------------------------------
-			# rand-to-best/1 + binomial
+			# rand/1 + binomial
 			a, b, c = qm3.maths.rand.sample( [ j for j in range( population_size ) if j != i ], 3 )
 			trial = []
 			for j in range( obj.size ):
@@ -136,7 +138,7 @@ try:
 		crossover_probability = min( max( crossover_probability, 0.1 ), 1.0 )
 		# -------------------------------------------------------------------------
 		if( mpi_node == 0 ):
-			log_function( "---------------------------------------- Genetic Minimization (MPI/DE: rand/1+bin)\n" )
+			log_function( "---------------------------------------- Genetic Minimization (MPI/DE: rand-to-best/1+bin)\n" )
 			log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
 			log_function( "Step Number:        %20d"%( step_number ) )
 			log_function( "Print Frequency:    %20d"%( print_frequency ) )
@@ -191,12 +193,21 @@ try:
 		while( qq == 1 ):
 			for i in range( population_size ):
 				# -------------------------------------------------------------------------
+#				# rand/1 + binomial
+#				a, b, c = qm3.maths.rand.sample( [ j for j in range( population_size ) if j != i ], 3 )
+#				trial = []
+#				for j in range( obj.size ):
+#					if( qm3.maths.rand.random() < crossover_probability ):
+#						trial.append( min( max( coor[a][j] + mutation_factor * ( coor[b][j] - coor[c][j] ), 0.0 ), 1.0 ) )
+#					else:
+#						trial.append( coor[i][j] )
+				# -------------------------------------------------------------------------
 				# rand-to-best/1 + binomial
-				a, b, c = qm3.maths.rand.sample( [ j for j in range( population_size ) if j != i ], 3 )
+				a, b = qm3.maths.rand.sample( [ j for j in range( population_size ) if j != i ], 2 )
 				trial = []
 				for j in range( obj.size ):
 					if( qm3.maths.rand.random() < crossover_probability ):
-						trial.append( min( max( coor[a][j] + mutation_factor * ( coor[b][j] - coor[c][j] ), 0.0 ), 1.0 ) )
+						trial.append( min( max( coor[i][j] + mutation_factor * ( ok_crd[j] - coor[i][j] + coor[a][j] - coor[b][j] ), 0.0 ), 1.0 ) )
 					else:
 						trial.append( coor[i][j] )
 				# -------------------------------------------------------------------------
@@ -294,7 +305,7 @@ def smp_diffevo( objs,
 	mutation_factor = min( max( mutation_factor, 0.1 ), 1.0 )
 	crossover_probability = min( max( crossover_probability, 0.1 ), 1.0 )
 	# -------------------------------------------------------------------------
-	log_function( "---------------------------------------- Genetic Minimization (SMP/DE: rand/1+bin)\n" )
+	log_function( "---------------------------------------- Genetic Minimization (SMP/DE: rand-to-best/1+bin)\n" )
 	log_function( "Degrees of Freedom: %20ld"%( size ) )
 	log_function( "Step Number:        %20d"%( step_number ) )
 	log_function( "Print Frequency:    %20d"%( print_frequency ) )
@@ -343,13 +354,21 @@ def smp_diffevo( objs,
 				T.append( [] )
 				w = i * ncpu + j
 				# -------------------------------------------------------------------------
+#				# rand/1 + binomial
+#				a, b, c = qm3.maths.rand.sample( [ k for k in range( population_size ) if k != w ], 3 )
+#				for k in range( size ):
+#					if( qm3.maths.rand.random() < crossover_probability ):
+#						T[-1].append( min( max( coor[a][k] + mutation_factor * ( coor[b][k] - coor[c][k] ), 0.0 ), 1.0 ) )
+#					else:
+#						T[-1].append( coor[w][k] )
+				# -------------------------------------------------------------------------
 				# rand-to-best/1 + binomial
-				a, b, c = qm3.maths.rand.sample( [ k for k in range( population_size ) if k != w ], 3 )
+				a, b = qm3.maths.rand.sample( [ k for k in range( population_size ) if k != i ], 2 )
 				for k in range( size ):
 					if( qm3.maths.rand.random() < crossover_probability ):
-						T[-1].append( min( max( coor[a][k] + mutation_factor * ( coor[b][k] - coor[c][k] ), 0.0 ), 1.0 ) )
+						T[-1].append( min( max( coor[i][k] + mutation_factor * ( ok_crd[k] - coor[i][k] + coor[a][k] - coor[b][k] ), 0.0 ), 1.0 ) )
 					else:
-						T[-1].append( coor[w][k] )
+						T[-1].append( coor[i][k] )
 				args.append( [ w, objs[j], [ minc[k] + disp[k] * T[-1][k] for k in range( size ) ] ] )
 		work = multiprocessing.Pool( ncpu )
 		F = [ j for i,j in sorted( work.map( _smp_diffevo_fitness_pool, args ) ) ]
@@ -372,7 +391,7 @@ def smp_diffevo( objs,
 #				T.append( [] )
 #				w = i * ncpu + j
 #				# -------------------------------------------------------------------------
-#				# rand-to-best/1 + binomial
+#				# rand/1 + binomial
 #				a, b, c = qm3.maths.rand.sample( [ k for k in range( population_size ) if k != w ], 3 )
 #				for k in range( size ):
 #					if( qm3.maths.rand.random() < crossover_probability ):
