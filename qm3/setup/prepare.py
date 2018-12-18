@@ -30,7 +30,7 @@ def counter_ions( molec, fname = "ions.pdb", num = 1, chrg = 1.0, d_grd = 0.5, d
 
 
 
-def solvate( molec, solvnt, transform = qm3.utils.center, radii = qm3.elements.r_vdw ):
+def solvate( molec, solvnt, radii = qm3.elements.r_vdw, transform = True ):
 	t0 = time.time()
 	sys.stderr.write( "+ Computing van-der-walls radii... " )
 	r1m = []
@@ -45,10 +45,11 @@ def solvate( molec, solvnt, transform = qm3.utils.center, radii = qm3.elements.r
 		r2s.append( radii[solvnt.anum[i]] * radii[solvnt.anum[i]] )
 	sys.stderr.write( "done!\n" )
 	# -------------------------------------------------------------------------------------------------------
-	sys.stderr.write( "+ Transforming coordinates... " )
-	qm3.utils.moments_of_inertia( molec.mass, molec.coor )
-	transform( solvnt.mass, solvnt.coor )
-	sys.stderr.write( "done!\n" )
+	if( transform ):
+		sys.stderr.write( "+ Transforming coordinates... " )
+		qm3.utils.moments_of_inertia( molec.mass, molec.coor )
+		qm3.utils.center( solvnt.mass, solvnt.coor )
+		sys.stderr.write( "done!\n" )
 	# -------------------------------------------------------------------------------------------------------
 	sys.stderr.write( "+ Computing geometrical center (by residue)... " )
 	gcm = []
