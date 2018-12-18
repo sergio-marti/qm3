@@ -11,35 +11,38 @@ import	os
 import	struct
 import	math
 
-import	numpy
 
+try:
 
-#
-# comment/uncomment code depending on your dependencies/preferences...
-#
+	import	numpy
+	numpy.random.seed()
+	def random():
+		return( numpy.random.random() )
 
-def random():
-#	return( float( struct.unpack( "Q", os.urandom( 8 ) )[0] ) / 18446744073709551616.0 )
-#	return( py_random.random() )
-	return( numpy.random.random() )
+	def sample( lst, num ):
+		return( list( numpy.random.choice( lst, num, replace = False ) ) )
 
+	def randint( a, b ):
+		return( numpy.random.random_integers( a, b ) )
 
-def sample( lst, num ):
-#	return( py_random.sample( lst, num ) )
-	return( list( numpy.random.choice( lst, num, replace = False ) ) )
+	def gauss( mean, stdv ):
+		return( numpy.random.normal( mean, stdv ) )
 
+except:
 
-def randint( a, b ):
-#	return( a + int( random() * ( b - a + 1 ) ) )
-#	return( py_random.randint( a, b ) )
-	return( numpy.random.random_integers( a, b ) )
+	py_random.seed( os.urandom( 128 ) )
+	def random():
+#		return( float( struct.unpack( "Q", os.urandom( 8 ) )[0] ) / 18446744073709551616.0 )
+		return( py_random.random() )
 
+	def sample( lst, num ):
+		return( py_random.sample( lst, num ) )
 
-def gauss( mean, stdv ):
-#	return( mean + stdv * math.sqrt( -2.0 * math.log( random() ) ) * math.cos( 2.0 * math.pi * random() ) )
-#	return( py_random.gauss( mean, stdv ) )
-	return( numpy.random.normal( mean, stdv ) )
+	def randint( a, b ):
+#		return( a + int( random() * ( b - a + 1 ) ) )
+		return( py_random.randint( a, b ) )
 
+	def gauss( mean, stdv ):
+#		return( mean + stdv * math.sqrt( -2.0 * math.log( random() ) ) * math.cos( 2.0 * math.pi * random() ) )
+		return( py_random.gauss( mean, stdv ) )
 
-py_random.seed( os.urandom( 128 ) )
-numpy.random.seed()
