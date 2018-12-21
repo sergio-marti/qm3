@@ -8,6 +8,10 @@ import  math
 import	qm3.maths.rand
 import	qm3.utils.queue
 import	multiprocessing
+try:
+	import	cPickle as pickle
+except:
+	import	pickle
 
 
 def default_log( txt ):
@@ -46,6 +50,7 @@ def differential_evolution( obj,
 						population_size = 10,
 						mutation_factor = 0.8,
 						crossover_probability = 0.75,
+						checkpointing = True,
 						log_function = default_log ):
 	# -------------------------------------------------------------------------
 	# the larger the population, the better the performance (but the larger the calculation...)
@@ -109,6 +114,10 @@ def differential_evolution( obj,
 			it += 1
 			if( it % print_frequency == 0 ):
 				log_function( "%10d%30.10lf"%( it, ok_fun ) + " (%.1le)"%( ok_stp ) )
+				if( checkpointing ):
+					fd = open( "diffevo.chk", "wb" )
+					pickle.dump( [ minc[j] + disp[j] * ok_crd[j] for j in range( obj.size ) ], fd )
+					fd.close()
 			obj.current_step( it )
 	if( it % print_frequency != 0 ):
 		log_function( "%10d%30.10lf"%( it, ok_fun ) + " (%.1le)"%( ok_stp ) )
@@ -132,6 +141,7 @@ try:
 				population_size = 10,
 				mutation_factor = 0.8,
 				crossover_probability = 0.75,
+				checkpointing = True,
 				log_function = default_log ):
 		# -------------------------------------------------------------------------
 		mutation_factor = min( max( mutation_factor, 0.1 ), 1.0 )
@@ -264,6 +274,10 @@ try:
 		if( mpi_node == 0 ):
 			if( it % print_frequency != 0 ):
 				log_function( "%10d%30.10lf"%( it, ok_fun ) + " (%.1le)"%( ok_stp ) )
+				if( checkpointing ):
+					fd = open( "diffevo.chk", "wb" )
+					pickle.dump( [ minc[j] + disp[j] * ok_crd[j] for j in range( obj.size ) ], fd )
+					fd.close()
 			log_function( "-" * 40 )
 			obj.coor = [ minc[j] + disp[j] * ok_crd[j] for j in range( obj.size ) ]
 			obj.func = ok_fun
@@ -295,6 +309,7 @@ def smp_diffevo( objs,
 			population_size = 10,
 			mutation_factor = 0.8,
 			crossover_probability = 0.75,
+			checkpointing = True,
 			log_function = default_log ):
 	# -------------------------------------------------------------------------
 	ncpu = len( objs )
@@ -415,6 +430,10 @@ def smp_diffevo( objs,
 			it += 1
 			if( it % print_frequency == 0 ):
 				log_function( "%10d%30.10lf"%( it, ok_fun ) + " (%.1le)"%( ok_stp ) )
+				if( checkpointing ):
+					fd = open( "diffevo.chk", "wb" )
+					pickle.dump( [ minc[j] + disp[j] * ok_crd[j] for j in range( obj.size ) ], fd )
+					fd.close()
 	if( it % print_frequency != 0 ):
 		log_function( "%10d%30.10lf"%( it, ok_fun ) + " (%.1le)"%( ok_stp ) )
 	log_function( "-" * 40 )
