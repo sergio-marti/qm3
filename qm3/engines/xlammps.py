@@ -66,8 +66,8 @@ def guess_labels( mol ):
 
 
 
-sys.path.insert( 0, "/Users/smarti/Devel/lammps" )
 try:
+	sys.path.insert( 0, "/Users/smarti/Devel/lammps" )
 	import	lammps as _lammps
 	class py_lammps( object ):
 		def __init__( self, inp, name = "serial", cmdargs = [ "-sc", "none" ] ):
@@ -153,6 +153,7 @@ class lammps_pipe( object ):
 
 
 	def get_func( self, mol ):
+		self.update_coor( mol )
 # ------------------------------------------------
 #		self.pfd.write( "reset_timestep 0\nrun 0\n" )
 #		self.pfd.write( "print $(pe) file lammps.ener screen no\n" )
@@ -182,6 +183,7 @@ class lammps_pipe( object ):
 
 	def get_grad( self, mol ):
 # ------------------------------------------------
+#		self.update_coor( mol )
 #		self.pfd.write( "reset_timestep 0\nrun 0\n" )
 #		self.pfd.write( "print $(pe) file lammps.ener screen no\n" )
 #		self.pfd.write( "write_dump all custom lammps.force id fx fy fz modify sort id format line \"%d %.10lf %.10lf %.10lf\"\n" )
@@ -245,6 +247,7 @@ class lammps( object ):
 
 
 	def get_func( self, mol ):
+		self.update_coor( mol )
 		os.system( self.exe )
 		f = open( "lammps.ener", "rt" )
 		mol.func += float( f.read() ) * qm3.constants.K2J

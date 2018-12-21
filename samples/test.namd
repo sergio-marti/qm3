@@ -29,7 +29,6 @@ class my_eng( qm3.problem.template ):
 
     def get_func( self ):
         self.mol.func = 0.0
-        self.eng.update_coor( self.mol )
         self.eng.get_func( self.mol )
         self.func = self.mol.func
 
@@ -37,7 +36,6 @@ class my_eng( qm3.problem.template ):
     def get_grad( self ):
         self.mol.func = 0.0
         self.mol.grad = [ 0.0 for i in range( self.size ) ]
-        self.eng.update_coor( self.mol )
         self.eng.get_grad( self.mol )
         self.fix.get_grad( self.mol )
         self.func = self.mol.func

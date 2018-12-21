@@ -54,11 +54,13 @@ try:
 
 
 		def get_func( self, mol ):
+			self.update_coor( mol )
 			stt = self.sim.context.getState( getEnergy = True, getForces = False )
 			mol.func += stt.getPotentialEnergy().value_in_unit( simtk.unit.kilojoule/simtk.unit.mole )
 
 
 		def get_grad( self, mol ):
+			self.update_coor( mol )
 			stt = self.sim.context.getState( getEnergy = True, getForces = True )
 			mol.func += stt.getPotentialEnergy().value_in_unit( simtk.unit.kilojoule/simtk.unit.mole )
 			frc = stt.getForces()

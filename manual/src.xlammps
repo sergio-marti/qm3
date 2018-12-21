@@ -1,5 +1,5 @@
 \normalsize
-\subsection[lammps]{lammps.py}
+\subsection[xlammps]{xlammps.py}
 
 \begin{pyglist}[language=python,fvset={frame=single}]
 def lammps_read( fname = "data" )
@@ -28,9 +28,9 @@ class py_lammps( inp, name = "serial", cmdargs = [ "-sc", "none" ] )
 
 \footnotesize
 \begin{pyglist}[language=python,fvset={frame=single}]
-#SOURCE@../samples/test.lammps
+#SOURCE@../samples/test.xlammps
 \end{pyglist}
 
 \begin{pyglist}[fvset={frame=single}]
-#SOURCE@../samples/logs/test.lammps.log
+#SOURCE@../samples/logs/test.xlammps.log
 \end{pyglist}

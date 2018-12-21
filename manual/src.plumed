@@ -1,9 +1,8 @@
 \normalsize
 \subsection[\_plumed]{\_plumed.so}
 reads plumed.dat for configuring Plumed2.
-arguments are not named, thus \parm{time\_step} must be defined if \parm{PBC} is provided.
 \begin{pyglist}[language=python,fvset={frame=single}]
-class Plumed( mol, time_step = 0.001, PBC = False )
+class Plumed( mol, PBC {True/False}, time_step {0.001} )
     def get_grad( mol, istep )
 \end{pyglist}
 

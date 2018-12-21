@@ -13,7 +13,6 @@ omm = prm.createSystem( psf.topology, nonbondedMethod = simtk.openmm.app.CutoffN
 eng = qm3.engines.openmm.py_openmm( omm, psf.topology, [0, 1, 2] )
 mol.chrg = [ .0, .0, .0, -0.834, 0.417, 0.417 ] 
 eng.update_charges( mol )
-eng.update_coor( mol )
 mol.func = 0.0
 mol.grad = [ 0.0 for i in range( 3 * mol.natm ) ]
 eng.get_grad( mol )

@@ -134,6 +134,7 @@ class namd_pipe( object ):
 
 
 	def get_func( self, mol ):
+		self.update_coor( mol )
 		self.pfd.write( "energy\n" )
 		self.pfd.flush()
 # patched (Controller.C) -------------------------
@@ -149,6 +150,7 @@ class namd_pipe( object ):
 
 
 	def get_grad( self, mol ):
+		self.update_coor( mol )
 		self.pfd.write( "gradient\n" )
 		self.pfd.flush()
 # patched (Controller.C) -------------------------
@@ -193,6 +195,7 @@ class namd( object ):
 
 
 	def get_func( self, mol ):
+		self.update_coor( mol )
 		os.system( self.exe )
 		f = open( "namd.out", "rt" )
 		mol.func += float( re.compile( "ENERGY:       0.*" ).findall( f.read() )[0].split()[11] ) * qm3.constants.K2J
@@ -200,6 +203,7 @@ class namd( object ):
 
 
 	def get_grad( self, mol ):
+		self.update_coor( mol )
 		self.get_func( mol )
 		f = open( "namd.force", "rb" )
 		if( struct.unpack( "i", f.read( 4 ) )[0] == mol.natm ):

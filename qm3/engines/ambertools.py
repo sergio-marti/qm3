@@ -244,6 +244,7 @@ class sander( object ):
 
 
 	def get_func( self, mol ):
+		self.update_coor( mol )
 		os.system( self.exe )
 		f = open( "mden", "rt" )
 		l = f.readline()
@@ -260,6 +261,7 @@ class sander( object ):
 
 
 	def get_grad( self, mol ):
+		self.update_coor( mol )
 		self.get_func( mol )
 		# dirty NETCDF wrapper...
 		f = open( "mdfrc", "rb" )

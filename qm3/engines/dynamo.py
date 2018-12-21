@@ -211,6 +211,7 @@ class dynamo( object ):
 
 
 	def get_func( self, mol ):
+		self.update_coor( mol )
 		try:
 			os.unlink( "dynamo.dat" )
 		except:
@@ -228,6 +229,7 @@ class dynamo( object ):
 
 
 	def get_grad( self, mol ):
+		self.update_coor( mol )
 		try:
 			os.unlink( "dynamo.dat" )
 		except:

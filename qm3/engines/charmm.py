@@ -196,6 +196,7 @@ class charmm_pipe( object ):
 
 
 	def get_func( self, mol ):
+		self.update_coor( mol )
 		self.pfd.write( "energy\n" )
 		self.pfd.write( "open unit 99 write card name charmm.ener\n" )
 		self.pfd.write( "write ener unit 99\n" )
@@ -213,6 +214,7 @@ class charmm_pipe( object ):
 
 
 	def get_grad( self, mol ):
+		self.update_coor( mol )
 		self.pfd.write( "energy\n" )
 		self.pfd.write( "coor force comp\n" )
 		self.pfd.write( "open unit 99 write file name charmm.force\n" )

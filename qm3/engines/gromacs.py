@@ -129,6 +129,7 @@ class gromacs( object ):
 
 
 	def get_func( self, mol ):
+		self.update_coor( mol )
 		try:
 			os.unlink( "gromacs.log" )
 			os.unlink( "gromacs.edr" )

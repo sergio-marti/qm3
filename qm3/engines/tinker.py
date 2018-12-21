@@ -53,6 +53,7 @@ class tinker( object ):
 
 
 	def get_func( self, mol ):
+		self.update_coor( mol )
 		os.system( self.exe )
 		f = open( "tinker.log", "rt" )
 		l = f.readline()
@@ -67,6 +68,7 @@ class tinker( object ):
 
 
 	def get_grad( self, mol ):
+		self.update_coor( mol )
 		self.get_func( mol )
 		f = open( "tinker.log", "rt" )
 		p = re.compile( "Anlyt[\ ]*([0-9]+)[\ ]*([0-9\.\-]+)[\ ]*([0-9\.\-]+)[\ ]*([0-9\.\-]+)[\ ]*[0-9\.]+" )
