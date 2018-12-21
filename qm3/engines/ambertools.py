@@ -25,7 +25,7 @@ def coordinates_read( mol, fname = None ):
 		return
 	n *= 3
 	mol.coor = []
-	while( len( self.coor ) < n ):
+	while( len( mol.coor ) < n ):
 		mol.coor += [ float( j ) for j in f.readline().split() ]
 	mol.boxl = [ float( j ) for j in f.readline().split()[0:3] ]
 	qm3.io.close( f, fname )
@@ -148,78 +148,84 @@ def topology_write( mol, fname = None ):
 
 
 
+#try:
+#
+#	sys.path.insert( 0, "/Users/smarti/Devel/amber/18/lib/python2.7/site-packages" )
+#	import	sander as _sander
+#	import	numpy
+#	#
+#	# py_sander doesn't allow to fix atoms (via ibelly/bellymask)
+#	#
+#	class py_sander( object ):
+#
+#		def __init__( self, mol, prmtop, cutoff = 10.0, PBC = True, qmsel = None, method = "AM1", charge = 0 ):
+#			crd = numpy.ndarray( ( 3 * mol.natm, ), buffer = numpy.array( mol.coor, dtype = float ) )
+#			box = numpy.ndarray( 6, buffer = numpy.array( [ mol.boxl[0], mol.boxl[1], mol.boxl[2], 90.0, 90.0, 90.0 ], dtype = float ) )
+#			# -------------------------------------------
+#			if( method == "EXTERN" or not PBC ):
+#				mm_opt = _sander.gas_input( 6 )
+#			else:
+#				mm_opt = _sander.pme_input()
+#			mm_opt.cut = cutoff
+#			mm_opt.jfastw = 4
+#			# -------------------------------------------
+#			if( qmsel != None ):
+#				mm_opt.ifqnt = 1
+#				qm_opt = _sander.qm_input()
+#				qm_opt.qm_theory = method
+#				qm_opt.qmcharge = charge
+#				qm_opt.scfconv = 1.0e-8
+#				if( method == "EXTERN" ):
+#					qm_opt.adjust_q = 0
+#					qm_opt.qmmm_int = 1
+#					qm_opt.qm_ewald = 0
+#				else:
+#					qm_opt.qmmm_int = 5
+#					qm_opt.qm_ewald = 1
+#				for i in range( len( qmsel ) ):
+#					qm_opt.iqmatoms[i] = qmsel[i] + 1
+#				_sander.setup( prmtop, crd, box, mm_opt, qm_opt )
+#			else:
+#				mm_opt.ifqnt = 0
+#				_sander.setup( prmtop, crd, box, mm_opt )
+#			# -------------------------------------------
+#
+#
+#		def stop( self ):
+#			if( _sander.is_setup() ):
+#				_sander.cleanup()
+#
+#
+#		def update_coor( self, mol ):
+#			_sander.set_positions( numpy.ndarray( ( 3 * mol.natm, ), buffer = numpy.array( mol.coor, dtype = float ) ) )
+#
+#
+#		def get_func( self, mol ):
+#			self.update_coor( mol )
+#			e, g = _sander.energy_forces()
+#			mol.func += e.tot * qm3.constants.K2J
+#
+#
+#		def get_grad( self, mol ):
+#			self.update_coor( mol )
+#			e, g = _sander.energy_forces()
+#			mol.func += e.tot * qm3.constants.K2J
+#			for i in range( mol.natm ):
+#				i3 = i * 3
+#				for j in [0, 1, 2]:
+#					mol.grad[i3+j] -= g[i3+j] * qm3.constants.K2J
+#
+#
+#
+#except:
+#	pass
 try:
-
-	sys.path.insert( 0, "/Users/smarti/Devel/amber/18/lib/python2.7/site-packages" )
-	import	sander as _sander
-	import	numpy
-	#
-	# py_sander doesn't allow to fix atoms (via ibelly/bellymask)
-	#
-	class py_sander( object ):
-
-		def __init__( self, mol, prmtop, cutoff = 10.0, qmsel = None, method = "AM1", charge = 0, PBC = True ):
-			crd = numpy.ndarray( ( 3 * mol.natm, ), buffer = numpy.array( mol.coor, dtype = float ) )
-			box = numpy.ndarray( 6, buffer = numpy.array( [ mol.boxl[0], mol.boxl[1], mol.boxl[2], 90.0, 90.0, 90.0 ], dtype = float ) )
-			# -------------------------------------------
-			if( method == "EXTERN" or not PBC ):
-				mm_opt = _sander.gas_input( 6 )
-			else:
-				mm_opt = _sander.pme_input()
-			mm_opt.cut = cutoff
-			mm_opt.jfastw = 4
-			# -------------------------------------------
-			if( qmsel != None ):
-				mm_opt.ifqnt = 1
-				qm_opt = _sander.qm_input()
-				qm_opt.qm_theory = method
-				qm_opt.qmcharge = charge
-				qm_opt.scfconv = 1.0e-8
-				if( method == "EXTERN" ):
-					qm_opt.adjust_q = 0
-					qm_opt.qmmm_int = 1
-					qm_opt.qm_ewald = 0
-				else:
-					qm_opt.qmmm_int = 5
-					qm_opt.qm_ewald = 1
-				for i in range( len( qmsel ) ):
-					qm_opt.iqmatoms[i] = qmsel[i] + 1
-				_sander.setup( prmtop, crd, box, mm_opt, qm_opt )
-			else:
-				mm_opt.ifqnt = 0
-				_sander.setup( prmtop, crd, box, mm_opt )
-			# -------------------------------------------
-
-
-		def stop( self ):
-			if( _sander.is_setup() ):
-				_sander.cleanup()
-
-
-		def update_coor( self, mol ):
-			_sander.set_positions( numpy.ndarray( ( 3 * mol.natm, ), buffer = numpy.array( mol.coor, dtype = float ) ) )
-
-
-		def get_func( self, mol ):
-			self.update_coor( mol )
-			e, g = _sander.energy_forces()
-			mol.func += e.tot * qm3.constants.K2J
-
-
-		def get_grad( self, mol ):
-			self.update_coor( mol )
-			e, g = _sander.energy_forces()
-			mol.func += e.tot * qm3.constants.K2J
-			for i in range( mol.natm ):
-				i3 = i * 3
-				for j in [0, 1, 2]:
-					mol.grad[i3+j] -= g[i3+j] * qm3.constants.K2J
-
-
-
+	import	qm3.engines._sander
+	class py_sander( qm3.engines._sander.sander ):
+		def __init__( self, mol, prmtop, cutoff = 10.0, PBC = True, qmsel = None, method = "AM1", charge = 0 ):
+			qm3.engines._sander.sander.__init__( self, mol, prmtop, cutoff, PBC, qmsel, method, charge )
 except:
 	pass
-
 
 
 

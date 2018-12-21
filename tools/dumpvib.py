@@ -32,9 +32,9 @@ size = len( symb ) * 3
 flen = os.stat( sys.argv[3] )[stat.ST_SIZE]
 if( flen == size*(2+size)*8 ):
 	f = file( sys.argv[3], "rb" )
-	coor = struct.unpack( "%dd"%( size ), f.read( size * 8 )  )
+	coor = struct.unpack( "%dd"%( size ), f.read( size * 8 ) )
 	f.read( size * 8 )
-	hess = struct.unpack( "%dd"%( size * size ), f.read( size * size * 8 )  )
+	hess = struct.unpack( "%dd"%( size * size ), f.read( size * size * 8 ) )
 	f.close()
 # ------------------------------------------------------------
 #	f = open( "hess", "wb" )

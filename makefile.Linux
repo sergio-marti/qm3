@@ -29,6 +29,10 @@ plumed:
 	$(PYX) setup.plumed build_ext --build-lib qm3/engines
 
 
+sander:
+	$(PYX) setup.sander build_ext --build-lib qm3/engines
+
+
 colvar_v:
 	$(PYX) setup.colvar_v build_ext --build-lib qm3/engines
 

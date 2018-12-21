@@ -187,7 +187,6 @@ class my_eng( qm3.problem.template ):
 
     def get_func( self ):
         self.mol.func = 0.0
-        self.eng.update_coor( self.mol )
         self.eng.get_func( self.mol )
         self.func = self.mol.func
 
@@ -195,7 +194,6 @@ class my_eng( qm3.problem.template ):
     def get_grad( self ):
         self.mol.func = 0.0
         self.mol.grad = [ 0.0 for i in range( self.size ) ]
-        self.eng.update_coor( self.mol )
         self.eng.get_grad( self.mol )
         self.fix.get_grad( self.mol )
         self.func = self.mol.func
@@ -235,8 +233,8 @@ class my_eng( qm3.problem.template ):
         self.mol = qm3.mol.molecule( "pdb" )
         self.mol.boxl = [ 100, 100, 100 ]
 
-        self.eng = qm3.engines.ambertools.py_sander( self.mol, prmtop = "prmtop",
-             cutoff = 16.0, qmsel = [ 0, 1, 2 ], method = "EXTERN" )
+        self.eng = qm3.engines.ambertools.py_sander( self.mol, "prmtop",
+             cutoff = 16.0, PBC = False, qmsel = [ 0, 1, 2 ], method = "EXTERN" )
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor
@@ -246,7 +244,6 @@ class my_eng( qm3.problem.template ):
 
     def get_func( self ):
         self.mol.func = 0.0
-        self.eng.update_coor( self.mol )
         self.eng.get_func( self.mol )
         self.func = self.mol.func
 
@@ -254,7 +251,6 @@ class my_eng( qm3.problem.template ):
     def get_grad( self ):
         self.mol.func = 0.0
         self.mol.grad = [ 0.0 for i in range( self.size ) ]
-        self.eng.update_coor( self.mol )
         self.eng.get_grad( self.mol )
         self.func = self.mol.func
         self.grad = self.mol.grad
@@ -266,7 +262,6 @@ obj.get_grad()
 print( obj.func )
 import qm3.maths.matrix
 qm3.maths.matrix.mprint( obj.grad, obj.mol.natm, 3 )
-obj.eng.stop()
 
 
 ##############################################################################################
@@ -293,7 +288,6 @@ class my_eng( qm3.problem.template ):
 
     def get_func( self ):
         self.mol.func = 0.0
-        self.eng.update_coor( self.mol )
         self.eng.get_func( self.mol )
         self.func = self.mol.func
 
@@ -301,7 +295,6 @@ class my_eng( qm3.problem.template ):
     def get_grad( self ):
         self.mol.func = 0.0
         self.mol.grad = [ 0.0 for i in range( self.size ) ]
-        self.eng.update_coor( self.mol )
         self.eng.get_grad( self.mol )
         self.func = self.mol.func
         self.grad = self.mol.grad
