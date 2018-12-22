@@ -8,5 +8,6 @@ setup(
 			include_dirs = [ "INCLUDE_PATHS" ],
 			library_dirs = [ "LIBRARY_PATHS" ],
 			libraries = [ "LIBRARY_NAMES" ]
+		)
 	]
 )
