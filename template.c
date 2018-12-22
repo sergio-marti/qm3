@@ -37,6 +37,7 @@ static PyObject* METHOD( PyObject *self, PyObject *args ) {
 
 	obj = (OBJECT*) self;
 	Py_INCREF( Py_None );
+	return( Py_BuildValue( "O", out ) );
 	return( Py_None );
 }
 
