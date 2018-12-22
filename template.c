@@ -98,7 +98,7 @@ PyMODINIT_FUNC PyInit__MODULE( void ) {
 
 static PyTypeObject TYPE = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "MODULE",                // tp_name
+    "_MODULE",               // tp_name
     sizeof( OBJECT ),        // tp_basicsize
     0,                       // tp_itemsize
     (destructor)__dealloc,   // tp_dealloc
