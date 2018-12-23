@@ -6,7 +6,7 @@ LAP = lapack_deps.o
 #LAP = -L$(MKL)/lib -Wl,-rpath,$(MKL)/lib -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
 
 
-all: matrix minimize cions volume colvar_v qmmm mol_mech ode fitpack grids
+all: matrix minimize cions volume colvar_v qmmm mol_mech ode fitpack grids dynamo
 
 
 cions:
@@ -31,6 +31,10 @@ plumed:
 
 sander:
 	$(PYX) setup.sander build_ext --build-lib qm3/engines
+
+
+dynamo:
+	$(PYX) setup.dynamo build_ext --build-lib qm3/engines
 
 
 colvar_v:
