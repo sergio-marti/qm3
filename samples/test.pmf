@@ -108,7 +108,7 @@ while { [ gets $fd cmd ] >= 0 } {
         self.rst = qm3.engines.restraints.multiple_distance( kmb, ref, idx, wei )
         self.cnt = 0
 
-        self.emm.update_charges( self.mol )
+        self.emm.update_chrg( self.mol )
 
         self.flg = open( "pmf.%03d.log"%( self.node ), "wt" )
         self.log( str( sum( self.mass ) ) + " g/mol" )

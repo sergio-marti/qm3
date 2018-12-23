@@ -1,5 +1,5 @@
 import qm3.mol
-import qm3.engines.ambertools
+import qm3.engines.sander
 import qm3.engines._qmmm
 import qm3.problem
 import qm3.maths.matrix
@@ -162,20 +162,20 @@ f.close()
 
 
 ##############################################################################################
-# ambertools: MM
+# sander: MM
 class my_eng( qm3.problem.template ):
     def __init__( self ):
         self.mol = qm3.mol.molecule( "pdb" )
-        qm3.engines.ambertools.topology_read( self.mol, "prmtop" )
+        qm3.engines.sander.topology_read( self.mol, "prmtop" )
         self.mol.boxl = [ 100, 100, 100 ]
         self.mol.chrg = [ 0.000, 0.000, 0.000, -0.834, 0.417, 0.417 ]
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
         self.mol.epsi = [ 0.9374, 0.0000, 0.0000, 0.9374, 0.000, 0.000 ] # Sqrt( eps * 4.184 ) >> Sqrt(kJ/mol)
         self.mol.rmin = [ 1.6610, 0.0000, 0.0000, 1.6610, 0.000, 0.000 ] # rmin/2 >> Ang
 
-        self.eng = qm3.engines.ambertools.sander()
+        self.eng = qm3.engines.sander.sander()
         self.eng.exe = "export AMBERHOME=/Users/smarti/Devel/amber/18; $AMBERHOME/bin/sander -O"
-        self.eng.update_charges( self.mol )
+        self.eng.update_chrg( self.mol )
 
         self.fix = qm3.engines._qmmm.Int_QMLJ( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )
         
@@ -233,7 +233,7 @@ class my_eng( qm3.problem.template ):
         self.mol = qm3.mol.molecule( "pdb" )
         self.mol.boxl = [ 100, 100, 100 ]
 
-        self.eng = qm3.engines.ambertools.py_sander( self.mol, "prmtop",
+        self.eng = qm3.engines.sander.py_sander( self.mol, "prmtop",
              cutoff = 16.0, PBC = False, qmsel = [ 0, 1, 2 ], method = "EXTERN" )
 
         self.size = 3 * self.mol.natm
@@ -269,16 +269,16 @@ qm3.maths.matrix.mprint( obj.grad, obj.mol.natm, 3 )
 class my_eng( qm3.problem.template ):
     def __init__( self ):
         self.mol = qm3.mol.molecule( "pdb" )
-        qm3.engines.ambertools.topology_read( self.mol, "prmtop" )
+        qm3.engines.sander.topology_read( self.mol, "prmtop" )
         self.mol.boxl = [ 100, 100, 100 ]
         self.mol.chrg = [ 0.000, 0.000, 0.000, -0.834, 0.417, 0.417 ]
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
         self.mol.epsi = [ 0.9374, 0.0000, 0.0000, 0.9374, 0.000, 0.000 ] # Sqrt( eps * 4.184 ) >> Sqrt(kJ/mol)
         self.mol.rmin = [ 1.6610, 0.0000, 0.0000, 1.6610, 0.000, 0.000 ] # rmin/2 >> Ang
 
-        self.eng = qm3.engines.ambertools.sander()
+        self.eng = qm3.engines.sander.sander()
         self.eng.exe = "export AMBERHOME=/Users/smarti/Devel/amber/18; $AMBERHOME/bin/sander -O"
-        self.eng.update_charges( self.mol )
+        self.eng.update_chrg( self.mol )
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

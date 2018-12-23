@@ -82,7 +82,7 @@ class gromacs( object ):
 		coordinates_write( mol, "gromacs.g96" )
 
 
-#	def update_charges( self, mol, fname ):
+#	def update_chrg( self, mol, fname ):
 #	       ...NOT AVAILABLE...
 
 

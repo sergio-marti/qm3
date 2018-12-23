@@ -8,11 +8,11 @@ import	qm3.io
 import	re
 import	math
 import	qm3.maths.interpolation
+import	os
 
 
+sys.path.append( os.getenv( "QM3_MPLOT3D" ) )
 try:
-	sys.path.append( "/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/mpl_toolkits" )
-	sys.path.append( "/usr/lib/python3/dist-packages/mpl_toolkits" )
 	import	matplotlib.pyplot
 	from	mplot3d import axes3d
 	from	mplot3d import proj3d

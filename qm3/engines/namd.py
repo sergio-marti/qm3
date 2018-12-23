@@ -111,7 +111,7 @@ class namd_pipe( object ):
 		self.pfd.close()
 
 
-	def update_charges( self, mol ):
+	def update_chrg( self, mol ):
 		f = open( "namd.chrg", "wt" )
 		f.write( str.join( "\n", [ "%12.6lf"%( i ) for i in mol.chrg ] ) )
 		f.close()
@@ -190,7 +190,7 @@ class namd( object ):
 		coordinates_write( mol, "namd.coor" )
 
 
-	def update_charges( self, mol, fname ):
+	def update_chrg( self, mol, fname ):
 		topology_write( mol, fname )
 
 

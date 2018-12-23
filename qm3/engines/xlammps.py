@@ -65,9 +65,11 @@ def guess_labels( mol ):
 
 
 
-
+#
+# export QM3_LAMMPS=/Users/smarti/Devel/lammps
+#
+sys.path.insert( 0, os.getenv( "QM3_LAMMPS" ) )
 try:
-	sys.path.insert( 0, "/Users/smarti/Devel/lammps" )
 	import	lammps as _lammps
 	class py_lammps( object ):
 		def __init__( self, inp, name = "serial", cmdargs = [ "-sc", "none" ] ):
@@ -81,7 +83,7 @@ try:
 			self.lmp.close()
 
 
-		def update_charges( self, mol ):
+		def update_chrg( self, mol ):
 			for i in range( mol.natm ):
 				self.chg[i] = mol.chrg[i]
 			self.lmp.scatter_atoms( "q", 1, 3, self.chg )
@@ -127,7 +129,7 @@ class lammps_pipe( object ):
 		self.pfd.close()
 
 
-	def update_charges( self, mol ):
+	def update_chrg( self, mol ):
 		f = open( "lammps.chrg", "wt" )
 		f.write( "ITEM: TIMESTEP\n0\nITEM: NUMBER OF ATOMS\n%d\n"%( mol.natm ) )
 		f.write( "ITEM: BOX BOUNDS pp pp pp\n0.0000000000000000e+00 0.0000000000000000e+00\n0.0000000000000000e+00 0.0000000000000000e+00\n0.0000000000000000e+00 0.0000000000000000e+00\n" )
@@ -242,7 +244,7 @@ class lammps( object ):
 		f.close()
 
 
-	def update_charges( self, mol ):
+	def update_chrg( self, mol ):
 		self.update_coor( mol )
 
 

@@ -16,7 +16,7 @@ class my_eng( qm3.problem.template ):
 
         self.eng = qm3.engines.charmm.charmm_pipe( 
                          "/Users/smarti/Devel/charmm/43b1/charmm", "charmm.inp" )
-        self.eng.update_charges( self.mol, [ 0, 1, 2 ] )
+        self.eng.update_chrg( self.mol, [ 0, 1, 2 ] )
 
         self.fix = qm3.engines._qmmm.Int_QMLJ( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )
         

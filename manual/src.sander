@@ -1,5 +1,5 @@
 \normalsize
-\subsection[ambertools]{ambertools.py}
+\subsection[sander]{sander.py}
 Patched versions of sander don't need for an "Int\_QMLJ*" fix if the QM method is set to "EXTERN"
 (use \textbf{ibelly}/\textbf{bellymask} at \textbf{mdin} otherwise in order to freeze QM atoms).
 Also, the python version (faster because of the single system initialization) is only
@@ -25,8 +25,8 @@ class py_sander( mol, prmtop, cutoff = 10.0, qmsel = None, method = "AM1", charg
 
 \footnotesize
 \begin{pyglist}[language=python,fvset={frame=single}]
-#SOURCE@../samples/test.ambertools
+#SOURCE@../samples/test.sander
 \end{pyglist}
 \begin{pyglist}[fvset={frame=single}]
-#SOURCE@../samples/logs/test.ambertools.log
+#SOURCE@../samples/logs/test.sander.log
 \end{pyglist}

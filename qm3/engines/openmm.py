@@ -4,10 +4,13 @@ from __future__ import print_function, division
 import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
+import	os
 
 
-
-sys.path.insert( 0, "/Users/smarti/Devel/openmm/dist_gnu/python" )
+#
+# export QM3_OPENMM=/Users/smarti/Devel/openmm/dist_gnu/python
+#
+sys.path.insert( 0, os.getenv( "QM3_OPENMM" ) )
 try:
 	import simtk.openmm
 	import simtk.openmm.app
@@ -37,7 +40,7 @@ try:
 			self.__simulation()
 
 
-		def update_charges( self, mol ):
+		def update_chrg( self, mol ):
 			for i in range( mol.natm ):
 				t = self.nbn.getParticleParameters( i )
 				self.nbn.setParticleParameters( i, mol.chrg[i], t[1], t[2] )

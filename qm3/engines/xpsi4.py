@@ -12,12 +12,12 @@ import	qm3.utils
 
 
 #
-# Set environment variable PSI_SCRATCH
+# Set environment variable: PSI_SCRATCH
 #
-
+# export QM3_PSI4=/Users/smarti/Devel/psi4/dist_gnu/lib
+#
+sys.path.insert( 0, os.getenv( "QM3_PSI4" ) )
 try:
-#	sys.path.insert( 0, "/Users/smarti/Devel/psi4/dist_gnu.py2/lib" )
-	sys.path.insert( 0, "/Users/smarti/Devel/psi4/dist_gnu/lib" )
 	import	psi4
 
 	class py_psi4( object ):

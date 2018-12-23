@@ -136,7 +136,7 @@ class charmm_pipe( object ):
 		self.pfd.close()
 
 
-	def update_charges( self, mol, sele ):
+	def update_chrg( self, mol, sele ):
 		f = open( "charmm.chrg", "wb" )
 		f.write( struct.pack( "i", 84 ) + b"COOR" )
 		for i in [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]:

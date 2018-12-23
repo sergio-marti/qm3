@@ -11,39 +11,42 @@
 
 typedef struct {
 	PyObject_HEAD
-} OBJECT;
+} @object@;
 
 
-static int __init( OBJECT *self, PyObject *args, PyObject *kwds ) {
+static int __init( @object@ *self, PyObject *args, PyObject *kwds ) {
 	return( 0 );
 }
 
 
 static PyObject* __new( PyTypeObject *type, PyObject *args, PyObject *kwds ) {
-	OBJECT		*self;
+	@object@		*self;
 
-	self = (OBJECT*) type->tp_alloc( type, 0 );
+	self = (@object@*) type->tp_alloc( type, 0 );
 	return( (PyObject*) self ) ;
 }
 
 
-static void __dealloc( OBJECT *self ) {
+static void __dealloc( @object@ *self ) {
 	Py_TYPE( self )->tp_free( (PyObject*) self );
 }
 
 
-static PyObject* METHOD( PyObject *self, PyObject *args ) {
-	OBJECT		*obj = NULL;
+static PyObject* @method@( PyObject *self, PyObject *args ) {
+	PyObject		*o_;
+	@object@		*obj = NULL;
 
-	obj = (OBJECT*) self;
+	obj = (@object@*) self;
+	if( PyArg_ParseTuple( args, "O", &o_ ) ) {
+		return( Py_BuildValue( "O", ... ) );
+	}
 	Py_INCREF( Py_None );
-	return( Py_BuildValue( "O", out ) );
 	return( Py_None );
 }
 
 
 static struct PyMethodDef __methods [] = {
-    { "METHOD", (PyCFunction)METHOD, METH_VARARGS },
+    { "@method@", (PyCFunction)@method@, METH_VARARGS },
 	{ 0, 0, 0 }
 };
 
@@ -63,11 +66,11 @@ static struct PyMethodDef methods [] = {
 
 #if PY_MAJOR_VERSION >= 3
 
-static PyTypeObject TYPE = {
+static PyTypeObject @type@ = {
 	PyVarObject_HEAD_INIT( NULL, 0 )
-	.tp_name = "CLASS",
-	.tp_doc = "CLASS DESCRIPTION",
-	.tp_basicsize = sizeof( OBJECT ),
+	.tp_name = "@class@",
+	.tp_doc = "@class@ description",
+	.tp_basicsize = sizeof( @object@ ),
 	.tp_itemsize = 0,
 	.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
 	.tp_new = __new,
@@ -79,28 +82,28 @@ static PyTypeObject TYPE = {
 
 static struct PyModuleDef moddef = {
 	PyModuleDef_HEAD_INIT,
-	"_MODULE",
+	"_@module@",
 	NULL,
 	-1,
 	methods
 };
 
-PyMODINIT_FUNC PyInit__MODULE( void ) {
+PyMODINIT_FUNC PyInit__@module@( void ) {
 	PyObject    *my_module;
 
 	my_module = PyModule_Create( &moddef );
-	PyType_Ready( &TYPE );
-    Py_INCREF( &TYPE );
-    PyModule_AddObject( my_module, "CLASS", (PyObject *) &TYPE );
+	PyType_Ready( &@type@ );
+    Py_INCREF( &@type@ );
+    PyModule_AddObject( my_module, "@class@", (PyObject *) &@type@ );
 	return( my_module );
 }
 
 #else
 
-static PyTypeObject TYPE = {
+static PyTypeObject @type@ = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "_MODULE",               // tp_name
-    sizeof( OBJECT ),        // tp_basicsize
+    "@class@",                 // tp_name
+    sizeof( @object@ ),        // tp_basicsize
     0,                       // tp_itemsize
     (destructor)__dealloc,   // tp_dealloc
     0,                       // tp_print
@@ -119,7 +122,7 @@ static PyTypeObject TYPE = {
     0,                       // tp_as_buffer
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE, // tp_flags
-    "CLASS DESCRIPTION",
+    "@class@ description",
                              // tp_doc
     0,                       // tp_traverse
     0,                       // tp_clear
@@ -140,13 +143,13 @@ static PyTypeObject TYPE = {
     __new,                   // tp_new
 };
 
-void init_MODULE( void ) {
+void init_@module@( void ) {
 	PyObject    *my_module;
 
-	my_module = Py_InitModule( "_MODULE", methods );
-	PyType_Ready( &TYPE );
-    Py_INCREF( &TYPE );
-    PyModule_AddObject( my_module, "CLASS", (PyObject *) &TYPE );
+	my_module = Py_InitModule( "_@module@", methods );
+	PyType_Ready( &@type@ );
+    Py_INCREF( &@type@ );
+    PyModule_AddObject( my_module, "@class@", (PyObject *) &@type@ );
 }
 
 #endif

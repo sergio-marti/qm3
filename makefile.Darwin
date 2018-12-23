@@ -32,6 +32,10 @@ sander:
 	$(PYX) setup.sander build_ext --build-lib qm3/engines
 
 
+dynamo:
+	$(PYX) setup.dynamo build_ext --build-lib qm3/engines
+
+
 colvar_v:
 	$(PYX) setup.colvar_v build_ext --build-lib qm3/engines
 

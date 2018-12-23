@@ -63,7 +63,7 @@ class my_problem( qm3.problem.template ):
 		self.dcd.write( "dcd", self.mol.natm )
 		self.mol.dcd_write( self.dcd )
 
-		self.emm.update_charges( self.mol )
+		self.emm.update_chrg( self.mol )
 
 
 	def current_step( self, istep ):

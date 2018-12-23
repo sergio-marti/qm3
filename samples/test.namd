@@ -17,7 +17,7 @@ class my_eng( qm3.problem.template ):
         self.eng = qm3.engines.namd.namd()
         self.eng.exe = "/Users/smarti/Devel/namd/2.12/bin/namd2 +setcpuaffinity +isomalloc_sync +idlepoll +ppn 2 namd.inp > namd.out"
         self.eng.exe = "/Users/smarti/Devel/namd/2.8/namd2 +ppn 2 namd.inp > namd.out"
-        self.eng.update_charges( self.mol, "psf" )
+        self.eng.update_chrg( self.mol, "psf" )
 
         self.fix = qm3.engines._qmmm.Int_QMLJ( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )
         

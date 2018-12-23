@@ -160,8 +160,17 @@ def selection( mol, sele, fname = None ):
 
 
 
+try:
+	import  qm3.engines._dynamo
+	class py_dynamo( qm3.engines._dynamo.dynamo ):
+		def __init__( self, path = "./dynamo.so" ):
+			qm3.engines._dynamo.dynamo.__init__( self, path )
+except:
+	pass
 
-class dynamo( object ):
+
+
+class dynamo_pipe( object ):
 
 	def __init__( self ):
 		self.exe = "./dynamo.exe"
@@ -188,7 +197,7 @@ class dynamo( object ):
 			pass
 
 
-	def update_charges( self, mol ):
+	def update_chrg( self, mol ):
 		f = open( "dynamo.chrg", "wb" )
 		f.write( struct.pack( "i", 8 * mol.natm ) )
 		for i in range( mol.natm ):
@@ -255,98 +264,156 @@ class dynamo( object ):
 
 
 
-
-DYNAMO_F90_TEMPLATE = """subroutine driver
+PY_DYNAMO_F90 = """
+!
+! gfortran $(FLG) -dynamiclib dynamo.f90 -o dynamo.so $(LIB)/dynamo.a
+! gfortran $(FLG) -shared     dynamo.f90 -o dynamo.so $(LIB)/dynamo.a
+!
+subroutine qm3_initialize
 	use dynamo
 	implicit none
-	character( len = 256 ) :: str
-	integer :: i, j
-
-	call getarg( 1, str )
-	write(*,"(a,a,a)") "[", trim( str ), "]"
-	open( file = trim( str ), unit = 998, action = "read", form = "formatted" )
-	read( 998, "(a)" ) str
-	write(*,"(a,a,a)") "[", trim( str ), "]"
-	do while( trim( str ) /= "exit" )
-		if( trim( str ) == "charges" ) then
-			open( file = "dynamo.chrg", unit = 999, action = "read", form = "unformatted" )
-			read( 999 ) atmchg
-			close( 999 )
-		end if
-		if( trim( str ) == "coordinates" ) then
-			open( file = "dynamo.crd", unit = 999, action = "read", form = "unformatted" )
-			read( 999 ) atmcrd(1:3,1:natoms)
-			close( 999 )
-		end if
-		if( trim( str ) == "energy" ) then
-			call energy_bond( ebond, virial )
-			call energy_angle( eangle )
-			call energy_dihedral( edihedral )
-			call energy_improper( eimproper )
-			call energy_non_bonding_calculate( eelect, elj, virial )
-			write( *, "(6f20.10)" ) ebond, eangle, edihedral, eimproper, eelect, elj
-			open( file = "dynamo.dat", unit = 999, action = "write", form = "unformatted" )
-			write( 999 ) ebond + eangle + edihedral + eimproper + eelect + elj
-			close( 999 )
-		end if
-		if( trim( str ) == "gradient" ) then
-			if( .not. allocated( atmder ) ) allocate( atmder(1:3,1:natoms ) )
-			atmder = 0.0_dp
-			call energy_bond( ebond, virial, atmder )
-			call energy_angle( eangle, atmder )
-			call energy_dihedral( edihedral, atmder )
-			call energy_improper( eimproper, atmder )
-			call energy_non_bonding_calculate( eelect, elj, virial, atmder )
-			write( *, "(6f20.10)" ) ebond, eangle, edihedral, eimproper, eelect, elj
-			open( file = "dynamo.dat", unit = 999, action = "write", form = "unformatted" )
-			write( 999 ) ebond + eangle + edihedral + eimproper + eelect + elj
-			write( 999 ) atmder
-			close( 999 )
-		end if
-		read( 998, "(a)" ) str
-		write(*,"(a,a,a)") "[", trim( str ), "]"
-	end do
-	close( 998 )
-end subroutine driver
-
-
-program slave
-	use dynamo
-	implicit none
-
 	logical, dimension(:), allocatable :: flg
-	integer :: i
 
+	open( unit=output, file="dynamo.log", status="replace", access="stream", form="formatted" )
 	call dynamo_header
 
-!   call mm_file_process( "borra", "opls" )
-!   call mm_system_construct( "borra", "seq" )
-!   call mm_system_write( "sys_bin" )
-!   stop
-    call mm_system_read( "sys_bin" )
+	call mm_file_process( "borra", "opls" )
+	call mm_system_construct( "borra", "seq" )
 	call coordinates_read( "crd" )
-
 	allocate( flg(1:natoms) )
-	flg = .false.
-	flg = atom_selection( subsystem = (/ "A" /), residue_number = (/ 1 /) )
-	call atoms_fix( flg )
-	do i = 1, natoms
-		if( flg(i) ) then
-			atmchg(i) = 0.0_dp
-			atmchg14(i) = 0.0_dp
-		end if
-	end do
+	flg = atom_selection( subsystem = (/ "ACS" /) )
+
+	call mopac_setup( method = "AM1", charge = 0, selection = flg )
+!	call atoms_fix( flg )
+!	where( flg ) atmchg   = 0.0d0
+!	where( flg ) atmchg14 = 0.0d0
 
 	call energy_initialize
-    call energy_non_bonding_options( &
-		list_cutoff   = 18.0_dp, &
-		outer_cutoff  = 16.0_dp, &
-		inner_cutoff  = 14.0_dp, &
-		minimum_image = .false. )
-
-	call driver
-
+	call energy_non_bonding_options( &
+		list_cutoff   = 15.5_dp, &
+		outer_cutoff  = 13.5_dp, &
+		inner_cutoff  = 11.5_dp, &
+		minimum_image = .true. )
 	deallocate( flg )
+end subroutine qm3_initialize
 
+
+
+subroutine qm3_update_coor( coor )
+	use dynamo
+	implicit none
+	real*8, dimension(1:3,1:natoms), intent( in ) :: coor
+	atmcrd = coor
+end subroutine qm3_update_coor
+
+subroutine qm3_update_chrg( chrg )
+	use dynamo
+	implicit none
+	real*8, dimension(1:natoms), intent( in ) :: chrg
+	atmchg = chrg
+end subroutine qm3_update_chrg
+
+subroutine qm3_get_func( coor, func )
+	use dynamo
+	implicit none
+	real*8, dimension(1:3,1:natoms), intent( in ) :: coor
+	real*8, intent( out ) :: func
+	call qm3_update_coor( coor )
+	call energy
+	func = etotal
+end subroutine qm3_get_func
+
+subroutine qm3_get_grad( coor, func, grad )
+	use dynamo
+	implicit none
+	real*8, dimension(1:3,1:natoms), intent( in ) :: coor
+	real*8, intent( out ) :: func
+	real*8, dimension(1:3,1:natoms), intent( out ) :: grad
+	call qm3_update_coor( coor )
+	call gradient
+	func = etotal
+	grad = atmder
+end subroutine qm3_get_grad
+"""
+
+
+
+DYNAMO_PIPE_F90 = """
+subroutine driver
+    use dynamo
+    implicit none
+    character( len = 256 ) :: str
+    integer :: i, j
+
+    call getarg( 1, str )
+    write(*,"(a,a,a)") "[", trim( str ), "]"
+    open( file = trim( str ), unit = 998, action = "read", form = "formatted" )
+    read( 998, "(a)" ) str
+    write(*,"(a,a,a)") "[", trim( str ), "]"
+    do while( trim( str ) /= "exit" )
+        if( trim( str ) == "charges" ) then
+            open( file = "dynamo.chrg", unit = 999, action = "read", form = "unformatted" )
+            read( 999 ) atmchg
+            close( 999 )
+        end if
+        if( trim( str ) == "coordinates" ) then
+            open( file = "dynamo.crd", unit = 999, action = "read", form = "unformatted" )
+            read( 999 ) atmcrd(1:3,1:natoms)
+            close( 999 )
+        end if
+        if( trim( str ) == "energy" ) then
+            call energy
+            open( file = "dynamo.dat", unit = 999, action = "write", form = "unformatted" )
+            write( 999 ) etotal
+            close( 999 )
+        end if
+        if( trim( str ) == "gradient" ) then
+            if( .not. allocated( atmder ) ) allocate( atmder(1:3,1:natoms ) )
+            call gradient
+            open( file = "dynamo.dat", unit = 999, action = "write", form = "unformatted" )
+            write( 999 ) etotal
+            write( 999 ) atmder
+            close( 999 )
+        end if
+        read( 998, "(a)" ) str
+        write(*,"(a,a,a)") "[", trim( str ), "]"
+    end do
+    close( 998 )
+end subroutine driver
+
+program slave
+    use dynamo
+    implicit none
+
+    logical, dimension(:), allocatable :: flg
+    integer :: i
+
+    call dynamo_header
+
+    call mm_file_process( "borra", "opls" )
+    call mm_system_construct( "borra", "seq" )
+    call coordinates_read( "crd" )
+
+    allocate( flg(1:natoms) )
+    flg = .false.
+    flg = atom_selection( subsystem = (/ "W" /), residue_number = (/ 1 /) )
+    call atoms_fix( flg )
+    do i = 1, natoms
+        if( flg(i) ) then
+            atmchg(i) = 0.0_dp
+            atmchg14(i) = 0.0_dp
+        end if
+    end do
+
+    call energy_initialize
+    call energy_non_bonding_options( &
+        list_cutoff   = 18.0_dp, &
+        outer_cutoff  = 16.0_dp, &
+        inner_cutoff  = 14.0_dp, &
+        minimum_image = .false. )
+
+    call driver
+
+    deallocate( flg )
 end program
 """

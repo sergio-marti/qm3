@@ -99,7 +99,7 @@ while { [ gets $fd cmd ] >= 0 } {
         self.grad = []
         self.hess = []
 
-        self.emm.update_charges( self.mol )
+        self.emm.update_chrg( self.mol )
 
         self.flg = open( "../log.%d.%d"%( new_i, new_j ), "wt" )
 

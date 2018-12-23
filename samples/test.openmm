@@ -12,7 +12,7 @@ psf = simtk.openmm.app.CharmmPsfFile( "psf" )
 omm = prm.createSystem( psf.topology, nonbondedMethod = simtk.openmm.app.CutoffNonPeriodic, nonbondedCutoff = 6. * simtk.unit.angstrom, rigidWater = False )
 eng = qm3.engines.openmm.py_openmm( omm, psf.topology, [0, 1, 2] )
 mol.chrg = [ .0, .0, .0, -0.834, 0.417, 0.417 ] 
-eng.update_charges( mol )
+eng.update_chrg( mol )
 mol.func = 0.0
 mol.grad = [ 0.0 for i in range( 3 * mol.natm ) ]
 eng.get_grad( mol )
