@@ -160,7 +160,7 @@ static struct PyMemberDef members [] = {
 
 #if PY_MAJOR_VERSION >= 3
 
-static PyTypeObject TPLUMED = {
+static PyTypeObject tPLUMED = {
 	PyVarObject_HEAD_INIT( NULL, 0 )
 	.tp_name = "Plumed",
 	.tp_doc = "Plumed object",
@@ -186,15 +186,15 @@ PyMODINIT_FUNC PyInit__plumed( void ) {
 	PyObject    *my_module;
 
 	my_module = PyModule_Create( &moddef );
-	PyType_Ready( &TPLUMED );
-    Py_INCREF( &TPLUMED );
-    PyModule_AddObject( my_module, "Plumed", (PyObject *) &TPLUMED );
+	PyType_Ready( &tPLUMED );
+    Py_INCREF( &tPLUMED );
+    PyModule_AddObject( my_module, "Plumed", (PyObject *) &tPLUMED );
 	return( my_module );
 }
 
 #else
 
-static PyTypeObject TPLUMED = {
+static PyTypeObject tPLUMED = {
     PyVarObject_HEAD_INIT(NULL, 0)
     "Plumed",                  /* tp_name */
     sizeof( oPLUMED ),         /* tp_basicsize */
@@ -240,9 +240,9 @@ void init_plumed( void ) {
 	PyObject    *my_module;
 
 	my_module = Py_InitModule( "_plumed", methods );
-	PyType_Ready( &TPLUMED );
-    Py_INCREF( &TPLUMED );
-    PyModule_AddObject( my_module, "Plumed", (PyObject *) &TPLUMED );
+	PyType_Ready( &tPLUMED );
+    Py_INCREF( &tPLUMED );
+    PyModule_AddObject( my_module, "Plumed", (PyObject *) &tPLUMED );
 }
 
 #endif
