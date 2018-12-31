@@ -1,6 +1,10 @@
 \normalsize
 \subsection[grote\_hynes]{grote\_hynes.py}
-
+This module performs lagrange-constrained velocity verlet (NVE) molecular dynamics, in such a way that projects out the forces
+on the selected reaction coordinate (actually: \func{coordinate\_bond} and \func{coordinate\_antisymmetric}). The main purpose
+is to evaluate the friction spectrum\footnote{https://doi.org/10.1063/1.440485, https://doi.org/10.1021/ja801156y} and, 
+from it, the recrossing factor (kappa) of the kinetic constant.\\
+This is an alternative approach to the flux method\footnote{https://doi.org/10.1063/1.452224}
 \begin{pyglist}[language=python,fvset={frame=single}]
 class grote_hynes( obj, coordinate, step_size = 0.0005, print_frequency = 100,
          project_RT = True, step_number = -1, log_function = default_log )

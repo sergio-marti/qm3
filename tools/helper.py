@@ -33,19 +33,19 @@ conf = {
 
 
 ENG =  collections.OrderedDict( [
-	[ "x_namd.namd", [ 
+	[ "qm3.engines.namd.namd", [ 
 		[ "exe", None, "path of the NAMD executable, without options" ],
 		[ "psf", None, "name of the PSF file used to define the model" ],
 		[ "cut", None, "force-switching (float), cut-on cut-off cut-list" ] ]
 	],
 
-	[ "x_namd.namd_pipe", [ 
+	[ "qm3.engines.namd.namd_pipe", [ 
 		[ "exe", None, "path of the NAMD executable, without options" ],
 		[ "psf", None, "name of the PSF file used to define the model" ],
 		[ "cut", None, "force-switching (float), cut-on cut-off cut-list" ] ]
 	],
 
-	[ "x_sander.Sander", [
+	[ "qm3.engines.sander.sander", [
 		[ "dir", None, "AMBERHOME path" ],
 		[ "cut", None, "float, cut-off" ],
 		[ "pbc", True, "periodic boundary conditions (ntb), on/off" ],
@@ -54,96 +54,96 @@ ENG =  collections.OrderedDict( [
 		[ "qm_chg", None, "int, charge of the QM atoms" ] ]
 	],
 
-	[ "x_sander.py_sander", [
+	[ "qm3.engines.sander.py_sander", [
 		[ "cut", None, "float, cut-off" ],
 		[ "pbc", None, "periodic boundary conditions (ntb), on/off" ],
 		[ "qm_met", None, "semi-empirical hamiltionan inplemented in sander, AM1 / DFTB / ..." ],
 		[ "qm_chg", None, "int, charge of the QM atoms" ] ]
 	],
 
-	[ "x_dftb.dftb", [ 
+	[ "qm3.engines.dftb.dftb", [ 
 		[ "exe", None, "path of the DFTB+ executable" ],
 		[ "chg", None, "int, charge of the QM atoms" ],
 		[ "prm", [], "folder of DFTB+ parameters set" ] ]
 	],
 
-	[ "x_sqm.sqm", [ 
+	[ "qm3.engines.sqm.sqm", [ 
 		[ "dir", None, "AMBERHOME path" ],
 		[ "ini", None, """SQM(QM) flags, such as, qm_theory = "DFTB", qmcharge = 0""" ] ]
 	],
 
-	[ "x_gamess.gamess", [ 
+	[ "qm3.engines.gamess.gamess", [ 
 		[ "exe", None, "path of the GAMESS-US launching script" ],
 		[ "ini", None, "name of file containing the GAMESS-US input template" ] ]
 	],
 
-	[ "x_nwchem.nwchem", [ 
+	[ "qm3.engines.nwchem.nwchem", [ 
 		[ "exe", None, "path of the NWCHEM launching script" ],
 		[ "ini", None, "name of file containing the NWCHEM input template" ] ]
 	],
 
-	[ "x_demon.demon", [ 
+	[ "qm3.engines.demon.demon", [ 
 		[ "exe", None, "path of the deMon2k launching script" ],
 		[ "ini", None, "name of file containing the deMon2k input template" ] ]
 	],
 
-	[ "x_orca.orca", [ 
+	[ "qm3.engines.orca.orca", [ 
 		[ "exe", None, "path of the ORCA lunching script" ],
 		[ "ini", None, "name of file containing the ORCA input template" ] ]
 	],
 
                                  
-    [ "x_tchem.tchem", [
+    [ "qm3.engines.tchem.tchem", [
         [ "ini", None, "name of file containing the TeraChem input template" ] ]
     ],
 
-	[ "x_tchem.tchem_sckt", [ 
+	[ "qm3.engines.tchem.tchem_sckt", [ 
 		[ "sck", "sckt_", "name of the UNIX socket linked to TeraChem" ] ]
 	],
 
-	[ "x_gaussian.gaussian", [ 
+	[ "qm3.engines.gaussian.gaussian", [ 
 		[ "exe", None, "path of the GAUSSIAN-09 launching script" ],
 		[ "ini", None, "name of file containing the GAUSSIAN-09 head input template" ],
 		[ "mid", None, "name of file containing the GAUSSIAN-09 middle input template" ],
 		[ "end", None, "name of file containing the GAUSSIAN-09 last input template" ] ]
 	],
 
-	[ "x_gaussian.gaussian_MMEL", [ 
+	[ "qm3.engines.gaussian.gaussian_MMEL", [ 
 		[ "exe", None, "path of the GAUSSIAN-09 launching script" ],
 		[ "ini", None, "name of file containing the GAUSSIAN-09 head input template" ],
 		[ "mid", None, "name of file containing the GAUSSIAN-09 middle input template" ],
 		[ "end", None, "name of file containing the GAUSSIAN-09 last input template" ] ]
 	],
 
-	[ "x_psi4.Psi4", [ 
+	[ "qm3.engines.xpsi4.Psi4", [ 
 		[ "opt", None, "python dictonary with Psi-4 options" ] ]
 	],
 
-	[ "_qmmm.Int_QMLJ", [
+	[ "qm3.engines._qmmm.Int_QMLJ", [
 		[ "par", None, """molecule method and file name for reading Lennard-Jones parameters
     such as .par_read( "par" ) or .prmtop_read( "prmtop" )""" ],
 		[ "exc", "", "exclusion [QM (in sqm), MM (in nbn), scale] interaction triplets" ] ]
 	],
 
-	[ "_qmmm.Int_QMLJ_MMEL", [
+	[ "qm3.engines._qmmm.Int_QMLJ_MMEL", [
 		[ "par", None, """molecule method and file name for reading Lennard-Jones parameters
     such as .par_read( "par" ) or .prmtop_read( "prmtop" )""" ],
 		[ "exc", "", "exclusion [QM (in sqm), MM (in nbn), scale) interaction triplets" ] ]
 	],
 
-	[ "restraints.distance", [ 
+	[ "qm3.engines.restraints.distance", [ 
 		[ "kmb", None, "float, force constant in kJ/mol.A^2" ],
 		[ "ref", None, "float, reference value for distance" ],
 		[ "idx", None, "list-int, C-indexes of the atoms defining the distance" ] ]
 	],
 
-	[ "restraints.angle", [ 
+	[ "qm3.engines.restraints.angle", [ 
 		[ "kmb", None, "float, force constant in kJ/mol.deg^2" ],
 		[ "ref", None, "float, reference value for distance" ],
 		[ "idx", None, "list-int, C-indexes of the atoms defining the distance" ] ]
 	],
 
-	[ "restraints.multiple_distance", [ 
+	[ "qm3.engines.restraints.multiple_distance", [ 
 		[ "kmb", None, "float, force constant in kJ/mol.A^2" ],
 		[ "ref", None, "float, reference value for distance" ],
 		[ "idx", None, "list-int, C-indexes of the atoms defining the distance" ],
@@ -152,34 +152,34 @@ ENG =  collections.OrderedDict( [
 
 
 JOB = collections.OrderedDict( [
-	[ "minimize.steepest_descent", [
+	[ "qm3.actions.minimize.steepest_descent", [
 		[ "stp", "1000", "step number (int)" ],
 		[ "siz", "0.1", "step size (float)" ],
 		[ "prt", "100", "print frequency (int)" ],
 		[ "tol", "1.0", "gradient tolerance (float)" ] ]
 	],
 
-	[ "minimize.fire", [
+	[ "qm3.actions.minimize.fire", [
 		[ "stp", "1000", "step number (int)" ],
 		[ "siz", "0.1", "step size (float)" ],
 		[ "prt", "100", "print frequency (int)" ],
 		[ "tol", "1.0", "gradient tolerance (float)" ] ]
 	],
 
-	[ "minimize.l_bfgs", [
+	[ "qm3.actions.minimize.l_bfgs", [
 		[ "stp", "1000", "step number (int)" ],
 		[ "siz", "0.1", "step size (float)" ],
 		[ "prt", "100", "print frequency (int)" ],
 		[ "tol", "1.0", "gradient tolerance (float)" ] ]
 	],
 
-	[ "minimize.conjugate_gradient_plus", [
+	[ "qm3.actions.minimize.conjugate_gradient_plus", [
 		[ "stp", "1000", "step number (int)" ],
 		[ "prt", "100", "print frequency (int)" ],
 		[ "tol", "1.0", "gradient tolerance (float)" ] ]
 	],
 
-	[ "dynamics.velocity_verlet", [
+	[ "qm3.actions.dynamics.velocity_verlet", [
 		[ "stp", "1000", "number os steps (int)" ],
 		[ "siz", "0.001", "step size (float, ps)" ],
 		[ "prt", "100", "print frequency (int)" ],
@@ -188,7 +188,7 @@ JOB = collections.OrderedDict( [
 		[ "tmp", "300.0", "temperature (float, K)" ] ]
 	],
 
-	[ "dynamics.langevin_verlet", [
+	[ "qm3.actions.dynamics.langevin_verlet", [
 		[ "stp", "1000", "number os steps (int)" ],
 		[ "siz", "0.001", "step size (float, ps)" ],
 		[ "prt", "100", "print frequency (int)" ],

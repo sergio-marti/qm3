@@ -6,6 +6,7 @@ the number of atoms (\func{N}); and the coordinates (\func{X}, \func{Y} and \fun
 be modified previous to an \func{append} call. The \func{read} and \func{write} methods are intended
 only for initialisation, and \func{next} / \func{append} will perform the reading / writing sutff.
 The final number of frames in the trajectory is set after a \func{close} call.\\
+The final number of frames stored in the trajectory is set after calling \func{close}.
 \begin{pyglist}[language=python,fvset={frame=single}]
 class dcd( fname = None, qprint = True )
     N = 0
