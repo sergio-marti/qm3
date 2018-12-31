@@ -1,0 +1,38 @@
+patch -p0 << EOD
+--- geom.F90	2018-11-13 19:37:13.000000000 +0100
++++ geom.F90.new	2018-11-13 19:48:04.000000000 +0100
+@@ -19,7 +19,7 @@
+ ! Calculate nuclear replusion energy
+ !
+       use modparallel, only : master
+-      use modmolecule, only : natom, coord, znuc
++      use modmolecule, only : natom, coord, znuc, numatomic
+       use modthresh, only : threshatom
+       use modenergy, only : enuc
+       use modwarn, only : nwarn
+@@ -32,6 +32,7 @@
+ 
+       do iatom= 2,natom
+         do jatom= 1,iatom-1
++          if( numatomic(iatom) == 0 .and. numatomic(jatom) == 0 ) cycle
+           xyz(1)= coord(1,iatom)-coord(1,jatom)
+           xyz(2)= coord(2,iatom)-coord(2,jatom)
+           xyz(3)= coord(3,iatom)-coord(3,jatom)
+@@ -61,7 +62,7 @@
+ !
+ ! Calculate gradinet of nuclear replusion energy
+ !
+-      use modmolecule, only : natom, coord, znuc
++      use modmolecule, only : natom, coord, znuc, numatomic
+       implicit none
+       integer,intent(in) :: nproc, myrank
+       integer :: iatom, jatom, i
+@@ -70,6 +71,7 @@
+ !
+       do iatom= 2+myrank,natom,nproc
+         do jatom= 1,iatom-1
++          if( numatomic(iatom) == 0 .and. numatomic(jatom) == 0 ) cycle
+           xyz(1)= coord(1,iatom)-coord(1,jatom)
+           xyz(2)= coord(2,iatom)-coord(2,jatom)
+           xyz(3)= coord(3,iatom)-coord(3,jatom)
+EOD
