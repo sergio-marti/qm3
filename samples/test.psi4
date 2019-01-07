@@ -1,6 +1,6 @@
 import qm3.mol
 import qm3.problem
-import qm3.engines.xpsi4
+import qm3.engines._psi4
 import qm3.maths.matrix
 
 class my_eng( qm3.problem.template ):
@@ -10,7 +10,7 @@ class my_eng( qm3.problem.template ):
         self.mol.xyz_read( "xyz" )
         self.mol.chrg = [ -0.834, 0.417, 0.417, -0.834, 0.417, 0.417 ]
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
-        self.eng = qm3.engines.xpsi4.py_psi4( self.mol, [ 0, 1, 2 ],
+        self.eng = qm3.engines._psi4.py_psi4( self.mol, [ 0, 1, 2 ],
             { "reference": "rks", "basis": "def2-svp", "d_convergence": 6,
             "scf_type": "direct", "guess": "read", "method": "b3lyp",
             "output": True, "charge": 0, "ncpus": 2, "memory": "1024 MB" }, [ 3, 4, 5 ] )

@@ -160,7 +160,7 @@ JOB = collections.OrderedDict( [
 		[ "siz", "0.001", "step size in ps: float" ],
 		[ "prt", "100", "print frequency: int" ],
 		[ "scl", "100", """[NVT] temperature scaling frequency in steps: int (>0)""" ],
-		[ "cpl", "0.1", """[NVT:Berendsen] temperature coupling frequency in ps: float (>0.0)""" ],
+		[ "cpl", "0.1", """[NVT:Berendsen] temperature coupling frequency in ps: float (>0)""" ],
 		[ "tmp", "300.0", "temperature in K: float" ] ]
 	],
 
@@ -201,36 +201,36 @@ def parse_selection( mol, buf ):
 			_not = True
 		# -- atom number (C-indexing)
 		elif( SP0.match( itm ) ):
-			print( "SP0:", int(itm) )
+#			print( "SP0:", int(itm) )
 			sel[int(itm)] = True
 		# -- range of atom numbers
 		elif( SP1.match( itm ) ):
 			rng = [ int( i ) for i in SP1.findall( itm )[0] ]
-			print( "SP1:", rng )
+#			print( "SP1:", rng )
 			for i in range( rng[0], rng[1] + 1 ):
 				sel[i] = True
 		# -- residue number (by chain)
 		elif( SP2.match( itm ) ):
 			rng = SP2.findall( itm )[0]
-			print( "SP2:", rng )
+#			print( "SP2:", rng )
 			for i in list( mol.indx[rng[0]][int(rng[1])].values() ):
 				sel[i] = True
 		# -- range of residue numbers (by chain)
 		elif( SP3.match( itm ) ):
 			rng = SP3.findall( itm )[0]
-			print( "SP3:", rng )
+#			print( "SP3:", rng )
 			for i in range( int( rng[1] ), int( rng[2] ) + 1 ):
 				for j in list( mol.indx[rng[0]][i].values() ):
 					sel[j] = True
 		# -- chain / residue_number / atom_label
 		elif( SP4.match( itm ) ):
 			rng = SP4.findall( itm )[0]
-			print( "SP4:", rng )
+#			print( "SP4:", rng )
 			sel[mol.indx[rng[0]][int(rng[1])][rng[2]]] = True
 		# -- radial selection by residue around chain / residue_number
 		elif( SP5.match( itm ) ):
 			rng = SP5.findall( itm )[0]
-			print( "SP5:", rng )
+#			print( "SP5:", rng )
 			for i in mol.sph_sel( list( mol.indx[rng[0]][int(rng[1])].values() ), float( rng[2] ) ):
 				sel[i] = True
 		# -- backbone
@@ -510,8 +510,56 @@ class gui_application( object ):
 			pickle.dump( __nbn, f )
 			f.close()
 
-			# Build exclussion lists (calculate connectivity and assign scale factors...)
-			if( __sqm != [] and __lnk != [] ):
+			# calculate exclussion lists (calculate connectivity and assign scale factors...)
+			if( __sqm != [] and __lnk != [] and __nbn != [] ):
+				import	qm3.elements
+				import	qm3.utils
+				__exc = []
+				# calculate (QM_residue + MM_residue) connectivity
+				for ii,jj in __lnk:
+					idx = sorted( list( set( self.__mol.indx[self.__mol.segn[ii]][self.__mol.resi[ii]].values() + self.__mol.indx[self.__mol.segn[jj]][self.__mol.resi[jj]].values() ) ) )
+					nat = len( idx )
+					anu = [ qm3.elements.rsymbol[self.__mol.labl[i][0]] for i in idx ]
+					atm = [ [] for i in range( nat ) ]	
+					smm = [ True for i in range( nat ) ]
+					sqm = []
+					for i in __sqm:
+						try:
+							smm[idx.index( i )] = False
+							sqm.append( idx.index( i ) )
+						except:
+							pass
+					for i in range( nat - 1 ):
+						i3 = idx[i] * 3
+						ri = qm3.elements.r_cov[anu[i]] + 0.05
+						for j in range( i + 1, nat ):
+							if( anu[i] == 1 and anu[j] == 1 ):
+								continue
+							j3 = idx[j] * 3
+							rj = qm3.elements.r_cov[anu[j]] + 0.05 
+							d2 = ( ri + rj ) * ( ri + rj )
+							if( qm3.utils.distanceSQ( self.__mol.coor[i3:i3+3], self.__mol.coor[j3:j3+3] ) <= d2 ):
+								atm[i].append( j )
+								atm[j].append( i )
+					# 1-2 (scale factor = 0.0)
+					for i in sqm:
+						for j in atm[i]:
+							if( j != i and smm[j] ):
+								__exc.append( [ idx[i], idx[j], 0.0 ] )
+					# 1-3 (scale factor = 0.0)
+					for i in sqm:
+						for j in atm[i]:
+							for k in atm[j]:
+								if( k != i and smm[k] ):
+									__exc.append( [ idx[i], idx[k], 0.0 ] )
+					# 1-4 (scale factor = 0.5)
+					for i in sqm:
+						for j in atm[i]:
+							for k in atm[j]:
+								for l in atm[k]:
+									if( k != i and l != j and l != i and smm[l] ):
+										__exc.append( [ idx[i], idx[l], 0.5 ] )
+				__exc.sort()
 				f = open( "sele_EX.pk", "wb" )
 				pickle.dump( __exc, f )
 				f.close()
@@ -855,7 +903,8 @@ $TeraChem/bin/terachem tchem.inp > tchem.log
 			if( knd == "multiple_distance" ):
 				f.write( """
 		self.e%02d = %s( %s, %s, %s, %s )
-"""%( who, key, obj["kmb"], obj["ref"], str( [ int( i ) for i in obj["idx"].split() ] ), str( [ float( i ) for i in obj["wei"].split() ] ) ) )
+"""%( who, key, obj["kmb"], obj["ref"], str( [ int( i ) for i in obj["idx"].split() ] ),
+		str( [ float( i ) for i in obj["wei"].split() ] ) ) )
 	
 			who += 1
 
@@ -1010,6 +1059,7 @@ obj.stop()
 		self.__wid["box_y"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
 		self.__wid["box_z"] = tkinter.Entry( f01, font = self.__fnt, justify = tkinter.LEFT, width = 10 )
 		self.__wid["box_z"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
+		self.__wid["box_x"].insert( tkinter.INSERT, "40" )
 
 		f03 = tkinter.Frame( self.frm, bg = self.__col )
 		f03.pack( side = tkinter.TOP, expand = 1, fill = tkinter.BOTH, padx = 4, pady = 4 )
@@ -1046,6 +1096,7 @@ backbone     atoms from protein backbone: atom labels C, O, N, CA
 not          found at any position negates the resulting selection""" )
 		self.__wid["sqm"] = tkinter.Text( f04, font = self.__fnt, height = 4, width = 50 )
 		self.__wid["sqm"].pack( side = tkinter.LEFT, expand = 1, fill = tkinter.X )
+		self.__wid["sqm"].insert( tkinter.INSERT, "0 1 5 8 9 10 15 16" )
 
 		f05 = tkinter.Frame( self.frm, bg = self.__col )
 		f05.pack( side = tkinter.TOP, expand = 1, fill = tkinter.BOTH, padx = 4, pady = 4 )
@@ -1056,6 +1107,7 @@ not          found at any position negates the resulting selection""" )
 str/int/lbl  atom label (lbl) from residue number (int) of chain (str)""", 800 )
 		self.__wid["lnk"] = tkinter.Text( f05, font = self.__fnt, height = 3, width = 50 )
 		self.__wid["lnk"].pack( side = tkinter.LEFT, expand = 1, fill = tkinter.X )
+		self.__wid["lnk"].insert( tkinter.INSERT, "A/1/C2 A/1/C3" )
 
 		f06 = tkinter.Frame( self.frm, bg = self.__col )
 		f06.pack( side = tkinter.TOP, expand = 1, fill = tkinter.BOTH, padx = 4, pady = 4 )

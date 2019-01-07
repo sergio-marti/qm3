@@ -1,4 +1,4 @@
-import qm3.engines.xlammps
+import qm3.engines._lammps
 import os
 import time
 import qm3.maths.matrix
@@ -60,7 +60,7 @@ Angles
 """ )
 f.close()
 
-mol = qm3.engines.xlammps.lammps_read( "data" )
+mol = qm3.engines._lammps.lammps_read( "data" )
 
 f = open( "lammps.inp", "wt" )
 f.write( """units           real
@@ -89,7 +89,7 @@ print           $(pe) file lammps.ener screen no
 write_dump      all custom lammps.force id fx fy fz modify sort id format line "%d %.10lf %.10lf %.10lf"
 """ )
 f.close()
-eng = qm3.engines.xlammps.lammps()
+eng = qm3.engines._lammps.lammps()
 eng.exe = "mpirun -n 4 /Users/smarti/Devel/lammps/lmp_mpi-16Mar18 -in lammps.inp -sc none -log lammps.log"
 mol.func = 0
 mol.grad = [ 0 for i in range( 3 * mol.natm ) ]
@@ -129,7 +129,7 @@ thermo          1
 f.close()
 os.system( "/Users/smarti/Devel/lammps/lmp_mpi-16Mar18 -in lammps.pipe -sc none -log lammps.log &" )
 time.sleep( 10 )
-eng = qm3.engines.xlammps.lammps_pipe( "lammps.inp" )
+eng = qm3.engines._lammps.lammps_pipe( "lammps.inp" )
 mol.func = 0
 mol.grad = [ 0 for i in range( 3 * mol.natm ) ]
 eng.get_grad( mol )
@@ -138,7 +138,7 @@ qm3.maths.matrix.mprint( mol.grad, mol.natm, 3 )
 eng.stop()
 
 print( 80*"-" )
-eng = qm3.engines.xlammps.py_lammps( "lammps.inp" )
+eng = qm3.engines._lammps.py_lammps( "lammps.inp" )
 mol.func = 0
 mol.grad = [ 0 for i in range( 3 * mol.natm ) ]
 eng.get_grad( mol )

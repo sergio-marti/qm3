@@ -1,5 +1,5 @@
 \normalsize
-\subsection[psi4]{psi4.py}
+\subsection[_psi4]{_psi4.py}
 For being able to use this module, Psi4\footnote{http://www.psicode.org} must be installed, and
 the appropriate \textbf{lib} folder\\ (for example: /Users/smarti/Devel/psi4/dist\_gnu/lib) should added
 to the PYTHONPATH environment variable.\\
