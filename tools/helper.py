@@ -702,6 +702,28 @@ class my_problem( qm3.problem.template ):
 	
 			# TCHEM_SCKT
 			if( knd == "tchem_sckt" ):
+				g = open( "r.tchem", "wt" )
+				g.write( """
+source /usr/local/chem/mpich2-1.4.1p1/rc
+  
+export TeraChem=/usr/local/chem/tchem_1.93p
+export NBOEXE=$TeraChem/bin/nbo6.i4.exe
+export OMP_NUM_THREADS=1
+export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
+export PATH=$TeraChem/bin:$PATH
+
+rm -rf tchem_; mkdir tchem_; cd tchem_; mkdir scr
+mpirun -n 1 $TeraChem/bin/terachem -U1 -Mtcport_ >& tchem.log
+""" )
+				g.close()
+				g = open( "r.sckt", "wt" )
+				g.write( """
+source /usr/local/chem/mpich2-1.4.1p1/rc
+
+rm -f sckt_ sckt_.log
+mpirun -n 1 ./a.out tcport_ sckt_ input >& sckt_.log
+""" )
+				g.close()
 				f.write( """
 		self.e%02d = %s( self.mole, "%s", s_qm, s_mm, s_la )
 """%( who, key, obj["sck"] ) )
@@ -711,7 +733,74 @@ class my_problem( qm3.problem.template ):
 				exe = ""
 				if( knd == "gamess" ):
 					exe = "bash r.gamess"
+					g = open( "r.gamess", "wt" )
+					g.write( """
+GWD=[PATH]
+SCR=`pwd`
+DDI=$GWD/ddikick.x
+EXE=$GWD/gamess.00.x
+JOB=gamess.temp
+
+export   INPUT=$SCR/gamess.inp
+export  EXTBAS=basis
+export AUXDATA=$GWD/auxdata
+export ERICFMT=$AUXDATA/ericfmt.dat
+export BASPATH=$AUXDATA/BASES
+export  WORK15=$SCR/$JOB.F15
+export  DASORT=$SCR/$JOB.F20
+export   PUNCH=$SCR/gamess.data
+export DICTNRY=$SCR/gamess.guess
+export DFTGRID=$SCR/$JOB.F22
+
+ulimit -c 0
+rm -f $JOB.* $PUNCH
+export DDI_RSH=ssh
+export DDI_VER=new
+export NNODES=1
+export NCPUS=1
+export HOSTLIST="`hostname`:cpus=$NCPUS"
+$DDI $EXE $JOB -ddi $NNODES $NCPUS $HOSTLIST -scr $SCR < /dev/null >& gamess.out
+""" )
+					g.close()
 				elif( knd == "nwchem" ):
+					exe = "bash r.nwchem"
+					g = open( "r.nwchem", "wt" )
+					g.write( """NWCHEM_BASIS_LIBRARY=[PATH]/data/libraries/ mpirun -n 2 [PATH]/nwchem nwchem.nw > nwchem.log""" )
+					g.close()
+				elif( knd == "demon" ):
+					exe = "bash r.demon"
+					g = open( "r.demon", "wt" )
+					g.write( """[PATH]/deMon_4.4.1""" )
+					g.close()
+				elif( knd == "orca" ):
+					exe = "bash r.orca"
+					g = open( "r.orca", "wt" )
+					g.write( """
+mpi=/usr/local/chem/openmpi-2.0.2
+export PATH=$mpi/bin:$PATH
+export LD_LIBRARY_PATH=$mpi/lib:$LD_LIBRARY_PATH
+
+cwd=/usr/local/chem/orca_4.0.1
+export PATH=$cwd:$PATH
+export LD_LIBRARY_PATH=$cwd:$LD_LIBRARY_PATH
+$cwd/orca orca.inp > orca.out
+""" )
+					g.close()
+				elif( knd == "tchem" ):
+					exe = "bash r.tchem"
+					g = open( "r.tchem", "wt" )
+					g.write( """
+export TeraChem=/usr/local/chem/tchem_1.93p
+
+export NBOEXE=$TeraChem/bin/nbo6.i4.exe
+export OMP_NUM_THREADS=1
+export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
+export PATH=$TeraChem/bin:$PATH
+
+$TeraChem/bin/terachem tchem.inp > tchem.log
+""" )
+					g.close()
+
 				f.write( """
 		f = open( "%s", "rt" )
 		i_qm = f.read()
@@ -722,6 +811,9 @@ class my_problem( qm3.problem.template ):
 
 			# GAUSSIANs
 			if( knd in [ "gaussian", "gaussian_MMEL" ] ):
+				g = open( "r.g09", "wt" )
+				g.write( """. [PATH]/g09.profile; g09 g09.com""" )
+				g.close()
 				f.write( """
 		f = open( "%s", "rt" )
 		i_qm = f.read()
@@ -733,8 +825,8 @@ class my_problem( qm3.problem.template ):
 		e_qm = f.read()
 		f.close()
 		self.e%02d = %s( self.mole, i_qm, m_qm, e_qm, s_qm, s_mm, s_la )
-		self.e%02d.exe = "%s"
-"""%( obj["ini"], obj["mid"], obj["end"], who, key, who, obj["exe"] ) )
+		self.e%02d.exe = "bash r.g09"
+"""%( obj["ini"], obj["mid"], obj["end"], who, key, who ) )
 	
 			# PSI4
 			if( knd == "py_psi4" ):

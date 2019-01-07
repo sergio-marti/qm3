@@ -113,7 +113,7 @@ class gamess( qm3.engines.qmbase ):
 			for i in self.sel:
 				mol.chrg[i] = float( f.readline().split()[1] )
 		f.close()
-		if( self.nbn and os.access( "mm_output", os.R_OK ) ):
+		if( self.nbn and os.access( "mm_output", os.R_OK ) and run in [ "grad", "hess" ] ):
 			f = open( "mm_output", "rb" )
 			f.read( struct.unpack( "i", f.read( 4 ) )[0] + 4 )
 			f.read( struct.unpack( "i", f.read( 4 ) )[0] + 4 )
