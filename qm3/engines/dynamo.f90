@@ -1,3 +1,6 @@
+!
+! compile to a library (.so) by adding "-shared" on linux, or "-dynamiclib" on macOS
+!
 subroutine qm3_initialize
 	use dynamo
 	implicit none

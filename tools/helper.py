@@ -5,197 +5,188 @@ from __future__ import print_function, division
 import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
+
 try:
 	import cPickle as pickle
 except:
 	import pickle
+
+try:
+	import	tkinter
+	import	tkinter.ttk as ttk
+except:
+	import	Tkinter as tkinter
+	import	ttk
+
 import	re
 import	collections
+import	qm3.mol
 
 
-##################################################################################################
-# Configuration and buffers
-#
-conf = {
-	"box": None,
-	"imp": {},
-	"mol": { "module": None, "method": None, "fname": None },
-	"MOL": None,
-	"dcd": None,
-	"out": None,
-	"sel": [],
-	"sqm": [],
-	"nbn": [],
-	"lnk": [],
-	"eng": [],
-	"job": []
-	}
+# ===============================================================================================
 
 
 ENG =  collections.OrderedDict( [
 	[ "qm3.engines.namd.namd", [ 
-		[ "exe", None, "path of the NAMD executable, without options" ],
-		[ "psf", None, "name of the PSF file used to define the model" ],
-		[ "cut", None, "force-switching (float), cut-on cut-off cut-list" ] ]
+		[ "exe", "", "path of the NAMD executable, without options: str" ],
+		[ "psf", "", "name of the PSF file used to define the model: str" ],
+		[ "cut", "", "force-switching (floats): cut-on cut-off cut-list" ] ]
 	],
 
 	[ "qm3.engines.namd.namd_pipe", [ 
-		[ "exe", None, "path of the NAMD executable, without options" ],
-		[ "psf", None, "name of the PSF file used to define the model" ],
-		[ "cut", None, "force-switching (float), cut-on cut-off cut-list" ] ]
+		[ "exe", "", "path of the NAMD executable, without options: str" ],
+		[ "psf", "", "name of the PSF file used to define the model: str" ],
+		[ "cut", "", "force-switching (floats): cut-on cut-off cut-list" ] ]
 	],
 
 	[ "qm3.engines.sander.sander", [
-		[ "dir", None, "AMBERHOME path" ],
-		[ "cut", None, "float, cut-off" ],
-		[ "pbc", True, "periodic boundary conditions (ntb), on/off" ],
-		[ "qm_sel", None, "selection mask of sander to set up the QM atoms" ],
-		[ "qm_met", None, "semi-empirical hamiltionan inplemented in sander" ],
-		[ "qm_chg", None, "int, charge of the QM atoms" ] ]
+		[ "dir", "", "AMBERHOME path: str" ],
+		[ "cut", "", "cut-off: float" ],
+		[ "pbc", "", "periodic boundary conditions (ntb): on/off" ],
+		[ "qm_sel", "", "selection mask of sander to set up the QM atoms: str" ],
+		[ "qm_met", "", "semi-empirical hamiltionan inplemented in sander: str" ],
+		[ "qm_chg", "", "charge of the QM atoms: int" ] ]
 	],
 
 	[ "qm3.engines.sander.py_sander", [
-		[ "cut", None, "float, cut-off" ],
-		[ "pbc", None, "periodic boundary conditions (ntb), on/off" ],
-		[ "qm_met", None, "semi-empirical hamiltionan inplemented in sander, AM1 / DFTB / ..." ],
-		[ "qm_chg", None, "int, charge of the QM atoms" ] ]
+		[ "cut", "", "cut-off: float" ],
+		[ "pbc", "", "periodic boundary conditions (ntb): on/off" ],
+		[ "qm_met", "", "semi-empirical hamiltionan inplemented in sander: str" ],
+		[ "qm_chg", "", "charge of the QM atoms: int" ] ]
 	],
 
 	[ "qm3.engines.dftb.dftb", [ 
-		[ "exe", None, "path of the DFTB+ executable" ],
-		[ "chg", None, "int, charge of the QM atoms" ],
-		[ "prm", [], "folder of DFTB+ parameters set" ] ]
+		[ "exe", "", "path of the DFTB+ executable: str" ],
+		[ "chg", "", "charge of the QM atoms: int" ],
+		[ "prm", "", "folder of DFTB+ parameters set: str" ] ]
 	],
 
 	[ "qm3.engines.sqm.sqm", [ 
-		[ "dir", None, "AMBERHOME path" ],
-		[ "ini", None, """SQM(QM) flags, such as, qm_theory = "DFTB", qmcharge = 0""" ] ]
+		[ "dir", "", "AMBERHOME path: str" ],
+		[ "ini", "", """SQM(QM) flags: qm_theory = "DFTB", qmcharge = 0""" ] ]
 	],
 
 	[ "qm3.engines.gamess.gamess", [ 
-		[ "exe", None, "path of the GAMESS-US launching script" ],
-		[ "ini", None, "name of file containing the GAMESS-US input template" ] ]
+		[ "exe", "", "path of the GAMESS-US launching script: str" ],
+		[ "ini", "", "name of file containing the GAMESS-US input template: str" ] ]
 	],
 
 	[ "qm3.engines.nwchem.nwchem", [ 
-		[ "exe", None, "path of the NWCHEM launching script" ],
-		[ "ini", None, "name of file containing the NWCHEM input template" ] ]
+		[ "exe", "", "path of the NWCHEM launching script: str" ],
+		[ "ini", "", "name of file containing the NWCHEM input template: str" ] ]
 	],
 
 	[ "qm3.engines.demon.demon", [ 
-		[ "exe", None, "path of the deMon2k launching script" ],
-		[ "ini", None, "name of file containing the deMon2k input template" ] ]
+		[ "exe", "", "path of the deMon2k launching script: str" ],
+		[ "ini", "", "name of file containing the deMon2k input template: str" ] ]
 	],
 
 	[ "qm3.engines.orca.orca", [ 
-		[ "exe", None, "path of the ORCA lunching script" ],
-		[ "ini", None, "name of file containing the ORCA input template" ] ]
+		[ "exe", "", "path of the ORCA lunching script: str" ],
+		[ "ini", "", "name of file containing the ORCA input template: str" ] ]
 	],
-
                                  
     [ "qm3.engines.tchem.tchem", [
-        [ "ini", None, "name of file containing the TeraChem input template" ] ]
+        [ "ini", "", "name of file containing the TeraChem input template: str" ] ]
     ],
 
 	[ "qm3.engines.tchem.tchem_sckt", [ 
-		[ "sck", "sckt_", "name of the UNIX socket linked to TeraChem" ] ]
+		[ "sck", "sckt_", "name of the UNIX socket linked to TeraChem: str" ] ]
 	],
 
 	[ "qm3.engines.gaussian.gaussian", [ 
-		[ "exe", None, "path of the GAUSSIAN-09 launching script" ],
-		[ "ini", None, "name of file containing the GAUSSIAN-09 head input template" ],
-		[ "mid", None, "name of file containing the GAUSSIAN-09 middle input template" ],
-		[ "end", None, "name of file containing the GAUSSIAN-09 last input template" ] ]
+		[ "exe", "", "path of the G09 launching script: str" ],
+		[ "ini", "", "name of file containing the G09 head input template: str" ],
+		[ "mid", "", "name of file containing the G09 middle input template: str" ],
+		[ "end", "", "name of file containing the G09 last input template: str" ] ]
 	],
 
 	[ "qm3.engines.gaussian.gaussian_MMEL", [ 
-		[ "exe", None, "path of the GAUSSIAN-09 launching script" ],
-		[ "ini", None, "name of file containing the GAUSSIAN-09 head input template" ],
-		[ "mid", None, "name of file containing the GAUSSIAN-09 middle input template" ],
-		[ "end", None, "name of file containing the GAUSSIAN-09 last input template" ] ]
+		[ "exe", "", "path of the G09 launching script: str" ],
+		[ "ini", "", "name of file containing the G09 head input template: str" ],
+		[ "mid", "", "name of file containing the G09 middle input template: str" ],
+		[ "end", "", "name of file containing the G09 last input template: str" ] ]
 	],
 
 	[ "qm3.engines.xpsi4.Psi4", [ 
-		[ "opt", None, "python dictonary with Psi-4 options" ] ]
+		[ "opt", "", "python dictonary with Psi-4 options: { key: val }" ] ]
 	],
 
 	[ "qm3.engines._qmmm.Int_QMLJ", [
-		[ "par", None, """molecule method and file name for reading Lennard-Jones parameters
-    such as .par_read( "par" ) or .prmtop_read( "prmtop" )""" ],
-		[ "exc", "", "exclusion [QM (in sqm), MM (in nbn), scale] interaction triplets" ] ]
+		[ "exc", "", "exclusion [QM (in sqm), MM (in nbn), scale] interaction triplets: C-index C-index float" ] ]
 	],
 
 	[ "qm3.engines._qmmm.Int_QMLJ_MMEL", [
-		[ "par", None, """molecule method and file name for reading Lennard-Jones parameters
-    such as .par_read( "par" ) or .prmtop_read( "prmtop" )""" ],
-		[ "exc", "", "exclusion [QM (in sqm), MM (in nbn), scale) interaction triplets" ] ]
+		[ "exc", "", "exclusion [QM (in sqm), MM (in nbn), scale) interaction triplets: C-index C-index float" ] ]
 	],
 
 	[ "qm3.engines.restraints.distance", [ 
-		[ "kmb", None, "float, force constant in kJ/mol.A^2" ],
-		[ "ref", None, "float, reference value for distance" ],
-		[ "idx", None, "list-int, C-indexes of the atoms defining the distance" ] ]
+		[ "kmb", "", "force constant in kJ/mol.A^2: float" ],
+		[ "ref", "", "reference value for distance in Angstroms: float" ],
+		[ "idx", "", "C-indexes of the atoms defining the distance: list" ] ]
 	],
 
 	[ "qm3.engines.restraints.angle", [ 
-		[ "kmb", None, "float, force constant in kJ/mol.deg^2" ],
-		[ "ref", None, "float, reference value for distance" ],
-		[ "idx", None, "list-int, C-indexes of the atoms defining the distance" ] ]
+		[ "kmb", "", "force constant in kJ/mol.deg^2: float" ],
+		[ "ref", "", "reference value for angle in degrees: float" ],
+		[ "idx", "", "C-indexes of the atoms defining the angle: list" ] ]
 	],
 
 	[ "qm3.engines.restraints.multiple_distance", [ 
-		[ "kmb", None, "float, force constant in kJ/mol.A^2" ],
-		[ "ref", None, "float, reference value for distance" ],
-		[ "idx", None, "list-int, C-indexes of the atoms defining the distance" ],
-		[ "wei", None, "list-float, weights for the linear combination of distances" ] ]
+		[ "kmb", "", "force constant in kJ/mol.A^2: float" ],
+		[ "ref", "", "reference value for distance in Angstroms: float" ],
+		[ "idx", "", "C-indexes of the atoms defining the distance: list" ],
+		[ "wei", "", "weights for the linear combination of distances: list" ] ]
 	] ] )
 
 
 JOB = collections.OrderedDict( [
 	[ "qm3.actions.minimize.steepest_descent", [
-		[ "stp", "1000", "step number (int)" ],
-		[ "siz", "0.1", "step size (float)" ],
-		[ "prt", "100", "print frequency (int)" ],
-		[ "tol", "1.0", "gradient tolerance (float)" ] ]
+		[ "stp", "1000", "step number: int" ],
+		[ "siz", "0.1", "step size: float" ],
+		[ "prt", "100", "print frequency: int" ],
+		[ "tol", "1.0", "gradient tolerance: float" ] ]
 	],
 
 	[ "qm3.actions.minimize.fire", [
-		[ "stp", "1000", "step number (int)" ],
-		[ "siz", "0.1", "step size (float)" ],
-		[ "prt", "100", "print frequency (int)" ],
-		[ "tol", "1.0", "gradient tolerance (float)" ] ]
+		[ "stp", "1000", "step number: int" ],
+		[ "siz", "0.1", "step size: float" ],
+		[ "prt", "100", "print frequency: int" ],
+		[ "tol", "1.0", "gradient tolerance: float" ] ]
 	],
 
 	[ "qm3.actions.minimize.l_bfgs", [
-		[ "stp", "1000", "step number (int)" ],
-		[ "siz", "0.1", "step size (float)" ],
-		[ "prt", "100", "print frequency (int)" ],
-		[ "tol", "1.0", "gradient tolerance (float)" ] ]
+		[ "stp", "1000", "step number: int" ],
+		[ "siz", "0.1", "step size: float" ],
+		[ "prt", "100", "print frequency: int" ],
+		[ "tol", "1.0", "gradient tolerance: float" ] ]
 	],
 
 	[ "qm3.actions.minimize.conjugate_gradient_plus", [
-		[ "stp", "1000", "step number (int)" ],
-		[ "prt", "100", "print frequency (int)" ],
-		[ "tol", "1.0", "gradient tolerance (float)" ] ]
+		[ "stp", "1000", "step number: int" ],
+		[ "prt", "100", "print frequency: int" ],
+		[ "tol", "1.0", "gradient tolerance: float" ] ]
 	],
 
 	[ "qm3.actions.dynamics.velocity_verlet", [
-		[ "stp", "1000", "number os steps (int)" ],
-		[ "siz", "0.001", "step size (float, ps)" ],
-		[ "prt", "100", "print frequency (int)" ],
-		[ "scl", "100", """temperature scaling frequency (int)
+		[ "stp", "1000", "step number: int" ],
+		[ "siz", "0.001", "step size in ps: float" ],
+		[ "prt", "100", "print frequency: int" ],
+		[ "scl", "100", """temperature scaling frequency in steps: int
     if scl <= 0 performs NVE""" ],
-		[ "tmp", "300.0", "temperature (float, K)" ] ]
+		[ "tmp", "300.0", "temperature in K: float" ] ]
 	],
 
 	[ "qm3.actions.dynamics.langevin_verlet", [
-		[ "stp", "1000", "number os steps (int)" ],
-		[ "siz", "0.001", "step size (float, ps)" ],
-		[ "prt", "100", "print frequency (int)" ],
-		[ "gam", "50.0", "friction gamma factor (float, ps^-1)" ],
-		[ "tmp", "300.0", "temperature (float, K)" ] ]
+		[ "stp", "1000", "step number: int" ],
+		[ "siz", "0.001", "step size in ps: float" ],
+		[ "prt", "100", "print frequency: int" ],
+		[ "gam", "50.0", "friction gamma factor in ps^-1: float" ],
+		[ "tmp", "300.0", "temperature in K: float" ] ]
 	] ] )
 
+
+# ===============================================================================================
 
 
 ##################################################################################################
@@ -234,25 +225,25 @@ def apply_selection( mol, sel, lst ):
 		elif( SP2.match( itm ) ):
 			rng = SP2.findall( itm )[0]
 			print( "SP2:", rng )
-			for i in list( mol.anum[rng[0]][int(rng[1])].values() ):
+			for i in list( mol.indx[rng[0]][int(rng[1])].values() ):
 				sel[i] = True
 		# -- range of residue numbers (by chain)
 		elif( SP3.match( itm ) ):
 			rng = SP3.findall( itm )[0]
 			print( "SP3:", rng )
 			for i in range( int( rng[1] ), int( rng[2] ) + 1 ):
-				for j in list( mol.anum[rng[0]][i].values() ):
+				for j in list( mol.indx[rng[0]][i].values() ):
 					sel[j] = True
 		# -- chain / residue_number / atom_label
 		elif( SP4.match( itm ) ):
 			rng = SP4.findall( itm )[0]
 			print( "SP4:", rng )
-			sel[mol.anum[rng[0]][int(rng[1])][rng[2]]] = True
+			sel[mol.indx[rng[0]][int(rng[1])][rng[2]]] = True
 		# -- radial selection by residue around chain / residue_number
 		elif( SP5.match( itm ) ):
 			rng = SP5.findall( itm )[0]
 			print( "SP5:", rng )
-			for i in mol.sph_sel( list( mol.anum[rng[0]][int(rng[1])].values() ), float( rng[2] ) ):
+			for i in mol.sph_sel( list( mol.indx[rng[0]][int(rng[1])].values() ), float( rng[2] ) ):
 				sel[i] = True
 		# -- backbone
 		elif( itm == "backbone" ):
@@ -387,251 +378,251 @@ def input_sander( conf, opt ):
 
 
 
-##################################################################################################
-# Parsing...
+###################################################################################################
+## Parsing...
+##
+#def __parse_options( cur, opt, siz, lin ):
+#	i = cur + 1
+#	if( i < siz ):
+#		t = lin[i].strip().split()
+#	while( i < siz and len( t ) > 0 ):
+#		opt[t[0]] = " ".join( t[1:] )
+#		i += 1
+#		if( i < siz ):
+#			t = lin[i].strip().split()
+#	return( i )
 #
-def __parse_options( cur, opt, siz, lin ):
-	i = cur + 1
-	if( i < siz ):
-		t = lin[i].strip().split()
-	while( i < siz and len( t ) > 0 ):
-		opt[t[0]] = " ".join( t[1:] )
-		i += 1
-		if( i < siz ):
-			t = lin[i].strip().split()
-	return( i )
-
-
-
-def parse_input( conf, lines ):
-	global	SP0, SP1, SP2, SP3, SP4, SP5, ENG, JOB
-	cur = 0
-	siz = len( lines )
-	while( cur < siz ):
-		t = lines[cur].strip().split()
-		if( len( t ) > 0 ):
-
-			# -- box size
-			if( t[0] == "box" and len( t ) == 4 ):
-				conf["box"] = [ float( j ) for j in t[1:] ]
-		
-			# -- molecule object
-			if( t[0] == "mol" and len( t ) ==  3 ):
-				tt = t[1].split( "." )
-				conf["imp"][tt[0]] = None
-				conf["mol"]["module"] = tt[0]
-				conf["mol"]["method"] = tt[1]
-				conf["mol"]["fname"]  = t[2]
-				if( conf["mol"]["module"] == "mol_io" ):
-					import mol_io
-					conf["MOL"] = mol_io.molecule()
-				elif( conf["mol"]["module"] == "x_namd" ):
-					import x_namd
-					conf["MOL"] = x_namd.molecule()
-				elif( conf["mol"]["module"] == "x_dynamo" ):
-					import x_dynamo
-					conf["MOL"] = x_dynamo.molecule()
-				elif( conf["mol"]["module"] == "x_sander" ):
-					import x_sander
-					conf["MOL"] = x_sander.molecule()
-				eval( "conf[\"MOL\"]." + conf["mol"]["method"] + "( \"" + conf["mol"]["fname"] + "\" )" )
-				if( conf["box"] != None ):
-					conf["MOL"].boxl = conf["box"][:]
-				conf["sel"] = [ True  for i in range( conf["MOL"].natm ) ]
-				conf["sqm"] = [ False for i in range( conf["MOL"].natm ) ]
-				conf["nbn"] = [ False for i in range( conf["MOL"].natm ) ]
-
-			# -- molecule output
-			if( t[0] == "out" and len( t ) ==  3 ):
-				conf["out"] = { "method": t[1], "fname": t[2] }
-
-			# -- trajectory
-			if( t[0] == "dcd" and len( t ) ==  3 ):
-				conf["imp"]["mol_io"] = None
-				conf["dcd"] = { "fname": t[1], "freq": int( t[2] ) }
-
-			# -- active atoms
-			if( t[0] == "sel" ):
-				conf["sel"] = [ False for i in range( conf["MOL"].natm ) ]
-				apply_selection( conf["MOL"], conf["sel"], t[1:] )
-	
-			# -- QM atoms: define PREVIOUS to LNK and NBN
-			if( t[0] == "sqm" ):
-				conf["sqm"] = [ False for i in range( conf["MOL"].natm ) ]
-				apply_selection( conf["MOL"], conf["sqm"], t[1:] )
-	
-			# -- Link-atoms bonds: define PREVIOUS to NBN
-			if( t[0] == "lnk" ):
-				tmp = []
-				for atm in t[1:]:
-					i,j,k = atm.split( "/" )
-					tmp.append( conf["MOL"].anum[i][int(j)][k] )
-				conf["lnk"] = [ [ tmp[2*i], tmp[2*i+1] ] for i in range( len( tmp ) // 2 ) ]
-	
-			# -- Non-bonded atoms
-			if( t[0] == "nbn" ):
-				conf["nbn"] = [ False for i in range( conf["MOL"].natm ) ]
-				apply_selection( conf["MOL"], conf["nbn"], t[1:] )
-				for i in range( conf["MOL"].natm ):
-					if( conf["sqm"][i] ):
-						conf["nbn"][i] = False
-				for i,j in conf["lnk"]:
-					conf["nbn"][j] = False
-
-			# -- engines
-			if( t[0] == "eng" and len( t ) == 2 ):
-	
-				if( t[1] == "x_namd.namd" or t[1] == "x_namd.namd_pipe" ):
-					conf["imp"][t[1].split( "." )[0]] = None
-					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
-					cur = __parse_options( cur, obj, siz, lines )
-					obj["exe"] += " +setcpuaffinity +isomalloc_sync +idlepoll namd.inp > namd.out"
-					if( obj["class"] == "x_namd.namd_pipe" ):
-						obj["exe"] += " &"
-					obj["cut"] = [ float( i ) for i in obj["cut"].split() ]
-					conf["eng"].append( obj.copy() )
-					conf["MOL"]._occ = []
-					for i in range( conf["MOL"].natm ):
-						if( not conf["sel"][i] or conf["sqm"][i] ):
-							conf["MOL"]._occ.append( 1 )
-						else:
-							conf["MOL"]._occ.append( 0 )
-					conf["MOL"].pdb_write( "namd.fix" )
-					try:
-						conf["MOL"].namd_write( "namd.coor" )
-					except Exception as e:
-						print( "-- ERROR --\n" )
-						print( e )
-						print( "\n[try] mol x_namd.%s %s\n"%( conf["mol"]["method"], conf["mol"]["fname"] ) )
-						sys.exit( 1 )
-	
-				elif( t[1] == "x_sander.Sander" ):
-					conf["imp"][t[1].split( "." )[0]] = None
-					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
-					cur = __parse_options( cur, obj, siz, lines )
-					obj["dir"] = "export AMBERHOME=%s; $AMBERHOME/bin/sander -O"%( obj["dir"] )
-					obj["pbc"] = obj["pbc"] == "on"
-					if( conf["box"] == None ):
-						conf["box"] = [ 1000, 1000, 1000 ]
-					conf["eng"].append( obj.copy() )
-					try:
-						conf["MOL"].inpcrd_write( "inpcrd" )
-					except Exception as e:
-						print( "-- ERROR --\n" )
-						print( e )
-						print( "\n[try] mol x_sander.%s %s\n"%( conf["mol"]["method"], conf["mol"]["fname"] ) )
-						sys.exit( 1 )
-	
-				elif( t[1] == "x_sander.py_sander" ):
-					conf["imp"][t[1].split( "." )[0]] = None
-					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
-					cur = __parse_options( cur, obj, siz, lines )
-					obj["pbc"] = obj["pbc"] == "on"
-					if( conf["box"] == None ):
-						conf["box"] = [ 100, 100, 100 ]
-					conf["eng"].append( obj.copy() )
-	
-				elif( t[1] == "x_dftb.dftb" ):
-					conf["imp"][t[1].split( "." )[0]] = None
-					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
-					cur = __parse_options( cur, obj, siz, lines )
-					obj["exe"] += " > dftb_in.log"
-					if( obj["prm"][-1] != "/" ):
-						obj["prm"] += "/"
-					conf["eng"].append( obj.copy() )
-	
-				elif( t[1] == "x_sqm.sqm" ):
-					conf["imp"][t[1].split( "." )[0]] = None
-					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
-					cur = __parse_options( cur, obj, siz, lines )
-					obj["dir"] = "export AMBERHOME=%s; $AMBERHOME/bin/sqm"%( obj["dir"] )
-					conf["eng"].append( obj.copy() )
-	
-				elif( t[1] in [ "x_gamess.gamess", "x_nwchem.nwchem", "x_demon.demon", "x_orca.orca",
-						"x_gaussian.gaussian", "x_gaussian.gaussian_MMEL", "x_psi4.Psi4",
-						"x_tchem.tchem_sckt", "x_tchem.tchem" ] ):
-					conf["imp"][t[1].split( "." )[0]] = None
-					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
-					cur = __parse_options( cur, obj, siz, lines )
-					conf["eng"].append( obj.copy() )
-	
-				elif( t[1] in [ "_qmmm.Int_QMLJ", "_qmmm.Int_QMLJ_MMEL" ] ):
-					conf["imp"][t[1].split( "." )[0]] = None
-					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
-					cur = __parse_options( cur, obj, siz, lines )
-					obj["par"] = obj["par"].split()
-					obj["exc"] = obj["exc"].split()
-					tmp = []
-					for i in range( len( obj["exc"] ) // 3 ):
-						i3 = i * 3
-						buf = []
-						for j in [ 0, 1 ]:
-							if( SP0.match( obj["exc"][i3+j] ) ):
-								buf.append( obj["exc"][i3+j] )
-							elif( SP4.match( obj["exc"][i3+j] ) ):
-								k = SP4.findall( obj["exc"][i3+j] )[0]
-								buf.append( str( conf["MOL"].anum[k[0]][int(k[1])][k[2]] ) )
-						if( buf != [] ):
-							tmp.append( "[ " + buf[0] + ", " + buf[1] + ", " + obj["exc"][i3+2] + " ]" )
-					obj["exc"] = "[ " + ",".join( tmp ) + " ]"
-					conf["eng"].append( obj.copy() )
-	
-				elif( t[1] in [ "restraints.distance", "restraints.angle", "restraints.multiple_distance" ] ):
-					conf["imp"][t[1].split( "." )[0]] = None
-					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
-					cur = __parse_options( cur, obj, siz, lines )
-					tmp = []
-					for itm in obj["idx"].split():
-						if( SP0.match( itm ) ):
-							tmp.append( itm )
-						elif( SP4.match( itm ) ):
-							k = SP4.findall( itm )[0]
-							tmp.append( str( conf["MOL"].anum[k[0]][int(k[1])][k[2]] ) )
-					obj["idx"] = "[ " + ",".join( tmp ) + " ]"
-					if( t[1] == "restraints.multiple_distance" ):
-						obj["wei"] = "[ " + ",".join( obj["wei"].split() ) + " ]"
-					conf["eng"].append( obj.copy() )
-	
-			# -- jobs
-			if( t[0] == "job" and len( t ) == 2 ):
-	
-				if( t[1] in [ "minimize.steepest_descent", "minimize.fire", "minimize.l_bfgs",
-					"minimize.conjugate_gradient_plus" ] ):
-					conf["imp"][t[1].split( "." )[0]] = None
-					obj = { p: d for p,d,h in JOB[t[1]] }; obj["class"] = t[1]
-					cur = __parse_options( cur, obj, siz, lines )
-					conf["job"].append( obj.copy() )
-	
-				if( t[1] == "dynamics.velocity_verlet" ):
-					conf["imp"][t[1].split( "." )[0]] = None
-					obj = { p: d for p,d,h in JOB[t[1]] }; obj["class"] = t[1]
-					cur = __parse_options( cur, obj, siz, lines )
-					conf["job"].append( obj.copy() )
-	
-				if( t[1] == "dynamics.langevin_verlet" ):
-					conf["imp"][t[1].split( "." )[0]] = None
-					obj = { p: d for p,d,h in JOB[t[1]] }; obj["class"] = t[1]
-					cur = __parse_options( cur, obj, siz, lines )
-					conf["job"].append( obj.copy() )
-
-		# -- cycle...
-		cur += 1
-
-	# -- summary
-	print( 80*"-" )
-	print( "box", conf["box"] )
-	print( "imp", conf["imp"] )
-	print( "mol", conf["mol"] )
-	print( "MOL", conf["MOL"] )
-	print( "dcd", conf["dcd"] )
-	print( "out", conf["out"] )
-	print( "sel", sum( conf["sel"] ) )
-	print( "sqm", sum( conf["sqm"] ) )
-	print( "lnk", conf["lnk"] )
-	print( "nbn", sum( conf["nbn"] ) )
-	print( "eng", conf["eng"] )
-	print( "job", conf["job"] )
-	print( 80*"-" )
+#
+#
+#def parse_input( conf, lines ):
+#	global	SP0, SP1, SP2, SP3, SP4, SP5, ENG, JOB
+#	cur = 0
+#	siz = len( lines )
+#	while( cur < siz ):
+#		t = lines[cur].strip().split()
+#		if( len( t ) > 0 ):
+#
+#			# -- box size
+#			if( t[0] == "box" and len( t ) == 4 ):
+#				conf["box"] = [ float( j ) for j in t[1:] ]
+#		
+#			# -- molecule object
+#			if( t[0] == "mol" and len( t ) ==  3 ):
+#				tt = t[1].split( "." )
+#				conf["imp"][tt[0]] = None
+#				conf["mol"]["module"] = tt[0]
+#				conf["mol"]["method"] = tt[1]
+#				conf["mol"]["fname"]  = t[2]
+#				if( conf["mol"]["module"] == "mol_io" ):
+#					import mol_io
+#					conf["MOL"] = mol_io.molecule()
+#				elif( conf["mol"]["module"] == "x_namd" ):
+#					import x_namd
+#					conf["MOL"] = x_namd.molecule()
+#				elif( conf["mol"]["module"] == "x_dynamo" ):
+#					import x_dynamo
+#					conf["MOL"] = x_dynamo.molecule()
+#				elif( conf["mol"]["module"] == "x_sander" ):
+#					import x_sander
+#					conf["MOL"] = x_sander.molecule()
+#				eval( "conf[\"MOL\"]." + conf["mol"]["method"] + "( \"" + conf["mol"]["fname"] + "\" )" )
+#				if( conf["box"] != None ):
+#					conf["MOL"].boxl = conf["box"][:]
+#				conf["sel"] = [ True  for i in range( conf["MOL"].natm ) ]
+#				conf["sqm"] = [ False for i in range( conf["MOL"].natm ) ]
+#				conf["nbn"] = [ False for i in range( conf["MOL"].natm ) ]
+#
+#			# -- molecule output
+#			if( t[0] == "out" and len( t ) ==  3 ):
+#				conf["out"] = { "method": t[1], "fname": t[2] }
+#
+#			# -- trajectory
+#			if( t[0] == "dcd" and len( t ) ==  3 ):
+#				conf["imp"]["mol_io"] = None
+#				conf["dcd"] = { "fname": t[1], "freq": int( t[2] ) }
+#
+#			# -- active atoms
+#			if( t[0] == "sel" ):
+#				conf["sel"] = [ False for i in range( conf["MOL"].natm ) ]
+#				apply_selection( conf["MOL"], conf["sel"], t[1:] )
+#	
+#			# -- QM atoms: define PREVIOUS to LNK and NBN
+#			if( t[0] == "sqm" ):
+#				conf["sqm"] = [ False for i in range( conf["MOL"].natm ) ]
+#				apply_selection( conf["MOL"], conf["sqm"], t[1:] )
+#	
+#			# -- Link-atoms bonds: define PREVIOUS to NBN
+#			if( t[0] == "lnk" ):
+#				tmp = []
+#				for atm in t[1:]:
+#					i,j,k = atm.split( "/" )
+#					tmp.append( conf["MOL"].indx[i][int(j)][k] )
+#				conf["lnk"] = [ [ tmp[2*i], tmp[2*i+1] ] for i in range( len( tmp ) // 2 ) ]
+#	
+#			# -- Non-bonded atoms
+#			if( t[0] == "nbn" ):
+#				conf["nbn"] = [ False for i in range( conf["MOL"].natm ) ]
+#				apply_selection( conf["MOL"], conf["nbn"], t[1:] )
+#				for i in range( conf["MOL"].natm ):
+#					if( conf["sqm"][i] ):
+#						conf["nbn"][i] = False
+#				for i,j in conf["lnk"]:
+#					conf["nbn"][j] = False
+#
+#			# -- engines
+#			if( t[0] == "eng" and len( t ) == 2 ):
+#	
+#				if( t[1] == "x_namd.namd" or t[1] == "x_namd.namd_pipe" ):
+#					conf["imp"][t[1].split( "." )[0]] = None
+#					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
+#					cur = __parse_options( cur, obj, siz, lines )
+#					obj["exe"] += " +setcpuaffinity +isomalloc_sync +idlepoll namd.inp > namd.out"
+#					if( obj["class"] == "x_namd.namd_pipe" ):
+#						obj["exe"] += " &"
+#					obj["cut"] = [ float( i ) for i in obj["cut"].split() ]
+#					conf["eng"].append( obj.copy() )
+#					conf["MOL"]._occ = []
+#					for i in range( conf["MOL"].natm ):
+#						if( not conf["sel"][i] or conf["sqm"][i] ):
+#							conf["MOL"]._occ.append( 1 )
+#						else:
+#							conf["MOL"]._occ.append( 0 )
+#					conf["MOL"].pdb_write( "namd.fix" )
+#					try:
+#						conf["MOL"].namd_write( "namd.coor" )
+#					except Exception as e:
+#						print( "-- ERROR --\n" )
+#						print( e )
+#						print( "\n[try] mol x_namd.%s %s\n"%( conf["mol"]["method"], conf["mol"]["fname"] ) )
+#						sys.exit( 1 )
+#	
+#				elif( t[1] == "x_sander.Sander" ):
+#					conf["imp"][t[1].split( "." )[0]] = None
+#					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
+#					cur = __parse_options( cur, obj, siz, lines )
+#					obj["dir"] = "export AMBERHOME=%s; $AMBERHOME/bin/sander -O"%( obj["dir"] )
+#					obj["pbc"] = obj["pbc"] == "on"
+#					if( conf["box"] == None ):
+#						conf["box"] = [ 1000, 1000, 1000 ]
+#					conf["eng"].append( obj.copy() )
+#					try:
+#						conf["MOL"].inpcrd_write( "inpcrd" )
+#					except Exception as e:
+#						print( "-- ERROR --\n" )
+#						print( e )
+#						print( "\n[try] mol x_sander.%s %s\n"%( conf["mol"]["method"], conf["mol"]["fname"] ) )
+#						sys.exit( 1 )
+#	
+#				elif( t[1] == "x_sander.py_sander" ):
+#					conf["imp"][t[1].split( "." )[0]] = None
+#					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
+#					cur = __parse_options( cur, obj, siz, lines )
+#					obj["pbc"] = obj["pbc"] == "on"
+#					if( conf["box"] == None ):
+#						conf["box"] = [ 100, 100, 100 ]
+#					conf["eng"].append( obj.copy() )
+#	
+#				elif( t[1] == "x_dftb.dftb" ):
+#					conf["imp"][t[1].split( "." )[0]] = None
+#					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
+#					cur = __parse_options( cur, obj, siz, lines )
+#					obj["exe"] += " > dftb_in.log"
+#					if( obj["prm"][-1] != "/" ):
+#						obj["prm"] += "/"
+#					conf["eng"].append( obj.copy() )
+#	
+#				elif( t[1] == "x_sqm.sqm" ):
+#					conf["imp"][t[1].split( "." )[0]] = None
+#					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
+#					cur = __parse_options( cur, obj, siz, lines )
+#					obj["dir"] = "export AMBERHOME=%s; $AMBERHOME/bin/sqm"%( obj["dir"] )
+#					conf["eng"].append( obj.copy() )
+#	
+#				elif( t[1] in [ "x_gamess.gamess", "x_nwchem.nwchem", "x_demon.demon", "x_orca.orca",
+#						"x_gaussian.gaussian", "x_gaussian.gaussian_MMEL", "x_psi4.Psi4",
+#						"x_tchem.tchem_sckt", "x_tchem.tchem" ] ):
+#					conf["imp"][t[1].split( "." )[0]] = None
+#					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
+#					cur = __parse_options( cur, obj, siz, lines )
+#					conf["eng"].append( obj.copy() )
+#	
+#				elif( t[1] in [ "_qmmm.Int_QMLJ", "_qmmm.Int_QMLJ_MMEL" ] ):
+#					conf["imp"][t[1].split( "." )[0]] = None
+#					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
+#					cur = __parse_options( cur, obj, siz, lines )
+#					obj["par"] = obj["par"].split()
+#					obj["exc"] = obj["exc"].split()
+#					tmp = []
+#					for i in range( len( obj["exc"] ) // 3 ):
+#						i3 = i * 3
+#						buf = []
+#						for j in [ 0, 1 ]:
+#							if( SP0.match( obj["exc"][i3+j] ) ):
+#								buf.append( obj["exc"][i3+j] )
+#							elif( SP4.match( obj["exc"][i3+j] ) ):
+#								k = SP4.findall( obj["exc"][i3+j] )[0]
+#								buf.append( str( conf["MOL"].indx[k[0]][int(k[1])][k[2]] ) )
+#						if( buf != [] ):
+#							tmp.append( "[ " + buf[0] + ", " + buf[1] + ", " + obj["exc"][i3+2] + " ]" )
+#					obj["exc"] = "[ " + ",".join( tmp ) + " ]"
+#					conf["eng"].append( obj.copy() )
+#	
+#				elif( t[1] in [ "restraints.distance", "restraints.angle", "restraints.multiple_distance" ] ):
+#					conf["imp"][t[1].split( "." )[0]] = None
+#					obj = { p: d for p,d,h in ENG[t[1]] }; obj["class"] = t[1]
+#					cur = __parse_options( cur, obj, siz, lines )
+#					tmp = []
+#					for itm in obj["idx"].split():
+#						if( SP0.match( itm ) ):
+#							tmp.append( itm )
+#						elif( SP4.match( itm ) ):
+#							k = SP4.findall( itm )[0]
+#							tmp.append( str( conf["MOL"].indx[k[0]][int(k[1])][k[2]] ) )
+#					obj["idx"] = "[ " + ",".join( tmp ) + " ]"
+#					if( t[1] == "restraints.multiple_distance" ):
+#						obj["wei"] = "[ " + ",".join( obj["wei"].split() ) + " ]"
+#					conf["eng"].append( obj.copy() )
+#	
+#			# -- jobs
+#			if( t[0] == "job" and len( t ) == 2 ):
+#	
+#				if( t[1] in [ "minimize.steepest_descent", "minimize.fire", "minimize.l_bfgs",
+#					"minimize.conjugate_gradient_plus" ] ):
+#					conf["imp"][t[1].split( "." )[0]] = None
+#					obj = { p: d for p,d,h in JOB[t[1]] }; obj["class"] = t[1]
+#					cur = __parse_options( cur, obj, siz, lines )
+#					conf["job"].append( obj.copy() )
+#	
+#				if( t[1] == "dynamics.velocity_verlet" ):
+#					conf["imp"][t[1].split( "." )[0]] = None
+#					obj = { p: d for p,d,h in JOB[t[1]] }; obj["class"] = t[1]
+#					cur = __parse_options( cur, obj, siz, lines )
+#					conf["job"].append( obj.copy() )
+#	
+#				if( t[1] == "dynamics.langevin_verlet" ):
+#					conf["imp"][t[1].split( "." )[0]] = None
+#					obj = { p: d for p,d,h in JOB[t[1]] }; obj["class"] = t[1]
+#					cur = __parse_options( cur, obj, siz, lines )
+#					conf["job"].append( obj.copy() )
+#
+#		# -- cycle...
+#		cur += 1
+#
+#	# -- summary
+#	print( 80*"-" )
+#	print( "box", conf["box"] )
+#	print( "imp", conf["imp"] )
+#	print( "mol", conf["mol"] )
+#	print( "MOL", conf["MOL"] )
+#	print( "dcd", conf["dcd"] )
+#	print( "out", conf["out"] )
+#	print( "sel", sum( conf["sel"] ) )
+#	print( "sqm", sum( conf["sqm"] ) )
+#	print( "lnk", conf["lnk"] )
+#	print( "nbn", sum( conf["nbn"] ) )
+#	print( "eng", conf["eng"] )
+#	print( "job", conf["job"] )
+#	print( 80*"-" )
 
 
 
@@ -957,15 +948,7 @@ f.close()
 
 
 
-##################################################################################################
-# tkinter gui input creation...
-#
-try:
-	import	tkinter
-	import	tkinter.ttk as ttk
-except:
-	import	Tkinter as tkinter
-	import	ttk
+# ===============================================================================================
 
 
 class Hint( object ):
@@ -1005,7 +988,7 @@ class gui_application( object ):
 
 
 	def __rem_eng( self ):
-		key = self.__wid["eng_cb"].get()
+		key = self.__wid["eng"].get()
 		if( key in self.__eng ):
 			self.__eng[key][0].destroy()
 			del self.__eng[key]
@@ -1014,7 +997,7 @@ class gui_application( object ):
 	def __add_eng( self ):
 		global	ENG
 		tbg = "#CCFFCC"
-		key = self.__wid["eng_cb"].get()
+		key = self.__wid["eng"].get()
 		if( not key in self.__eng and key in ENG ):
 			frm = tkinter.LabelFrame( self.e_frm, text = key, labelanchor = tkinter.NW, borderwidth = 2,
 				bg = self.__loc, relief = tkinter.GROOVE )
@@ -1027,14 +1010,13 @@ class gui_application( object ):
 				l.pack( side = tkinter.LEFT, expand = 0, fill = None )
 				Hint( l, h, background = tbg )
 				e = tkinter.Entry( f, font = self.__fnt, justify = tkinter.LEFT )
-				if( d != "" and d != None ):
-					e.insert( 0, d )
+				e.insert( 0, d )
 				e.pack( side = tkinter.LEFT, expand = 1, fill = tkinter.X )
 				self.__eng[key].append( ( p, e ) )
 
 
 	def __rem_job( self ):
-		key = self.__wid["job_cb"].get()
+		key = self.__wid["job"].get()
 		if( key in self.__job ):
 			self.__job[key][0].destroy()
 			del self.__job[key]
@@ -1043,7 +1025,7 @@ class gui_application( object ):
 	def __add_job( self ):
 		global	JOB
 		tbg = "#CCFFCC"
-		key = self.__wid["job_cb"].get()
+		key = self.__wid["job"].get()
 		if( not key in self.__job and key in JOB ):
 			frm = tkinter.LabelFrame( self.j_frm, text = key, labelanchor = tkinter.NW, borderwidth = 2,
 				bg = self.__loc, relief = tkinter.GROOVE )
@@ -1056,64 +1038,73 @@ class gui_application( object ):
 				l.pack( side = tkinter.LEFT, expand = 0, fill = None )
 				Hint( l, h, background = tbg )
 				e = tkinter.Entry( f, font = self.__fnt, justify = tkinter.LEFT )
-				if( d != "" and d != None ):
-					e.insert( 0, d )
+				e.insert( 0, d )
 				e.pack( side = tkinter.LEFT, expand = 1, fill = tkinter.X )
 				self.__job[key].append( ( p, e ) )
 
 
 	def __mkinput( self ):
-		f = open( "helper.inp", "wt" )
-		if( self.__wid["box_x"].get() != "" ):
-			f.write( "box " + self.__wid["box_x"].get() )
-			if( self.__wid["box_y"].get() != "" ):
-				f.write( " " + self.__wid["box_y"].get() )
-			else:
-				f.write( " " + self.__wid["box_x"].get() )
-			if( self.__wid["box_z"].get() != "" ):
-				f.write( " " + self.__wid["box_z"].get() )
-			else:
-				f.write( " " + self.__wid["box_x"].get() )
-			f.write( "\n" )
-		f.write( "mol " + self.__wid["mol_cb"].get() + " " + self.__wid["mol"].get() + "\n" )
-		tmp = self.__wid["sel"].get( 1.0, tkinter.END ).strip().replace( "\n", " " )
-		if( tmp != "" ):
-			f.write( "sel " + tmp + "\n" )
-		tmp = self.__wid["sqm"].get( 1.0, tkinter.END ).strip().replace( "\n", " " )
-		if( tmp != "" ):
-			f.write( "sqm " + tmp + "\n" )
-		tmp = self.__wid["lnk"].get( 1.0, tkinter.END ).strip().replace( "\n", " " )
-		if( tmp != "" ):
-			f.write( "lnk " + tmp + "\n" )
-		tmp = self.__wid["nbn"].get( 1.0, tkinter.END ).strip().replace( "\n", " " )
-		if( tmp != "" ):
-			f.write( "nbn " + tmp + "\n" )
-		if( self.__wid["dcd_s"].get() != "" ):
-			f.write( "dcd " + self.__wid["dcd_s"].get() + " " + self.__wid["dcd_n"].get() + "\n" )
-		f.write( "out " + self.__wid["out_cb"].get() + " " + self.__wid["out"].get() + "\n" )
-		for key in iter( self.__eng ):
-			f.write( "eng " + key + "\n" )
-			for p,e in self.__eng[key][1:]:
-				f.write( "\t" + p + " " + e.get() + "\n" )
-			f.write( "\n" )
-		for key in iter( self.__job ):
-			f.write( "job " + key + "\n" )
-			for p,e in self.__job[key][1:]:
-				f.write( "\t" + p + " " + e.get() + "\n" )
-			f.write( "\n" )
-		f.close()
-		print( ">> helper.inp generated! (check & parse...)" )
-#		self.app.destroy()
+#		f = open( "helper.inp", "wt" )
+#		if( self.__wid["box_x"].get() != "" ):
+#			f.write( "box " + self.__wid["box_x"].get() )
+#			if( self.__wid["box_y"].get() != "" ):
+#				f.write( " " + self.__wid["box_y"].get() )
+#			else:
+#				f.write( " " + self.__wid["box_x"].get() )
+#			if( self.__wid["box_z"].get() != "" ):
+#				f.write( " " + self.__wid["box_z"].get() )
+#			else:
+#				f.write( " " + self.__wid["box_x"].get() )
+#			f.write( "\n" )
+#		f.write( "mol " + self.__wid["mol_cb"].get() + " " + self.__wid["mol"].get() + "\n" )
+#		tmp = self.__wid["sel"].get( 1.0, tkinter.END ).strip().replace( "\n", " " )
+#		if( tmp != "" ):
+#			f.write( "sel " + tmp + "\n" )
+#		tmp = self.__wid["sqm"].get( 1.0, tkinter.END ).strip().replace( "\n", " " )
+#		if( tmp != "" ):
+#			f.write( "sqm " + tmp + "\n" )
+#		tmp = self.__wid["lnk"].get( 1.0, tkinter.END ).strip().replace( "\n", " " )
+#		if( tmp != "" ):
+#			f.write( "lnk " + tmp + "\n" )
+#		tmp = self.__wid["nbn"].get( 1.0, tkinter.END ).strip().replace( "\n", " " )
+#		if( tmp != "" ):
+#			f.write( "nbn " + tmp + "\n" )
+#		if( self.__wid["dcd_s"].get() != "" ):
+#			f.write( "dcd " + self.__wid["dcd_s"].get() + " " + self.__wid["dcd_n"].get() + "\n" )
+#		f.write( "out " + self.__wid["out_cb"].get() + " " + self.__wid["out"].get() + "\n" )
+#		for key in iter( self.__eng ):
+#			f.write( "eng " + key + "\n" )
+#			for p,e in self.__eng[key][1:]:
+#				f.write( "\t" + p + " " + e.get() + "\n" )
+#			f.write( "\n" )
+#		for key in iter( self.__job ):
+#			f.write( "job " + key + "\n" )
+#			for p,e in self.__job[key][1:]:
+#				f.write( "\t" + p + " " + e.get() + "\n" )
+#			f.write( "\n" )
+#		f.close()
+		print( ">> 'run' script generated!" )
+		self.app.destroy()
 
 
-	def __init__( self ):
+	def __init__( self, pdb_name ):
 		global	ENG, JOB
 		self.__col = "#E6E6E6"
 		self.__loc = "#CCCCCC"
 		self.__fnt = ( "Courier New", "14" )
 		self.__wid = {}
+		# -------------------------------------------------
 		self.__eng = collections.OrderedDict()
 		self.__job = collections.OrderedDict()
+		self.__pdb = pdb_name
+		self.__mol = qm3.mol.molecule( self.__pdb )
+		self.__box = None
+		self.__sel = [ False for i in range( self.__mol.natm ) ]
+		self.__sqm = self.__sel[:]
+		self.__nbn = self.__sel[:]
+		self.__lnk = []
+		self.__mod = []
+		# -------------------------------------------------
 
 		self.app = tkinter.Tk()
 		self.app.title( "-- Helper --" )
@@ -1140,21 +1131,6 @@ class gui_application( object ):
 		self.__wid["box_y"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
 		self.__wid["box_z"] = tkinter.Entry( f01, font = self.__fnt, justify = tkinter.LEFT, width = 10 )
 		self.__wid["box_z"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
-
-		f02 = tkinter.Frame( self.frm, bg = self.__col )
-		f02.pack( side = tkinter.TOP, expand = 1, fill = tkinter.BOTH, padx = 4, pady = 4 )
-		l02 = tkinter.Label( f02, text = " mol ", font = self.__fnt, bg = self.__col, justify = tkinter.CENTER )
-		l02.pack( side = tkinter.LEFT, expand = 0, fill = None )
-		Hint( l02, "Select the class.reader_method and the file name to be read" )
-		self.__wid["mol_cb"] = ttk.Combobox( f02, font = ( "Courier New", "14" ), justify = tkinter.LEFT, state = "readonly", width = 30 )
-		self.__wid["mol_cb"]["values"] = [ "mol_io.pdb_read",
-			"x_dynamo.pdb_read", "x_dynamo.dynamo_read",
-			"x_namd.pdb_read",
-			"x_sander.pdb_read",
-			"x_lammps.pdb_read", "x_lammps.data_read" ]
-		self.__wid["mol_cb"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
-		self.__wid["mol"] = tkinter.Entry( f02, font = self.__fnt, justify = tkinter.LEFT, width = 20 )
-		self.__wid["mol"].pack( side = tkinter.LEFT, expand = 1, fill = tkinter.X )
 
 		f03 = tkinter.Frame( self.frm, bg = self.__col )
 		f03.pack( side = tkinter.TOP, expand = 1, fill = tkinter.BOTH, padx = 4, pady = 4 )
@@ -1220,27 +1196,14 @@ not          found at any position negates the resulting selection""" )
 		self.__wid["nbn"] = tkinter.Text( f06, font = self.__fnt, height = 4, width = 50 )
 		self.__wid["nbn"].pack( side = tkinter.LEFT, expand = 1, fill = tkinter.X )
 
-		f07 = tkinter.Frame( self.frm, bg = self.__col )
-		f07.pack( side = tkinter.TOP, expand = 1, fill = tkinter.BOTH, padx = 4, pady = 4 )
-		l07 = tkinter.Label( f07, text = " dcd ", font = self.__fnt, bg = self.__col, justify = tkinter.CENTER )
-		l07.pack( side = tkinter.LEFT, expand = 0, fill = None )
-		Hint( l07, "Name of the trajectory file and frequency for writing (>0)" )
-		self.__wid["dcd_s"] = tkinter.Entry( f07, font = self.__fnt, justify = tkinter.LEFT )
-		self.__wid["dcd_s"].pack( side = tkinter.LEFT, expand = 1, fill = tkinter.X )
-		self.__wid["dcd_n"] = tkinter.Entry( f07, font = self.__fnt, justify = tkinter.LEFT, width = 10 )
-		self.__wid["dcd_n"].insert( 0, "0" )
-		self.__wid["dcd_n"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
-
-		f08 = tkinter.Frame( self.frm, bg = self.__col )
-		f08.pack( side = tkinter.TOP, expand = 1, fill = tkinter.BOTH, padx = 4, pady = 4 )
-		l08 = tkinter.Label( f08, text = " out ", font = self.__fnt, bg = self.__col, justify = tkinter.CENTER )
-		l08.pack( side = tkinter.LEFT, expand = 0, fill = None )
-		Hint( l08, "Select the writer_method and the file name (it will be written at the end)" )
-		self.__wid["out_cb"] = ttk.Combobox( f08, font = self.__fnt, justify = tkinter.LEFT, state = "readonly", width = 30 )
-		self.__wid["out_cb"]["values"] = [ "pdb_write", "xyz_write", "pickled_molecule" ]
-		self.__wid["out_cb"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
-		self.__wid["out"] = tkinter.Entry( f08, font = self.__fnt, justify = tkinter.LEFT, width = 20 )
-		self.__wid["out"].pack( side = tkinter.LEFT, expand = 1, fill = tkinter.X )
+#		f07 = tkinter.Frame( self.frm, bg = self.__col )
+#		f07.pack( side = tkinter.TOP, expand = 1, fill = tkinter.BOTH, padx = 4, pady = 4 )
+#		l07 = tkinter.Label( f07, text = " dcd ", font = self.__fnt, bg = self.__col, justify = tkinter.CENTER )
+#		l07.pack( side = tkinter.LEFT, expand = 0, fill = None )
+#		Hint( l07, "Frequency for writing (>0) the trajectory file ('dcd')" )
+#		self.__wid["dcd"] = tkinter.Entry( f07, font = self.__fnt, justify = tkinter.LEFT, width = 10 )
+#		self.__wid["dcd"].insert( 0, "0" )
+#		self.__wid["dcd"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
 
 		self.e_frm = tkinter.Frame( self.frm, bg = self.__col )
 		self.e_frm.pack( side = tkinter.TOP, expand = 1, fill = tkinter.BOTH, padx = 4, pady = 4 )
@@ -1252,9 +1215,9 @@ not          found at any position negates the resulting selection""" )
 
 press [+] button to add it with specific options
 press [-] button for removing it""" )
-		self.__wid["eng_cb"] = ttk.Combobox( f09, font = self.__fnt, justify = tkinter.LEFT, state = "readonly", width = 40 )
-		self.__wid["eng_cb"]["values"] = list( ENG )
-		self.__wid["eng_cb"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
+		self.__wid["eng"] = ttk.Combobox( f09, font = self.__fnt, justify = tkinter.LEFT, state = "readonly", width = 40 )
+		self.__wid["eng"]["values"] = list( ENG )
+		self.__wid["eng"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
 		b01 = tkinter.Button( f09, text = "[+]", font = self.__fnt, justify = tkinter.CENTER, width = 4, command = self.__add_eng )
 		b01.pack( side = tkinter.LEFT, expand = 1, fill = tkinter.X )
 		b02 = tkinter.Button( f09, text = "[-]", font = self.__fnt, justify = tkinter.CENTER, width = 4, command = self.__rem_eng )
@@ -1270,9 +1233,9 @@ press [-] button for removing it""" )
 
 press [+] button to add it with specific options
 press [-] button for removing it""" )
-		self.__wid["job_cb"] = ttk.Combobox( f10, font = self.__fnt, justify = tkinter.LEFT, state = "readonly", width = 40 )
-		self.__wid["job_cb"]["values"] = list( JOB )
-		self.__wid["job_cb"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
+		self.__wid["job"] = ttk.Combobox( f10, font = self.__fnt, justify = tkinter.LEFT, state = "readonly", width = 40 )
+		self.__wid["job"]["values"] = list( JOB )
+		self.__wid["job"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
 		b03 = tkinter.Button( f10, text = "[+]", font = self.__fnt, justify = tkinter.CENTER, width = 4, command = self.__add_job )
 		b03.pack( side = tkinter.LEFT, expand = 1, fill = tkinter.X )
 		b04 = tkinter.Button( f10, text = "[-]", font = self.__fnt, justify = tkinter.CENTER, width = 4, command = self.__rem_job )
@@ -1288,10 +1251,4 @@ press [-] button for removing it""" )
 
 
 
-if( __name__ == "__main__" ):
-	if( len( sys.argv ) > 1 ):
-		parse_input( conf, open( sys.argv[1], "rt" ).readlines() )
-		flush_selections( conf )
-		translate( conf )
-	else:
-		gui_application()
+gui_application( sys.argv[1] )
