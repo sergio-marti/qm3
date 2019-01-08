@@ -2,6 +2,8 @@ import qm3.engines.dynamo
 import qm3.engines._qmmm
 import qm3.problem
 import qm3.maths.matrix
+import os
+import time
 
 class my_eng( qm3.problem.template ):
 
@@ -11,9 +13,14 @@ class my_eng( qm3.problem.template ):
         self.mol.epsi = [ 0.9374, 0.0000, 0.0000, 0.9374, 0.000, 0.000 ] # Sqrt( eps * 4.184 ) >> Sqrt(kJ/mol)
         self.mol.rmin = [ 1.6610, 0.0000, 0.0000, 1.6610, 0.000, 0.000 ] # rmin/2 >> Ang
 
+        try:
+            os.unlink( "dynamo.pipe" )
+        except Exception as e:
+            print( e )
+        os.mkfifo( "dynamo.pipe" )
+        os.system( "./a.out dynamo.pipe > dynamo.log &" )
+        time.sleep( 10 )
         self.eng = qm3.engines.dynamo.dynamo_pipe()
-        self.eng.exe = "./a.out"
-        self.eng.start()
         self.eng.update_chrg( self.mol )
 
         self.fix = qm3.engines._qmmm.Int_QMLJ( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )

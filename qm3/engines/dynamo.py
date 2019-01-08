@@ -173,18 +173,7 @@ except:
 class dynamo_pipe( object ):
 
 	def __init__( self ):
-		self.exe = "./dynamo.exe"
-		self.inp = "dynamo.inp.%d"%( os.getpid() )
-		self.pfd = None
-
-
-	def start( self, timeout = 10 ):
-		if( os.access( self.inp, os.W_OK ) ):
-			os.unlink( self.inp )
-		os.mkfifo( self.inp )
-		os.system( "%s %s > dynamo.log &"%( self.exe, self.inp ) )
-		time.sleep( timeout )
-		self.pfd = open( self.inp, "wt" )
+		self.pfd = open( "dynamo.pipe", "wt" )
 
 
 	def stop( self ):

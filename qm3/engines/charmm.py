@@ -117,17 +117,12 @@ def selection( mol, sele, fname = None ):
 
 class charmm_pipe( object ):
 
-	def __init__( self, charmm_path, fname, sleep = 10 ):
-		os.mkfifo( "charmm.pipe" )
-		os.system( charmm_path + " < charmm.pipe > charmm.log &" )
+	def __init__( self, fname ):
 		self.pfd = open( "charmm.pipe", "wt" )
 		f = open( fname, "rt" )
-		self.pfd.write( f.read() )
+		self.pfd.write( f.read() + "\nformat (G20.14)\n" )
 		self.pfd.flush()
 		f.close()
-		time.sleep( sleep )
-		self.pfd.write( "format (G20.14)\n" )
-		self.pfd.flush()
 
 
 	def stop( self ):

@@ -70,10 +70,10 @@ def guess_labels( mol ):
 #
 sys.path.insert( 0, os.getenv( "QM3_LAMMPS" ) )
 try:
-	import	lammps as _lammps
+	import	lammps as x_lammps
 	class py_lammps( object ):
 		def __init__( self, inp, name = "serial", cmdargs = [ "-sc", "none" ] ):
-			self.lmp = _lammps.lammps( name, cmdargs )
+			self.lmp = x_lammps.lammps( name, cmdargs )
 			self.lmp.file( inp )
 			self.chg = self.lmp.gather_atoms( "q", 1, 1 )
 			self.crd = self.lmp.gather_atoms( "x", 1, 3 )
