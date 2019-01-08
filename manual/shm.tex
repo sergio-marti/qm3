@@ -1,0 +1,38 @@
+\normalsize
+\subsection[\_shm]{\_shm.so}
+This binary module (must be compiled) provides basic SHM functionality within python. \\
+Any python script using
+\begin{pyglist}[language=python,fvset={frame=single}]
+shmid = _shm.alloc( size_in_bytes )
+
+_shm.clean( shmid )
+
+_shm.write( shmid, "bytes" )
+
+"" = _shm.read( shmid, size_in_bytes )
+
+_shm.write_r8( shmid, [ float ] )
+
+[ float ] = _shm.read_r8( shmid, num_of_floats )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+import qm3.utils._shm
+import struct
+
+n = 10
+p = qm3.utils._shm.alloc( n * 8 )
+
+qm3.utils._shm.write( p, b"".join( [ struct.pack( "d", i ) for i in range( n ) ] ) )
+print( qm3.utils._shm.read_r8( p, n ) )
+
+qm3.utils._shm.write_r8( p, [ float( i ) for i in range( n ) ] )
+print( list( struct.unpack( "%dd"%( n ), qm3.utils._shm.read( p, n * 8 ) ) ) )
+
+qm3.utils._shm.clean( p )
+\end{pyglist}
+
+%\begin{pyglist}[fvset={frame=single}]
+%#SOURCE@../samples/logs/
+%\end{pyglist}
