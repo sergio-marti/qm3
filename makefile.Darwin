@@ -5,7 +5,7 @@ PYL = -lpython
 #PYL = -L/opt/local/Cellar/python/3.7.1/Frameworks/Python.framework/Versions/3.7/lib -lpython3.7
 
 
-all: matrix minimize cions volume colvar_v qmmm mol_mech ode fitpack grids dynamo
+all: matrix minimize cions volume colvar_v qmmm mol_mech ode fitpack grids dynamo shm
 
 
 cions:
@@ -14,6 +14,10 @@ cions:
 
 mpi:
 	CC=mpicc $(PYX) setup.mpi build_ext --build-lib qm3/utils
+
+
+shm:
+	$(PYX) setup.shm build_ext --build-lib qm3/utils
 
 
 volume:
