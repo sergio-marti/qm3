@@ -33,7 +33,7 @@ patch -p0 << EOD
 +		mem[0] = 1.0;
 +		shmdt( mem );
 +	}
-+	if( 0 && step == 0 && numberOfSteps == 0 ) {
++	if( step == 0 && numberOfSteps == 0 ) {
 +		char	pot[8];
 +		double	ene = totalEnergy - kineticEnergy;
 +		memcpy( &pot[0], &ene, 8 );
