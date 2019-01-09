@@ -14,6 +14,7 @@ static PyObject* __alloc( PyObject *self, PyObject *args ){
 		xid = shmget( IPC_PRIVATE, siz, IPC_CREAT | 0600 );
 		mem = shmat( xid, 0, 0 );
 		for( i = 0; i < siz; i++ ) mem[i] = 0;
+		shmdt( mem );
 		return( Py_BuildValue( "i", xid ) );
 	} else {
 		Py_INCREF( Py_None );
@@ -34,12 +35,15 @@ static PyObject* __clean( PyObject *self, PyObject *args ){
 
 
 static PyObject* __read( PyObject *self, PyObject *args ){
-	int		xid, siz;
-	char	*mem;
+	PyObject	*out;
+	int			xid, siz;
+	char		*mem;
 
 	if( PyArg_ParseTuple( args, "ii", &xid, &siz ) ) {
 		mem = (char*) shmat( xid, 0, 0 );
-		return( Py_BuildValue( "s#", mem, siz ) );
+		out = Py_BuildValue( "s#", mem, siz );
+		shmdt( mem );
+		return( out );
 	}
 	Py_INCREF( Py_None );
 	return( Py_None );
@@ -53,6 +57,7 @@ static PyObject* __write( PyObject *self, PyObject *args ){
 	if( PyArg_ParseTuple( args, "is#", &xid, &buf, &siz ) ) {
 		mem = (char*) shmat( xid, 0, 0 );
 		for( i = 0; i < siz; i++ ) mem[i] = buf[i];
+		shmdt( mem );
 	}
 	Py_INCREF( Py_None );
 	return( Py_None );
@@ -68,6 +73,7 @@ static PyObject* __read_r8( PyObject *self, PyObject *args ){
 		mem = (double*) shmat( xid, 0, 0 );
 		out = PyList_New( siz );
 		for( i = 0; i < siz; i++ ) PyList_SetItem( out, i, PyFloat_FromDouble( mem[i] ) );
+		shmdt( mem );
 		return( Py_BuildValue( "O", out ) );
 	}
 	Py_INCREF( Py_None );
@@ -84,6 +90,7 @@ static PyObject* __write_r8( PyObject *self, PyObject *args ){
 		siz = (int) PyList_Size( vec );
 		mem = (double*) shmat( xid, 0, 0 );
 		for( i = 0; i < siz; i++ ) mem[i] = PyFloat_AsDouble( PyList_GetItem( vec, i ) );
+		shmdt( mem );
 	}
 	Py_INCREF( Py_None );
 	return( Py_None );

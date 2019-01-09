@@ -179,6 +179,62 @@ class namd_pipe( object ):
 
 
 
+try:
+	import	qm3.utils._shm
+	class namd_shm( object ):
+
+		def __init__( self ):
+			f = open( "namd.shmid", "rt" )
+			self.shm = int( f.read() )
+			f.close()
+			self.pfd = open( "namd.pipe", "wt" )
+			self.eok = struct.pack( "d", 1.0 )
+			self.gok = struct.pack( "d", 2.0 )
+
+
+		def stop( self ):
+			self.pfd.write( "exit\n" )
+			self.pfd.flush()
+			self.pfd.close()
+
+
+		def update_chrg( self, mol ):
+			qm3.utils._shm.write_r8( self.shm, mol.chrg )
+			self.pfd.write( "charges\n" )
+			self.pfd.flush()
+
+
+		def update_coor( self, mol ):
+			qm3.utils._shm.write_r8( self.shm, mol.coor )
+			self.pfd.write( "coordinates\n" )
+			self.pfd.flush()
+
+
+		def get_func( self, mol ):
+			self.update_coor( mol )
+			self.pfd.write( "energy\n" )
+			self.pfd.flush()
+			while( qm3.utils._shm.read( self.shm, 8 ) != self.eok ):
+				time.sleep( 0.01 )
+			mol.func += qm3.utils._shm.read_r8( self.shm, 2 )[1] * qm3.constants.K2J
+
+
+		def get_grad( self, mol ):
+			self.update_coor( mol )
+			self.pfd.write( "gradient\n" )
+			self.pfd.flush()
+			while( qm3.utils._shm.read( self.shm, 8 ) != self.gok ):
+				time.sleep( 0.01 )
+			tmp = qm3.utils._shm.read_r8( self.shm, 2 + 3 * mol.natm )
+			mol.func += tmp[1] * qm3.constants.K2J
+			for i in range( mol.natm ):
+				i3 = i * 3
+				for j in [0, 1, 2]:
+					mol.grad[i3+j] -= tmp[2+i3+j] * qm3.constants.K2J
+except:
+	pass
+
+
 
 class namd( object ):
 
@@ -295,6 +351,49 @@ while { [ gets $fd cmd ] >= 0 } {
         "gradient"    { run 0; output onlyforces namd }
         "charges"     { reloadCharges namd.chrg }
         "coordinates" { coorfile binread namd.coor }
+        "exit"        { close $fd; exit }
+    }
+}
+"""
+
+NAMD_SHM_INP = """############################################################
+structure           psf
+coordinates         pdb
+paraTypeCharmm      on
+parameters          par
+fixedatoms          off
+fixedatomsfile      pdb
+extrabonds          off
+extrabondsfile      namd.ic
+cellBasisVector1    20.00   0.00   0.00
+cellBasisVector2     0.00  20.00   0.00
+cellBasisVector3     0.00   0.00  20.00
+PME                 on
+PMETolerance        0.000001
+PMEGridSpacing      0.5
+exclude             scaled1-4
+1-4scaling          0.5
+switching           on
+switchdist          6.5
+cutoff              8.5
+pairlistdist        9.5
+wrapAll             off
+wrapWater           off
+nonbondedFreq       1
+fullElectFrequency  1
+stepspercycle       1
+temperature         0.0
+outputEnergies      1
+outputname          namd.out
+startup
+############################################################
+set fd [ open "namd.pipe" r ]
+while { [ gets $fd cmd ] >= 0 } {
+    switch $cmd {
+        "energy"      { run 0 }
+        "gradient"    { run 0; output onlyforces shm }
+        "charges"     { reloadCharges shm }
+        "coordinates" { coorfile shmread }
         "exit"        { close $fd; exit }
     }
 }
