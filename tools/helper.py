@@ -43,6 +43,12 @@ ENG =  collections.OrderedDict( [
 		[ "cut", "10 12 14", "force-switching (floats): cut-on cut-off cut-list" ] ]
 	],
 
+	[ "qm3.engines.namd.namd_shm", [ 
+		[ "psf", "PSF", "name of the PSF file used to define the model: str" ],
+		[ "cut", "10 12 14", "force-switching (floats): cut-on cut-off cut-list" ] ]
+	],
+
+
 	[ "qm3.engines.sander.sander", [
 		[ "cut", "10", "cut-off: float" ],
 		[ "qm_sel", ":1", "sander selection mask to set up the QM atoms: str" ],
@@ -57,6 +63,8 @@ ENG =  collections.OrderedDict( [
 	],
 
 	[ "qm3.engines.charmm.charmm_pipe", [ [ "", "", "" ] ] ],
+
+	[ "qm3.engines.charmm.charmm_shm", [ [ "", "", "" ] ] ],
 
 #	[ "qm3.engines._lammps.lammps", [ [ "", "", "" ] ] ],
 
@@ -319,6 +327,26 @@ while { [ gets $fd cmd ] >= 0 } {
         "gradient"    { run 0; output onlyforces namd }
         "charges"     { reloadCharges namd.chrg }
         "coordinates" { coorfile binread namd.coor }
+        "exit"        { close $fd; exit }
+    }
+}
+""" )
+	g.close()
+
+
+def input_namd_shm( pdb, box, obj ):
+	__common_namd( pdb, box, obj )
+	g = open( "namd.inp", "at" )
+	g.write( """
+startup
+
+set fd [ open "namd.pipe" r ]
+while { [ gets $fd cmd ] >= 0 } {
+    switch $cmd {
+        "energy"      { run 0 }
+        "gradient"    { run 0; output onlyforces shm }
+        "charges"     { reloadCharges shm }
+        "coordinates" { coorfile shmread }
         "exit"        { close $fd; exit }
     }
 }
@@ -835,7 +863,6 @@ class my_problem( qm3.problem.template ):
 			f.write( """
 		self.size = 3 * self.mole.natm
 		self.coor = self.mole.coor
-		self.mass = self.mole.mass
 		self.sele = []
 """ )
 		else:
@@ -902,8 +929,8 @@ class my_problem( qm3.problem.template ):
 				input_namd( self.__pdb, __box, obj )
 				qcl = """\t\tself.e%02d.update_charges( self.mole, "%s" )\n"""%( who, obj["psf"] )
 	
-			# NAMD_PIPE
-			if( knd == "namd_pipe" ):
+			# NAMD_PIPE / NAMD_SHM
+			if( knd in [ "namd_pipe", "namd_shm" ] ):
 				f.write( """
 		try:
 			os.unlink( "namd.pipe" )
@@ -915,11 +942,14 @@ class my_problem( qm3.problem.template ):
 		self.e%02d = %s()
 		self.mole.psf_read( "%s" )
 """%( who, key, obj["psf"] ) )
-				input_namd_pipe( self.__pdb, __box, obj )
+				if( knd == "namd_pipe" ):
+					input_namd_pipe( self.__pdb, __box, obj )
+				else:
+					input_namd_shm( self.__pdb, __box, obj )
 				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
 
-			# NAMD / NAMD_PIPE
-			if( knd in [ "namd", "namd_pipe" ] ):
+			# NAMD / NAMD_PIPE / NAMD_SHM
+			if( knd in [ "namd", "namd_pipe", "namd_shm" ] ):
 				g = open( "r.namd", "wt" )
 				g.write( "[PATH]/namd2 +setcpuaffinity +isomalloc_sync +idlepoll namd.inp > namd.out" )
 				g.close()
@@ -978,6 +1008,23 @@ class my_problem( qm3.problem.template ):
 		os.system( "bash r.charmm &" )
 		self.e%02d = %s( "charmm.inp" )
 		time.sleep( 10 )
+"""%( who, key ) )
+				input_charmm_pipe()
+				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
+
+			# CHARMM_SHM
+			if( knd == "charmm_shm" ):
+				g = open( "r.charmm", "wt" )
+				g.write( "[PATH]/charmm < charmm.pipe > charmm.log" )
+				g.close()
+				f.write( """
+		try:
+			os.unlink( "charmm.pipe" )
+		except Exception as e:
+			print( e )
+		os.mkfifo( "charmm.pipe" )
+		os.system( "bash r.charmm &" )
+		self.e%02d = %s( "charmm.inp" )
 """%( who, key ) )
 				input_charmm_pipe()
 				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
@@ -1389,6 +1436,8 @@ D   1   1.00
 
 		# end constructor
 		f.write( """
+		self.mass = self.mole.mass
+
 		self.flog = open( "log", "wt" )
 
 		self.fdcd = qm3.io.dcd.dcd()
@@ -1464,6 +1513,7 @@ D   1   1.00
 
 
 obj = my_problem()
+
 """ )
 
 		for key in iter( self.__job ):
@@ -1479,17 +1529,16 @@ obj = my_problem()
 					key, obj["stp"], obj["siz"], obj["prt"], obj["tol"] ) )
 
 			elif( knd == "velocity_verlet" ):
-				f.write( """dynamics.assign_velocities( obj, temperature = %s )
+				f.write( """qm3.actions.dynamics.assign_velocities( obj, temperature = %s )
 %s( obj, step_number = %s, step_size = %s, print_frequency = %s, scale_frequency = %s, temperature_coupling = %s, temperature = %s, log_function = obj.log ) 
 """%( obj["tmp"], key, obj["stp"], obj["siz"], obj["prt"], obj["scl"], obj["cpl"], obj["tmp"] ) )
 
 			elif( knd == "langevin_verlet" ):
-				f.write( """dynamics.assign_velocities( obj, temperature = %s )
+				f.write( """qm3.actions.dynamics.assign_velocities( obj, temperature = %s )
 %s( obj, step_number = %s, step_size = %s, print_frequency = %s, gamma_factor = %s, temperature = %s, log_function = obj.log ) 
 """%( obj["tmp"], key, obj["stp"], obj["siz"], obj["prt"], obj["gam"], obj["tmp"] ) )
 
 		f.write( """
-
 obj.mole.pdb_write( "last.pdb" )
 f = open( "last.pk", "wb" )
 pickle.dump( obj.mole, f )
@@ -1538,8 +1587,6 @@ obj.stop()
 		self.__wid["box_y"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
 		self.__wid["box_z"] = tkinter.Entry( f01, font = self.__fnt, justify = tkinter.LEFT, width = 10 )
 		self.__wid["box_z"].pack( side = tkinter.LEFT, expand = 0, fill = tkinter.X )
-		#@
-		self.__wid["box_x"].insert( tkinter.INSERT, "40" )
 
 		f03 = tkinter.Frame( self.frm, bg = self.__col )
 		f03.pack( side = tkinter.TOP, expand = 1, fill = tkinter.BOTH, padx = 4, pady = 4 )
@@ -1576,8 +1623,6 @@ backbone     atoms from protein backbone: atom labels C, O, N, CA
 not          found at any position negates the resulting selection""" )
 		self.__wid["sqm"] = tkinter.Text( f04, font = self.__fnt, height = 4, width = 50 )
 		self.__wid["sqm"].pack( side = tkinter.LEFT, expand = 1, fill = tkinter.X )
-		#@
-		self.__wid["sqm"].insert( tkinter.INSERT, "0 1 5 8 9 10 15 16" )
 
 		f05 = tkinter.Frame( self.frm, bg = self.__col )
 		f05.pack( side = tkinter.TOP, expand = 1, fill = tkinter.BOTH, padx = 4, pady = 4 )
@@ -1588,8 +1633,6 @@ not          found at any position negates the resulting selection""" )
 str/int/lbl  atom label (lbl) from residue number (int) of chain (str)""", 800 )
 		self.__wid["lnk"] = tkinter.Text( f05, font = self.__fnt, height = 3, width = 50 )
 		self.__wid["lnk"].pack( side = tkinter.LEFT, expand = 1, fill = tkinter.X )
-		#@
-		self.__wid["lnk"].insert( tkinter.INSERT, "A/1/C2 A/1/C3" )
 
 		f06 = tkinter.Frame( self.frm, bg = self.__col )
 		f06.pack( side = tkinter.TOP, expand = 1, fill = tkinter.BOTH, padx = 4, pady = 4 )
