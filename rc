@@ -5,4 +5,4 @@ export QM3_LAMMPS=/Users/smarti/Devel/lammps
 export QM3_PSI4=/Users/smarti/Devel/psi4/dist_gnu.py2/lib
 
 export QM3_MPLOT3D=/usr/lib/python3/dist-packages/mpl_toolkits
-export QM3_MPLOT3D=System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/mpl_toolkits
+export QM3_MPLOT3D=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/mpl_toolkits
