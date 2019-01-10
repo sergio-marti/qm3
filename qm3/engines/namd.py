@@ -188,6 +188,7 @@ try:
 			self.shm = int( f.read() )
 			f.close()
 			self.pfd = open( "namd.pipe", "wt" )
+			self.clr = struct.pack( "d", 0.0 )
 			self.eok = struct.pack( "d", 1.0 )
 			self.gok = struct.pack( "d", 2.0 )
 
@@ -199,19 +200,20 @@ try:
 
 
 		def update_chrg( self, mol ):
-			qm3.utils._shm.write_r8( self.shm, mol.chrg )
+			qm3.utils._shm.write_r8( self.shm, [ 0 ] + mol.chrg )
 			self.pfd.write( "charges\n" )
 			self.pfd.flush()
 
 
 		def update_coor( self, mol ):
-			qm3.utils._shm.write_r8( self.shm, mol.coor )
+			qm3.utils._shm.write_r8( self.shm, [ 0 ] + mol.coor )
 			self.pfd.write( "coordinates\n" )
 			self.pfd.flush()
 
 
 		def get_func( self, mol ):
 			self.update_coor( mol )
+			qm3.utils._shm.write( self.shm, self.clr )
 			self.pfd.write( "energy\n" )
 			self.pfd.flush()
 			while( qm3.utils._shm.read( self.shm, 8 ) != self.eok ):
@@ -221,6 +223,7 @@ try:
 
 		def get_grad( self, mol ):
 			self.update_coor( mol )
+			qm3.utils._shm.write( self.shm, self.clr )
 			self.pfd.write( "gradient\n" )
 			self.pfd.flush()
 			while( qm3.utils._shm.read( self.shm, 8 ) != self.gok ):
@@ -293,7 +296,7 @@ PME                 on
 PMETolerance        0.000001
 PMEGridSpacing      0.5
 exclude             scaled1-4
-1-4scaling          0.5
+1-4scaling          1.0
 switching           on
 switchdist          4.5
 cutoff              6.0
@@ -329,7 +332,7 @@ PME                 on
 PMETolerance        0.000001
 PMEGridSpacing      0.5
 exclude             scaled1-4
-1-4scaling          0.5
+1-4scaling          1.0
 switching           on
 switchdist          6.5
 cutoff              8.5
@@ -372,7 +375,7 @@ PME                 on
 PMETolerance        0.000001
 PMEGridSpacing      0.5
 exclude             scaled1-4
-1-4scaling          0.5
+1-4scaling          1.0
 switching           on
 switchdist          6.5
 cutoff              8.5

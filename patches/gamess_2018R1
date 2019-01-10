@@ -1,4 +1,4 @@
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- dclib.src	2018-02-07 22:15:24.000000000 +0100
 +++ dclib.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -3508,7 +3508,8 @@
@@ -13,7 +13,7 @@ patch -p0 << EOD
       *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
 EOD
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- efpaul.src	2018-02-07 22:15:24.000000000 +0100
 +++ efpaul.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -6048,7 +6048,8 @@
@@ -28,7 +28,7 @@ patch -p0 << EOD
       *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
 EOD
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- fmoesd.src	2018-02-07 22:15:24.000000000 +0100
 +++ fmoesd.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -839,7 +839,8 @@
@@ -43,7 +43,7 @@ patch -p0 << EOD
        DIMENSION DIJ(225), IJX(35), IJY(35), IJZ(35),
 EOD
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- gamess.src	2018-02-19 19:10:28.000000000 +0100
 +++ gamess.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -493,8 +493,8 @@
@@ -133,7 +133,7 @@ patch -p0 << EOD
  C
 EOD
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- grd1.src	2018-02-07 22:15:24.000000000 +0100
 +++ grd1.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -2046,7 +2046,8 @@
@@ -230,7 +230,7 @@ patch -p0 << EOD
                     DE(1,IAZ)=DE(1,IAZ)-DUMX*(DIJ(IJ)*AA1*PI212)
 EOD
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- grd2a.src	2018-02-07 22:15:24.000000000 +0100
 +++ grd2a.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -2472,6 +2472,8 @@
@@ -309,7 +309,7 @@ patch -p0 << EOD
  C     ----- DEALLOCATE MEMORY -----
 EOD
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- hess.src	2018-02-07 22:15:24.000000000 +0100
 +++ hess.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -931,6 +931,8 @@
@@ -340,7 +340,7 @@ patch -p0 << EOD
       *  WRITE (IW, 9005)
 EOD
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- inputa.src	2018-02-07 22:15:24.000000000 +0100
 +++ inputa.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -2430,6 +2430,10 @@
@@ -385,7 +385,7 @@ patch -p0 << EOD
        ICOORD = 8
 EOD
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- inputb.src	2018-02-07 22:15:24.000000000 +0100
 +++ inputb.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -1114,7 +1114,8 @@
@@ -410,7 +410,7 @@ patch -p0 << EOD
       *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
 EOD
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- inputc.src	2018-02-07 22:15:24.000000000 +0100
 +++ inputc.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -61,6 +61,64 @@
@@ -541,7 +541,7 @@ patch -p0 << EOD
  C 1.ALL SIX COMBINATIONS OF X,Y,Z ARE,IN TURN, SUBJECTED TO ALL
 EOD
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- int1.src	2018-02-07 22:15:24.000000000 +0100
 +++ int1.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -333,7 +333,8 @@
@@ -566,7 +566,7 @@ patch -p0 << EOD
       *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
 EOD
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- qrel.src	2018-02-07 22:15:24.000000000 +0100
 +++ qrel.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -40,7 +40,8 @@
@@ -581,7 +581,7 @@ patch -p0 << EOD
       *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
 EOD
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- scflib.src	2018-02-07 22:15:24.000000000 +0100
 +++ scflib.src.new	2018-05-16 10:49:37.000000000 +0200
 @@ -2136,9 +2136,15 @@

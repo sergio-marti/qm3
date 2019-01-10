@@ -1,4 +1,4 @@
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- Controller.C	2019-01-09 11:25:02.000000000 +0100
 +++ Controller.C.new	2019-01-09 11:19:10.000000000 +0100
 @@ -43,6 +43,10 @@
@@ -48,9 +48,9 @@ patch -p0 << EOD
 EOD
 
 
-patch -p0 << EOD
---- Node.C	2019-01-09 11:25:02.000000000 +0100
-+++ Node.C.new	2019-01-09 11:02:20.000000000 +0100
+patch -b -p0 << EOD
+--- Node.C	2018-09-07 23:05:06.000000000 +0200
++++ Node.C.new	2019-01-09 16:04:04.000000000 +0100
 @@ -19,6 +19,10 @@
  #include <pvm3.h>
  #endif
@@ -62,9 +62,9 @@ patch -p0 << EOD
  #include "ProcessorPrivate.h"
  
  #define MIN_DEBUG_LEVEL 3
-@@ -921,6 +925,14 @@
-     NAMD_bug("Startup Phase has a bug - check case statement");
-   break;
+@@ -923,6 +927,14 @@
+ 
+   }
  
 +// xexo
 +	shmid = shmget( IPC_PRIVATE, 8 * ( 3 * pdb->num_atoms() + 2 ), IPC_CREAT | 0600 );
@@ -74,9 +74,9 @@ patch -p0 << EOD
 +		fclose( fd );
 +	}
 +
-   }
- 
    startupPhase++;
+   if (!CkMyPe()) {
+     if (!gotoRun) {
 @@ -1163,21 +1175,28 @@
    delete msg;
  }
@@ -103,7 +103,7 @@ patch -p0 << EOD
 +
 +	if( shmid > 0 && strncmp( filename, "shm", 3 ) == 0 ) {
 +		mem = (double*) shmat( shmid, 0, 0 );
-+		for( i = 0; i < n; i++ ) charge[i] = (float) mem[i];
++		for( i = 0; i < n; i++ ) charge[i] = (float) mem[1+i];
 +		shmdt( mem );
 +	} else {
 +		FILE *file = fopen( filename, "r" );
@@ -122,7 +122,7 @@ patch -p0 << EOD
 EOD
 
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- Output.C	2019-01-09 11:25:02.000000000 +0100
 +++ Output.C.new	2019-01-09 11:02:20.000000000 +0100
 @@ -39,6 +39,10 @@
@@ -200,7 +200,7 @@ patch -p0 << EOD
 EOD
 
 
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- ScriptTcl.C	2019-01-09 11:25:02.000000000 +0100
 +++ ScriptTcl.C.new	2019-01-09 11:02:20.000000000 +0100
 @@ -45,6 +45,10 @@
@@ -235,9 +235,9 @@ patch -p0 << EOD
 +			vcoords = new Vector[numatoms];
 +			double *mem = (double*) shmat( Node::Object()->shmid, 0, 0 );
 +			for( int i = 0; i < numatoms; i++ ) {
-+				vcoords[i].x = mem[i*3];
-+				vcoords[i].y = mem[i*3+1];
-+				vcoords[i].z = mem[i*3+2];
++				vcoords[i].x = mem[1+i*3];
++				vcoords[i].y = mem[1+i*3+1];
++				vcoords[i].z = mem[1+i*3+2];
 +			}
 +			shmdt( mem );
 +			Node::Object()->pdb->set_all_positions( vcoords );
@@ -278,15 +278,15 @@ patch -p0 << EOD
 EOD
 
 
-patch -p0 << EOD
---- Node.h	2019-01-09 10:51:48.000000000 +0100
-+++ Node.h.new	2019-01-09 11:02:20.000000000 +0100
+patch -b -p0 << EOD
+--- Node.h	2018-09-07 23:05:06.000000000 +0200
++++ Node.h.new	2019-01-09 16:04:08.000000000 +0100
 @@ -132,6 +132,9 @@
    ParallelIOMgr *ioMgr;
  #endif
  
 +// xexo
-+int shmid;
++int shmid = -1;
 +
    float initVM, initRSS;
    float measureMemory();

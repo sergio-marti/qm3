@@ -1,4 +1,4 @@
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- dclib.src	2018-02-07 22:15:24.000000000 +0100
 +++ dclib.src.new	2018-11-30 22:20:56.000000000 +0100
 @@ -3508,7 +3508,8 @@
@@ -12,7 +12,7 @@ patch -p0 << EOD
        COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
       *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- efpaul.src	2018-10-01 05:45:26.000000000 +0200
 +++ efpaul.src.new	2018-11-30 22:21:22.000000000 +0100
 @@ -6048,7 +6048,8 @@
@@ -26,7 +26,7 @@ patch -p0 << EOD
        COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
       *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- fmoesd.src	2018-10-01 05:45:26.000000000 +0200
 +++ fmoesd.src.new	2018-11-30 22:23:40.000000000 +0100
 @@ -849,7 +849,8 @@
@@ -40,7 +40,7 @@ patch -p0 << EOD
        DIMENSION DENAB(L2),DTINT(L2,3,NAT),DVINT(L2,3,NAT)
        DIMENSION DIJ(225), IJX(35), IJY(35), IJZ(35),
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- fmohss.src	2018-10-01 05:45:26.000000000 +0200
 +++ fmohss.src.new	2018-11-30 22:40:14.000000000 +0100
 @@ -6802,7 +6802,8 @@
@@ -54,7 +54,7 @@ patch -p0 << EOD
        DIMENSION DENAB(L2),potmp(3,natfmo,maxnat,*)
        DIMENSION iaglob(*)
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- gamess.src	2018-10-01 05:45:26.000000000 +0200
 +++ gamess.src.new	2018-11-30 22:25:35.000000000 +0100
 @@ -495,8 +495,8 @@
@@ -143,7 +143,7 @@ patch -p0 << EOD
        SUBROUTINE BRNCHX(RUNTYP)
  C
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- grd1.src	2018-10-01 05:45:26.000000000 +0200
 +++ grd1.src.new	2018-11-30 22:28:20.000000000 +0100
 @@ -2048,7 +2048,8 @@
@@ -239,7 +239,7 @@ patch -p0 << EOD
                  IF(ISEPS.AND.(IC.GT.NAT)) THEN
                     DE(1,IAZ)=DE(1,IAZ)-DUMX*(DIJ(IJ)*AA1*PI212)
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- grd2a.src	2018-10-01 05:45:26.000000000 +0200
 +++ grd2a.src.new	2018-11-30 22:30:17.000000000 +0100
 @@ -2811,6 +2811,8 @@
@@ -317,7 +317,7 @@ patch -p0 << EOD
  C
  C     ----- DEALLOCATE MEMORY -----
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- hess.src	2018-10-01 05:45:26.000000000 +0200
 +++ hess.src.new	2018-11-30 22:34:27.000000000 +0100
 @@ -933,6 +933,8 @@
@@ -347,7 +347,7 @@ patch -p0 << EOD
        IF(IFREEZ(1).NE.0.AND.RUNTYP.EQ.HSSIAN.AND.MASWRK)
       *  WRITE (IW, 9005)
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- inputa.src	2018-10-01 05:45:26.000000000 +0200
 +++ inputa.src.new	2018-11-30 22:33:52.000000000 +0100
 @@ -2428,6 +2428,10 @@
@@ -391,7 +391,7 @@ patch -p0 << EOD
  C
        ICOORD = 8
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- inputb.src	2018-10-01 05:45:26.000000000 +0200
 +++ inputb.src.new	2018-11-30 22:35:11.000000000 +0100
 @@ -1116,7 +1116,8 @@
@@ -415,7 +415,7 @@ patch -p0 << EOD
        COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
       *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- inputc.src	2018-02-07 22:15:24.000000000 +0100
 +++ inputc.src.new	2018-11-30 22:36:30.000000000 +0100
 @@ -61,6 +61,64 @@
@@ -545,7 +545,7 @@ patch -p0 << EOD
  C SWITCH AXES IF NECESSARY; LIKE SO..
  C 1.ALL SIX COMBINATIONS OF X,Y,Z ARE,IN TURN, SUBJECTED TO ALL
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- int1.src	2018-10-01 05:45:26.000000000 +0200
 +++ int1.src.new	2018-11-30 22:36:58.000000000 +0100
 @@ -333,7 +333,8 @@
@@ -569,7 +569,7 @@ patch -p0 << EOD
        COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
       *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- lut.src	2018-10-01 05:45:26.000000000 +0200
 +++ lut.src.new	2018-11-30 22:41:46.000000000 +0100
 @@ -1556,7 +1556,8 @@
@@ -583,7 +583,7 @@ patch -p0 << EOD
  C     COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
  C    *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- qrel.src	2018-02-07 22:15:24.000000000 +0100
 +++ qrel.src.new	2018-11-30 22:37:17.000000000 +0100
 @@ -40,7 +40,8 @@
@@ -597,7 +597,7 @@ patch -p0 << EOD
        COMMON /CHMGMS/ XCHM(MXCHRM),YCHM(MXCHRM),ZCHM(MXCHRM),
       *                DXELMM(MXCHRM),DYELMM(MXCHRM),DZELMM(MXCHRM),
 EOD
-patch -p0 << EOD
+patch -b -p0 << EOD
 --- scflib.src	2018-10-01 05:45:26.000000000 +0200
 +++ scflib.src.new	2018-11-30 22:37:58.000000000 +0100
 @@ -2136,9 +2136,15 @@

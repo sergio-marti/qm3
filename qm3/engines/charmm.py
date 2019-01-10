@@ -238,10 +238,70 @@ class charmm_pipe( object ):
 
 
 
+try:
+	import	qm3.utils._shm
+	class charmm_shm( object ):
+		def __init__( self, fname ):
+			self.clr = struct.pack( "d", 0.0 )
+			self.eok = struct.pack( "d", 1.0 )
+			self.pfd = open( "charmm.pipe", "wt" )
+			f = open( fname, "rt" )
+			self.pfd.write( f.read() + "\nshms\n" )
+			self.pfd.flush()
+			f.close()
+			while( not os.access( "charmm.shmid", os.R_OK ) ):
+				time.sleep( 1 )
+			f = open( "charmm.shmid", "rt" )
+			self.shm = int( f.read() )
+			f.close()
 
 
-CHARMM_INP = """
-* title
+		def stop( self ):
+			self.pfd.write( "stop\n" )
+			self.pfd.flush()
+			self.pfd.close()
+
+
+		def update_chrg( self, mol ):
+			qm3.utils._shm.write_r8( self.shm, [ 0 ] + mol.chrg )
+			self.pfd.write( "shmq\n" )
+			self.pfd.flush()
+
+
+		def update_coor( self, mol ):
+			qm3.utils._shm.write_r8( self.shm, [ 0 ] + mol.coor )
+			self.pfd.write( "shmc\n" )
+			self.pfd.flush()
+
+
+		def get_func( self, mol ):
+			self.update_coor( mol )
+			qm3.utils._shm.write( self.shm, self.clr )
+			self.pfd.write( "ener\n" )
+			self.pfd.flush()
+			while( qm3.utils._shm.read( self.shm, 8 ) != self.eok ):
+				time.sleep( 0.01 )
+			mol.func += qm3.utils._shm.read_r8( self.shm, 2 )[1] * qm3.constants.K2J
+
+
+		def get_grad( self, mol ):
+			self.update_coor( mol )
+			qm3.utils._shm.write( self.shm, self.clr )
+			self.pfd.write( "ener\n" )
+			self.pfd.flush()
+			while( qm3.utils._shm.read( self.shm, 8 ) != self.eok ):
+				time.sleep( 0.01 )
+			tmp = qm3.utils._shm.read_r8( self.shm, 2 + 3 * mol.natm )
+			mol.func += tmp[1] * qm3.constants.K2J
+			for i in range( mol.natm ):
+				i3 = i * 3
+				for j in [0, 1, 2]:
+					mol.grad[i3+j] += tmp[2+i3+j] * qm3.constants.K2J
+except:
+	pass
+
+
+CHARMM_INP = """* title
 *
 
 prnl 6
