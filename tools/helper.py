@@ -673,8 +673,8 @@ class my_problem( qm3.problem.template ):
 				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
 
 			# Common QM engines
-			if( knd in [ "dftb", "sqm", "gamess", "nwchem", "demon", "orca", "py_psi4", "gaussian", "gaussian_MMEL",
-					"tchem_sckt", "tchem", "smash" ] ):
+			if( knd in [ "dftb", "dl_dftb", "sqm", "gamess", "nwchem", "demon", "orca", "py_psi4", 
+					"gaussian", "gaussian_MMEL", "tchem_sckt", "tchem", "smash" ] ):
 				f.write( """
 		f = open( "sele_QM.pk", "rb" )
 		s_qm = pickle.load( f )
@@ -845,7 +845,7 @@ class my_problem( qm3.problem.template ):
 		else:
 			self.grad = []
 			for i in self.sele:
-				ii = i * 3
+				i3 = i * 3
 				self.grad += self.mole.grad[i3:i3+3][:]
 
 
