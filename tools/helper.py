@@ -79,6 +79,11 @@ ENG =  collections.OrderedDict( [
 		[ "prm", "PRM", "folder of DFTB+ parameters set: str" ] ]
 	],
 
+	[ "qm3.engines.dftb.dl_dftb", [
+		[ "chg", "0", "charge of the QM atoms: int" ],
+		[ "prm", "PRM", "folder of DFTB+ parameters set: str" ] ]
+	],
+
 	[ "qm3.engines.sqm.sqm", [ [ "", "", "" ] ] ],
 
 	[ "qm3.engines.gamess.gamess", [ [ "", "", "" ] ] ],
@@ -692,6 +697,14 @@ class my_problem( qm3.problem.template ):
 				f.write( """
 		self.e%02d = %s( self.mole, s_qm, s_mm, s_la )
 		self.e%02d.exe = "bash r.dftb"
+		self.e%02d.chg = %d
+		self.e%02d.prm = "%s/"
+"""%( who, key, who, who, int( obj["chg"] ), who, obj["prm"] ) )
+	
+			# DL_DFTB
+			if( knd == "dl_dftb" ):
+				f.write( """
+		self.e%02d = %s( self.mole, s_qm, s_mm, s_la )
 		self.e%02d.chg = %d
 		self.e%02d.prm = "%s/"
 """%( who, key, who, who, int( obj["chg"] ), who, obj["prm"] ) )
