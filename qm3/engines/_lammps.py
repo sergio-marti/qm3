@@ -14,6 +14,18 @@ import	time
 import	struct
 
 
+"""
+
+QM atoms whould be defined within LAMMPS:
+	  i) without charges in the data file
+	 ii) group qmatm id/molecule @@@
+	iii) neigh_modify exclude group qmatm qmatm
+
+in this way there's no need for a _qmmm.* fix, since the energy and the gradient
+arising from the lennard-jones are calcualted by LAMMPS
+
+"""
+
 
 def lammps_read( fname = None ):
 	mol = qm3.mol.molecule()
@@ -65,9 +77,6 @@ def guess_labels( mol ):
 
 
 
-#
-# export QM3_LAMMPS=/Users/smarti/Devel/lammps
-#
 sys.path.insert( 0, os.getenv( "QM3_LAMMPS" ) )
 try:
 	import	lammps as x_lammps
@@ -230,7 +239,7 @@ class lammps_pipe( object ):
 class lammps( object ):
 
 	def __init__( self ):
-		self.exe = "mpirun -n 4 /Users/smarti/Devel/lammps/lmp_mpi-16Mar18 -in lammps.inp -sc none -log lammps.log"
+		self.exe = "bash r.lammps"
 
 
 	def update_coor( self, mol ):
@@ -273,43 +282,3 @@ class lammps( object ):
 
 
 
-LAMMPS_INP = """############################################################
-units           real
-atom_style      full
-
-pair_style      buck/coul/long 11.0
-kspace_style    pppm 1.e-4
-bond_style      harmonic
-angle_style     harmonic
-dihedral_style  charmm
-improper_style  harmonic
-
-read_data       data
-read_dump       lammps.xyzq 0 x y z q box no format native
-
-pair_modify     tail yes
-neighbor        2.0 bin
-neigh_modify    delay 5
-timestep        1.0
-thermo          1
-thermo_style    multi
-
-reset_timestep  0
-run             0
-print           $(pe) file lammps.ener screen no
-write_dump      all custom lammps.force id fx fy fz modify sort id format line "%d %.10lf %.10lf %.10lf"
-############################################################
-"""
-
-
-"""
-
-QM atoms whould be defined within LAMMPS:
-	  i) without charges in the data file
-	 ii) group qmatm id/molecule @@@
-	iii) neigh_modify exclude group qmatm qmatm
-
-in this way there's no need for a _qmmm.* fix, since the energy and the gradient
-arising from the lennard-jones are calcualted by LAMMPS
-
-"""

@@ -1,0 +1,35 @@
+slave_frozen_QM
+&cntrl
+ imin   = 0, ntx    = 1, irest  = 0,
+ ntxo   = 1, ntpr   = 1, ntave  = 0,
+ ntwr   = 1, iwrap  = 0, ntwx   = 0,
+ ntwv   = 0, ntwf   = 1, ntwe   = 1,
+ ioutfm = 1, ntwprt = 0, ntt    = 0,
+ ntr    = 0, nstlim = 0, nscm   = 0,
+ ntp    = 0,
+ ntb    = 1,
+ ifqnt  = 0,
+ cut    = 6.5,
+ ibelly    = 1, 
+ bellymask = ':1-351,:353-999'
+/
+
+
+slave_faked_QM (patched sander: QM/MM Van der Waals will be computed)
+&cntrl
+ imin   = 0, ntx    = 1, irest  = 0,
+ ntxo   = 1, ntpr   = 1, ntave  = 0,
+ ntwr   = 1, iwrap  = 0, ntwx   = 0,
+ ntwv   = 0, ntwf   = 1, ntwe   = 1,
+ ioutfm = 1, ntwprt = 0, ntt    = 0,
+ ntr    = 0, nstlim = 0, nscm   = 0,
+ ntp    = 0,
+ ntb    = 1,
+ ifqnt  = 0,
+ cut    = 6.5
+/
+&qmmm
+ qmmask    = ':352',
+ qmcharge  = 0,
+ qm_theory = 'EXTERN',
+/

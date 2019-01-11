@@ -15,7 +15,7 @@ class demon( qm3.engines.qmbase ):
 	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
 		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
 		self.ini = ini
-		self.exe = "/Users/smarti/Devel/deMon2k/4/deMon_4.4.1"
+		self.exe = "bash r.demon"
 
 
 	def mk_input( self, mol, run ):

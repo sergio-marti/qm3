@@ -68,14 +68,7 @@ f.close()
 f = open( "qchem.run", "wt" )
 f.write( """
 source /usr/local/chem/qchem_5.0/qcenv.sh
-
-export HACK_YRS=3
-export HACK_ETH=dummy0
-export HACK_MAC="1C 1B 0D 95 3E 14"
-export LD_PRELOAD=$QC/preload.so
-
 export QCSCRATCH=`pwd`
-
 rm -rf qchem.tmp.0
 $QC/bin/qchem -nt 2 qchem.inp qchem.log qchem.tmp > /dev/null
 """ )

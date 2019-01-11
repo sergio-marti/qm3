@@ -18,7 +18,7 @@ class gamess( qm3.engines.qmbase ):
 	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
 		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
 		self.ini = ini
-		self.exe = "/Users/smarti/Devel/gamess_us/2016R1/gamess.sh"
+		self.exe = "bash r.gamess"
 		self.chk = None
 
 

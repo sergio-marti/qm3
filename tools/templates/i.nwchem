@@ -1,0 +1,12 @@
+basis
+ * library 6-31++gss
+end
+charge 0
+dft
+ @@@
+ mulliken
+ mult 1
+ iterations 100
+ direct
+ xc b3lyp 
+end

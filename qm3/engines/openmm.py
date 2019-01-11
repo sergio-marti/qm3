@@ -7,9 +7,6 @@ if( sys.version_info[0] == 2 ):
 import	os
 
 
-#
-# export QM3_OPENMM=/Users/smarti/Devel/openmm/dist_gnu/python
-#
 sys.path.insert( 0, os.getenv( "QM3_OPENMM" ) )
 try:
 	import simtk.openmm

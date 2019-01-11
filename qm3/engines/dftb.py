@@ -16,7 +16,7 @@ class dftb( qm3.engines.qmbase ):
 		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
 		self.chg = 0
 		self.prm = ""
-		self.exe = "/Users/smarti/Devel/dftb+/dftb+_1.3.vecLib > dftb_in.log"
+		self.exe = "bash r.dftb"
 		self.smb = [ i.title() for i in self.smb ]
 		self.tbl = { i:None for i in self.smb }
 		if( self.lnk ):
@@ -67,7 +67,10 @@ class dftb( qm3.engines.qmbase ):
 			g.close()
 			f.write( "  ElectricField = {\n    PointCharges = {\n      CoordsAndCharges [Angstrom] = DirectRead {\n        Records = %d\n        File = \"charges.dat\"\n      }\n    }\n  }\n"%( len( self.nbn ) ) )
 		f.write( "}\n" )
-		f.write( "Options { WriteDetailedOut = Yes }\nAnalysis {\n  MullikenAnalysis = Yes\n  CalculateForces = Yes\n  WriteBandOut = No\n}\nParserOptions { ParserVersion = 5 }\n" )
+		if( run == "grad" ):
+			f.write( "Options { WriteDetailedOut = Yes }\nAnalysis {\n  MullikenAnalysis = Yes\n  CalculateForces = Yes\n  WriteBandOut = No\n}\nParserOptions { ParserVersion = 5 }\n" )
+		else:
+			f.write( "Options { WriteDetailedOut = Yes }\nAnalysis {\n  MullikenAnalysis = Yes\n  CalculateForces = No\n  WriteBandOut = No\n}\nParserOptions { ParserVersion = 5 }\n" )
 		f.close()
 
 

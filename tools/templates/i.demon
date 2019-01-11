@@ -1,0 +1,6 @@
+charge 0
+multiplicity 1
+basis (6-31++G**)
+scftype rks tol=1.0e-6
+vxctype b3lyp
+eris mixed

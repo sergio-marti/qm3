@@ -182,9 +182,6 @@ JOB = collections.OrderedDict( [
 # ===============================================================================================
 
 
-##################################################################################################
-# Selections
-#
 SP0 = re.compile( "^([0-9]+)$" )
 SP1 = re.compile( "^([0-9]+)-([0-9]+)$" )
 SP2 = re.compile( "^([A-Z0-9]+):([0-9]+)$" )
@@ -249,369 +246,6 @@ def parse_selection( mol, buf ):
 			sel[i] = not sel[i]
 
 	return( [ i for i in range( mol.natm ) if sel[i] ] )
-
-
-
-##################################################################################################
-# Supporting templates...
-#
-def __common_namd( pdb, box, obj ):
-	g = open( "namd.inp", "wt" )
-	g.write( """
-structure           %s
-coordinates         %s
-bincoordinates      namd.coor
-
-paraTypeCharmm      on
-parameters          [PARAMETERS]
-
-fixedatoms          on
-fixedatomsfile      namd.fix
-  
-extrabonds          off
-extrabondsfile      namd.ic
-"""%( obj["psf"], pdb ) )
-	if( box != None ):
-		g.write( """
-cellBasisVector1   %.2lf   0.00   0.00
-cellBasisVector2    0.00  %.2lf   0.00
-cellBasisVector3    0.00   0.00  %.2lf
-
-PME                 on
-PMETolerance        0.000001
-PMEGridSpacing      0.5
-"""%( box[0], box[1], box[2] ) )
-	cut = [ float( i ) for i in obj["cut"].split() ]
-	g.write( """
-exclude             scaled1-4
-1-4scaling          0.5
-switching           on
-switchdist          %.1lf
-cutoff              %.1lf
-pairlistdist        %.1lf
-
-wrapAll             off
-wrapWater           off
-nonbondedFreq       1
-fullElectFrequency  1
-stepspercycle       1
-temperature         0.0
-outputEnergies      1
-outputname          namd.out
-"""%( cut[0], cut[1], cut[2] ) )
-	g.close()
-
-
-def input_namd( pdb, box, obj ):
-	__common_namd( pdb, box, obj )
-	g = open( "namd.inp", "at" )
-	g.write( """
-forcedcdfile        namd.force
-forcedcdfreq        1
-run                 0
-output onlyforces   namd
-""" )
-	g.close()
-
-
-def input_namd_pipe( pdb, box, obj ):
-	__common_namd( pdb, box, obj )
-	g = open( "namd.inp", "at" )
-	g.write( """
-startup
-
-set fd [ open "namd.pipe" r ]
-while { [ gets $fd cmd ] >= 0 } {
-    switch $cmd {
-        "energy"      { run 0 }
-        "gradient"    { run 0; output onlyforces namd }
-        "charges"     { reloadCharges namd.chrg }
-        "coordinates" { coorfile binread namd.coor }
-        "exit"        { close $fd; exit }
-    }
-}
-""" )
-	g.close()
-
-
-def input_namd_shm( pdb, box, obj ):
-	__common_namd( pdb, box, obj )
-	g = open( "namd.inp", "at" )
-	g.write( """
-startup
-
-set fd [ open "namd.pipe" r ]
-while { [ gets $fd cmd ] >= 0 } {
-    switch $cmd {
-        "energy"      { run 0 }
-        "gradient"    { run 0; output onlyforces shm }
-        "charges"     { reloadCharges shm }
-        "coordinates" { coorfile shmread }
-        "exit"        { close $fd; exit }
-    }
-}
-""" )
-	g.close()
-
-
-def input_sander( pdb, box, obj ):
-	g = open( "mdin", "wt" )
-	g.write( """MM_slave (check: ntb & ibelly/bellymask)
-&cntrl
- imin    = 0, ntx     = 1, irest   = 0,
- ntxo    = 1, ntpr    = 1, ntave   = 0,
- ntwr    = 1, iwrap   = 0, ntwx    = 0,
- ntwv    = 0, ntwf    = 1, ntwe    = 1,
- ioutfm  = 1, ntwprt  = 0, ntt     = 0,
- ntr     = 0, nstlim  = 0, nscm    = 0,
- ntp     = 0, ifqnt   = %d,
- cut     = %.1lf,
- ntb     = %d,
- ibelly    = 1,
- bellymask = 'SANDER_MOVILE_SELECTION',
-/
-"""%( obj["qm_sel"] != "", float( obj["cut"] ), box != None ) )
-	if( obj["qm_sel"] != "" ):
-		g.write( """
-&qmmm
- qmmask    = '%s',
- qm_theory = '%s',
- qmcharge  = %d
-/
-"""%( obj["qm_sel"], obj["qm_met"], int( obj["qm_chg"] ) ) )
-	g.close()
-
-
-def input_dynamo_pipe():
-	g = open( "dynamo.f90", "wt" )
-	g.write( """
-subroutine driver
-    use dynamo
-    implicit none
-    character( len = 256 ) :: str
-    integer :: i, j
-
-    call getarg( 1, str )
-    write(*,"(a,a,a)") "[", trim( str ), "]"
-    open( file = trim( str ), unit = 998, action = "read", form = "formatted" )
-    read( 998, "(a)" ) str
-    write(*,"(a,a,a)") "[", trim( str ), "]"
-    do while( trim( str ) /= "exit" )
-        if( trim( str ) == "charges" ) then
-            open( file = "dynamo.chrg", unit = 999, action = "read", form = "unformatted" )
-            read( 999 ) atmchg
-            close( 999 )
-        end if
-        if( trim( str ) == "coordinates" ) then
-            open( file = "dynamo.crd", unit = 999, action = "read", form = "unformatted" )
-            read( 999 ) atmcrd(1:3,1:natoms)
-            close( 999 )
-        end if
-        if( trim( str ) == "energy" ) then
-			call energy
-            open( file = "dynamo.dat", unit = 999, action = "write", form = "unformatted" )
-            write( 999 ) etotal
-            close( 999 )
-        end if
-        if( trim( str ) == "gradient" ) then
-			call gradient
-            open( file = "dynamo.dat", unit = 999, action = "write", form = "unformatted" )
-            write( 999 ) etotal
-            write( 999 ) atmder
-            close( 999 )
-        end if
-        read( 998, "(a)" ) str
-        write(*,"(a,a,a)") "[", trim( str ), "]"
-    end do
-    close( 998 )
-end subroutine driver
-
-program slave
-    use dynamo
-    implicit none
-
-    logical, dimension(:), allocatable :: flg
-    integer :: i
-
-    call dynamo_header
-
-    call mm_file_process( "borra", "opls" )
-    call mm_system_construct( "borra", "seq" )
-    call coordinates_read( "crd" )
-
-    allocate( flg(1:natoms) )
-    flg = .false.
-    flg = atom_selection( subsystem = (/ "W" /), residue_number = (/ 1 /) )
-    call atoms_fix( flg )
-    do i = 1, natoms
-        if( flg(i) ) then
-            atmchg(i) = 0.0_dp
-            atmchg14(i) = 0.0_dp
-        end if
-    end do
-
-    call energy_initialize
-    call energy_non_bonding_options( &
-        list_cutoff   = 18.0_dp, &
-        outer_cutoff  = 16.0_dp, &
-        inner_cutoff  = 14.0_dp, &
-        minimum_image = .true. )
-
-    call driver
-
-    deallocate( flg )
-end program
-""" )
-	g.close()
-
-
-def input_py_dynamo():
-	g = open( "dynamo.f90", "wt" )
-	g.write( """! compile to a library (.so) by adding "-shared" on linux, or "-dynamiclib" on macOS
-
-subroutine qm3_initialize
-	use dynamo
-	implicit none
-	logical, dimension(:), allocatable :: flg
-
-	open( unit=output, file="dynamo.log", status="replace", access="stream", form="formatted" )
-	call dynamo_header
-
-	call mm_file_process( "borra", "opls" )
-	call mm_system_construct( "borra", "seq" )
-	call coordinates_read( "crd" )
-	allocate( flg(1:natoms) )
-	flg = atom_selection( subsystem = (/ "ACS" /) )
-	call mopac_setup( method = "AM1", charge = 0, selection = flg )
-	call energy_initialize
-	call energy_non_bonding_options( &
-		list_cutoff   = 18.0_dp, &
-		outer_cutoff  = 16.0_dp, &
-		inner_cutoff  = 14.0_dp, &
-		minimum_image = .true. )
-	deallocate( flg )
-end subroutine qm3_initialize
-
-
-
-subroutine qm3_update_coor( coor )
-	use dynamo
-	implicit none
-	real*8, dimension(1:3,1:natoms), intent( in ) :: coor
-	atmcrd = coor
-end subroutine qm3_update_coor
-
-subroutine qm3_update_chrg( chrg )
-	use dynamo
-	implicit none
-	real*8, dimension(1:natoms), intent( in ) :: chrg
-	atmchg = chrg
-end subroutine qm3_update_chrg
-
-subroutine qm3_get_func( coor, func )
-	use dynamo
-	implicit none
-	real*8, dimension(1:3,1:natoms), intent( in ) :: coor
-	real*8, intent( out ) :: func
-	call qm3_update_coor( coor )
-	call energy
-	func = etotal
-end subroutine qm3_get_func
-
-subroutine qm3_get_grad( coor, func, grad )
-	use dynamo
-	implicit none
-	real*8, dimension(1:3,1:natoms), intent( in ) :: coor
-	real*8, intent( out ) :: func
-	real*8, dimension(1:3,1:natoms), intent( out ) :: grad
-	call qm3_update_coor( coor )
-	call gradient
-	func = etotal
-	grad = atmder
-end subroutine qm3_get_grad
-""" )
-	g.close()
-
-
-def input_charmm_pipe():
-	g = open( "charmm.inp", "wt" )
-	g.write( """* title
-*
-prnl 6
-wrnl 6
-bomblvl -1
-open read form unit 10 name top
-read rtf card unit 10
-close unit 10
-open read form unit 10 name par
-read parameter card unit 10
-close unit 10
-open unit 10 read form name psf
-read psf card unit 10
-close unit 10
-open unit 10 read form name pdb
-read coor pdb unit 10
-close unit 10
-defi core sele resi 1 show end
-cons fix sele core end
-nbonds elec fswitch vdw vswitch cutnb 18.0 ctofnb 16.0 ctonnb 14.
-""" )
-	g.close()
-
-
-def input_lammps():
-	g = open( "lammps.inp", "wt" )
-	g.write( """units           real
-atom_style      full
-boundary        p p p
-pair_style      lj/cut/coul/long 10.0
-kspace_style    pppm 1e-4
-pair_modify     mix arithmetic
-bond_style      harmonic
-angle_style     harmonic
-neighbor        2.0 bin
-neigh_modify    delay 10
-
-read_data       data
-read_dump       lammps.xyzq 0 x y z q box no format native
-
-group           qmatm id 1-3
-neigh_modify    exclude group qmatm qmatm
-
-reset_timestep  0
-timestep        1.
-thermo_style    multi
-thermo          1
-run             0
-print           $(pe) file lammps.ener screen no
-write_dump      all custom lammps.force id fx fy fz modify sort id format line "%d %.10lf %.10lf %.10lf"
-""" )
-	g.close()
-
-
-def input_lammps_pipe():
-	g = open( "lammps.inp", "wt" )
-	g.write( """units           real
-atom_style      full
-boundary        f f f
-pair_style      lj/charmm/coul/charmm 4.5 6.0
-pair_modify     mix arithmetic
-bond_style      harmonic
-angle_style     harmonic
-neighbor        2.0 bin
-neigh_modify    delay 10
-
-read_data       data
-
-group           qmatm id 1-3
-neigh_modify    exclude group qmatm qmatm
-
-reset_timestep  0
-timestep        1.
-thermo_style    multi
-thermo          1
-""" )
-	g.close()
 
 
 # ===============================================================================================
@@ -895,9 +529,6 @@ class my_problem( qm3.problem.template ):
 
 			# DYNAMO_PIPE
 			if( knd == "dynamo_pipe" ):
-				g = open( "r.dynamo", "wt" )
-				g.write( "./dynamo.exe dynamo.pipe > dynamo.log" )
-				g.close()
 				f.write( """
 		try:
 			os.unlink( "dynamo.pipe" )
@@ -908,7 +539,6 @@ class my_problem( qm3.problem.template ):
 		time.sleep( 10 )
 		self.e%02d = %s()
 """%( who, key ) )
-				input_dynamo_pipe()
 				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
 
 			# PY_DYNAMO
@@ -916,7 +546,6 @@ class my_problem( qm3.problem.template ):
 				f.write( """
 		self.e%02d = %s( "./dynamo.so" )
 """%( who, key ) )
-				input_py_dynamo()
 				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
 
 			# NAMD
@@ -926,7 +555,6 @@ class my_problem( qm3.problem.template ):
 		self.e%02d.exe = "bash r.namd"
 		self.mole.psf_read( "%s" )
 """%( who, key, who, obj["psf"] ) )
-				input_namd( self.__pdb, __box, obj )
 				qcl = """\t\tself.e%02d.update_charges( self.mole, "%s" )\n"""%( who, obj["psf"] )
 	
 			# NAMD_PIPE / NAMD_SHM
@@ -942,17 +570,10 @@ class my_problem( qm3.problem.template ):
 		self.e%02d = %s()
 		self.mole.psf_read( "%s" )
 """%( who, key, obj["psf"] ) )
-				if( knd == "namd_pipe" ):
-					input_namd_pipe( self.__pdb, __box, obj )
-				else:
-					input_namd_shm( self.__pdb, __box, obj )
 				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
 
 			# NAMD / NAMD_PIPE / NAMD_SHM
 			if( knd in [ "namd", "namd_pipe", "namd_shm" ] ):
-				g = open( "r.namd", "wt" )
-				g.write( "[PATH]/namd2 +setcpuaffinity +isomalloc_sync +idlepoll namd.inp > namd.out" )
-				g.close()
 				import	qm3.engines.namd
 				qm3.engines.namd.coordinates_write( self.__mol, "namd.coor" )
 				if( __sel == [] ):
@@ -967,15 +588,11 @@ class my_problem( qm3.problem.template ):
 	
 			# SANDER
 			if( knd == "sander" ):
-				g = open( "r.sander", "wt" )
-				g.write( "export AMBERHOME=[PATH]\n$AMBERHOME/bin/sander -O" )
-				g.close()
 				f.write( """
 		self.e%02d = %s()
 		self.e%02d.exe = "bash r.sander"
 		qm3.sander.topology_read( self.mole, "prmtop" )
 """%( who, key, who ) )
-				input_sander( self.__mol, __box, obj )
 				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
 	
 			# PY_SANDER
@@ -996,9 +613,6 @@ class my_problem( qm3.problem.template ):
 
 			# CHARMM_PIPE
 			if( knd == "charmm_pipe" ):
-				g = open( "r.charmm", "wt" )
-				g.write( "[PATH]/charmm < charmm.pipe > charmm.log" )
-				g.close()
 				f.write( """
 		try:
 			os.unlink( "charmm.pipe" )
@@ -1009,14 +623,10 @@ class my_problem( qm3.problem.template ):
 		self.e%02d = %s( "charmm.inp" )
 		time.sleep( 10 )
 """%( who, key ) )
-				input_charmm_pipe()
 				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
 
 			# CHARMM_SHM
 			if( knd == "charmm_shm" ):
-				g = open( "r.charmm", "wt" )
-				g.write( "[PATH]/charmm < charmm.pipe > charmm.log" )
-				g.close()
 				f.write( """
 		try:
 			os.unlink( "charmm.pipe" )
@@ -1026,26 +636,18 @@ class my_problem( qm3.problem.template ):
 		os.system( "bash r.charmm &" )
 		self.e%02d = %s( "charmm.inp" )
 """%( who, key ) )
-				input_charmm_pipe()
 				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
 
 			# LAMMPS
 			if( knd == "lammps" ):
-				g = open( "r.lammps", "wt" )
-				g.write( "mpirun -n 4 [PATH]/lmp_mpi -in lammps.inp -sc none -log lammps.log" )
-				g.close()
 				f.write( """
 		self.e%02d = %s( "lammps.inp" )
 		self.e%02d.exe = "bash r.lammps"
 """%( who, key, who ) )
-				input_lammps()
 				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
 	
 			# LAMMPS_PIPE
 			if( knd == "lammps_pipe" ):
-				g = open( "r.lammps", "wt" )
-				g.write( "mpirun -n 4 [PATH]/lmp_mpi -in lammps.pipe -sc none -log lammps.log" )
-				g.close()
 				f.write( """
 		try:
 			os.unlink( "lammps.pipe" )
@@ -1056,7 +658,6 @@ class my_problem( qm3.problem.template ):
 		self.e%02d = %s( "lammps.inp" )
 		time.sleep( 10 )
 """%( who, key ) )
-				input_lammps_pipe()
 				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
 	
 			# PY_LAMMPS
@@ -1064,7 +665,6 @@ class my_problem( qm3.problem.template ):
 				f.write( """
 		self.e%02d = %s( "lammps.inp" )
 """%( who, key ) )
-				input_lammps_pipe()
 				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
 
 			# Common QM engines
@@ -1089,9 +689,6 @@ class my_problem( qm3.problem.template ):
 	
 			# DFTB
 			if( knd == "dftb" ):
-				g = open( "r.dftb", "wt" )
-				g.write( "export OMP_NUM_THREADS=1\n[PATH]/dftb+ > dftb_in.log" )
-				g.close()
 				f.write( """
 		self.e%02d = %s( self.mole, s_qm, s_mm, s_la )
 		self.e%02d.exe = "bash r.dftb"
@@ -1101,301 +698,30 @@ class my_problem( qm3.problem.template ):
 	
 			# TCHEM_SCKT
 			if( knd == "tchem_sckt" ):
-				g = open( "r.tchem", "wt" )
-				g.write( """
-source /usr/local/chem/mpich2-1.4.1p1/rc
-  
-export TeraChem=/usr/local/chem/tchem_1.93p
-export NBOEXE=$TeraChem/bin/nbo6.i4.exe
-export OMP_NUM_THREADS=1
-export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
-export PATH=$TeraChem/bin:$PATH
-
-rm -rf tchem_; mkdir tchem_; cd tchem_; mkdir scr
-mpirun -n 1 $TeraChem/bin/terachem -U1 -Mtcport_ >& tchem.log
-""" )
-				g.close()
-				g = open( "r.sckt", "wt" )
-				g.write( """
-source /usr/local/chem/mpich2-1.4.1p1/rc
-
-rm -f sckt_ sckt_.log
-mpirun -n 1 ./x.sckt tcport_ sckt_ i.sckt >& sckt_.log
-""" )
-				g.close()
-				g = open( "i.sckt", "wt" )
-				g.write( """
-basis         6-31++g**
-charge        0
-spinmult      1
-method        b3lyp
-dftd          no
-gpus          1 0
-dftgrid       1
-threall       1.e-11
-convthre      3.e-5
-""" )
-				g.close()
 				f.write( """
 		self.e%02d = %s( self.mole, "sckt_", s_qm, s_mm, s_la )
 """%( who, key ) )
 	
 			# SQM / GAMESS / NWCHEM / DEMON / ORCA / TCHEM / SMASH
 			if( knd in [ "sqm", "gamess", "nwchem", "demon", "orca", "tchem", "smash" ] ):
-				exe = ""
-				if( knd == "sqm" ):
-					exe = "bash r.sqm"
-					g = open( "r.sqm", "wt" )
-					g.write( """
-export AMBERHOME=[PATH]
-$AMBERHOME/bin/sqm -O
-""" )
-					g.close()
-					ini = "sqm.ini"
-					g = open( ini, "wt" )
-					g.write( """
-qm_theory = "DFTB",
-qmcharge = 0,
-""" )
-					g.close()
-				elif( knd == "gamess" ):
-					exe = "bash r.gamess"
-					g = open( "r.gamess", "wt" )
-					g.write( """
-GWD=[PATH]
-SCR=`pwd`
-DDI=$GWD/ddikick.x
-EXE=$GWD/gamess.00.x
-JOB=gamess.temp
-
-export   INPUT=$SCR/gamess.inp
-export  EXTBAS=basis
-export AUXDATA=$GWD/auxdata
-export ERICFMT=$AUXDATA/ericfmt.dat
-export BASPATH=$AUXDATA/BASES
-export  WORK15=$SCR/$JOB.F15
-export  DASORT=$SCR/$JOB.F20
-export   PUNCH=$SCR/gamess.data
-export DICTNRY=$SCR/gamess.guess
-export DFTGRID=$SCR/$JOB.F22
-
-ulimit -c 0
-rm -f $JOB.* $PUNCH
-export DDI_RSH=ssh
-export DDI_VER=new
-export NNODES=1
-export NCPUS=1
-export HOSTLIST="`hostname`:cpus=$NCPUS"
-$DDI $EXE $JOB -ddi $NNODES $NCPUS $HOSTLIST -scr $SCR < /dev/null >& gamess.out
-""" )
-					g.close()
-					ini = "gamess.ini"
-					g = open( ini, "wt" )
-					g.write( """
- $contrl
-runtyp=%s
-coord=cart
-nosym=1
-nprint=7
-scftyp=rhf
-units=angs
-icharg=0
-mult=1
-maxit=200
-dfttyp=b3lyp
- $end
-
- $scf
-dirscf=.true.
-conv=1.d-6
- $end
-
- $system
-mwords=10
-memddi=1024
- $end
-
- $basis
-gbasis=n31
-ngauss=6
-ndfunc=1
-npfunc=1
-diffsp=.true.
-diffs=.true.
- $end
-""" )
-					g.close()
-				elif( knd == "nwchem" ):
-					exe = "bash r.nwchem"
-					g = open( "r.nwchem", "wt" )
-					g.write( """NWCHEM_BASIS_LIBRARY=[PATH]/data/libraries/ mpirun -n 2 [PATH]/nwchem nwchem.nw > nwchem.log""" )
-					g.close()
-					ini = "nwchem.ini"
-					g.write( ini, "wt" )
-					g.write( """
-basis
- * library 6-31++gss
-end
-charge 0
-dft
- @@@
- mulliken
- mult 1
- iterations 100
- direct
- xc b3lyp 
-end
-""" )
-					g.close()
-				elif( knd == "demon" ):
-					exe = "bash r.demon"
-					g = open( "r.demon", "wt" )
-					g.write( """[PATH]/deMon_4.4.1""" )
-					g.close()
-					ini = "demon.ini"
-					g.write( ini, "wt" )
-					g.write( """
-charge 0
-multiplicity 1
-basis (6-31++G**)
-scftype rks tol=1.0e-6
-vxctype b3lyp
-eris mixed
-""" )
-					g.close()
-				elif( knd == "orca" ):
-					exe = "bash r.orca"
-					g = open( "r.orca", "wt" )
-					g.write( """
-mpi=/usr/local/chem/openmpi-2.0.2
-export PATH=$mpi/bin:$PATH
-export LD_LIBRARY_PATH=$mpi/lib:$LD_LIBRARY_PATH
-
-cwd=/usr/local/chem/orca_4.0.1
-export PATH=$cwd:$PATH
-export LD_LIBRARY_PATH=$cwd:$LD_LIBRARY_PATH
-$cwd/orca orca.inp > orca.out
-""" )
-					g.close()
-					ini = "orca.ini"
-					g.write( ini, "wt" )
-					g.write( """
-%%pal nprocs 2 end
-!%s rks b3lyp 6-31++g**
-*xyz 0 1
-""" )
-					g.close()
-				elif( knd == "tchem" ):
-					exe = "bash r.tchem"
-					g = open( "r.tchem", "wt" )
-					g.write( """
-export TeraChem=/usr/local/chem/tchem_1.93p
-
-export NBOEXE=$TeraChem/bin/nbo6.i4.exe
-export OMP_NUM_THREADS=1
-export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
-export PATH=$TeraChem/bin:$PATH
-
-$TeraChem/bin/terachem tchem.inp > tchem.log
-""" )
-					g.close()
-					ini = "tchem.ini"
-					g.write( ini, "wt" )
-					g.write( """
-basis         6-31++g**
-charge        0
-spinmult      1
-method        b3lyp
-dftd          no
-gpus          1 0
-dftgrid       1
-threall       1.e-11
-convthre      3.e-5
-""" )
-					g.close()
-				elif( knd == "smash" ):
-					exe = "bash r.smash"
-					g = open( "r.smash", "wt" )
-					g.write( """
-mpirun -n 2 [PATH]/smash_mpi < smash.inp > smash.out
-""" )
-					g.close()
-					ini = "smash.ini"
-					g = open( ini, "wt" )
-					g.write( """
-job %s method=b3lyp basis=6-31g(d,p) memory=2GB
-""" )
-					g.close()
-
 				f.write( """
-		f = open( "%s", "rt" )
+		f = open( "i.%s", "rt" )
 		i_qm = f.read()
 		f.close()
 		self.e%02d = %s( self.mole, i_qm, s_qm, s_mm, s_la )
-		self.e%02d.exe = "%s"
-"""%( ini, who, key, who, exe ) )
+		self.e%02d.exe = "bash r.%s"
+"""%( knd, who, key, who, knd ) )
 
 			# GAUSSIANs
 			if( knd in [ "gaussian", "gaussian_MMEL" ] ):
-				g = open( "r.g09", "wt" )
-				g.write( """. [PATH]/g09.profile; g09 g09.com""" )
-				g.close()
-				g = open( "g09.ini", "wt" )
-				g.write( """%%chk=g09.chk
-%%mem=2048mb
-%%nproc=2
-#p b3lyp/gen %s charge prop=(field,read) scf=direct nosymm fchk
-
-.
-
-0 1
-""" )
-				g.close()
-				g = open( "g09.mid", "wt" )
-				g.write( """H     0 
-S   3   1.00
-     13.0107010              0.19682158E-01   
-      1.9622572              0.13796524       
-      0.44453796             0.47831935       
-S   1   1.00
-      0.12194962             1.0000000        
-P   1   1.00
-      0.8000000              1.0000000        
-****
-O     0 
-S   5   1.00
-   2266.1767785             -0.53431809926E-02      
-    340.87010191            -0.39890039230E-01      
-     77.363135167           -0.17853911985    
-     21.479644940           -0.46427684959    
-      6.6589433124          -0.44309745172    
-S   1   1.00
-      0.80975975668          1.0000000        
-S   1   1.00
-      0.25530772234          1.0000000        
-P   3   1.00
-     17.721504317            0.43394573193E-01      
-      3.8635505440           0.23094120765    
-      1.0480920883           0.51375311064    
-P   1   1.00
-      0.27641544411          1.0000000        
-D   1   1.00
-      1.2000000              1.0000000        
-****
-""" )
-				g.close()
-				g = open( "g09.end", "wt" )
-				g.write( """
-""" )
-				g.close()
 				f.write( """
-		f = open( "g09.ini", "rt" )
+		f = open( "i.gauss.ini", "rt" )
 		i_qm = f.read()
 		f.close()
-		f = open( "g09.mid", "rt" )
+		f = open( "i.gauss.mid", "rt" )
 		m_qm = f.read()
 		f.close()
-		f = open( "g09.end", "rt" )
+		f = open( "i.gauss.end", "rt" )
 		e_qm = f.read()
 		f.close()
 		self.e%02d = %s( self.mole, i_qm, m_qm, e_qm, s_qm, s_mm, s_la )

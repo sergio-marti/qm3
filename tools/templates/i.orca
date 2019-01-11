@@ -1,0 +1,3 @@
+%%pal nprocs 2 end
+!%s rks b3lyp 6-31++g**
+*xyz 0 1

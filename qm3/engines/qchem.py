@@ -17,7 +17,7 @@ class qchem( qm3.engines.qmbase ):
 	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
 		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
 		self.ini = ini
-		self.exe = "/bin/bash ./qchem.run"
+		self.exe = "bash r.qchem"
 
 
 	def mk_input( self, mol, run ):

@@ -74,8 +74,7 @@ class gromacs( object ):
 	"""
 
 	def __init__( self ):
-		self.exe  = "source /Users/smarti/Devel/gromacs/2019.b1/bin/GMXRC.bash;"
-		self.exe += "gmx mdrun -s gromacs.tpr -e gromacs.edr -o gromacs.trr -g gromacs.log -rerun gromacs.g96 >& /dev/null"
+		self.exe  = "bash r.gromacs"
 
 
 	def update_coor( self, mol ):

@@ -1,0 +1,49 @@
+structure           psf
+coordinates         pdb
+
+paraTypeCharmm      on
+parameters          par
+
+fixedatoms          off
+fixedatomsfile      namd.fix
+
+extrabonds          off
+extrabondsfile      namd.ic
+
+cellBasisVector1    20.00   0.00   0.00
+cellBasisVector2     0.00  20.00   0.00
+cellBasisVector3     0.00   0.00  20.00
+
+PME                 on
+PMETolerance        0.000001
+PMEGridSpacing      0.5
+
+exclude             scaled1-4
+1-4scaling          1.0
+
+switching           on
+switchdist          6.5
+cutoff              8.5
+pairlistdist        9.5
+
+wrapAll             off
+wrapWater           off
+nonbondedFreq       1
+fullElectFrequency  1
+stepspercycle       1
+temperature         0.0
+outputEnergies      1
+outputname          namd.out
+
+startup
+
+set fd [ open "namd.pipe" r ]
+while { [ gets $fd cmd ] >= 0 } {
+    switch $cmd {
+        "energy"      { run 0 }
+        "gradient"    { run 0; output onlyforces shm }
+        "charges"     { reloadCharges shm }
+        "coordinates" { coorfile shmread }
+        "exit"        { close $fd; exit }
+    }
+}

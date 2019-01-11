@@ -1,0 +1,9 @@
+basis         6-31++g**
+charge        0
+spinmult      1
+method        b3lyp
+dftd          no
+gpus          1 0
+dftgrid       1
+threall       1.e-11
+convthre      3.e-5

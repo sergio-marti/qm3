@@ -14,8 +14,6 @@ import	qm3.utils
 #
 # Set environment variable: PSI_SCRATCH
 #
-# export QM3_PSI4=/Users/smarti/Devel/psi4/dist_gnu/lib
-#
 sys.path.insert( 0, os.getenv( "QM3_PSI4" ) )
 try:
 	import	psi4

@@ -18,7 +18,7 @@ class orca( qm3.engines.qmbase ):
 	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
 		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
 		self.ini = ini
-		self.exe = "/Users/smarti/Devel/orca/4.0.0/bin/orca orca.inp > orca.out"
+		self.exe = "bash r.orca"
 
 
 	def mk_input( self, mol, run ):

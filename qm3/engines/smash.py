@@ -15,7 +15,7 @@ class smash( qm3.engines.qmbase ):
 	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
 		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
 		self.ini = ini
-		self.exe = "mpirun -n 2 /Users/smarti/Devel/smash/2.2.0/smash_mpi < smash.inp > smash.out"
+		self.exe = "bash r.smash"
 
 
 	def mk_input( self, mol, run ):

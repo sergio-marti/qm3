@@ -16,7 +16,7 @@ class nwchem( qm3.engines.qmbase ):
 	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
 		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
 		self.ini = ini
-		self.exe = "NWCHEM_BASIS_LIBRARY=/Users/smarti/Devel/nwchem/6.6/data/libraries/ /Users/smarti/Devel/nwchem/6.6/nwchem nwchem.nw > nwchem.log"
+		self.exe = "bash r.nwchem"
 
 
 	def mk_input( self, mol, run ):

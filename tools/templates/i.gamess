@@ -1,0 +1,46 @@
+ $contrl
+runtyp=%s
+coord=cart
+nosym=1
+nprint=7
+scftyp=rhf
+units=angs
+icharg=0
+mult=1
+maxit=200
+dfttyp=b3lyp
+ $end
+
+ $scf
+dirscf=.true.
+conv=1.d-6
+ $end
+
+ $system
+mwords=10
+memddi=1024
+ $end
+
+! $basis
+!extfil=.true.
+!gbasis=AABBCCDD
+! $end
+
+ $basis
+gbasis=n31
+ngauss=6
+ndfunc=1
+npfunc=1
+diffsp=.true.
+diffs=.true.
+ $end
+
+ $elpot
+iepot=1
+where=pdc
+ $end
+
+ $pdc
+ptsel=geodesic
+constr=charge
+ $end

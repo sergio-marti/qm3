@@ -18,7 +18,7 @@ class tchem( qm3.engines.qmbase ):
 	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
 		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
 		self.ini = ini
-		self.exe = "/usr/local/chem/tchem-1.93p/bin/terachem tchem.inp > tchem.log"
+		self.exe = "bash r.tchem"
 		self.smb = [ i.title() for i in self.smb ]
 
 

@@ -21,7 +21,7 @@ class gaussian( qm3.engines.qmbase ):
 		self.ini = ini
 		self.mid = mid
 		self.end = end
-		self.exe = ". /Users/smarti/Devel/g09/pgi.imac64/g09.profile; g09 g09.com"
+		self.exe = "bash r.gauss"
 
 
 	def mk_input( self, mol, run ):
@@ -177,7 +177,7 @@ class gaussian_MMEL( qm3.engines.qmbase ):
 		self.ini = ini
 		self.mid = mid
 		self.end = end
-		self.exe = ". /Users/smarti/Devel/g09/pgi.imac64/g09.profile; g09 g09.com"
+		self.exe = "bash r.gauss"
 
 
 	def mk_input( self, mol, run ):

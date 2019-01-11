@@ -1,0 +1,2 @@
+source /Users/smarti/Devel/gromacs/2019.b1/bin/GMXRC.bash
+gmx mdrun -s gromacs.tpr -e gromacs.edr -o gromacs.trr -g gromacs.log -rerun gromacs.g96 >& /dev/null

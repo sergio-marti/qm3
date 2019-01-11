@@ -161,7 +161,7 @@ except:
 class sander( object ):
 
 	def __init__( self, cpu = multiprocessing.cpu_count() ):
-		self.exe = "export AMBERHOME=/Users/smarti/Devel/amber/16 $AMBERHOME/bin/sander -O"
+		self.exe = "bash r.sander"
 
 
 	def update_coor( self, mol ):
@@ -214,52 +214,6 @@ class sander( object ):
 
 
 
-
-
-
-
-
-SANDER_INP = """
-slave_frozen_QM
-&cntrl
- imin   = 0, ntx    = 1, irest  = 0,
- ntxo   = 1, ntpr   = 1, ntave  = 0,
- ntwr   = 1, iwrap  = 0, ntwx   = 0,
- ntwv   = 0, ntwf   = 1, ntwe   = 1,
- ioutfm = 1, ntwprt = 0, ntt    = 0,
- ntr    = 0, nstlim = 0, nscm   = 0,
- ntp    = 0, ntb    = 1, ifqnt  = 0,
-
- cut       = 6.5,
- ibelly    = 1, 
- bellymask = ':1-351,:353-999',
-/
-"""
-
-SANDER_QMFAKE_INP = """
-slave_faked_QM (none|fake_orca: QM/MM Van der Waals will be computed)
-&cntrl
- imin   = 0, ntx    = 1, irest  = 0,
- ntxo   = 1, ntpr   = 1, ntave  = 0,
- ntwr   = 1, iwrap  = 0, ntwx   = 0,
- ntwv   = 0, ntwf   = 1, ntwe   = 1,
- ioutfm = 1, ntwprt = 0, ntt    = 0,
- ntr    = 0, nstlim = 0, nscm   = 0,
- ntp    = 0, ntb    = 1, ifqnt  = 1,
-
- cut       = 6.5,
-/
-&qmmm
- qmcut     = 6.5,
- qmmask    = ':352',
- qmcharge  = 0,
- spin      = 1,
- qm_ewald  = 0,
- qm_theory = 'EXTERN',
-/
-&orc
-/
-"""
 
 # ------------------------------------------------------------------------------------
 # - ORCA_FAKE - ("orca" in current folder, for UNMODIFIED sander versions...)

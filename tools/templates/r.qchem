@@ -1,0 +1,4 @@
+source /usr/local/chem/qchem_5.0/qcenv.sh
+export QCSCRATCH=`pwd`
+rm -rf qchem.tmp.0
+$QC/bin/qchem -nt 2 qchem.inp qchem.log qchem.tmp > /dev/null

@@ -1,0 +1,41 @@
+structure           psf
+coordinates         pdb
+bincoordinates		namd.coor
+
+paraTypeCharmm      on
+parameters          par
+
+fixedatoms          on
+fixedatomsfile      namd.fix
+
+extrabonds          off
+extrabondsfile      namd.ic
+
+cellBasisVector1    17.49   0.00   0.00
+cellBasisVector2     0.00  17.49   0.00
+cellBasisVector3     0.00   0.00  17.49
+
+PME                 on
+PMETolerance        0.000001
+PMEGridSpacing      0.5
+
+exclude             scaled1-4
+1-4scaling          1.0
+
+switching           on
+switchdist          4.5
+cutoff              6.0
+pairlistdist        8.0
+
+wrapAll             off
+wrapWater           off
+nonbondedFreq       1
+fullElectFrequency  1
+stepspercycle       1
+temperature         0.0
+outputname          namd.out
+outputEnergies      1
+forcedcdfile		namd.force
+forcedcdfreq		1
+run                 0
+output onlyforces   namd
