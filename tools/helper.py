@@ -890,8 +890,8 @@ obj.stop()
 
 		self.app = tkinter.Tk()
 		self.app.title( "-- Helper --" )
-		self.app.maxsize( width = 540, height = 2048 )
-		self.app.minsize( width = 540, height = 480 )
+		self.app.maxsize( width = 560, height = 2048 )
+		self.app.minsize( width = 560, height = 480 )
 
 		self.cnv = tkinter.Canvas( self.app, bg = self.__col )
 		self.frm = tkinter.Frame( self.cnv, bg = self.__col )

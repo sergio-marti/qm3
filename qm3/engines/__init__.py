@@ -19,8 +19,9 @@ class qmbase( object ):
 
 		self.sel = sele[:]
 		self.lnk = link[:]
-		t = [ j for i,j in self.lnk ]
-		self.nbn = [ i for i in nbnd if not i in t ]
+#		t = [ j for i,j in self.lnk ]
+#		self.nbn = [ i for i in nbnd if not i in t ]
+		self.nbn = sorted( set( nbnd ).difference( set( sele + sum( link, [] ) ) ) )
 
 		self.exe = ""
 		self.vla = []
