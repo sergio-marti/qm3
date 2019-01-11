@@ -707,7 +707,7 @@ class my_problem( qm3.problem.template ):
 		self.e%02d = %s( self.mole, s_qm, s_mm, s_la )
 		self.e%02d.chg = %d
 		self.e%02d.prm = "%s/"
-"""%( who, key, who, who, int( obj["chg"] ), who, obj["prm"] ) )
+"""%( who, key, who, int( obj["chg"] ), who, obj["prm"] ) )
 	
 			# TCHEM_SCKT
 			if( knd == "tchem_sckt" ):
