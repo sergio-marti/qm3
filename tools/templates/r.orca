@@ -1,0 +1,8 @@
+mpi=/usr/local/chem/openmpi-2.0.2
+export PATH=$mpi/bin:$PATH
+export LD_LIBRARY_PATH=$mpi/lib:$LD_LIBRARY_PATH
+
+cwd=/usr/local/chem/orca_4.0.1
+export PATH=$cwd:$PATH
+export LD_LIBRARY_PATH=$cwd:$LD_LIBRARY_PATH
+$cwd/orca orca.inp > orca.out

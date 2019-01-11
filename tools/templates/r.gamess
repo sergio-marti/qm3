@@ -1,0 +1,25 @@
+GWD=[PATH]
+SCR=`pwd`
+DDI=$GWD/ddikick.x
+EXE=$GWD/gamess.00.x
+JOB=gamess.temp
+
+export   INPUT=$SCR/gamess.inp
+export  EXTBAS=basis
+export AUXDATA=$GWD/auxdata
+export ERICFMT=$AUXDATA/ericfmt.dat
+export BASPATH=$AUXDATA/BASES
+export  WORK15=$SCR/$JOB.F15
+export  DASORT=$SCR/$JOB.F20
+export   PUNCH=$SCR/gamess.data
+export DICTNRY=$SCR/gamess.guess
+export DFTGRID=$SCR/$JOB.F22
+
+ulimit -c 0
+rm -f $JOB.* $PUNCH
+export DDI_RSH=ssh
+export DDI_VER=new
+export NNODES=1
+export NCPUS=1
+export HOSTLIST="`hostname`:cpus=$NCPUS"
+$DDI $EXE $JOB -ddi $NNODES $NCPUS $HOSTLIST -scr $SCR < /dev/null >& gamess.out

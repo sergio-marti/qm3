@@ -1,0 +1,1 @@
+[PATH]/namd2 +setcpuaffinity +isomalloc_sync +idlepoll +ppn 1 namd.inp > namd.out

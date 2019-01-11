@@ -1,0 +1,2 @@
+export AMBERHOME=[PATH]
+$AMBERHOME/bin/sqm -O

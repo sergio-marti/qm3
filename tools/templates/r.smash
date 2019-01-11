@@ -1,0 +1,1 @@
+mpirun -n 2 [PATH]/smash_mpi < smash.inp > smash.out

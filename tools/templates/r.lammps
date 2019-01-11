@@ -1,0 +1,2 @@
+mpirun -n 4 [PATH]/lmp_mpi -in lammps.inp -sc none -log lammps.log
+mpirun -n 4 [PATH]/lmp_mpi -in lammps.pipe -sc none -log lammps.log

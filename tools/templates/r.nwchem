@@ -1,0 +1,2 @@
+export NWCHEM_BASIS_LIBRARY=[PATH]/data/libraries/
+mpirun -n 2 [PATH]/nwchem nwchem.nw > nwchem.log

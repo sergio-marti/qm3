@@ -1,0 +1,13 @@
+export TeraChem=/usr/local/chem/tchem_1.93p
+export NBOEXE=$TeraChem/bin/nbo6.i4.exe
+export OMP_NUM_THREADS=1
+export LD_LIBRARY_PATH=$TeraChem/lib:$LD_LIBRARY_PATH
+export PATH=$TeraChem/bin:$PATH
+
+# SCTK (r.sckt)
+source /usr/local/chem/mpich2-1.4.1p1/rc
+rm -rf tchem_; mkdir tchem_; cd tchem_; mkdir scr
+mpirun -n 1 $TeraChem/bin/terachem -U1 -Mtcport_ >& tchem.log
+
+# SERIAL
+$TeraChem/bin/terachem tchem.inp > tchem.log

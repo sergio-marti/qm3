@@ -1,0 +1,2 @@
+export OMP_NUM_THREADS=1
+[PATH]/dftb+ > dftb_in.log

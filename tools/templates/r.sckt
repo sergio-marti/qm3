@@ -1,0 +1,4 @@
+source /usr/local/chem/mpich2-1.4.1p1/rc
+
+rm -f sckt_ sckt_.log
+mpirun -n 1 ./x.sckt tcport_ sckt_ i.sckt >& sckt_.log
