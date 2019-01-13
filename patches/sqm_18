@@ -1,4 +1,3 @@
-patch -b -p0 << EOD
 --- qm2_dftb_externalshift.F90	2017-08-01 04:27:51.000000000 +0200
 +++ new/qm2_dftb_externalshift.F90	2018-05-05 09:07:25.000000000 +0200
 @@ -34,6 +34,7 @@
@@ -9,9 +8,7 @@ patch -b -p0 << EOD
        shiftE(j) = 0.0d0
        do k=1,qmmm_struct%qm_mm_pairs ! loop through external charges
           dif(1:3) = (qm_coords(1:3,j) - qmmm_struct%qm_xcrd(1:3,k))*A_TO_BOHRS
-EOD
 
-patch -b -p0 << EOD
 --- qm2_dftb_get_qmmm_forces.F90	2017-08-01 04:27:51.000000000 +0200
 +++ new/qm2_dftb_get_qmmm_forces.F90	2018-05-05 09:07:18.000000000 +0200
 @@ -44,6 +44,7 @@
@@ -22,9 +19,7 @@ patch -b -p0 << EOD
       scf_mchgi = qm2_struct%scf_mchg(i)*AU_TO_KCAL*BOHRS_TO_A !Unit conversion
       qmx = qmmm_struct%qm_coords(1,i)
       qmy = qmmm_struct%qm_coords(2,i)
-EOD
 
-patch -b -p0 << EOD
 --- qm2_get_qmmm_forces.F90	2017-08-01 04:27:51.000000000 +0200
 +++ new/qm2_get_qmmm_forces.F90	2018-05-05 09:07:08.000000000 +0200
 @@ -81,6 +81,8 @@
@@ -36,9 +31,7 @@ patch -b -p0 << EOD
                    
           fqm(1:3)=0.0d0
  ! Split into heavy and light atoms here - means code duplication but is good for speed.
-EOD
 
-patch -b -p0 << EOD
 --- qm2_hcore_qmmm.F90	2017-08-01 04:27:51.000000000 +0200
 +++ new/qm2_hcore_qmmm.F90	2018-05-05 09:07:00.000000000 +0200
 @@ -57,6 +57,8 @@
@@ -50,9 +43,7 @@ patch -b -p0 << EOD
          s_atom   = (qm2_params%natomic_orbs(i) ==1)
          sp_atom  = (qm2_params%natomic_orbs(i) ==4)        
          spd_atom = (qm2_params%natomic_orbs(i) ==9)
-EOD
 
-patch -b -p0 << EOD
 --- qm2_read_nm_and_alloc.F90	2017-08-11 21:04:33.000000000 +0200
 +++ new/qm2_read_nm_and_alloc.F90	2018-05-05 09:06:52.000000000 +0200
 @@ -27,7 +27,7 @@
@@ -80,9 +71,7 @@ patch -b -p0 << EOD
     qmmm_nml%iqmatoms(1:qmmm_struct%nquant_nlink) = iqmatoms(1:qmmm_struct%nquant_nlink)
     if (ncharge_in > 0) then
        qmmm_struct%qm_xcrd = 0.0D0
-EOD
 
-patch -b -p0 << EOD
 --- qmmm_struct_module.F90	2017-08-01 04:27:51.000000000 +0200
 +++ new/qmmm_struct_module.F90	2018-05-05 09:05:46.000000000 +0200
 @@ -225,6 +225,8 @@
@@ -120,9 +109,7 @@ patch -b -p0 << EOD
      if ( associated ( self%atom_mask ) ) then
         deallocate ( self%atom_mask, stat=ier )
         REQUIRE(ier == 0)
-EOD
 
-patch -b -p0 << EOD
 --- sqm.F90	2018-05-05 09:27:30.000000000 +0200
 +++ new/sqm.F90	2018-05-05 09:28:10.000000000 +0200
 @@ -24,6 +24,7 @@
@@ -294,4 +281,3 @@ patch -b -p0 << EOD
     end if
  
     return
-EOD

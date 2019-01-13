@@ -1,1 +1,3 @@
-diff -Naur orig chgd > ptch
+diff -Naur orig chgd
+
+patch -b -p0 < file

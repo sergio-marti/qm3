@@ -1,4 +1,3 @@
-patch -b -p0 << EOD
 --- geom.F90	2018-11-13 19:37:13.000000000 +0100
 +++ geom.F90.new	2018-11-13 19:48:04.000000000 +0100
 @@ -19,7 +19,7 @@
@@ -35,4 +34,3 @@ patch -b -p0 << EOD
            xyz(1)= coord(1,iatom)-coord(1,jatom)
            xyz(2)= coord(2,iatom)-coord(2,jatom)
            xyz(3)= coord(3,iatom)-coord(3,jatom)
-EOD
