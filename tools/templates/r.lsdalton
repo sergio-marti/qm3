@@ -1,0 +1,10 @@
+mem=512
+cwd=/Users/smarti/Devel/lsdalton
+
+export WRKDIR=`pwd`
+export BASDIR=$cwd/basis
+export WRKMEM=`expr $mem "*" 128000`
+
+export OMP_NUM_THREADS=2
+
+$cwd/lsdalton.x > /dev/null
