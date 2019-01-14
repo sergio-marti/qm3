@@ -148,6 +148,7 @@ class dcd( object ):
 		self._F.write( struct.pack( "i", 0 ) )
 		self.N = natoms
 		if( sele != [] and len( sele ) < self.N ):
+			self._S = sele[:]
 			self._n = len( sele )
 			f = self.N - self._n
 		else:
