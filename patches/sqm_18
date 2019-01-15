@@ -1,5 +1,5 @@
---- qm2_dftb_externalshift.F90	2017-08-01 04:27:51.000000000 +0200
-+++ new/qm2_dftb_externalshift.F90	2018-05-05 09:07:25.000000000 +0200
+--- qm2_dftb_externalshift.F90	2019-01-15 09:48:54.000000000 +0100
++++ qm2_dftb_externalshift.F90.new	2018-05-05 09:12:52.000000000 +0200
 @@ -34,6 +34,7 @@
  
     do j=1,qmmm_struct%nquant_nlink ! loop through real qm atoms
@@ -9,8 +9,8 @@
        do k=1,qmmm_struct%qm_mm_pairs ! loop through external charges
           dif(1:3) = (qm_coords(1:3,j) - qmmm_struct%qm_xcrd(1:3,k))*A_TO_BOHRS
 
---- qm2_dftb_get_qmmm_forces.F90	2017-08-01 04:27:51.000000000 +0200
-+++ new/qm2_dftb_get_qmmm_forces.F90	2018-05-05 09:07:18.000000000 +0200
+--- qm2_dftb_get_qmmm_forces.F90	2019-01-15 09:48:54.000000000 +0100
++++ qm2_dftb_get_qmmm_forces.F90.new	2018-05-05 09:12:52.000000000 +0200
 @@ -44,6 +44,7 @@
  
  !  do i = 1,qmmm_struct%nquant_nlink
@@ -20,8 +20,8 @@
       qmx = qmmm_struct%qm_coords(1,i)
       qmy = qmmm_struct%qm_coords(2,i)
 
---- qm2_get_qmmm_forces.F90	2017-08-01 04:27:51.000000000 +0200
-+++ new/qm2_get_qmmm_forces.F90	2018-05-05 09:07:08.000000000 +0200
+--- qm2_get_qmmm_forces.F90	2019-01-15 09:48:54.000000000 +0100
++++ qm2_get_qmmm_forces.F90.new	2018-05-05 09:12:52.000000000 +0200
 @@ -81,6 +81,8 @@
           s_atom   = (n_atomic_orb==1)         
           sp_atom  = (n_atomic_orb==4)
@@ -32,8 +32,8 @@
           fqm(1:3)=0.0d0
  ! Split into heavy and light atoms here - means code duplication but is good for speed.
 
---- qm2_hcore_qmmm.F90	2017-08-01 04:27:51.000000000 +0200
-+++ new/qm2_hcore_qmmm.F90	2018-05-05 09:07:00.000000000 +0200
+--- qm2_hcore_qmmm.F90	2019-01-15 09:48:54.000000000 +0100
++++ qm2_hcore_qmmm.F90.new	2018-05-05 09:12:52.000000000 +0200
 @@ -57,6 +57,8 @@
  !       orb_loc(2,i) =  last atomic orbital on atom i
  ! iqm_atomic_numbers(i) =    atomic number for atom i
@@ -44,8 +44,8 @@
          sp_atom  = (qm2_params%natomic_orbs(i) ==4)        
          spd_atom = (qm2_params%natomic_orbs(i) ==9)
 
---- qm2_read_nm_and_alloc.F90	2017-08-11 21:04:33.000000000 +0200
-+++ new/qm2_read_nm_and_alloc.F90	2018-05-05 09:06:52.000000000 +0200
+--- qm2_read_nm_and_alloc.F90	2019-01-15 09:48:54.000000000 +0100
++++ qm2_read_nm_and_alloc.F90.new	2018-05-05 09:12:52.000000000 +0200
 @@ -27,7 +27,7 @@
  !+ Reads the qmmm namelist and calls the qmmm memory allocation routines
  #ifdef SQM
@@ -72,8 +72,8 @@
     if (ncharge_in > 0) then
        qmmm_struct%qm_xcrd = 0.0D0
 
---- qmmm_struct_module.F90	2017-08-01 04:27:51.000000000 +0200
-+++ new/qmmm_struct_module.F90	2018-05-05 09:05:46.000000000 +0200
+--- qmmm_struct_module.F90	2019-01-15 09:48:54.000000000 +0100
++++ qmmm_struct_module.F90.new	2018-05-05 09:12:52.000000000 +0200
 @@ -225,6 +225,8 @@
       character(len=256) :: pdb_file           ! lam81
       integer :: ntwpdb                        ! lam81
@@ -110,8 +110,8 @@
         deallocate ( self%atom_mask, stat=ier )
         REQUIRE(ier == 0)
 
---- sqm.F90	2018-05-05 09:27:30.000000000 +0200
-+++ new/sqm.F90	2018-05-05 09:28:10.000000000 +0200
+--- sqm.F90	2019-01-15 09:49:07.000000000 +0100
++++ sqm.F90.new	2019-01-15 09:11:57.000000000 +0100
 @@ -24,6 +24,7 @@
     _REAL_ born_radii(1000), one_born_radii(1000)
     _REAL_ intdiel, extdiel, Arad
@@ -281,3 +281,4 @@
     end if
  
     return
+
