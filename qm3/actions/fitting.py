@@ -171,7 +171,10 @@ def MLR( x, y, normalize = False ):
 				tt += x[j][i] * c[j+1]
 			t += ( tt - y[i] ) * ( tt - y[i] )
 		r = 1 - t / r
-		return( r, c, [ t * b[i*(k+1)+i] / ( n - k - 1.0 ) for i in range( k+1 ) ] )
+		if( n > k + 1 ):
+			return( r, c, [ t * b[i*(k+1)+i] / ( n - k - 1.0 ) for i in range( k+1 ) ] )
+		else:
+			return( r, c, None )
 
 
 

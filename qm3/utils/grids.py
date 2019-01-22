@@ -75,13 +75,14 @@ class grid( object ):
 
 
 	# Whatever the ordering ALWAYS returns: fixed_X, changing_Y
-	def parse( self, fname = None ):
+	def parse( self, fname = None, sele = "0:1:2" ):
+		s = [ int( i ) for i in sele.split( ":" ) ]
 		f = qm3.io.open_r( fname )
 		d = []
 		for l in f:
 			t = l.strip().split()
-			if( len( t ) == 3 and self.__number.match( t[0] ) and self.__number.match( t[1] ) and self.__number.match( t[2] ) ):
-				d.append( [ float( t[0] ), float( t[1] ), float( t[2] ) ] )
+			if( len( t ) >= 3 and self.__number.match( t[s[0]] ) and self.__number.match( t[s[1]] ) and self.__number.match( t[s[2]] ) ):
+				d.append( [ float( t[s[0]] ), float( t[s[1]] ), float( t[s[2]] ) ] )
 		qm3.io.close( f, fname )
 		d.sort()
 		ny = 0
@@ -110,7 +111,7 @@ class grid( object ):
 		return( [ t[i][2] for i in range( k ) ] )
 
 
-	def regular( self, fname = None, points = ( 10, 10 ), gauss = ( 0.1, 0.1 ) ):
+	def regular( self, fname = None, points = ( 10, 10 ), gauss = ( 0.1, 0.1 ), sele = "0:1:2" ):
 		def __pythag( dx, dy ):
 			x = math.fabs( dx )
 			y = math.fabs( dy )
@@ -124,13 +125,14 @@ class grid( object ):
 		min_y = None
 		max_x = None
 		max_y = None
+		s = [ int( i ) for i in sele.split( ":" ) ]
 		f = qm3.io.open_r( fname )
 		for l in f:
 			t = l.split()
-			if( len( t ) == 3 ):
-				if( self.__number.match( t[0] ) and self.__number.match( t[1] ) and self.__number.match( t[2] ) ):
-					rx = float( t[0] )
-					ry = float( t[1] )
+			if( len( t ) >= 3 ):
+				if( self.__number.match( t[s[0]] ) and self.__number.match( t[s[1]] ) and self.__number.match( t[s[2]] ) ):
+					rx = float( t[s[0]] )
+					ry = float( t[s[1]] )
 					if( min_x and min_y and max_x and max_y ):
 						min_x = min( min_x, rx )
 						min_y = min( min_y, ry )
@@ -141,7 +143,7 @@ class grid( object ):
 						min_y = ry
 						max_x = rx
 						max_y = ry
-					dat.append( [ rx, ry, float( t[2] ) ] )
+					dat.append( [ rx, ry, float( t[s[2]] ) ] )
 		qm3.io.close( f, fname )
 		dx = ( max_x - min_x ) / float( points[0] - 1.0 )
 		print( "[X] delta: %.4lf  points: %3d  range: %8.2lf / %8.2lf"%( dx, points[0], min_x, max_x ) )

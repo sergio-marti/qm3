@@ -1,0 +1,129 @@
+#!/usr/bin/env python
+# -*- coding: iso-8859-1 -*-
+from __future__ import print_function, division
+import	sys
+if( sys.version_info[0] == 2 ):
+	range = xrange
+
+import	math
+import	qm3.maths.rand
+import	qm3.maths.matrix
+import	numpy
+
+
+
+
+class OneLayer_sigmoid_softmax( object ):
+	def __init__( self, x, y, nodes ):
+		self.k = len( x[0] )
+		self.n = len( y )
+		self.o = len( set( y ) )
+		self.h = max( nodes, self.o + 1 )
+		# -- X_n,k
+		self.x = sum( x, [] )
+		# -- Y_n,o
+		self.y = [ 0 for i in range( self.n * self.o ) ]
+		for i in range( self.n ):
+			self.y[i*self.o+y[i]] = 1
+		# -- WH_k,h  / BH_h,1 / WO_h,o / BO_o,1
+		self.wh = [ qm3.maths.rand.random() for i in range( self.k * self.h ) ]
+		self.bh = [ qm3.maths.rand.random() for i in range( self.h ) ]
+		self.wo = [ qm3.maths.rand.random() for i in range( self.h * self.o ) ]
+		self.bo = [ qm3.maths.rand.random() for i in range( self.o ) ]
+
+
+	@staticmethod
+	def sig( x ):
+		return( 1.0 / ( 1.0 + math.exp( - x ) ) )
+
+
+	@staticmethod
+	def dsig( s ):
+		return( s * ( 1.0 - s ) )
+
+
+	@staticmethod
+	def softmax( M, n, o ):
+		t = [ math.exp( i ) for i in M ]
+		s = qm3.maths.matrix.mult( t, n, o, [ 1.0 ] * o, o, 1 )
+		return( qm3.maths.matrix.T( [ i / j for i,j in zip( qm3.maths.matrix.T( t, n, o ), s * o ) ], o, n ) )
+
+
+	def train( self, steps = 100000, learning_ratio = 0.001, tolerance = 1.e-8 ):
+		l = 1e99
+		for istep in range( steps ):
+			# rh_n,h
+			rh = [ self.sig( i + j ) for i,j in zip( qm3.maths.matrix.mult( self.x, self.n, self.k, self.wh, self.k, self.h ), self.bh * self.n ) ]
+			# ro_n,o
+			ro = self.softmax( [ i + j for i,j in zip( qm3.maths.matrix.mult( rh, self.n, self.h, self.wo, self.h, self.o ), self.bo * self.n ) ], self.n, self.o )
+			# ee_n,o
+			ee = [ ro[i] - self.y[i] for i in range( self.n * self.o ) ]
+			# do_h,o
+			do = qm3.maths.matrix.mult( qm3.maths.matrix.T( rh, self.n, self.h ), self.h, self.n, ee, self.n, self.o )
+			# tt_n,h
+			tt = [ self.dsig( i ) * j for i,j in zip( rh, qm3.maths.matrix.mult( ee, self.n, self.o, qm3.maths.matrix.T( self.wo, self.h, self.o ), self.o, self.h ) ) ]
+			# dh_k,h
+			dh = qm3.maths.matrix.mult( qm3.maths.matrix.T( self.x, self.n, self.k ), self.k, self.n, tt, self.n, self.h )
+			# ----
+			self.wh = [ self.wh[i] - learning_ratio * dh[i] for i in range( self.k * self.h ) ]
+			self.wo = [ self.wo[i] - learning_ratio * do[i] for i in range( self.h * self.o ) ]
+			self.bh = [ i - learning_ratio * j for i,j in zip( self.bh, qm3.maths.matrix.mult( qm3.maths.matrix.T( tt, self.n, self.h ), self.h, self.n, [ 1.0 ] * self.n, self.n, 1 ) ) ]
+			self.bo = [ i - learning_ratio * j for i,j in zip( self.bo, qm3.maths.matrix.mult( qm3.maths.matrix.T( ee, self.n, self.o ), self.o, self.n, [ 1.0 ] * self.n, self.n, 1 ) ) ]
+			o = l
+			l = - sum( [ self.y[i] * math.log( ro[i] ) for i in range( self.n * self.o ) ] )
+			if( math.fabs( l - o ) < tolerance ):
+				break
+		return( l )
+
+
+	def calc( self, x ):
+		rh = [ self.sig( i + j ) for i,j in zip( qm3.maths.matrix.mult( x, 1, self.k, self.wh, self.k, self.h ), self.bh ) ]
+		return( self.softmax( [ i + j for i,j in zip( qm3.maths.matrix.mult( rh, 1, self.h, self.wo, self.h, self.o ), self.bo ) ], 1, self.o ) )
+
+
+
+#######################################################################
+if( True ):
+	# ....................................................
+	def sigmoid(x):  
+		return( 1/(1+numpy.exp(-x)))
+	# ....................................................
+	def sigmoid_der(x):  
+		return( sigmoid(x)*(1-sigmoid(x)) )
+	# ....................................................
+	def softmax(A):  
+		expA = numpy.exp(A)
+		return( expA / expA.sum(axis=1, keepdims=True) )
+	# ....................................................
+	xx = numpy.array( x )
+	xx.reshape( (150,2) )
+	t = numpy.array( [0]*50 + [1]*50 + [2]*50 )
+	yy = numpy.zeros( (150,3) )
+	for i in range( 150 ):
+		yy[i,t[i]] = 1
+	n = xx.shape[0]  
+	k = xx.shape[1]  
+	h = 4  
+	o = 3
+	# ----------------------------------------------------
+	wh = numpy.random.rand( k, h )
+	bh = numpy.random.randn( h )
+	wo = numpy.random.rand( h, o )
+	bo = numpy.random.randn( o )
+	lr = 1.e-3
+	# ----------------------------------------------------
+	for ii in range( 100000 ):
+		zh = numpy.dot( xx, wh ) + bh
+		rh = sigmoid( zh )
+		zo = numpy.dot( rh, wo ) + bo
+		ro = softmax( zo )
+		ee = ro - yy 
+		do = numpy.dot( rh.T, ee )
+		tt = sigmoid_der( zh ) * numpy.dot( ee, wo.T )
+		dh = numpy.dot( xx.T, tt )
+		wh -= lr * dh
+		bh -= lr * tt.sum(axis=0)
+		wo -= lr * do
+		bo -= lr * ee.sum(axis=0)
+		if( ii % 1000 == 0 ):
+			print( - numpy.sum( yy * numpy.log( ro ) ) )
