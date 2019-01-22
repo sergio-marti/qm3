@@ -26,21 +26,21 @@ class Perceptron( object ):
 
 
 	@staticmethod
-	def sig( x ):
+	def fun( x ):
 		return( 1.0 / ( 1.0 + math.exp( - x ) ) )
 
 
 	@staticmethod
-	def dsig( s ):
+	def dfun( s ):
 		return( s * ( 1.0 - s ) )
 
 
 	def train( self, steps = 100000, learning_ratio = 0.01, tolerance = 1.e-8 ):
 		l = 1e99
 		for istep in range( steps ):
-			r = [ self.sig( i + self.b ) for i in qm3.maths.matrix.mult( self.x, self.n, self.k, self.w, self.k, 1 ) ]
+			r = [ self.fun( i + self.b ) for i in qm3.maths.matrix.mult( self.x, self.n, self.k, self.w, self.k, 1 ) ]
 			e = [ r[i] - self.y[i] for i in range( self.n ) ]
-			t = [ e[i] * self.dsig( r[i] ) for i in range( self.n ) ]
+			t = [ e[i] * self.dfun( r[i] ) for i in range( self.n ) ]
 			d = qm3.maths.matrix.mult( t, 1, self.n, self.x, self.n, self.k )
 			self.w = [ self.w[i] - learning_ratio * d[i] for i in range( self.k ) ]
 			self.b -= learning_ratio * sum( t )
@@ -52,7 +52,7 @@ class Perceptron( object ):
 
 
 	def calc( self, x ):
-		return( self.sig( sum( [ x[i] * self.w[i] for i in range( self.k ) ] ) + self.b ) )
+		return( self.fun( sum( [ x[i] * self.w[i] for i in range( self.k ) ] ) + self.b ) )
 
 
 
