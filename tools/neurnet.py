@@ -31,16 +31,19 @@ class Perceptron( object ):
 
 
 	@staticmethod
-	def dfun( s ):
-		return( s * ( 1.0 - s ) )
+	def dfun( x ):
+		def f( x ):
+			return( 1 / ( 1 + math.exp( - x ) ) )
+		return( f( x ) * ( 1 - f( x ) ) )
 
 
 	def train( self, steps = 100000, learning_ratio = 0.01, tolerance = 1.e-8 ):
 		l = 1e99
 		for istep in range( steps ):
-			r = [ self.fun( i + self.b ) for i in qm3.maths.matrix.mult( self.x, self.n, self.k, self.w, self.k, 1 ) ]
+			z = [ i + self.b for i in qm3.maths.matrix.mult( self.x, self.n, self.k, self.w, self.k, 1 ) ]
+			r = [ self.fun( i ) for i in z ]
 			e = [ r[i] - self.y[i] for i in range( self.n ) ]
-			t = [ e[i] * self.dfun( r[i] ) for i in range( self.n ) ]
+			t = [ e[i] * self.dfun( z[i] ) for i in range( self.n ) ]
 			d = qm3.maths.matrix.mult( t, 1, self.n, self.x, self.n, self.k )
 			self.w = [ self.w[i] - learning_ratio * d[i] for i in range( self.k ) ]
 			self.b -= learning_ratio * sum( t )
