@@ -116,7 +116,7 @@ static PyObject* qm3_get_func( PyObject *self, PyObject *args ) {
 			coor[i] = PyFloat_AsDouble( PyList_GetItem( otmp, i ) );
 		Py_DECREF( otmp );
 
-		(*(obj->qm3_update_coor))(coor);
+//		(*(obj->qm3_update_coor))(coor);
 		(*(obj->qm3_get_func))(coor, &func);
 
 		otmp = PyObject_GetAttrString( omol, "func" );
@@ -148,7 +148,7 @@ static PyObject* qm3_get_grad( PyObject *self, PyObject *args ) {
 			coor[i] = PyFloat_AsDouble( PyList_GetItem( otmp, i ) );
 		Py_DECREF( otmp );
 
-		(*(obj->qm3_update_coor))(coor);
+//		(*(obj->qm3_update_coor))(coor);
 		(*(obj->qm3_get_grad))(coor, &func, grad);
 
 		otmp = PyObject_GetAttrString( omol, "func" );
