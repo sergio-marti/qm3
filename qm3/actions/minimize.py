@@ -165,6 +165,52 @@ def steepest_descent( obj,
 
 
 
+def adam( obj, 
+				step_number = 100,
+				step_size = 0.1,
+				print_frequency = 10,
+				gradient_tolerance = 10.0,
+				log_function = default_log ):
+	log_function( "---------------------------------------- Minimization (ADAM)\n" )
+	log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
+	log_function( "Step Number:        %20d"%( step_number ) )
+	log_function( "Step Size:          %20.10lg"%( step_size ) )
+	log_function( "Print Frequency:    %20d"%( print_frequency ) )
+	log_function( "Gradient Tolerance: %20.10lg\n"%( gradient_tolerance ) )
+	obj.get_grad()
+	norm, grms = __grms( obj.grad )
+	beta = 0.9
+	gamm = 0.999
+	epsi = 1.e-8
+	log_function( "%10s%20s%20s"%( "Step", "Function", "Gradient" ) )
+	log_function( "-" * 50 )
+	log_function( "%10s%20.5lf%20.8lf"%( "", obj.func, grms ) )
+	v = [ 0.0 for i in range( obj.size ) ]
+	s = [ 0.0 for i in range( obj.size ) ]
+	i = 0
+	while( i < step_number and grms > gradient_tolerance ):
+		# -- perform step
+		v = [ beta * v[j] + ( 1.0 - beta ) * obj.grad[j] for j in range( obj.size ) ]
+		s = [ gamm * s[j] + ( 1.0 - gamm ) * obj.grad[j] * obj.grad[j] for j in range( obj.size ) ]
+		pbet = 1.0 / ( 1.0 - math.pow( beta, i + 1 ) )
+		pgam = 1.0 / ( 1.0 - math.pow( gamm, i + 1 ) )
+		for j in range( obj.size ):
+			v[j] = beta * v[j] + ( 1.0 - beta ) * obj.grad[j]
+			s[j] = gamm * s[j] + ( 1.0 - gamm ) * obj.grad[j] * obj.grad[j]
+			obj.coor[j] -= step_size * v[j] * pbet / ( math.sqrt( s[j] * pgam ) + epsi )
+		# -- check new point
+		obj.get_grad()
+		norm, grms = __grms( obj.grad )
+		i = i + 1
+		if( i%print_frequency == 0 ):
+			log_function( "%10d%20.5lf%20.10lf"%( i, obj.func, grms ) )
+		obj.current_step( i )
+	if( i%print_frequency != 0 ):
+		log_function( "%10d%20.5lf%20.10lf"%( i + 1, obj.func, grms ) )
+	log_function( "-" * 50 )
+
+
+
 def fire( obj,
 			step_number = 100,
 			step_size = 0.1,

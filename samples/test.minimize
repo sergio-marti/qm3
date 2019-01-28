@@ -33,5 +33,10 @@ qm3.actions.minimize.steepest_descent( obj, step_number = 1000, print_frequency 
 print( obj.coor )
 
 obj.coor = [ -1.1067, 0.8016 ]
+qm3.actions.minimize.adam( obj, step_number = 1000, print_frequency = 10,
+    step_size = 0.1, gradient_tolerance = 0.1 )
+print( obj.coor )
+
+obj.coor = [ -1.1067, 0.8016 ]
 qm3.actions.minimize.downhill( obj )
 print( obj.coor )
