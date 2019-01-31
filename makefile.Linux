@@ -26,7 +26,7 @@ volume:
 
 
 grids:
-	$(PYX) setup.grids build_ext --build-lib qm3/utils
+	$(PYX) setup.grids build_ext --build-lib qm3/maths
 
 
 plumed:
