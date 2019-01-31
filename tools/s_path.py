@@ -3,7 +3,7 @@
 import	sys
 import	qm3.actions.paths
 import	qm3.maths.interpolation
-import	qm3.utils.grids
+import	qm3.maths.grids
 
 class pmf2d:
 	def __init__( self, data ):
@@ -13,8 +13,8 @@ class pmf2d:
 		self.coor = [ 0, 0 ]
 		self.grad = [ 0, 0 ]
 		self.hess = [ 0, 0, 0 ]
-		self.grid = qm3.utils.grids.grid( data, qm3.maths.interpolation.cubic_spline )
-#		self.grid = qm3.utils.grids.grid( data, lambda x,y: qm3.maths.interpolation.hermite_spline( x, y, "akima" ) )
+		self.grid = qm3.maths.grids.grid( data, qm3.maths.interpolation.cubic_spline )
+#		self.grid = qm3.maths.grids.grid( data, lambda x,y: qm3.maths.interpolation.hermite_spline( x, y, "akima" ) )
 		self.fd = None
 
 	def current_step( self, istep ):
