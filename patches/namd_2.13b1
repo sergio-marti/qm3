@@ -58,7 +58,7 @@
  #include "ProcessorPrivate.h"
  
  #define MIN_DEBUG_LEVEL 3
-@@ -923,6 +927,14 @@
+@@ -923,6 +927,15 @@
  
    }
  
@@ -67,13 +67,14 @@
 +	if( shmid > 0 ) {
 +		FILE *fd = fopen( "namd.shmid", "wt" );
 +		fprintf( fd, "%d", shmid );
++		fflush( fd );
 +		fclose( fd );
 +	}
 +
    startupPhase++;
    if (!CkMyPe()) {
      if (!gotoRun) {
-@@ -1163,21 +1175,28 @@
+@@ -1163,21 +1176,28 @@
    delete msg;
  }
  
