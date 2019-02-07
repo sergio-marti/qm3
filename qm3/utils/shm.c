@@ -41,7 +41,11 @@ static PyObject* __read( PyObject *self, PyObject *args ){
 
 	if( PyArg_ParseTuple( args, "ii", &xid, &siz ) ) {
 		mem = (char*) shmat( xid, 0, 0 );
+#if PY_MAJOR_VERSION >= 3
+		out = Py_BuildValue( "y#", (unsigned char*) mem, siz );
+#else
 		out = Py_BuildValue( "s#", mem, siz );
+#endif
 		shmdt( mem );
 		return( out );
 	}
