@@ -544,14 +544,14 @@ class my_problem( qm3.problem.template ):
 		time.sleep( 10 )
 		self.e%02d = %s()
 """%( who, key ) )
-				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
+				qcl = """\t\tself.e%02d.update_chrg( self.mole )\n"""%( who )
 
 			# PY_DYNAMO
 			if( knd == "py_dynamo" ):
 				f.write( """
 		self.e%02d = %s( "./dynamo.so" )
 """%( who, key ) )
-				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
+				qcl = """\t\tself.e%02d.update_chrg( self.mole )\n"""%( who )
 
 			# NAMD
 			if( knd == "namd" ):
@@ -560,7 +560,7 @@ class my_problem( qm3.problem.template ):
 		self.e%02d.exe = "bash r.namd"
 		self.mole.psf_read( "%s" )
 """%( who, key, who, obj["psf"] ) )
-				qcl = """\t\tself.e%02d.update_charges( self.mole, "%s" )\n"""%( who, obj["psf"] )
+				qcl = """\t\tself.e%02d.update_chrg( self.mole, "%s" )\n"""%( who, obj["psf"] )
 	
 			# NAMD_PIPE / NAMD_SHM
 			if( knd in [ "namd_pipe", "namd_shm" ] ):
@@ -575,7 +575,7 @@ class my_problem( qm3.problem.template ):
 		self.e%02d = %s()
 		self.mole.psf_read( "%s" )
 """%( who, key, obj["psf"] ) )
-				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
+				qcl = """\t\tself.e%02d.update_chrg( self.mole )\n"""%( who )
 
 			# NAMD / NAMD_PIPE / NAMD_SHM
 			if( knd in [ "namd", "namd_pipe", "namd_shm" ] ):
@@ -598,7 +598,7 @@ class my_problem( qm3.problem.template ):
 		self.e%02d.exe = "bash r.sander"
 		qm3.sander.topology_read( self.mole, "prmtop" )
 """%( who, key, who ) )
-				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
+				qcl = """\t\tself.e%02d.update_chrg( self.mole )\n"""%( who )
 	
 			# PY_SANDER
 			if( knd == "py_sander" ):
@@ -628,7 +628,7 @@ class my_problem( qm3.problem.template ):
 		self.e%02d = %s( "charmm.inp" )
 		time.sleep( 10 )
 """%( who, key ) )
-				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
+				qcl = """\t\tself.e%02d.update_chrg( self.mole )\n"""%( who )
 
 			# CHARMM_SHM
 			if( knd == "charmm_shm" ):
@@ -641,7 +641,7 @@ class my_problem( qm3.problem.template ):
 		os.system( "bash r.charmm &" )
 		self.e%02d = %s( "charmm.inp" )
 """%( who, key ) )
-				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
+				qcl = """\t\tself.e%02d.update_chrg( self.mole )\n"""%( who )
 
 			# LAMMPS
 			if( knd == "lammps" ):
@@ -649,7 +649,7 @@ class my_problem( qm3.problem.template ):
 		self.e%02d = %s( "lammps.inp" )
 		self.e%02d.exe = "bash r.lammps"
 """%( who, key, who ) )
-				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
+				qcl = """\t\tself.e%02d.update_chrg( self.mole )\n"""%( who )
 	
 			# LAMMPS_PIPE
 			if( knd == "lammps_pipe" ):
@@ -663,14 +663,14 @@ class my_problem( qm3.problem.template ):
 		self.e%02d = %s( "lammps.inp" )
 		time.sleep( 10 )
 """%( who, key ) )
-				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
+				qcl = """\t\tself.e%02d.update_chrg( self.mole )\n"""%( who )
 	
 			# PY_LAMMPS
 			if( knd == "py_lammps" ):
 				f.write( """
 		self.e%02d = %s( "lammps.inp" )
 """%( who, key ) )
-				qcl = """\t\tself.e%02d.update_charges( self.mole )\n"""%( who )
+				qcl = """\t\tself.e%02d.update_chrg( self.mole )\n"""%( who )
 
 			# Common QM engines
 			if( knd in [ "dftb", "dl_dftb", "sqm", "gamess", "nwchem", "demon", "orca", "py_psi4", 
