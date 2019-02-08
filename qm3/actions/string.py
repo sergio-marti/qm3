@@ -20,6 +20,7 @@ import	qm3.utils._mpi
 def string_distribute( ncrd, nwin, rcrd, rmet, interpolant = qm3.maths.interpolation.hermite_spline ):
 	nc2 = ncrd * ncrd
 	arc = [ 0.0 ]
+	inv = []
 	for i in range( 1, nwin ):
 # -----------------------------------------------------------------
 		if( rmet == None ):
@@ -28,6 +29,7 @@ def string_distribute( ncrd, nwin, rcrd, rmet, interpolant = qm3.maths.interpola
 			# use the metric tensor for arc length calculation (eq 7 @ 10.1002/jcc.23673)
 			tmp = [ rcrd[i*ncrd+j] - rcrd[(i-1)*ncrd+j] for j in range( ncrd ) ]
 			mat = qm3.maths.matrix.inverse( [ 0.5 * ( rmet[i*nc2+j] + rmet[(i-1)*nc2+j] ) for j in range( nc2 ) ], ncrd, ncrd )
+			inv += mat[:]
 			mat = qm3.maths.matrix.mult( mat, ncrd, ncrd, tmp, ncrd, 1 )
 			arc.append( arc[i-1] + math.sqrt( sum( [ tmp[j] * mat[j] for j in range( ncrd ) ] ) ) )
 # -----------------------------------------------------------------
@@ -41,7 +43,7 @@ def string_distribute( ncrd, nwin, rcrd, rmet, interpolant = qm3.maths.interpola
 		eng = interpolant( arc, tmp )
 		for j in range( 1, nwin - 1 ):
 			out[j*ncrd+i] = eng.calc( ind[j] )[0]
-	return( out, arc[-1] )
+	return( out, inv, arc[-1] )
 
 
 
@@ -288,7 +290,7 @@ kumb ~ 3000
 				tmp_c += qm3.utils._mpi.recv_r8( i, self.ncrd )
 				tmp_m += qm3.utils._mpi.recv_r8( i, self.ncrd * self.ncrd )
 			# re-parametrize string
-			tmp_c = string_distribute( self.ncrd, self.nwin, tmp_c, tmp_m )[0]
+			tmp_c, tmp_i = string_distribute( self.ncrd, self.nwin, tmp_c, tmp_m )[0:1]
 			# send back new string to nodes
 			for i in range( 1, self.nwin ):
 				qm3.utils._mpi.send_r8( i, tmp_c[i*self.ncrd:(i+1)*self.ncrd] )
