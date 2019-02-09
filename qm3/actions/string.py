@@ -301,7 +301,7 @@ kumb ~ 3000
 			tmp_a = []
 			tmp_b = []
 			for i in range( self.nwin ):
-				tmp_i = qm3.maths.matrix.inverse( [ tmp_m[i*ncrd2+j] for j in range( ncrd2 ) ], ncrd, ncrd )
+				tmp_i = qm3.maths.matrix.inverse( [ tmp_m[i*ncrd2+j] for j in range( ncrd2 ) ], self.ncrd, self.ncrd )
 				tmp_a += [ tmp_c[i*self.ncrd+j] - self.icrd[i*self.ncrd+j] for j in range( self.ncrd ) ]
 				tmp_b += qm3.maths.matrix.mult( tmp_i, self.ncrd, self.ncrd, tmp_a[i*self.ncrd:(i+1)*self.ncrd], self.ncrd, 1 )
 			self.fcnv.write( "%20.10lf\n"%( math.sqrt( sum( [ tmp_a[i] * tmp_b[i] for i in range( self.ncrd * self.nwin ) ] ) / float( self.nwin ) ) ) )
