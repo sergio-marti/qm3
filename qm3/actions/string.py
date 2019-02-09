@@ -290,7 +290,7 @@ kumb ~ 3000
 				tmp_c += qm3.utils._mpi.recv_r8( i, self.ncrd )
 				tmp_m += qm3.utils._mpi.recv_r8( i, self.ncrd * self.ncrd )
 			# re-parametrize string
-			tmp_c, tmp_i = string_distribute( self.ncrd, self.nwin, tmp_c, tmp_m )[0:1]
+			tmp_c, tmp_i, tmp_a = string_distribute( self.ncrd, self.nwin, tmp_c, tmp_m )
 			# send back new string to nodes
 			for i in range( 1, self.nwin ):
 				qm3.utils._mpi.send_r8( i, tmp_c[i*self.ncrd:(i+1)*self.ncrd] )
