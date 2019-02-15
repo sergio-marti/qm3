@@ -11,6 +11,10 @@ import	qm3.elements
 import	os
 import	stat
 import	struct
+try:
+	import cPickle as pickle
+except:
+	import pickle
 
 
 
@@ -637,3 +641,83 @@ def manage_hessian( coor, grad, hess, should_update = False, update_func = updat
 
 
 
+
+# -*- coding: iso-8859-1 -*-
+
+from __future__ import print_function, division
+import	sys
+if( sys.version_info[0] == 2 ):
+	range = xrange
+
+import	os
+import	qm3.elements
+try:
+	import cPickle as pickle
+except:
+	import pickle
+
+
+
+# ----------------------------------------------------------------------------------
+# Exclussions
+#
+def exclussions( sele_QM, bonds = None, molec = None ):
+	if( bonds != None ):
+		bond = bonds
+		natm = 0
+		for i,j in bonds:
+			natm = max( natm, max( i, j ) )
+		natm += 1
+	elif( molec != none ):
+		bond = []
+		for i in range( molec.natm - 1 ):
+			i3 = i * 3
+			ri = qm3.elements.r_cov[molec.anum[i]] + 0.05
+			for j in range( i + 1, molec.natm ):
+				if( molec.anum[i] == 1 and molec.anum[j] == 1 ):
+					continue
+				rj = qm3.elements.r_cov[molec.anum[j]] + 0.05
+				t  = ( ri + rj ) * ( ri + rj )
+				if( distanceSQ( molec.coor[i3:i3+3], molec.coor[j*3:j*3+3] ) <= t ):
+					bond.append( [ i, j ] )
+		natm = data.natm
+	else:
+		return
+	print( natm )
+	atmm = []
+	conn = []
+	for i in range( natm ):
+		atmm.append( True )
+		conn.append( [] )
+	for i in sele_QM:
+		atmm[i] = False
+	for i,j in bond:
+		conn[i].append( j )
+		conn[j].append( i )
+	latm = []
+	excl = []
+	nx12 = 0
+	nx13 = 0
+	nx14 = 0
+	for i in sele_QM:
+		for j in conn[i]:
+			if( j != i and atmm[j] ):
+				latm.append( [ i, j ] )
+				excl.append( [ i, j, 0.0 ] )
+				nx12 += 1
+			for k in conn[j]:
+				if( k != i and atmm[k] ):
+					excl.append( [ i, k, 0.0 ] )
+					nx13 += 1
+				for l in conn[k]:
+					if( k != i and l != j and l != i and atmm[l] ):
+						excl.append( [ i, l, 0.5 ] )
+						nx14 += 1
+	f = open( "sele_LA.pk", "wb" )
+	pickle.dump( latm, f )
+	f.close()
+	excl.sort()
+	f = open( "sele_EX.pk", "wb" )
+	pickle.dump( excl, f )
+	f.close()
+	print( ">> %d exclussions generated (1-2:%d, 1-3:%d, 1-4:%d)"%( nx12 + nx13 + nx14, nx12, nx13, nx14 ) )
