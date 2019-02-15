@@ -105,8 +105,7 @@ def topology_read( mol, fname ):
 		f.read( 4 )
 		f.read( struct.unpack( "i", f.read( 4 ) )[0] + 4 )
 		f.read( 4 )
-		c = 0.25 / 4.184
-		mol.epsi = [ i*i*c for i in struct.unpack( "%dd"%( mol.natm ), f.read( 8 * mol.natm ) ) ]
+		mol.epsi = [ i*0.5 for i in struct.unpack( "%dd"%( mol.natm ), f.read( 8 * mol.natm ) ) ]
 		f.read( 4 )
 		f.read( struct.unpack( "i", f.read( 4 ) )[0] + 4 )
 		f.read( 4 )
