@@ -640,24 +640,6 @@ def manage_hessian( coor, grad, hess, should_update = False, update_func = updat
 	
 
 
-
-
-# -*- coding: iso-8859-1 -*-
-
-from __future__ import print_function, division
-import	sys
-if( sys.version_info[0] == 2 ):
-	range = xrange
-
-import	os
-import	qm3.elements
-try:
-	import cPickle as pickle
-except:
-	import pickle
-
-
-
 # ----------------------------------------------------------------------------------
 # Exclussions
 #
@@ -668,22 +650,51 @@ def exclussions( sele_QM, bonds = None, molec = None ):
 		for i,j in bonds:
 			natm = max( natm, max( i, j ) )
 		natm += 1
-	elif( molec != none ):
+	elif( molec != None ):
 		bond = []
-		for i in range( molec.natm - 1 ):
-			i3 = i * 3
-			ri = qm3.elements.r_cov[molec.anum[i]] + 0.05
-			for j in range( i + 1, molec.natm ):
-				if( molec.anum[i] == 1 and molec.anum[j] == 1 ):
-					continue
-				rj = qm3.elements.r_cov[molec.anum[j]] + 0.05
-				t  = ( ri + rj ) * ( ri + rj )
-				if( distanceSQ( molec.coor[i3:i3+3], molec.coor[j*3:j*3+3] ) <= t ):
-					bond.append( [ i, j ] )
-		natm = data.natm
+		x = len( molec.res_lim )
+		for l in range( len( molec.seg_lim ) - 1 ):
+			for i in range( molec.seg_lim[l], molec.seg_lim[l+1] ):
+				for j in range( molec.res_lim[i], molec.res_lim[i+1] - 1 ):
+					j3 = j * 3
+					rj = qm3.elements.r_cov[molec.anum[j]] + 0.05
+					# current residue
+					for k in range( j+1, molec.res_lim[i+1] ):
+						if( molec.anum[j] == 1 and molec.anum[k] == 1 ):
+							continue
+						rk = qm3.elements.r_cov[molec.anum[k]] + 0.05
+						t  = ( rj + rk ) * ( rj + rk )
+						if( distanceSQ( molec.coor[j3:j3+3], molec.coor[k*3:k*3+3] ) <= t ):
+							bond.append( [ j, k ] )
+					# i+1 one
+					if( i+2 < x ):
+						for k in range( molec.res_lim[i+1], molec.res_lim[i+2] ):
+							if( molec.anum[j] == 1 and molec.anum[k] == 1 ):
+								continue
+							rk = qm3.elements.r_cov[molec.anum[k]] + 0.05
+							t  = ( rj + rk ) * ( rj + rk )
+							if( distanceSQ( molec.coor[j3:j3+3], molec.coor[k*3:k*3+3] ) <= t ):
+								bond.append( [ j, k ] )
+# -- scales: n*(n-1)/2   ----------------------------------------------------------------
+#		for i in range( molec.natm - 1 ):
+#			i3 = i * 3
+#			ri = qm3.elements.r_cov[molec.anum[i]] + 0.05
+#			for j in range( i + 1, molec.natm ):
+#				if( molec.anum[i] == 1 and molec.anum[j] == 1 ):
+#					continue
+#				rj = qm3.elements.r_cov[molec.anum[j]] + 0.05
+#				t  = ( ri + rj ) * ( ri + rj )
+#				if( distanceSQ( molec.coor[i3:i3+3], molec.coor[j*3:j*3+3] ) <= t ):
+#					bond.append( [ i, j ] )
+# ---------------------------------------------------------------------------------------
+		f = open( "mierda", "wt" )
+		f.write( str( len( bond ) ) + "\n" )
+		for i,j in bond:
+			f.write( "%12d%12d\n"%( i+1, j+1 ) )
+		f.close()
+		natm = molec.natm
 	else:
 		return
-	print( natm )
 	atmm = []
 	conn = []
 	for i in range( natm ):
