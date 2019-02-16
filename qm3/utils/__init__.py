@@ -687,11 +687,6 @@ def exclussions( sele_QM, bonds = None, molec = None ):
 #				if( distanceSQ( molec.coor[i3:i3+3], molec.coor[j*3:j*3+3] ) <= t ):
 #					bond.append( [ i, j ] )
 # ---------------------------------------------------------------------------------------
-		f = open( "mierda", "wt" )
-		f.write( str( len( bond ) ) + "\n" )
-		for i,j in bond:
-			f.write( "%12d%12d\n"%( i+1, j+1 ) )
-		f.close()
 		natm = molec.natm
 	else:
 		return
