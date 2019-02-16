@@ -11,6 +11,8 @@ except:
 	import	pickle
 
 
+#arguments: system.PSF QMSelection.pickled
+
 f = open( sys.argv[1], "rt" )
 # header
 f.readline(); f.readline()
