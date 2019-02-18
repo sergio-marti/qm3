@@ -7,7 +7,7 @@ Basic (and inefficient) implementation of the Fourier series\footnote{https://en
 a_n = \frac{2}{T} \int_{-T/2}^{T/2}  f(t) \cos \left( \frac{2n \pi}{T} t \right) dt \quad;\quad
 b_n = \frac{2}{T} \int_{-T/2}^{T/2} f(t) \sin \left(\frac{2n\pi}{T}t\right) dt
 \end{align*}
-This utility would belong to the interpolation tools.
+This utility would fit into the interpolation tools.
 \begin{pyglist}[language=python,fvset={frame=single}]
 class series( size, x, y, interpolant = interpolation.hermite_spline )
     def integrate()

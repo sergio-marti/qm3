@@ -55,6 +55,9 @@ def update_bofill( dx, dg, hess )
 
 def manage_hessian( coor, grad, hess, should_update = False, update_func = update_bofill,
     dump_name = "update.dump" )
+
+def connectivity( molec, quick = True )
+def exclussions( sele_QM, bonds = None, molec = None )
 \end{pyglist}
 The functions \func{distance}, \func{angle} and \func{dihedral} provide the corresponding geometric
 terms from the different coordinates (3-items lists) supplied as parameters. They are, indeed, wrappers
@@ -68,7 +71,9 @@ Both \func{superimpose\_quaternion} and \func{superimpose\_kabsch} modifies the 
 The function \func{rotate} allows to clockwise-rotate the coordinates \parm{coor} along the (un-normalized) axis rotation \parm{axis}, centered on \parm{center}, an amount of \parm{theta} degrees.\\
 \func{project\_RT\_modes} (which makes use of \func{get\_RT\_modes}) allows to project the \textbf{six} rotational (3R) and translational (3T) modes out
 of the gradient vector (\parm{grad} ≠ \parm{None}) or the hessian matrix (\parm{hess} ≠ \parm{None}), once provided a coordinates list (\parm{coor}) and a mass list (\parm{mass}). In a similar way, \func{raise\_hessian\_RT} displaces the RT modes to a larger eigenvalues, thus avoiding them to interfere with the vibrational ones (in a TS search, for example). These functions are mainly used by \func{hessian\_frequencies}, which provides the frequencies (in $cm^{-1}$) and the normal modes (in $(g/mol)^{-1/2}$) of the hessian matrix. This information can be afterwards used by the \func{force\_constants} and \func{normal\_mode\_view} functions. The first one, returns the reduced masses (in g/mol) and the force constants (in mDyne/Å) of each normal mode; meanwhile the second one generates an XYZ file (\parm{nmode}.who) containing the animation of the normal mode. Also related with the hessian analysis, the funcion \func{gibbs\_rrho} evaluates the Gibbs free energy contribution derived from the R.R.H.O. approximation, returning both the ZPE and the Gibbs energies (in kJ/mol). Finally, the \func{sub\_hessian} function returns a 6x6 portion of the hessian for a given couple of atoms (\parm{atm\_I} and \parm{atm\_J}).\\
-The last block of functions are related to the hessian matrix management (\func{manage\_hessian}) and its updating from a previous one and current coordinates and gradient (\func{update\_}*).
+The last block of functions are related to the hessian matrix management (\func{manage\_hessian}) and its updating from a previous one and current coordinates and gradient (\func{update\_}*).\\
+Finally, \func{connectivity} returns a list of bonds detected in the molecule. If the parameter \parm{quick} is set to True, it searches for connections (distances smaller than the sum of covalent radiis plus a threshold of 0.1 Å), by chain within a residue and the next one. Otherwise, searches for connections among all atoms (which scales to $N \cdot (N-1)/2$, it will try to use the threaded version of the algorithm implemented in the binary module \_utils.so). The function
+\func{exclussions} detects QM-MM boundaries from a QM selection (\parm{sele\_QM}) and a list of bonds (\parm{bonds}, [[i,j],...]) or a molecule object (\parm{molec}, bonds are auto-detected). It generates two pickled files: one for the Link-Atoms ("sele\_LA.pk": [[QM,MM],...]) and other for the QMMM 1-2 (0.0), 1-3 (0.0) and 1-4 (0.5) exclussions ("sele\_EX.pk", see \_qmmm.so engine module).
 \footnotesize
 \begin{pyglist}[language=python,fvset={frame=single}]
 import qm3.utils

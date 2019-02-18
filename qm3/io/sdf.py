@@ -10,14 +10,15 @@ try:
 except:
 	import	urllib.request as ulib
 
+import	qm3.mol
 import	qm3.io
 
 
 ###################################################################################################
 # SDF
 #
-def sdf_read( mol, fname = None ):
-	mol.initialize()
+def sdf_read( fname = None ):
+	mol = qm3.mol.molecule()
 	f = qm3.io.open_r( fname )
 	for i in range( 4 ):
 		l = f.readline()
@@ -31,6 +32,7 @@ def sdf_read( mol, fname = None ):
 		mol.coor += [ float( j ) for j in t[0:3] ]
 	qm3.io.close( f, fname )
 	mol.settle()
+	return( mol )
 
 
 def db_download( code ):
@@ -41,11 +43,10 @@ def db_download( code ):
 		r = ulib.Request( "http://www.chemspider.com/FilesHandler.ashx?type=str&3d=yes&id=" + mid )
 #	r = ulib.Request( "https://cactus.nci.nih.gov/chemical/structure/%s/file?format=sdf&get3d=True"%( mol_id ) )
 	f = ulib.urlopen( r )
-	out = qm3.mol.molecule()
 	try:
-		sdf_read( out, f )
+		mol = sdf_read( f )
 	except:
 		print( "No 3D-structure found..." )
 	f.close()
-	return( out )
+	return( mol )
 

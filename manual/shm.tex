@@ -1,7 +1,10 @@
 \normalsize
 \subsection[\_shm]{\_shm.so}
-This binary module (must be compiled) provides basic SHM functionality within python. \\
-Any python script using
+This binary module (must be compiled) provides basic SHM functionality within python.\\
+The shared memory can be reserved via python script (\func{alloc}) or directly accessed once known the allocation identifier (\parm{shmid}).
+The main purpose of this module is to speed-up the communication layer with third party programs (engines), removing the need for
+physical files (SHM works directly on RAM) to communicate with the external engines (ie, updating partial charges, coordinates, gradients, ...).\\
+It provides 2 basic mechanisms: \parm{read}/\parm{write} in which binary strings (bytes) are managed (and parsed/generated using the struct.pack/unpack mechanism), or direct acces to lists of floats (\parm{read\_r8}/\parm{write\_r8}).
 \begin{pyglist}[language=python,fvset={frame=single}]
 shmid = _shm.alloc( size_in_bytes )
 

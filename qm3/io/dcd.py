@@ -133,7 +133,7 @@ class dcd( object ):
 			self._F.close()
 
 
-	def write( self, fname, natoms, sele = [] ):
+	def write( self, fname, natoms, sele = None ):
 		self.__init__()
 		self._W = fname
 		self._C = 0
@@ -147,7 +147,7 @@ class dcd( object ):
 		self._F.write( struct.pack( "i", 0 ) )
 		self._F.write( struct.pack( "i", 0 ) )
 		self.N = natoms
-		if( sele != [] and len( sele ) < self.N ):
+		if( sele != None and len( sele ) < self.N ):
 			self._S = sele[:]
 			self._n = len( sele )
 			f = self.N - self._n

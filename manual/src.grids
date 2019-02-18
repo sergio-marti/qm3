@@ -1,24 +1,26 @@
 \normalsize
 \subsection[grids]{grids.py}
-This module provides basic workout for grids, providing the following functions:
+This module provides basic workout for grids, through the class \func{grid} and its methods.
 
 \begin{pyglist}[language=python,fvset={frame=single}]
-# returns Z into: fixed_X, changing_Y
-def parse( fname )
 
-# Transforms Z into: changing_X, fixed_Y
-def rotate( x, y, z )
+class grid( fname = None, interpolant = qm3.maths.interpolation.cubic_spline )
+    def calc( rx, ry )
 
-def regular( fname, points = ( 10, 10 ), gauss = ( 0.1, 0.1 ) )
+    # returns Z into: fixed_X, changing_Y
+    def parse( fname = None, sele = "0:1:2" )
 
-def save( fname, x, y, z )
+    # Transforms Z into: changing_X, fixed_Y
+    def rotate()
 
-def get_ranges( fname )
+    def regular( fname, points = ( 10, 10 ), gauss = ( 0.1, 0.1 ), sele = "0:1:2" )
 
-def plot_3D( x, y, z )
+    def save( fname = None )
+
+    def plot()
 \end{pyglist}
 
-The \func{parse} function expects the data to be arranged by blocks of 3 columns, and 
+The \func{parse} method expects the data to be arranged by blocks of at least 3 columns (which ones can be selected using the \parm{sele} parameter), and 
 whatever the initial ordering, it \textbf{always} returns data \textbf{sorted} and
 with the format \textbf{fixed\_X}, \textbf{changing\_Y}.
 On the other hand, the data must be initially \textbf{regular}:
@@ -37,13 +39,16 @@ On the other hand, the data must be initially \textbf{regular}:
           8.917474          9.999696        156.757517
 \end{pyglist}
 
-If it is not the case (the grid is not regular), this can be fixed using the \func{regular} function,
+If it is not the case (the grid is not regular), this can be fixed using the \func{regular} method,
 which includes a gaussian smoothing of the points, once the X and Y intervals have beed determined
-(by parsing the data and obtaining $d\xi = \frac{max_\xi - min_\xi}{points_\xi}$).
-Both functions return 3 lists with the minimimal range of X, Y and Z.
+(by parsing the data and obtaining $d\xi = \frac{max_\xi - min_\xi}{points_\xi}$). The gaussian smoothing
+can be accelerated if the corresponind binary module is available (\_grids.so).
 
-The function \func{plot\_3D} is only available whenever \textbf{matplotlib.pyplot}, \textbf{mplot3d} and \textbf{numpy} modules
-are already installed on the system.
+The method \func{plot} is only available whenever \textbf{matplotlib.pyplot}, \textbf{mplot3d} and \textbf{numpy} modules
+are already available on the system (set the environment variable \textbf{QM3\_MPLOT3D} properly).
+
+The \func{calc} method provides an interpolated estimation of a (x,y) pair on the surface. The default interpolant
+(cubic\_spline) can be changed during the creation of the grid object.
 
 \footnotesize
 \begin{pyglist}[language=python,fvset={frame=single}]

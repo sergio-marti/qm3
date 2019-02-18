@@ -6,7 +6,7 @@ LAP = lapack_deps.o
 #LAP = -L$(MKL)/lib -Wl,-rpath,$(MKL)/lib -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
 
 
-all: matrix minimize cions volume colvar_v qmmm mol_mech ode fitpack grids dynamo shm
+all: matrix minimize cions volume colvar_v qmmm mol_mech ode fitpack grids dynamo shm conn
 
 
 cions:
@@ -23,6 +23,10 @@ shm:
 
 volume:
 	$(PYX) setup.volume build_ext --build-lib qm3/utils
+
+
+conn:
+	$(PYX) setup.conn build_ext --build-lib qm3/utils
 
 
 grids:

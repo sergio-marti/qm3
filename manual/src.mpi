@@ -6,12 +6,12 @@ this module should be run via \func{mpirun}/\func{mpiexec}. Within the script, a
 it recovers the number of the current process (\parm{node}) and the total amount of running/launched processes (\parm{ncpu}).
 There are four functions available for sharing data: two for sending and receiving lists of integers (\func{send\_i4} and \func{recv\_i4}),
 and two for floats (\func{send\_r8} and \func{recv\_r8}). The first parameter of the send-functions accounts for
- the process number the information is going to be sended to; followed by the list of data (use [ x ] for sending a single variable).
+ the process number the information is going to be sended to; followed by the \textbf{list} of data (use [ x ] for sending a single variable).
 While for receiving data, the first
 parameter is the process number from which the data is going to be received, followed by the expected size (\parm{siz}) of the list.
 Finally, there is a basic synchronization function (\func{barrier}) to force the processes for waiting each other (the "barrier" is
 "lift" once all processes call the function).
-At the end, the script should be finalized with the \func{stop} call.
+At the end, the script should be finalized with a \func{stop} call.
 
 \begin{pyglist}[language=python,fvset={frame=single}]
 node, ncpu = _mpi.init()

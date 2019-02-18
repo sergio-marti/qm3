@@ -1,5 +1,5 @@
 \normalsize
-\subsection[_lammps]{_lammps.py}
+\subsection[\_lammps]{\_lammps.py}
 
 \begin{pyglist}[language=python,fvset={frame=single}]
 def lammps_read( fname = "data" )

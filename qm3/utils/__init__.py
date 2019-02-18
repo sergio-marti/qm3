@@ -16,6 +16,11 @@ try:
 except:
 	import pickle
 
+try:
+	import	_conn
+	conn_so = True
+except:
+	conn_so = False
 
 
 # ----------------------------------------------------------------------------------
@@ -641,16 +646,12 @@ def manage_hessian( coor, grad, hess, should_update = False, update_func = updat
 
 
 # ----------------------------------------------------------------------------------
-# Exclussions
+# Connectivity and Exclussions
 #
-def exclussions( sele_QM, bonds = None, molec = None ):
-	if( bonds != None ):
-		bond = bonds
-		natm = 0
-		for i,j in bonds:
-			natm = max( natm, max( i, j ) )
-		natm += 1
-	elif( molec != None ):
+def connectivity( molec, quick = True ):
+	# searches only by chain on current residue and with the next one ( m * n * (n-1) / 2 )
+	if( quick ):
+		print( ">> connectivity: QUICK python search..." )
 		bond = []
 		x = len( molec.res_lim )
 		for l in range( len( molec.seg_lim ) - 1 ):
@@ -675,18 +676,36 @@ def exclussions( sele_QM, bonds = None, molec = None ):
 							t  = ( rj + rk ) * ( rj + rk )
 							if( distanceSQ( molec.coor[j3:j3+3], molec.coor[k*3:k*3+3] ) <= t ):
 								bond.append( [ j, k ] )
-# -- scales: n*(n-1)/2   ----------------------------------------------------------------
-#		for i in range( molec.natm - 1 ):
-#			i3 = i * 3
-#			ri = qm3.elements.r_cov[molec.anum[i]] + 0.05
-#			for j in range( i + 1, molec.natm ):
-#				if( molec.anum[i] == 1 and molec.anum[j] == 1 ):
-#					continue
-#				rj = qm3.elements.r_cov[molec.anum[j]] + 0.05
-#				t  = ( ri + rj ) * ( ri + rj )
-#				if( distanceSQ( molec.coor[i3:i3+3], molec.coor[j*3:j*3+3] ) <= t ):
-#					bond.append( [ i, j ] )
-# ---------------------------------------------------------------------------------------
+	# all atoms: N * (N-1) / 2
+	else:
+		if( conn_so ):
+			print( ">> connectivity: FULL binary threaded search..." )
+			bond = _conn.connectivity( os.sysconf( 'SC_NPROCESSORS_ONLN' ), molec )
+		else:
+			print( ">> connectivity: FULL python sequential search..." )
+			bond = []
+			for i in range( molec.natm - 1 ):
+				i3 = i * 3
+				ri = qm3.elements.r_cov[molec.anum[i]] + 0.05
+				for j in range( i + 1, molec.natm ):
+					if( molec.anum[i] == 1 and molec.anum[j] == 1 ):
+						continue
+					rj = qm3.elements.r_cov[molec.anum[j]] + 0.05
+					t  = ( ri + rj ) * ( ri + rj )
+					if( distanceSQ( molec.coor[i3:i3+3], molec.coor[j*3:j*3+3] ) <= t ):
+						bond.append( [ i, j ] )
+	return( bond )
+
+
+def exclussions( sele_QM, bonds = None, molec = None ):
+	if( bonds != None ):
+		bond = bonds
+		natm = 0
+		for i,j in bonds:
+			natm = max( natm, max( i, j ) )
+		natm += 1
+	elif( molec != None ):
+		bond = connectivity( molec, quick = True )
 		natm = molec.natm
 	else:
 		return

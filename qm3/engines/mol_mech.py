@@ -55,23 +55,10 @@ class simple_force_field( object ):
 		self.QNA_U = []
 		self.QNA_V = []
 
-	def guess_bonds( self, mol ):
+	def guess_bonds( self, mol, quick = False ):
 		self.initialize()
 		self.natm = mol.natm
-		if( mol_mech_so ):
-			self.bond = _mol_mech.connectivity( self.ncpu, mol )
-		else:
-			self.bond = []
-			for i in range( mol.natm - 1 ):
-				i3 = i * 3
-				ri = qm3.elements.r_cov[mol.anum[i]] + 0.05
-				for j in range( i + 1, mol.natm ):
-					if( mol.anum[i] == 1 and mol.anum[j] == 1 ):
-						continue
-					rj = qm3.elements.r_cov[mol.anum[j]] + 0.05
-					t  = ( ri + rj ) * ( ri + rj )
-					if( qm3.utils.distanceSQ( mol.coor[i3:i3+3], mol.coor[j*3:j*3+3] ) <= t ):
-						self.bond.append( [ i, j ] )
+		self.bond = qm3.utils.connectivity( mol, quick )
 
 
 	def calc_connectivity( self ):

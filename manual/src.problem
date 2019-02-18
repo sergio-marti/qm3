@@ -18,7 +18,7 @@ class template()
     def num_grad( dsp = 1.e-4, central = True )
     def num_hess( dsp = 1.e-4, central = True )
 \end{pyglist}
-Apart from the \func{get\_*} methods, the class provides the corresponding variables: \func{func}, \func{grad} and \func{hess} for being read after a method call, and the variables \func{coor} and \func{size} (equal to "coor" length), which must be properly set.
+Apart from the \func{get\_*} methods, the class provides the corresponding variables: \func{func}, \func{grad} and \func{hess} for being read after a method call, and the variables \func{coor} and \func{size} (equal to "coor" length), which must be set properly.
 \footnotesize
 \begin{pyglist}[language=python,fvset={frame=single}]
 #SOURCE@../samples/test.problem

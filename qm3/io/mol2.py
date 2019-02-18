@@ -5,14 +5,15 @@ import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
 
+import	qm3.mol
 import	qm3.io
 
 
 ###################################################################################################
 # MOL2: obabel -i @@@ @@@ -o mol2
 #
-def mol2_read( mol, fname = None ):
-	mol.initialize()
+def mol2_read( fname = None ):
+	mol = qm3.mol.molecule()
 	f = qm3.io.open_r( fname )
 	l = f.readline()
 	while( l ):
@@ -41,4 +42,4 @@ def mol2_read( mol, fname = None ):
 		l = f.readline()
 	qm3.io.close( f, fname )
 	mol.settle()
-	return( bond )
+	return( mol, bond )
