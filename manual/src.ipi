@@ -2,6 +2,10 @@
 \subsection[ipi]{ipi.py}
 
 \begin{pyglist}[language=python,fvset={frame=single}]
+class ipi_problem()
+    def map_coor( coor )
+    def map_grad()
+    def connect( info )
 \end{pyglist}
 
 \footnotesize

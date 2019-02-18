@@ -10,8 +10,9 @@ import	qm3.maths.matrix
 
 try:
 	import qm3.actions._minimize
+	has_minimize_so = True
 except:
-	pass
+	has_minimize_so = False
 
 
 
@@ -393,9 +394,9 @@ def conjugate_gradient_plus( obj,
 		imeth = dmeth[method]
 	else:
 		imeth = 3
-	try:
+	if( has_minimize_so ):
 		qm3.actions._minimize.cgp( obj, step_number, gradient_tolerance, print_frequency, irest, imeth, log_function )
-	except:
+	else:
 		raise Exception( "minimize.conjugate_gradient_plus: qm3.actions._minimize.so not available..." )
 	log_function( "-" * 50 + "\n" )
 

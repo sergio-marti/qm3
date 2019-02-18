@@ -6,7 +6,7 @@ At present time, it only allows to use distances for building the collective var
 The module also provides the function \func{string\_integrate} for parsing the results and integrating the MFEP. This function allows a range of points to be taken into account (\parm{i\_from} -- \parm{i\_to}), and the forces can be recycled (\parm{kumb} == None) or re-calcualted (\parm{kumb} == list of force constants for each distance appearing in "srting.def").
 Finally, the function \func{string\_distribute} is intended mainly for internal purposes...
 \begin{pyglist}[language=python,fvset={frame=single}]
-def string_distribute( ncrd, nwin, rcrd, rmet, interpolant = interpolation.hermite_spline )
+def string_distribute( ncrd, nwin, rcrd, rmet, interpolant = qm3.maths.interpolation.hermite_spline )
 
 def string_integrate( ncrd, nwin, i_from = 0, i_to = -1,
     interpolant = interpolation.hermite_spline, kumb = None, spline_derivatives = True )

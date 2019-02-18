@@ -432,7 +432,7 @@ def smp_diffevo( objs,
 				log_function( "%10d%30.10lf"%( it, ok_fun ) + " (%.1le)"%( ok_stp ) )
 				if( checkpointing ):
 					fd = open( "diffevo.chk", "wb" )
-					pickle.dump( [ minc[j] + disp[j] * ok_crd[j] for j in range( obj.size ) ], fd )
+					pickle.dump( [ minc[j] + disp[j] * ok_crd[j] for j in range( size ) ], fd )
 					fd.close()
 	if( it % print_frequency != 0 ):
 		log_function( "%10d%30.10lf"%( it, ok_fun ) + " (%.1le)"%( ok_stp ) )

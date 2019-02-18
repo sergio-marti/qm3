@@ -17,7 +17,7 @@ except:
 	import pickle
 
 try:
-	import	_conn
+	import	qm3.utils._conn
 	conn_so = True
 except:
 	conn_so = False
@@ -680,7 +680,7 @@ def connectivity( molec, quick = True ):
 	else:
 		if( conn_so ):
 			print( ">> connectivity: FULL binary threaded search..." )
-			bond = _conn.connectivity( os.sysconf( 'SC_NPROCESSORS_ONLN' ), molec )
+			bond = qm3.utils._conn.connectivity( os.sysconf( 'SC_NPROCESSORS_ONLN' ), molec )
 		else:
 			print( ">> connectivity: FULL python sequential search..." )
 			bond = []

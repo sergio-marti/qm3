@@ -1,9 +1,8 @@
 \normalsize
 \subsection[prepare]{prepare.py}
 Module with three functions for model building. The function \func{solvate} allows to solvate \parm{molec} object using the 
-one contained in \parm{solvnt} (usually water molecules). The \parm{transform} parameter is the transformation
-used to apply on the solvent molecule (\parm{molec} should be initially transformed by means of "qm3.utils.center"
-or "qm3.utils.moments\_of\_inertia"). Lastly, the \parm{radii} used to stablish the solvent exclusion can be also selected
+one contained in \parm{solvnt} (usually water molecules). If the parameter \parm{transform} is True, the molec is oriented into its principal inertia axes and the solvnt is mass centred. Otherwise each transformation should be performed before separately.
+Lastly, the \parm{radii} used to stablish the solvent exclusion can be also selected
 (defaults to van der Waals).\\
 The function \func{counter\_ions} places as much \parm{num} new ions of charge \parm{chrg} at electrostatically
 optimal positions. The parameters \parm{d\_grd}, \parm{d\_ion} and \parm{d\_prt} controls: the grid size,
@@ -12,9 +11,9 @@ prior to solvating the system...)\\
 Finally, \func{ionic\_strength} randomly replaces as much water molecules ("HOH", "TIP" or "WAT" residue names from all the
 model or just from the \parm{chains} string) to fullfill the desired \parm{conc} molarity of NaCl (uses water density).
 \begin{pyglist}[language=python,fvset={frame=single}]
-def counter_ions( molec, num = 1, chrg = 1.0, d_grd = 0.5, d_ion = 11.0, d_prt = 6.5 )
+def counter_ions( molec, fname = "ions.pdb", num = 1, chrg = 1.0, d_grd = 0.5, d_ion = 11.0, d_prt = 6.5 )
 
-def solvate( molec, solvnt, transform = utils.center, radii = elements.r_vdw )
+def solvate( molec, solvnt, radii = qm3.elements.r_vdw, transform = True )
 
 def ionic_strength( molec, temp = 300.0, conc = 0.15, chains = None, mdst = 5.0 )
 \end{pyglist}
