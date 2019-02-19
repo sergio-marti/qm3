@@ -2,21 +2,22 @@
 \subsection[sander]{sander.py}
 Patched versions of sander don't need for an "Int\_QMLJ*" fix if the QM method is set to "EXTERN"
 (use \textbf{ibelly}/\textbf{bellymask} at \textbf{mdin} otherwise in order to freeze QM atoms).
-Also, the python version (faster because of the single system initialization) is only
-available if AmberTools has been compiled with python support.
+Also, the python version (faster because of the single system initialization) must be compiled against AmberTools\footnote{http://ambermd.org/AmberTools.php}
+(libsander.so, see "setup.sander" for properly setting
+the paths).
 \begin{pyglist}[language=python,fvset={frame=single}]
 def coordinates_read( mol, fname = None )
 def coordinates_write( mol, fname = None )
 def topology_read( mol, fname = None )
 def topology_write( mol, fname = None )
 
-class sander( cpu = multiprocessing.cpu_count() )
+class sander()
     def update_coor( mol )
-    def update_charges( mol )
+    def update_chrg( mol )
     def get_func( mol )
     def get_grad( mol )
 
-class py_sander( mol, prmtop, cutoff = 10.0, qmsel = None, method = "AM1", charge = 0 )
+class py_sander( mol, prmtop, cutoff = 10.0, PBC = True, qmsel = None, method = "AM1", charge = 0 )
     def stop()
     def update_coor( mol )
     def get_func( mol )

@@ -3,9 +3,15 @@
 The \parm{nbnd} argument is a list with the numbers (C-indexing) of the classical charges which are going to be included
 in the quantum calculation.\\
 The \parm{link} one is a list containing two-element sub-lists with the numbers of the QM and the MM atoms (C-indexing),
-involved in the classical bonds which are going to be broken (link atom approach).
+involved in the classical bonds which are going to be broken (link atom approach).\\
+If properly patched and compiled as a library (libdftb.so, set \textbf{QM3\_LIBDFTB} environment variable) it can be accessed via ctypes (\func{dl\_dftb}),
+thus reducing the amount of IO needed.
 \begin{pyglist}[language=python,fvset={frame=single}]
 class dftb( mol, sele, nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
+
+class dl_dftb( mol, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
 \end{pyglist}

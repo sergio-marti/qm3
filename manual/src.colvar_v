@@ -2,7 +2,7 @@
 \subsection[\_colvar\_v]{\_colvar\_v.so}
 This binary module (must be compiled, for performance...) allows to use the electrostatic potential
 calculated on one atom (or a linear combination of potentials) as a colective variable (used with an umbrella sampling restraint).
-There is one available class: \func{coulomb} (performing basic Coulomb potential) and \func{fswitch} for a force-switched interaction.
+There are two available classes: \func{coulomb} (performing basic Coulomb potential) and \func{fswitch} for a force-switched interaction.
 The common parameters for the constructor are: the value of the umbrella constant (\parm{kmb}), the reference value of the potential (\parm{ref}),
 a list of atoms where calculating the potential (\parm{atm\_lst}),
 a list of atoms to interact with (\parm{nbn\_lst}),

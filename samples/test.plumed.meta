@@ -45,7 +45,7 @@ class my_problem( qm3.problem.template ):
 
 		self.fix = qm3.engines._qmmm.Int_QMLJ( self.mol, s_qm, s_mm, [] )
 
-		self.rst = qm3.engines._plumed.Plumed( self.mol, False, 0.001 )
+		self.rst = qm3.engines._plumed.Plumed( self.mol, 0.001, False )
 
 		# -- walls
 		self.ld1 = qm3.engines.restraints.distance( 10000., 1.4, [ 1, 2 ], skip_BE = 1.4 )

@@ -1,24 +1,30 @@
 \normalsize
 \subsection[dynamo]{dynamo.py}
 This module allows to use fDynamo\footnote{https://sites.google.com/site/pdynamomodeling/fdynamo-2.2.tgz?attredirects=0}
- as a MM engine (or semi-empirical QM/MM), as well as provides a child "mol\_io.molecule" for working with fDynamo files.
-The \func{dynamo} class makes use of a compiled binary (see last frame example), which hangs on a pipe for exchanging
+ as a MM engine (or semi-empirical QM/MM), as well as provides functions for working with fDynamo files.
+The \func{dynamo} class makes use of a compiled binary (see frame examples), which hangs on a pipe for exchanging
 data. 
-The function \func{dynamo\_read} returns a molecule from a CRD file (\func{dynamo\_write} stores de molecule with this format).
-\func{dynamo\_sequence} allows to generate sequences from a molecule, and \func{dynamo\_selection}
-builds fortran subroutines for atom selections (ie, based on radial selections).
-%, or accesing "sys\_bin" files (\func{.sysbin\_read}) for reading masses ("molecule.mass", g/mol), charges ("molecule.chrg", a.u.),
-%epsilon values ("molecule.epsi", kJ/mol) or half of the equilibrium distances ("molecule.rmin", Å).
+The function \func{coordinates\_read} returns a molecule from a CRD file (\func{coordinates\_write} stores de molecule with this format).
+\func{sequence} allows to generate sequences from a molecule, \func{selection}
+builds fortran subroutines for atom selections, and \func{topology\_read} allows to extract information from binary "sys\_bin" model files (mass,
+chrg, epsi and rmin).\\
+fDynamo dependencies can be compiled as a binray library ("dynamo.so"), and accessed on runtime (via dlopen mechanism) to improve performance.
 \begin{pyglist}[language=python,fvset={frame=single}]
-def dynamo_read( fname = None )
-def dynamo_write( mol, fname = None )
-def dynamo_sequence( mol, fname = None )
-def dynamo_selection( mol, sele, radi = 20.0, fname = None )
+def coordinates_read( fname = None )
+def coordinates_write( mol, fname = None )
+def sequence( mol, fname = None )
+def selection( mol, sele, fname = None )
+def topology_read( mol, fname )
 
-class dynamo( mol )
-    def start( timeout = 10 )
+class dynamo_pipe()
     def stop()
-    def update_charges( mol )
+    def update_chrg( mol )
+    def update_coor( mol )
+    def get_func( mol )
+    def get_grad( mol )
+
+class py_dynamo( "./dynamo.so" )
+    def update_chrg( mol )
     def update_coor( mol )
     def get_func( mol )
     def get_grad( mol )
@@ -31,6 +37,11 @@ class dynamo( mol )
 \begin{pyglist}[fvset={frame=single}]
 #SOURCE@../samples/logs/test.dynamo.log
 \end{pyglist}
+Pipe based fDynamo dependencies:
 \begin{pyglist}[language=fortran,fvset={frame=single}]
 #SOURCE@../samples/test.dynamo.f90
+\end{pyglist}
+DLOPEN based fDynamo dependencies:
+\begin{pyglist}[language=fortran,fvset={frame=single}]
+#SOURCE@../qm3/engines/dynamo.f90
 \end{pyglist}

@@ -1,5 +1,6 @@
 \normalsize
 \subsection[orca]{orca.py}
+This module allows to use Orca\footnote{https://orcaforum.kofo.mpg.de/app.php/portal} as a QM engine.
 
 \begin{pyglist}[language=python,fvset={frame=single}]
 class orca( mol, ini, sele, nbnd = [], link = [] )

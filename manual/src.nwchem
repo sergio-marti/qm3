@@ -1,5 +1,6 @@
 \normalsize
 \subsection[nwchem]{nwchem.py}
+This module allows to use NWChem\footnote{https://github.com/nwchemgit/nwchem} as a QM engine.
 
 \begin{pyglist}[language=python,fvset={frame=single}]
 class nwchem( mol, ini, sele, nbnd = [], link = [] )

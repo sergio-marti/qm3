@@ -1,5 +1,5 @@
 \normalsize
-\subsection[qm3.maths.interpolation]{interpolation.py}
+\subsection[interpolation]{interpolation.py}
 This module provides basic classes for interpolation discrete sets of points. All of them (except \func{interpolate\_2d} which is
 intended for bi-dimensional interpolation) accept in the constructor the \parm{x} and \parm{y} sets (both of the same size), which
 can be initially disordered. Then, all provide a single method (\func{.calc}) for calculating the interpolated guess of a particular value of x (\parm{rx}), and it's derivative (returns a tuple).

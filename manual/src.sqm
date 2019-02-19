@@ -1,8 +1,15 @@
 \normalsize
 \subsection[sqm]{sqm.py}
 The SQM binary used by this module is a \textbf{modified version} of the one coming in the free AmberTools\footnote{http://ambermd.org/AmberTools.php}.
+\\
+If properly patched and compiled as a library (libsqm.so, set \textbf{QM3\_LIBSQM} environment variable) it can be accessed via ctypes (\func{dl\_sqm}),
+thus reducing the amount of IO needed.
 \begin{pyglist}[language=python,fvset={frame=single}]
 class sqm( mol, ini, sele, nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
+
+class dl_sqm( mol, ini, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
 \end{pyglist}

@@ -1,6 +1,6 @@
 \normalsize
 \subsection[smash]{smash.py}
-SMASH\footnote{http://smash-qc.sourceforge.net}
+This module allows to use SMASH\footnote{http://smash-qc.sourceforge.net} as a QM engine.
 \begin{pyglist}[language=python,fvset={frame=single}]
 class smash( mol, ini, sele, nbnd = [], link = [] )
     def get_func( mol )

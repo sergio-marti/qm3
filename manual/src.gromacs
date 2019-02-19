@@ -1,11 +1,12 @@
 \normalsize
 \subsection[gromacs]{gromacs.py}
-a la espera de un módulo en C que deje un objeto de cálculo gromacs en memoria y permita calcular directemten sin parseo de archivos...
+This module allows to use GROMACS\footnote{https://github.com/gromacs/gromacs} as a MM engine.
+Right now it only provides (inefficient) limited single execution, and basic G96 coordinates format IO.
 \begin{pyglist}[language=python,fvset={frame=single}]
 def coordinates_read( fname = None )
 def coordinates_write( mol, fname = None )
 
-class gromacs( charmm_path, fname )
+class gromacs()
     def update_coor( mol )
     def get_func( mol )
     def get_grad( mol )

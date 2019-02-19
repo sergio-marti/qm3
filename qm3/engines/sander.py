@@ -160,7 +160,7 @@ except:
 
 class sander( object ):
 
-	def __init__( self, cpu = multiprocessing.cpu_count() ):
+	def __init__( self ):
 		self.exe = "bash r.sander"
 
 

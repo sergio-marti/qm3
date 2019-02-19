@@ -1,6 +1,6 @@
 \normalsize
 \subsection[colvar\_s]{colvar\_s.py}
-Based on Branduardi \& Zinovjev works:
+Collective variable based on the work of Branduardi\footnote{https://doi.org/10.1002/jcc.23673} \& Zinovjev\footnote{https://doi.org/10.1021/acs.jpca.7b10842}\footnote{https://doi.org/10.1002/wcms.1329}:
 \begin{align*}
 &x\left(\theta\right)=\lim_{\lambda \rightarrow \infty} \frac{\int_{0}^{1}{t e^{-\lambda|\theta - z|} dt}}{\int_{0}^{1}{e^{-\lambda|\theta - z|} dt}}
 \sim
@@ -12,7 +12,16 @@ Based on Branduardi \& Zinovjev works:
 \\
 &M_{i,j}=\sum_{k=1}^{3n}{ \frac{\partial\theta_{i}}{\partial x_{k}} m_{k}^{-1} \frac{\partial\theta_{j}}{\partial x_{k}} } 
 \end{align*}
+The metrics are supposed constant during the gradient evaluation. The module provides a single class \func{colvar\_s}, providing
+the basic methods \func{get\_func} and \func{get\_grad} acting on a molecule object. Current implementation only supports
+distances as a building blocks of the collective variable. The constctur parameters are the umbrella force constant (\parm{kumb})
+the reference of the collective variable (\parm{xref}, scalar), a configuration file with the number of windows, coordinates and kinds (\parm{conf}),
+a previous equi-distributed string (\parm{str\_crd}) and its metrics (\parm{str\_met}). Both get\_* methods accumulates on "molec.func" and "molec.grad",
+and return the value of the current collective variable.
 \begin{pyglist}[language=python,fvset={frame=single}]
+class colvar_s( kumb, xref, conf, str_crd, str_met, molec )
+    def get_func( molec )
+    def get_grad( molec )
 \end{pyglist}
 The shape of the "colvar.def" config file (\parm{conf}) should be like the following:
 \footnotesize

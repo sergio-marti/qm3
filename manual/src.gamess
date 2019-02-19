@@ -1,5 +1,6 @@
 \normalsize
 \subsection[gamess]{gamess.py}
+This module allows to use GAMESS-US\footnote{https://www.msg.chem.iastate.edu/GAMESS/download/register/} as a QM engine.
 
 \begin{pyglist}[language=python,fvset={frame=single}]
 class gamess( mol, ini, sele, nbnd = [], link = [] )

@@ -9,8 +9,8 @@ and a (sorted) list of MM atoms (\parm{mm\_lst}). To avoid direct interactions (
 list can also be provided (\parm{ex\_lst}, containing three-elemnts sub-lists of shape:
 \textit{[ QM\_atom, MM\_atom, scale\_factor ]}).
 For those QM engines which doesn't provide the electrostatic interaction MM\_gradients, the class
-\func{Int\_QMLJ\_MMEL} evaluates them classically (Coulomb, no cut-off) using the charges stored in the molecule object ("mol.chrg"). Alternatively, change the order of the engines: QM.get\_grad >> Int\_QMLJ.get\_grad >> MM.update\_charges >> MM.get\_grad.\\
-In addition it also provides the QM\_Lennard-Jones gradient/hessian.\\
+\func{Int\_QMLJ\_MMEL} evaluates them classically (Coulomb based, without cut-off) using the charges stored in the molecule object ("mol.chrg"). Alternatively, change the order of the engines: QM.get\_grad >> Int\_QMLJ.get\_grad >> MM.update\_charges >> MM.get\_grad.\\
+In addition it also provides the QM\_Lennard-Jones hessian.\\
 \begin{pyglist}[language=python,fvset={frame=single}]
 class Int_QMLJ( mol, qm_lst, mm_lst, ex_lst )
     def get_grad( mol )

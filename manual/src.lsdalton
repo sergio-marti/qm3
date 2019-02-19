@@ -1,9 +1,10 @@
 \normalsize
 \subsection[lsdalton]{lsdalton.py}
-
+This module allows to use LSDalton\footnote{https://gitlab.com/dalton/lsdalton} as a QM engine.
 \begin{pyglist}[language=python,fvset={frame=single}]
 class lsdalton( mol, ini, sele, nbnd = [], link = [] )
 	bas = "6-31G*"
+	chg = 0
     def get_func( mol )
     def get_grad( mol )
 \end{pyglist}

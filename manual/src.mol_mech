@@ -1,15 +1,15 @@
 \normalsize
 \subsection[mol\_mech]{mol\_mech.py}
-%This (optionally-binary compiled) module provides a "mol\_io.molecule" child with methods oriented to 
-%perform simple molecular mechanics analysis. We can find four big kinds of methods:
-%1) those for reading/parsing different formats (\func{xyz\_read}, \func{pdb\_read}, \func{sdf\_read} and \func{mol2\_read}), 
-%as well as for internet database accessing (\func{db\_download}: where \parm{code} is a pair composed by the server and the molecule
-%identifier, such as "pubchem:12039" / ":12039" or "chemspider:4573889").
-%2) methods for guessing molecular data (such as the internal connectivity and atoms types: \func{connectivity\_and\_types}, 
-%or Gasteiger-Marsilli sigma partial charges: \func{guess\_partial\_charges}, which uses molecule ".chrg" as a starting
-%point for those molecules with formal charges).
-%3) methods for calculating the internal energy of the molecule.
-%4) methods providing topological indexes (QSAR), once non-polar hydrogens have been purged.
+This module provides a basic (and inefficient) force-field implementation to perform basic molecular mechanics analysis.
+Some of the methods can take profit of the binary threaded version (\_mol\_mech.so) to improve performance.
+We can find three family of methods:
+1) methods for guessing molecular data (such as the internal connectivity and atoms types: \func{parse\_molecule}, 
+or Gasteiger-Marsilli sigma partial charges: \func{guess\_partial\_charges}, which uses "mol.chrg" as a starting
+point for those molecules with formal charges).
+2) methods for calculating the internal energy of the molecule (\func{get\_func}, \func{get\_grad}).
+3) methods providing topological indexes (QSAR: \func{topind\_*}), once non-polar hydrogens have been removed.
+\\
+Example of the parameters used can be found in the "mol\_mech.prm" file.
 \begin{pyglist}[language=python,fvset={frame=single}]
 class simple_force_field
     ncpu     = C:{os.sysconf( 'SC_NPROCESSORS_ONLN' )} // Python:{1}
@@ -17,7 +17,7 @@ class simple_force_field
     cut_off  = 12.0
     cut_list = 14.0
 
-    def guess_bonds( mol )
+    def guess_bonds( mol, quick = False )
     def calc_connectivity()
     def guess_types( mol )
     def guess_angles()
@@ -26,12 +26,15 @@ class simple_force_field
     def guess_partial_charges( mol )
     
     def load_parameters( mol, ffield = None )
+
     def energy_bond( mol, gradient = False )
     def energy_angle( mol, gradient = False )
     def energy_dihedral( mol, gradient = False )
     def energy_improper( mol, gradient = False )
+
     def update_non_bonded( mol )
     def energy_non_bonded( mol, gradient = False, epsilon = 1.0 )
+
     def get_func( mol, qprint = False )
     def get_grad( mol, qprint = False )
     

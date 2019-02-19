@@ -1,7 +1,10 @@
 \normalsize
 \subsection[namd]{namd.py}
-%\func{molecule} is a child of "mol\_io.molecule" with methods for handling NAMD\footnote{http://www.ks.uiuc.edu/Development/Download/download.cgi?PackageName=NAMD}
-%binary coordinates (\func{.namd\_read} and \func{.namd\_write}), and basic parsing of CHARMM\footnote{https://www.charmm.org/charmm/} PSF and parameters files.
+This module allows to use NAMD\footnote{http://www.ks.uiuc.edu/Development/Download/download.cgi?PackageName=NAMD} 
+as a MM engine, as well as provides functions for working with NAMD files.
+Functions \func{coordinate\_*} provides binary IO for NAMD, and \func{topology\_*} for PSF handling.\\
+Three classes are available: 1) \func{namd} for single calculation (*very* inefficient, since the model is allocated each time), 2) \func{namd\_pipe} a piped version
+(needs some patching) which performs IO on disk, and 3) \func{namd\_shm} which makes ose of SHM for the communication (the most efficient one). Peek a look to "i.namd\_pipe" and "i.namd\_shm" in the tools/templates forlder for examples of NAMD inputs.
 \begin{pyglist}[language=python,fvset={frame=single}]
 def coordinates_read( mol, fname )
 def coordinates_write( mol, fname )
@@ -10,14 +13,21 @@ def topology_read( mol, fname = None )
 def topology_write( mol, fname = None )
 
 class namd( cpu = multiprocessing.cpu_count() )
-    def update_charges( mol )
+    def update_chrg( mol )
     def update_coor( mol )
     def get_func( mol )
     def get_grad( mol )
 
 class namd_pipe
     def stop()
-    def update_charges( mol )
+    def update_chrg( mol )
+    def update_coor( mol )
+    def get_func( mol )
+    def get_grad( mol )
+
+class namd_shm
+    def stop()
+    def update_chrg( mol )
     def update_coor( mol )
     def get_func( mol )
     def get_grad( mol )

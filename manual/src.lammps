@@ -1,26 +1,27 @@
 \normalsize
 \subsection[\_lammps]{\_lammps.py}
-
+This module allows to use LAMMPS\footnote{https://github.com/lammps/lammps} 
+as a MM engine, as well as provides basic functions for working with LAMMPS files.
+The single execution object \func{lammps} provies unpatched (and inefficient) access to lammps. Patched versions allow to use pipes for IO, reducing CPU time (single system initialization). Whenever available the python binding of LAMMPS (\func{py\_lammps}) is prefferred (set the \textbf{QM3\_LAMMPS} environment variable to point lammps folder containing "lammps.py").
 \begin{pyglist}[language=python,fvset={frame=single}]
 def lammps_read( fname = "data" )
-def guess_labels( mol )
 
 class lammps()
-    def update_charges( mol )
+    def update_chrg( mol )
     def update_coor( mol )
     def get_func( mol )
     def get_grad( mol )
 
 class lammps_pipe( inp )
     def stop()
-    def update_charges( mol )
+    def update_chrg( mol )
     def update_coor( mol )
     def get_func( mol )
     def get_grad( mol )
 
 class py_lammps( inp, name = "serial", cmdargs = [ "-sc", "none" ] )
     def stop()
-    def update_charges( mol )
+    def update_chrg( mol )
     def update_coor( mol )
     def get_func( mol )
     def get_grad( mol )

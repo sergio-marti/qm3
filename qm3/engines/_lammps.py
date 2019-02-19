@@ -71,11 +71,6 @@ def lammps_read( fname = None ):
 	return( mol )
 
 
-def guess_labels( mol ):
-	for i in range( mol.natm ):
-		mol.labl[i] = qm3.elements.symbol[ sorted( [ ( math.fabs( qm3.elements.mass[j] - mol.mass[i] ), j ) for j in iter( qm3.elements.mass ) if j > 0 ] )[0][1] ]
-
-
 
 sys.path.insert( 0, os.getenv( "QM3_LAMMPS" ) )
 try:

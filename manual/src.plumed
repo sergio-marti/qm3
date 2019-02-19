@@ -1,8 +1,10 @@
 \normalsize
 \subsection[\_plumed]{\_plumed.so}
-reads plumed.dat for configuring Plumed2.
+This binary module allows to access all the functionalities (such as, for example, metadynamics) implemented in the Plumed2\footnote{https://github.com/plumed/plumed2} library.
+The default plumed configuration file is expected to be "plumed.dat", and the output generated will be stored in "plumed.log". Unlike other programs, 
+Plumed2 library is not loaded on runtime (\$PLUMED\_KERNEL), but compiled with the \_plumed.so module (see "setup.plumed" for path asjustment).
 \begin{pyglist}[language=python,fvset={frame=single}]
-class Plumed( mol, PBC {True/False}, time_step {0.001} )
+class Plumed( mol, time_step = 0.001, PBC = False )
     def get_grad( mol, istep )
 \end{pyglist}
 
