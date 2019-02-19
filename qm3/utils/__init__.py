@@ -746,3 +746,4 @@ def exclussions( sele_QM, bonds = None, molec = None ):
 	pickle.dump( excl, f )
 	f.close()
 	print( ">> %d exclussions generated (1-2:%d, 1-3:%d, 1-4:%d)"%( nx12 + nx13 + nx14, nx12, nx13, nx14 ) )
+	return( latm )

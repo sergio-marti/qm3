@@ -21,6 +21,9 @@ except:
 import	re
 import	collections
 import	qm3.mol
+import	qm3.elements
+import	qm3.utils
+import	qm3.engines.namd
 
 
 # ===============================================================================================
@@ -411,8 +414,6 @@ class gui_application( object ):
 
 			# calculate exclussion lists (calculate connectivity and assign scale factors...)
 			if( __sqm != [] and __lnk != [] and __nbn != [] ):
-				import	qm3.elements
-				import	qm3.utils
 				__exc = []
 				# calculate (QM_residue + MM_residue) connectivity
 				for ii,jj in __lnk:
@@ -579,7 +580,6 @@ class my_problem( qm3.problem.template ):
 
 			# NAMD / NAMD_PIPE / NAMD_SHM
 			if( knd in [ "namd", "namd_pipe", "namd_shm" ] ):
-				import	qm3.engines.namd
 				qm3.engines.namd.coordinates_write( self.__mol, "namd.coor" )
 				if( __sel == [] ):
 					tmp = [ False for i in range( self.__mol.natm ) ]
@@ -807,11 +807,12 @@ class my_problem( qm3.problem.template ):
 		f.write( """
 
 	def update_coor( self ):
-		for i in range( len( self.sele ) ):
-			ii = 3 * self.sele[i]
-			jj = 3 * i
-			for j in [ 0, 1, 2 ]:
-				self.mole.coor[ii+j] = self.coor[jj+j]
+		if( self.sele != [] ):
+			for i in range( len( self.sele ) ):
+				ii = 3 * self.sele[i]
+				jj = 3 * i
+				for j in [ 0, 1, 2 ]:
+					self.mole.coor[ii+j] = self.coor[jj+j]
 
 
 	def get_func( self ):
