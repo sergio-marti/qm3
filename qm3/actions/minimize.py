@@ -191,8 +191,6 @@ def adam( obj,
 	i = 0
 	while( i < step_number and grms > gradient_tolerance ):
 		# -- perform step
-		v = [ beta * v[j] + ( 1.0 - beta ) * obj.grad[j] for j in range( obj.size ) ]
-		s = [ gamm * s[j] + ( 1.0 - gamm ) * obj.grad[j] * obj.grad[j] for j in range( obj.size ) ]
 		pbet = 1.0 / ( 1.0 - math.pow( beta, i + 1 ) )
 		pgam = 1.0 / ( 1.0 - math.pow( gamm, i + 1 ) )
 		for j in range( obj.size ):
