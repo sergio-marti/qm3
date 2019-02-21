@@ -66,7 +66,26 @@ def string_integrate( ncrd, nwin, i_from = 0, i_to = -1, interpolant = qm3.maths
 	for i in range( nwin ):
 		f.write( "".join( [ "%20.10lf"%( rmet[i*ncr2+j] ) for j in range( ncr2 ) ] ) + "\n" )
 	f.close()
-	# average string collective variables
+	# average collective variable components
+	rvar = [ 0.0 for i in range( ncrd * nwin ) ]
+	for i in range( nwin ):
+		f = open( "string.%03d.cvs"%( i ), "rt" )
+		k = 0
+		n = 0.0
+		for l in f:
+			k += 1
+			if( k >= i_from and ( k <= i_to or i_to == -1 ) ):
+				t = [ float( j ) for j in l.strip().split() ]
+				for j in range( ncrd ):
+					rvar[i*ncrd+j] += t[j]
+				n += 1.0
+		f.close()
+	rvar = [ rvar[j] / n for j in range( ncrd * nwin ) ]
+	f = open( "string.avevars", "wt" )
+	for i in range( nwin ):
+		f.write( "".join( [ "%20.10lf"%( rvar[i*ncrd+j] ) for j in range( ncrd ) ] ) + "\n" )
+	f.close()
+	# average string distributed nodes
 	rcrd = [ 0.0 for i in range( ncrd * nwin ) ]
 	f = open( "string.dat", "rt" )
 	k = 0
@@ -80,10 +99,10 @@ def string_integrate( ncrd, nwin, i_from = 0, i_to = -1, interpolant = qm3.maths
 			n += 1.0
 	f.close()
 	rcrd = [ rcrd[j] / n for j in range( ncrd * nwin ) ]
-	f = open( "string.avevars", "wt" )
-	for i in range( nwin ):
-		f.write( "".join( [ "%20.10lf"%( rcrd[i*ncrd+j] ) for j in range( ncrd ) ] ) + "\n" )
-	f.close()
+#	f = open( "string.avevars", "wt" )
+#	for i in range( nwin ):
+#		f.write( "".join( [ "%20.10lf"%( rcrd[i*ncrd+j] ) for j in range( ncrd ) ] ) + "\n" )
+#	f.close()
 	rcrd = string_distribute( ncrd, nwin, rcrd, rmet, interpolant )[0]
 	f = open( "string.colvars", "wt" )
 	for i in range( nwin ):
