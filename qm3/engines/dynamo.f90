@@ -12,6 +12,14 @@ subroutine qm3_initialize
 	call mm_file_process( "borra", "opls" )
 	call mm_system_construct( "borra", "seq" )
 	call coordinates_read( "crd" )
+
+	open( unit=999, file="mm_data", action="write", form="unformatted" )
+	write(999) atmmas
+	write(999) atmchg
+	write(999) atmeps * 0.5d0 ! >> [geom] sqrt( kJ/mol )
+	write(999) ( atmsig ** 2 ) * 0.5612310241546865d0 ! >> [arith] rmin/2 (A)
+	close(999)
+
 	allocate( flg(1:natoms) )
 	flg = atom_selection( subsystem = (/ "ACS" /) )
 	call mopac_setup( method = "AM1", charge = 0, selection = flg )
