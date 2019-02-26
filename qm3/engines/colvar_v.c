@@ -408,8 +408,8 @@ static PyObject* fswitch__get_func( PyObject *self, PyObject *args ) {
 				if( dr[k] <= - boxl[k] * 0.5 ) { dr[k] += boxl[k]; }
 				r2 += dr[k] * dr[k];
 			}
-			r = sqrt( r2 );
 			if( r2 > c2of ) { continue; }
+			r = sqrt( r2 );
 			if( r2 <= c2on ) {
 				pot[cur_i] += chrg[obj->mm[i]] * ( 1.0 / r + _el1 ) * obj->sc[i];
 			} else {
@@ -492,8 +492,8 @@ static PyObject* fswitch__get_grad( PyObject *self, PyObject *args ) {
 				if( dr[k] <= - boxl[k] * 0.5 ) { dr[k] += boxl[k]; }
 				r2 += dr[k] * dr[k];
 			}
-			r = sqrt( r2 );
 			if( r2 > c2of ) { continue; }
+			r = sqrt( r2 );
 			if( r2 <= c2on ) {
 				pot[cur_i] += chrg[obj->mm[i]] * ( 1.0 / r + _el1 ) * obj->sc[i];
 			} else {
@@ -523,8 +523,8 @@ static PyObject* fswitch__get_grad( PyObject *self, PyObject *args ) {
 				if( dr[k] <= - boxl[k] * 0.5 ) { dr[k] += boxl[k]; }
 				r2 += dr[k] * dr[k];
 			}
-			r = sqrt( r2 );
 			if( r2 > c2of ) { continue; }
+			r = sqrt( r2 );
 			if( r2 <= c2on ) {
 				df = tmp * obj->lc[cur_i] * chrg[obj->mm[i]] / ( r2 * sqrt( r2 ) ) * obj->sc[i];
 			} else {
