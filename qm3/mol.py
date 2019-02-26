@@ -104,8 +104,8 @@ class molecule( object ):
 		dsp = 0.0
 		siz = len( crd ) // 3
 		for k in range( siz ):
-			dsp = max( dsp, sum( [ (i-j)*(i-j) for i,j in zip( cen, crd[3*k:3*k+3] ) ] ) )
-		cut = math.pow( radius + math.sqrt( dsp ), 2.0 )
+			dsp = max( dsp, qm3.utils.distanceSQ( cen, crd[3*k:3*k+3], self.boxl ) )
+		cut = math.pow( radius + math.sqrt( dsp ) + 0.1, 2.0 )
 		rad = radius * radius
 		res = []
 		for k0 in range( len( self.res_lim ) - 1 ):
@@ -113,16 +113,15 @@ class molecule( object ):
 			kn = self.res_lim[k0+1]
 			kf = False
 			while( k1 < kn and not kf ):
-				kf |= sum( [ (i-j)*(i-j) for i,j in zip( self.coor[3*k1:3*k1+3], cen ) ] ) <= cut
+				kf |= qm3.utils.distanceSQ( cen, self.coor[3*k1:3*k1+3], self.boxl ) <= cut
 				k1 += 1
 			if( kf ):
 				k1 = self.res_lim[k0]
-				kn = self.res_lim[k0+1]
 				kf = False
 				while( k1 < kn and not kf ):
 					i1 = 0
 					while( i1 < siz and not kf ):
-						kf |= sum( [ (i-j)*(i-j) for i,j in zip( self.coor[3*k1:3*k1+3], crd[3*i1:3*i1+3] ) ] ) <= rad
+						kf |= qm3.utils.distanceSQ( self.coor[3*k1:3*k1+3], crd[3*i1:3*i1+3], self.boxl ) <= rad
 						i1 += 1
 					k1 += 1
 				if( kf ):

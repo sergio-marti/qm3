@@ -35,28 +35,16 @@ def log_event( txt ):
 # ----------------------------------------------------------------------------------
 # Basic Geometry
 #
-def distance_PBC( ci, cj, box ):
-	dr = [ None, None, None ]
-	for j in [ 0, 1, 2 ]:
-		dr[k] = ci[k] - cj[k]
-# -----------------------------------------------------------
-#		if( dr[k]  >   box[k] * 0.5 ):
-#			dr[k] -= box[k]
-#		if( dr[k] <= - box[k] * 0.5 ):
-#			dr[k] += box[k]
-# -----------------------------------------------------------
-		dr[k] = dr[k] - box[k] * round( dr[k] / box[k], 0 )
-# -----------------------------------------------------------
-	return( math.sqrt( dr[0] * dr[0] + dr[1] * dr[1] + dr[2] * dr[2] ) )
-		
+def distanceSQ( ci, cj, box = None ):
+	if( box == None ):
+		return( sum( [ (i-j)*(i-j) for i,j in zip( ci, cj ) ] ) )
+	else:
+		dr = [ ( ci[i] - cj[i] ) - box[i] * round( ( ci[i] - cj[i] ) / box[i], 0 ) for i in [0, 1, 2] ]
+		return( dr[0] * dr[0] + dr[1] * dr[1] + dr[2] * dr[2] )
 
 
-def distanceSQ( ci, cj ):
-	return( sum( [ (i-j)*(i-j) for i,j in zip( ci, cj ) ] ) )
-
-
-def distance( ci, cj ):
-	return( math.sqrt( distanceSQ( ci, cj ) ) )
+def distance( ci, cj, box = None ):
+	return( math.sqrt( distanceSQ( ci, cj, box ) ) )
 
 
 
