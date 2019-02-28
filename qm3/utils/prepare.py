@@ -6,7 +6,7 @@ if( sys.version_info[0] == 2 ):
 	range = xrange
 import	math
 import	qm3.mol
-import	qm3.setup._cions
+import	qm3.utils._cions
 import	qm3.utils
 import	qm3.elements
 import	qm3.constants
@@ -16,10 +16,10 @@ import	time
 
 
 
-def counter_ions( molec, fname = "ions.pdb", num = 1, chrg = 1.0, d_grd = 0.5, d_ion = 11.0, d_prt = 6.5 ):
+def counter_ions( molec, num = 1, chrg = 1.0, d_grd = 0.5, d_ion = 11.0, d_prt = 6.5 ):
 	out = qm3.mol.molecule()
 	out.natm = num
-	out.coor = qm3.setup._cions.counter_ions( molec, num, chrg, d_grd, d_ion, d_prt, multiprocessing.cpu_count() )
+	out.coor = qm3.utils._cions.counter_ions( molec, num, chrg, d_grd, d_ion, d_prt, multiprocessing.cpu_count() )
 	for i in range( num ):
 		out.labl.append( "ION" )
 		out.resi.append( i + 1 )

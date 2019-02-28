@@ -3,6 +3,6 @@ from distutils.core import setup, Extension
 setup( 
 	name = "CounterIons", 
 	ext_modules = [ 
-		Extension( "_cions", [ "qm3/setup/cions.c" ] )
+		Extension( "_cions", [ "qm3/utils/cions.c" ] )
 	]
 )

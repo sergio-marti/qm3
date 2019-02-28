@@ -9,7 +9,7 @@ all: matrix minimize cions volume colvar_v qmmm mol_mech ode fitpack grids dynam
 
 
 cions:
-	$(PYX) setup.cions build_ext --build-lib qm3/setup
+	$(PYX) setup.cions build_ext --build-lib qm3/utils
 
 
 mpi:
