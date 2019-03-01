@@ -507,19 +507,23 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 
 	# conn: [ [ idx_0, na_0, nb_0, nc_0 ], ..., [ idx_N, na_N, nb_N, nc_N ] ]		(C indexes)
 	def zmat_write( self, conn, fname = None ):
+		temp = [ conn[i][0] for i in range( len( conn ) ) ]
+		rcon = []
+		for i in range( len( conn ) ):
+			rcon.append( [ conn[i][0] ] + [ temp.index( conn[i][j] ) + 1 for j in range( 1, len( conn[i] ) ) ] )
 		f = qm3.io.open_w( fname )
 		# -------------
 		f.write( "%-2s\n"%( self.labl[conn[0][0]][0] ) )
 		f.write( "%-2s%6d%12.3lf\n"%( self.labl[conn[1][0]][0], 
-			conn[1][1]+1, qm3.utils.distance( self.coor[3*conn[1][0]:3*conn[1][0]+3], self.coor[3*conn[1][1]:3*conn[1][1]+3] ) ) )
+			rcon[1][1], qm3.utils.distance( self.coor[3*conn[1][0]:3*conn[1][0]+3], self.coor[3*conn[1][1]:3*conn[1][1]+3] ) ) )
 		f.write( "%-2s%6d%12.3lf%6d%12.3lf\n"%( self.labl[conn[2][0]][0], 
-			conn[2][1]+1, qm3.utils.distance( self.coor[3*conn[2][0]:3*conn[2][0]+3], self.coor[3*conn[2][1]:3*conn[2][1]+3] ),
-			conn[2][2]+1, qm3.utils.angle( self.coor[3*conn[2][0]:3*conn[2][0]+3], self.coor[3*conn[2][1]:3*conn[2][1]+3], self.coor[3*conn[2][2]:3*conn[2][2]+3] ) ) )
+			rcon[2][1], qm3.utils.distance( self.coor[3*conn[2][0]:3*conn[2][0]+3], self.coor[3*conn[2][1]:3*conn[2][1]+3] ),
+			rcon[2][2], qm3.utils.angle( self.coor[3*conn[2][0]:3*conn[2][0]+3], self.coor[3*conn[2][1]:3*conn[2][1]+3], self.coor[3*conn[2][2]:3*conn[2][2]+3] ) ) )
 		for i in range( 3, self.natm ):
 			f.write( "%-2s%6d%12.3lf%6d%12.3lf%6d%12.3lf\n"%( self.labl[conn[i][0]][0], 
-				conn[i][1]+1, qm3.utils.distance( self.coor[3*conn[i][0]:3*conn[i][0]+3], self.coor[3*conn[i][1]:3*conn[i][1]+3] ),
-				conn[i][2]+1, qm3.utils.angle( self.coor[3*conn[i][0]:3*conn[i][0]+3], self.coor[3*conn[i][1]:3*conn[i][1]+3], self.coor[3*conn[i][2]:3*conn[i][2]+3] ),
-				conn[i][3]+1, qm3.utils.dihedral( self.coor[3*conn[i][0]:3*conn[i][0]+3], self.coor[3*conn[i][1]:3*conn[i][1]+3], self.coor[3*conn[i][2]:3*conn[i][2]+3], self.coor[3*conn[i][3]:3*conn[i][3]+3] ) ) )
+				rcon[i][1], qm3.utils.distance( self.coor[3*conn[i][0]:3*conn[i][0]+3], self.coor[3*conn[i][1]:3*conn[i][1]+3] ),
+				rcon[i][2], qm3.utils.angle( self.coor[3*conn[i][0]:3*conn[i][0]+3], self.coor[3*conn[i][1]:3*conn[i][1]+3], self.coor[3*conn[i][2]:3*conn[i][2]+3] ),
+				rcon[i][3], qm3.utils.dihedral( self.coor[3*conn[i][0]:3*conn[i][0]+3], self.coor[3*conn[i][1]:3*conn[i][1]+3], self.coor[3*conn[i][2]:3*conn[i][2]+3], self.coor[3*conn[i][3]:3*conn[i][3]+3] ) ) )
 		# -------------
 		qm3.io.close( f, fname )
 
