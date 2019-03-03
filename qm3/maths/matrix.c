@@ -42,7 +42,7 @@ static PyObject* w_matmul( PyObject *self, PyObject *args ) {
 			for( i=0; i<a_row*b_col; i++ )
 				PyList_SetItem( out, i, PyFloat_FromDouble( c_mat[i] ) );
 			free( a_mat ); free( b_mat ); free( c_mat );
-			return( Py_BuildValue( "O", out ) );
+			return( out );
 		} else { Py_INCREF( Py_None ); return( Py_None ); }
 	} else { Py_INCREF( Py_None ); return( Py_None ); }
 }
@@ -65,7 +65,7 @@ static PyObject* w_invert( PyObject *self, PyObject *args ) {
 			for( i=0; i<row*col; i++ )
 				PyList_SetItem( out, i, PyFloat_FromDouble( mat[i] ) );
 			free( mat );
-			return( Py_BuildValue( "O", out ) );
+			return( out );
 		} else { Py_INCREF( Py_None ); return( Py_None ); }
 	} else { Py_INCREF( Py_None ); return( Py_None ); }
 }

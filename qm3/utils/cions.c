@@ -192,7 +192,7 @@ fprintf( stderr, "+ Time  : %ld sec\n", time( NULL ) - t0 );
 	} else {
 		o_pnts = PyList_New( 0 );
 	}
-	return( Py_BuildValue( "O", o_pnts ) );
+	return( o_pnts );
 }
 
 

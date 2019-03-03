@@ -58,7 +58,7 @@ static PyObject* __recv_r8( PyObject *self, PyObject *args ) {
 		o_dat = PyList_New( siz );
 		for( i = 0; i < siz; i++ ) PyList_SetItem( o_dat, i, PyFloat_FromDouble( r_dat[i] ) );
 		free( r_dat );
-		return( Py_BuildValue( "O", o_dat ) );
+		return( o_dat );
 	} else { Py_INCREF( Py_None ); return( Py_None ); }
 }
 
@@ -100,7 +100,7 @@ static PyObject* __recv_i4( PyObject *self, PyObject *args ) {
 		for( i = 0; i < siz; i++ ) PyList_SetItem( o_dat, i, PyInt_FromSsize_t( r_dat[i] ) );
 #endif
 		free( r_dat );
-		return( Py_BuildValue( "O", o_dat ) );
+		return( o_dat );
 	} else { Py_INCREF( Py_None ); return( Py_None ); }
 }
 

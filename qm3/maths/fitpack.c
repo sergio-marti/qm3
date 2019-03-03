@@ -44,7 +44,7 @@ static PyObject* __init( PyObject *self, PyObject *args ){
 			o_y2 = PyList_New( n );
 			for( i = 0; i < n; i++ ) PyList_SetItem( o_y2, i, PyFloat_FromDouble( y2[i] ) );
 			free( y2 );
-			return( Py_BuildValue( "O", o_y2 ) );
+			return( o_y2 );
 
 		} else {
 

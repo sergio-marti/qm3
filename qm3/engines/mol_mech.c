@@ -153,7 +153,7 @@ static PyObject* w_guess_angles( PyObject *self, PyObject *args ) {
 			}
 		}
 		free( arg );
-		return( Py_BuildValue( "O", out ) );
+		return( out );
 	} else { Py_INCREF( Py_None ); return( Py_None ); }
 }
 
@@ -273,7 +273,7 @@ static PyObject* w_guess_dihedrals( PyObject *self, PyObject *args ) {
 			}
 		}
 		free( arg );
-		return( Py_BuildValue( "O", out ) );
+		return( out );
 	} else { Py_INCREF( Py_None ); return( Py_None ); }
 }
 
@@ -443,7 +443,7 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
 			}
 		}
 		free( arg );
-		return( Py_BuildValue( "O", out ) );
+		return( out );
 	} else { Py_INCREF( Py_None ); return( Py_None ); }
 }
 

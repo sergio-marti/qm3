@@ -57,7 +57,7 @@ static PyObject* __regular( PyObject *self, PyObject *args ){
 			}
 		}
 		free( y ); free( ox ); free( oy ); free( oz );
-		return( Py_BuildValue( "O", out ) );
+		return( out );
 	}
 	Py_INCREF( Py_None ); return( Py_None );
 }

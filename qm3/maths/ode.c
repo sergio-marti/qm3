@@ -154,7 +154,7 @@ static PyObject* w_lsfe_2d( PyObject *self, PyObject *args ) {
 
 		free( coor ); free( grad ); free( grdx ); free( grdy ); free( velo );  free( step );
 
-		return( Py_BuildValue( "O", output ) );
+		return( output );
 
 	} else {
 

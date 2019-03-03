@@ -78,7 +78,7 @@ static PyObject* __read_r8( PyObject *self, PyObject *args ){
 		out = PyList_New( siz );
 		for( i = 0; i < siz; i++ ) PyList_SetItem( out, i, PyFloat_FromDouble( mem[i] ) );
 		shmdt( mem );
-		return( Py_BuildValue( "O", out ) );
+		return( out );
 	}
 	Py_INCREF( Py_None );
 	return( Py_None );
