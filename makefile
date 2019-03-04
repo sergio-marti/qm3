@@ -1,9 +1,4 @@
-PYX = python3
-
-LAP = lapack_deps.o
-#LAP = libopenblas.a
-#MKL = /opt/mkl
-#LAP = -L$(MKL)/lib -Wl,-rpath,$(MKL)/lib -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lm -ldl
+include config
 
 
 all: matrix minimize cions volume colvar_v qmmm mol_mech ode fitpack grids dynamo shm conn
@@ -14,7 +9,7 @@ cions:
 
 
 mpi:
-	CC=mpicc LDSHARED="mpicc -shared" $(PYX) setup.mpi build_ext --build-lib qm3/utils
+	$(MPI) $(PYX) setup.mpi build_ext --build-lib qm3/utils
 
 
 shm:
@@ -67,29 +62,26 @@ ode:
 
 fitpack: fitpack.o
 	$(PYX) setup.fitpack build
-	gcc -lpthread -shared -o qm3/maths/_fitpack.so \
+	gcc -lpthread -dynamiclib -o qm3/maths/_fitpack.so \
 		fitpack.o \
 		`find build -name fitpack.o` \
-		-lm -lgfortran
+		-lm $(PYL)
 
 
-#	CFLAGS='-DMCORE=\"LAPACK-3.5\"' $(PYX) setup.matrix build
-#	CFLAGS='-DMCORE=\"OpenBLAS-XXX\"' $(PYX) setup.matrix build
-#	CFLAGS='-DMCORE=\"Intel\ MKL-2017.2.163\"' $(PYX) setup.matrix build
 matrix: ilaenv_fix.o lapack_deps.o
-	CFLAGS='-DMCORE=\"LAPACK-3.5\"' $(PYX) setup.matrix build
-	gcc -shared -o qm3/maths/_matrix.so \
+	CFLAGS='-DMCORE=\"$(MTH)\"' $(PYX) setup.matrix build
+	gcc -dynamiclib -o qm3/maths/_matrix.so \
 		ilaenv_fix.o \
 		`find build -name matrix.o` \
-		$(LAP) -lm -lgfortran
+		$(MLB) -lm $(PYL)
 
 
 minimize: cgplus.o
 	$(PYX) setup.minimize build
-	gcc -lpthread -shared -o qm3/actions/_minimize.so \
+	gcc -lpthread -dynamiclib -o qm3/actions/_minimize.so \
 		cgplus.o \
 		`find build -name minimize.o` \
-		-lm -lgfortran
+		-lm $(PYL)
 
 
 clean:
@@ -97,16 +89,15 @@ clean:
 	
 	
 cgplus.o:
-	gfortran -c -w -O1 -fPIC qm3/actions/cgplus.f
+	gfortran -c -w -O1 qm3/actions/cgplus.f
 
 
 fitpack.o:
-	gfortran -c -w -O1 -fPIC qm3/maths/fitpack.f
+	gfortran -c -w -O1 qm3/maths/fitpack.f
 
 
 ilaenv_fix.o:
-	gfortran -c -w -O1 -fPIC qm3/maths/ilaenv_fix.f
-
+	gfortran -c -w -O1 qm3/maths/ilaenv_fix.f
 
 lapack_deps.o:
 	gfortran -c -w -O2 -fPIC qm3/maths/lapack_deps.f

@@ -1,0 +1,31 @@
+# ------------------------------------------------------------------
+# Python
+
+PYX = python
+PYL = -lpython
+#PYL = -L/opt/local/Cellar/python/3.7.1/Frameworks/Python.framework/Versions/3.7/lib -lpython3.7
+
+# ------------------------------------------------------------------
+# BLAS/LAPACK
+
+MTH = macos_Accelerate
+MLB = -framework Accelerate
+
+#MTH = Lapack
+#MLB = lapack_deps.o -L/opt/local/Cellar/gcc/8.2.0/lib/gcc/8 -lgfortran
+
+#MTH = Intel_MKL
+#MKL = /opt/mkl
+#MLB = -L$(MKL)/lib -Wl,-rpath,$(MKL)/lib -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -ldl
+
+#MTH = OpenBLAS
+#MLB = libopenblas.a
+
+# ------------------------------------------------------------------
+# MPI
+
+# Darwin/macOS
+MPI = CC=mpicc
+
+# Linux
+#MPI = CC=mpicc LDSHARED="mpicc -shared"
