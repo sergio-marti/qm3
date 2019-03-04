@@ -3,7 +3,19 @@
 
 PYX = python
 PYL = -lpython
+
+#PYX = python3
 #PYL = -L/opt/local/Cellar/python/3.7.1/Frameworks/Python.framework/Versions/3.7/lib -lpython3.7
+#PYL = -lpython3.5m
+
+# ------------------------------------------------------------------
+# Linker
+
+# Darwin/macOS
+SHD = -dynamiclib
+
+# Linux
+#SHD = -shared
 
 # ------------------------------------------------------------------
 # BLAS/LAPACK
@@ -19,7 +31,7 @@ MLB = -framework Accelerate
 #MLB = -L$(MKL)/lib -Wl,-rpath,$(MKL)/lib -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -ldl
 
 #MTH = OpenBLAS
-#MLB = libopenblas.a
+#MLB = libopenblas.a -lpthread
 
 # ------------------------------------------------------------------
 # MPI

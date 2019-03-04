@@ -62,7 +62,7 @@ ode:
 
 fitpack: fitpack.o
 	$(PYX) setup.fitpack build
-	gcc -lpthread -dynamiclib -o qm3/maths/_fitpack.so \
+	gcc -lpthread $(SHD) -o qm3/maths/_fitpack.so \
 		fitpack.o \
 		`find build -name fitpack.o` \
 		-lm $(PYL)
@@ -70,7 +70,7 @@ fitpack: fitpack.o
 
 matrix: ilaenv_fix.o lapack_deps.o
 	CFLAGS='-DMCORE=\"$(MTH)\"' $(PYX) setup.matrix build
-	gcc -dynamiclib -o qm3/maths/_matrix.so \
+	gcc $(SHD) -o qm3/maths/_matrix.so \
 		ilaenv_fix.o \
 		`find build -name matrix.o` \
 		$(MLB) -lm $(PYL)
@@ -78,7 +78,7 @@ matrix: ilaenv_fix.o lapack_deps.o
 
 minimize: cgplus.o
 	$(PYX) setup.minimize build
-	gcc -lpthread -dynamiclib -o qm3/actions/_minimize.so \
+	gcc -lpthread $(SHD) -o qm3/actions/_minimize.so \
 		cgplus.o \
 		`find build -name minimize.o` \
 		-lm $(PYL)
@@ -89,15 +89,15 @@ clean:
 	
 	
 cgplus.o:
-	gfortran -c -w -O1 qm3/actions/cgplus.f
+	gfortran -c -w -O1 -fPIC qm3/actions/cgplus.f
 
 
 fitpack.o:
-	gfortran -c -w -O1 qm3/maths/fitpack.f
+	gfortran -c -w -O1 -fPIC qm3/maths/fitpack.f
 
 
 ilaenv_fix.o:
-	gfortran -c -w -O1 qm3/maths/ilaenv_fix.f
+	gfortran -c -w -O1 -fPIC qm3/maths/ilaenv_fix.f
 
 lapack_deps.o:
 	gfortran -c -w -O2 -fPIC qm3/maths/lapack_deps.f
