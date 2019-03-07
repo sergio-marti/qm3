@@ -32,7 +32,7 @@ class gaussian( qm3.engines.qmbase ):
 		if( run == "grad" ):
 			T += " force"
 		if( run == "hess" ):
-			T += " freq=noraman"
+			T += " freq=noraman cphf(maxinv=10000)"
 		f.write( self.ini % ( T ) )
 		j = 0
 		for i in self.sel:
@@ -188,7 +188,7 @@ class gaussian_MMEL( qm3.engines.qmbase ):
 		if( run == "grad" ):
 			T += " force"
 		if( run == "hess" ):
-			T += " freq=noraman"
+			T += " freq=noraman cphf(maxinv=10000)"
 		f.write( self.ini % ( T ) )
 		j = 0
 		for i in self.sel:
