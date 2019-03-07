@@ -24,7 +24,11 @@ def default_log( txt ):
 
 
 def current_temperature( obj, project_RT = True ):
-	KEf = sum( [ obj.mass[ii] * sum( [ jj*jj for jj in obj.velo[3*ii:3*ii+3] ] ) for ii in range( obj.size // 3 ) ] )
+	KEf = 0.0
+	for i in range( obj.size // 3 ):
+		i3  = i * 3
+		KEf += obj.mass[i] * ( obj.velo[i3] * obj.velo[i3] + obj.velo[i3+1] * obj.velo[i3+1] + obj.velo[i3+2] * obj.velo[i3+2] )
+#	KEf = sum( [ obj.mass[ii] * sum( [ jj*jj for jj in obj.velo[3*ii:3*ii+3] ] ) for ii in range( obj.size // 3 ) ] )
 	if( project_RT ):
 		T = KEf * _Tfac / float( obj.size - 6.0 )
 	else:
@@ -46,30 +50,6 @@ def assign_velocities( obj, temperature = 300.0, project_RT = True ):
 	scf = math.sqrt( temperature / T )
 	for i in range( obj.size ):
 		obj.velo[i] *= scf
-
-
-
-#def leapfrog_verlet( obj, step_size = 0.001,
-#							step_number = 1000, 
-#							temperature = 300.0,
-#							temp_coupling = 0.1,
-#							pressure = 1.0,
-#							press_coupling = 0.1,
-#							print_frequency = 100,
-#							project_RT = True,
-#							log_function = default_log ):
-#	log_function( "---------------------------------------- Dynamics: Leapfrog-Verlet (NPT)\n" )
-#	log_function( "Step Size:          %20.10lg (ps)"%( step_size ) )
-#	log_function( "Step Number:        %20d"%( step_number ) )
-#	log_function( "Temperature:        %20.10lg (K)"%( temperature ) )
-#	log_function( "Temp. Coupling:     %20.10lg"%( temp_coupling ) )
-#	log_function( "Pressure:           %20.10lg (atm)"%( pressure ) )
-#	log_function( "Press. Coupling:    %20.10lg"%( press_coupling ) )
-#	log_function( "Print Frequency:    %20d"%( print_frequency ) )
-#	log_function( "\n%20s%20s%20s%20s%20s%20s%20s"%( "Time (ps)", "Potential (kJ/mol)", "Kinetic (kJ/mol)", "Total (kJ/mol)", "Temperature (K)", "Pressure (atm)", "Volume (A^3)" ) )
-#	log_function( 140 * "-" )
-#	# do something...
-#	log_function( 140 * "-" + "\n" )
 
 
 
@@ -225,10 +205,10 @@ class velocity_verlet( object ):
 		for i in range( self.obj.size ):
 			self.obj.velo[i] += self.fv * ( vtmp[i] + self.vacc[i] )
 		self.T, self.Kin = current_temperature( self.obj, self.project_RT )
-		scf = math.sqrt( 1.0 + self.tc * ( self.temperature / self.T - 1.0 ) )
-		scf = min( max( scf, 0.9 ), 1.1 )
+		scv = math.sqrt( 1.0 + self.tc * ( self.temperature / self.T - 1.0 ) )
+		scv = min( max( scv, 0.9 ), 1.1 )
 		for i in range( self.obj.size ):
-			self.obj.velo[i] *= scf
+			self.obj.velo[i] *= scv
 		self.T, self.Kin = current_temperature( self.obj, self.project_RT )
 		self.xavr[0] += self.obj.func
 		self.xavr[1] += self.Kin
