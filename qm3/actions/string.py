@@ -7,8 +7,6 @@ if( sys.version_info[0] == 2 ):
 import	math
 import	qm3.maths.matrix
 import	qm3.maths.interpolation
-import	qm3.utils._mpi
-
 
 
 #
@@ -261,7 +259,7 @@ kumb ~ 3000
 			self.fstr.close()
 
 
-	def s_grad( self, molec ):
+	def get_grad( self, molec ):
 		# calculate current CVs
 		self.ccrd = []
 		jaco = [ 0.0 for i in range( self.ncrd * self.jcol ) ]
@@ -296,44 +294,40 @@ kumb ~ 3000
 			self.rcrd[i] = min( max( self.rcrd[i], self.bcrd[i][0] ), self.bcrd[i][1] )
 
 
-	def s_dist( self ):
-		# redistribute reference CVs by arc-length every step
-		qm3.utils._mpi.barrier()
-		if( self.node == 0 ):
-			# get current string from nodes
-			tmp_c = self.rcrd[:]
-			tmp_m = self.cmet[:]
-			for i in range( 1, self.nwin ):
-				tmp_c += qm3.utils._mpi.recv_r8( i, self.ncrd )
-				tmp_m += qm3.utils._mpi.recv_r8( i, self.ncrd * self.ncrd )
-			# re-parametrize string
-			tmp_c = string_distribute( self.ncrd, self.nwin, tmp_c, tmp_m )[0]
-			# send back new string to nodes
-			self.rcrd = tmp_c[0:self.ncrd][:]
-			for i in range( 1, self.nwin ):
-				qm3.utils._mpi.send_r8( i, tmp_c[i*self.ncrd:(i+1)*self.ncrd] )
-			# store re-parametrized string
-			self.fstr.write( "".join( [ "%20.10lf"%( tmp_c[j] ) for j in range( self.ncrd * self.nwin ) ] ) + "\n" )
-			self.fstr.flush()
-			# store current convergence
-			ncrd2 = self.ncrd * self.ncrd
-			tmp_a = []
-			tmp_b = []
-			for i in range( self.nwin ):
-				tmp_i = qm3.maths.matrix.inverse( [ tmp_m[i*ncrd2+j] for j in range( ncrd2 ) ], self.ncrd, self.ncrd )
-				tmp_a += [ tmp_c[i*self.ncrd+j] - self.icrd[i*self.ncrd+j] for j in range( self.ncrd ) ]
-				tmp_b += qm3.maths.matrix.mult( tmp_i, self.ncrd, self.ncrd, tmp_a[i*self.ncrd:(i+1)*self.ncrd], self.ncrd, 1 )
-			self.fcnv.write( "%20.10lf\n"%( math.sqrt( sum( [ tmp_a[i] * tmp_b[i] for i in range( self.ncrd * self.nwin ) ] ) / float( self.nwin ) ) ) )
-			self.fcnv.flush()
-		else:
-			qm3.utils._mpi.send_r8( 0, self.rcrd )
-			qm3.utils._mpi.send_r8( 0, self.cmet )
-			self.rcrd = qm3.utils._mpi.recv_r8( 0, self.ncrd )
-
-
-	def get_grad( self, molec ):
-		self.s_grad( molec )
-		self.s_dist()
+# -- MPI distributed --
+#	def distribute( self ):
+#		# redistribute reference CVs by arc-length every step
+#		qm3.utils._mpi.barrier()
+#		if( self.node == 0 ):
+#			# get current string from nodes
+#			tmp_c = self.rcrd[:]
+#			tmp_m = self.cmet[:]
+#			for i in range( 1, self.nwin ):
+#				tmp_c += qm3.utils._mpi.recv_r8( i, self.ncrd )
+#				tmp_m += qm3.utils._mpi.recv_r8( i, self.ncrd * self.ncrd )
+#			# re-parametrize string
+#			tmp_c = string_distribute( self.ncrd, self.nwin, tmp_c, tmp_m )[0]
+#			# send back new string to nodes
+#			self.rcrd = tmp_c[0:self.ncrd][:]
+#			for i in range( 1, self.nwin ):
+#				qm3.utils._mpi.send_r8( i, tmp_c[i*self.ncrd:(i+1)*self.ncrd] )
+#			# store re-parametrized string
+#			self.fstr.write( "".join( [ "%20.10lf"%( tmp_c[j] ) for j in range( self.ncrd * self.nwin ) ] ) + "\n" )
+#			self.fstr.flush()
+#			# store current convergence
+#			ncrd2 = self.ncrd * self.ncrd
+#			tmp_a = []
+#			tmp_b = []
+#			for i in range( self.nwin ):
+#				tmp_i = qm3.maths.matrix.inverse( [ tmp_m[i*ncrd2+j] for j in range( ncrd2 ) ], self.ncrd, self.ncrd )
+#				tmp_a += [ tmp_c[i*self.ncrd+j] - self.icrd[i*self.ncrd+j] for j in range( self.ncrd ) ]
+#				tmp_b += qm3.maths.matrix.mult( tmp_i, self.ncrd, self.ncrd, tmp_a[i*self.ncrd:(i+1)*self.ncrd], self.ncrd, 1 )
+#			self.fcnv.write( "%20.10lf\n"%( math.sqrt( sum( [ tmp_a[i] * tmp_b[i] for i in range( self.ncrd * self.nwin ) ] ) / float( self.nwin ) ) ) )
+#			self.fcnv.flush()
+#		else:
+#			qm3.utils._mpi.send_r8( 0, self.rcrd )
+#			qm3.utils._mpi.send_r8( 0, self.cmet )
+#			self.rcrd = qm3.utils._mpi.recv_r8( 0, self.ncrd )
 
 
 	def distance( self, icrd, molec, jacob ):
@@ -347,15 +341,3 @@ kumb ~ 3000
 			jacob[icrd*self.jcol+3*self.jidx[aj]+k] += dd[k] / vv
 
 
-
-###############################################################################
-# Iterable version of the string
-#
-class stepped_string( string ):
-
-	def __init__( self, node, conf, molec ):
-		string.__init__( self, node, conf, molec )
-
-
-	def get_grad( self, molec ):
-		self.s_grad( molec )
