@@ -17,7 +17,8 @@ class server:
 			hstn = srvr
 		else:
 			hstn = socket.gethostbyname( socket.gethostname() )
-		print( "[server] listening at: %s"%( hstn ) )
+		sys.stderr.write( "[server] listening at: %s\n"%( hstn ) )
+		sys.stderr.flush()
 		sckt = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
 		sckt.bind( ( hstn, pnum ) )
 		self.chld = {}
@@ -27,9 +28,11 @@ class server:
 			node = len( self.chld ) + 1
 			self.chld[node] = chld
 			self.__send( chld, struct.pack( "i", node ) )
-			print( "[server] added: %d (%s)"%( node, addr[0] ) )
+			sys.stderr.write( "[server] added: %d (%s)\n"%( node, addr[0] ) )
+			sys.stderr.flush()
 		sckt.close()
-		print( "[server] done!" )
+		sys.stderr.write( "[server] done!\n" )
+		sys.stderr.flush()
 
 
 	def stop( self ):
@@ -92,7 +95,8 @@ class client:
 		self.sckt = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
 		self.sckt.connect( ( hstn, pnum ) )
 		self.node = struct.unpack( "i", self.__recv() )[0]
-		print( "[client:%d] connected!"%( self.node ) )
+		sys.stderr.write( "[client:%d] connected!\n"%( self.node ) )
+		sys.stderr.flush()
 
 
 	def stop( self ):

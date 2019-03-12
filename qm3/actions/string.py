@@ -309,9 +309,9 @@ kumb ~ 3000
 			# re-parametrize string
 			tmp_c = string_distribute( self.ncrd, self.nwin, tmp_c, tmp_m )[0]
 			# send back new string to nodes
+			self.rcrd = tmp_c[0:self.ncrd][:]
 			for i in range( 1, self.nwin ):
 				qm3.utils._mpi.send_r8( i, tmp_c[i*self.ncrd:(i+1)*self.ncrd] )
-			self.rcrd = tmp_c[self.node*self.ncrd:(self.node+1)*self.ncrd][:]
 			# store re-parametrized string
 			self.fstr.write( "".join( [ "%20.10lf"%( tmp_c[j] ) for j in range( self.ncrd * self.nwin ) ] ) + "\n" )
 			self.fstr.flush()
