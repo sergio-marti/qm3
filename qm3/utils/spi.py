@@ -28,7 +28,7 @@ class server:
 			node = len( self.chld ) + 1
 			self.chld[node] = chld
 			self.__send( chld, struct.pack( "i", node ) )
-			sys.stderr.write( "[server] added: %d (%s)\n"%( node, addr[0] ) )
+			sys.stderr.write( "[server] added: %d/%d\n"%( node, ncpu - 1 ) )
 			sys.stderr.flush()
 		sckt.close()
 		sys.stderr.write( "[server] done!\n" )
