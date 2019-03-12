@@ -41,8 +41,7 @@ class server:
 
 
 	def __send( self, sck, msg ):
-		sck.send( struct.pack( "i", len( msg ) ) )
-		sck.send( msg )
+		sck.send( struct.pack( "i", len( msg ) ) + msg )
 
 
 	def __recv( self, sck ):
@@ -104,8 +103,7 @@ class client:
 
 
 	def __send( self, msg ):
-		self.sckt.send( struct.pack( "i", len( msg ) ) )
-		self.sckt.send( msg )
+		self.sckt.send( struct.pack( "i", len( msg ) ) + msg )
 
 
 	def __recv( self ):
