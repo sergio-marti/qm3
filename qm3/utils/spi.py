@@ -10,6 +10,7 @@ import	struct
 
 class server:
 	def __init__( self, ncpu, pnum = 6969, srvr = None ):
+		self.ncpu = ncpu
 		self.node = 0
 		self.slen = 1024
 		if( srvr ):
