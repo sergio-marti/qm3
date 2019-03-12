@@ -20,6 +20,7 @@ dyn = qm3.actions.dynamics.langevin_verlet( obj, step_size = 0.0005,
 	temperature = 300., gamma_factor = 50., print_frequency = 10,
 	project_RT = True, log_function = obj.log )
 
+
 for i in range( 10000 ):
 	dyn.integrate()
 	qm3.utils._mpi.barrier()
@@ -50,6 +51,7 @@ for i in range( 10000 ):
 		qm3.utils._mpi.send_r8( 0, obj.str.rcrd )
 		qm3.utils._mpi.send_r8( 0, obj.str.cmet )
 		obj.str.rcrd = qm3.utils._mpi.recv_r( 0, obj.str.ncrd )
+
 
 obj.str.stop()
 qm3.utils._mpi.stop()
