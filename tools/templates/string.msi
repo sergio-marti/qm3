@@ -55,6 +55,5 @@ for i in range( 10000 ):
 		com.send_r8( obj.str.cmet )
 		obj.str.rcrd = com.recv_r8( obj.str.ncrd )
 
-obj.emm.stop()
 obj.str.stop()
 com.stop()

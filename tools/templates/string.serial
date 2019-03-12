@@ -1,0 +1,51 @@
+import	math
+import	os
+
+
+#-- object definition (my_problem)--
+
+
+#-- 18 windows --
+nwin = 18
+
+cwd = os.getcwd()
+obj = []
+dyn = []
+for i in range( nwin ):
+	os.mkdir( cwd + os.sep + str( node ) )
+	os.chdir( cwd + os.sep + str( node ) )
+	obj.append( my_problem( i ) )
+	qm3.actions.dynamics.assign_velocities( obj[i], temperature = 300., project_RT = True )
+	dyn.append( qm3.actions.dynamics.langevin_verlet( obj[i], step_size = 0.0005,
+		temperature = 300., gamma_factor = 50., print_frequency = 10,
+		project_RT = True, log_function = obj.log ) )
+
+for k in range( 10000 ):
+	for i in range( nwin ):
+		dyn[i].integrate()
+	#-- obj.str is the name of the string engine --
+	cvs   = obj[0].str
+	tmp_c = cvs.rcrd[:]
+	tmp_m = cvs.cmet[:]
+	for i in range( 1, nwin ):
+		tmp_c += obj[i].str.rcrd[:]
+		tmp_m += obj[i].str.cmet[:]
+	tmp_c = qm3.actions.string.string_distribute( cvs.ncrd, nwin, tmp_c, tmp_m )[0]
+	cvs.rcrd = tmp_c[0:cvs.ncrd][:]
+	for i in range( 1, nwin ):
+		obj[i].str.rcrd = tmp_c[i*cvs.ncrd:(i+1)*cvs.ncrd]
+	cvs.fstr.write( "".join( [ "%20.10lf"%( tmp_c[j] ) for j in range( cvs.ncrd * nwin ) ] ) + "\n" )
+	cvs.fstr.flush()
+	ncrd2 = cvs.ncrd * cvs.ncrd
+	tmp_a = []
+	tmp_b = []
+	for i in range( nwin ):
+		tmp_i = qm3.maths.matrix.inverse( [ tmp_m[i*ncrd2+j] for j in range( ncrd2 ) ], cvs.ncrd, cvs.ncrd )
+		tmp_a += [ tmp_c[i*cvs.ncrd+j] - cvs.icrd[i*cvs.ncrd+j] for j in range( cvs.ncrd ) ]
+		tmp_b += qm3.maths.matrix.mult( tmp_i, cvs.ncrd, cvs.ncrd, tmp_a[i*cvs.ncrd:(i+1)*cvs.ncrd], cvs.ncrd, 1 )
+	cvs.fcnv.write( "%20.10lf\n"%( math.sqrt( sum( [ tmp_a[i] * tmp_b[i] for i in range( cvs.ncrd * nwin ) ] ) / float( nwin ) ) ) )
+	cvs.fcnv.flush()
+
+
+for i in range( nwin ):
+	obj[i].str.stop()

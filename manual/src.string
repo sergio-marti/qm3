@@ -1,7 +1,6 @@
 \normalsize
 \subsection[string]{string.py}
 This module allows to calculate a on-the-fly-string\footnote{https://www.sciencedirect.com/science/article/pii/S000926140701086X}\footnote{https://onlinelibrary.wiley.com/doi/abs/10.1002/jcc.23673}\footnote{https://pubs.acs.org/doi/abs/10.1021/acs.jpca.7b10842} for a given child of "problem.template".
-It provides two classes depending on whether all nodes can be run at the same time (\func{string}), or by slots (\func{stepped\_string}, see example).
 At present time, it only allows to use distances for building the collective variable (as much as desired). The typical value of the collective variable dynamics time\_step ($dt/\gamma$) should be around the molecular dynamics time\_step over 100 ($\approx 10^{-5}$); meanwhile for MEP calculations it can be increased around of $\approx 10^{-4}$.
 The module also provides the function \func{string\_integrate} for parsing the results and integrating the MFEP. This function allows a range of points to be taken into account (\parm{i\_from} -- \parm{i\_to}), and the forces can be recycled (\parm{kumb} == None) or re-calcualted (\parm{kumb} == list of force constants for each distance appearing in "srting.def").
 Finally, the function \func{string\_distribute} is intended mainly for internal purposes...
@@ -15,9 +14,6 @@ class string( node, conf, molec )
     def stop()
     def get_grad( molec )
     def distance( icrd, molec, jacob )
-
-class stepped_string( node, conf, molec )
-    def get_grad( molec )
 \end{pyglist}
 The shape of the "string.def" config file (\parm{conf}) should be like the following:
 \footnotesize

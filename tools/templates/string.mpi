@@ -51,6 +51,5 @@ for i in range( 10000 ):
 		qm3.utils._mpi.send_r8( 0, obj.str.cmet )
 		obj.str.rcrd = qm3.utils._mpi.recv_r( 0, obj.str.ncrd )
 
-obj.emm.stop()
 obj.str.stop()
 qm3.utils._mpi.stop()
