@@ -3,20 +3,21 @@ import	math
 import	os
 
 
-#-- object definition (my_problem)--
+#-- object definition (my_problem): self.cvs should be the name of the string engine --
 
+
+ncrd = 2
+nwin = 18
 
 if( len( sys.argv ) == 1 ):
-	#-- 18 windows --
-	com = msi.server( 18 )
+	com = qm3.utils.msi.server( nwin )
 else:
-	com = msi.client( sys.argv[1] )
+	com = qm3.utils.msi.client( sys.argv[1] )
 
 os.mkdir( str( com.node ) )
 os.chdir( str( com.node ) )
 
 obj = my_problem( com.node )
-obj.get_grad()
 
 qm3.actions.dynamics.assign_velocities( obj, temperature = 300., project_RT = True )
 
@@ -25,37 +26,36 @@ dyn = qm3.actions.dynamics.langevin_verlet( obj, step_size = 0.0005,
 	project_RT = True, log_function = obj.log )
 
 
-for i in range( 10000 ):
+for _ in range( 10000 ):
 	dyn.integrate()
 	com.barrier()
 	if( com.node == 0 ):
-		#-- obj.str is the name of the string engine --
-		cvs   = obj.str
-		tmp_c = cvs.rcrd[:]
-		tmp_m = cvs.cmet[:]
-		for i in range( 1, cvs.nwin ):
-			tmp_c += com.recv_r8( i, cvs.ncrd )
-			tmp_m += com.recv_r8( i, cvs.ncrd * cvs.ncrd )
-		tmp_c = qm3.actions.string.string_distribute( cvs.ncrd, cvs.nwin, tmp_c, tmp_m )[0]
-		cvs.rcrd = tmp_c[0:cvs.ncrd][:]
-		for i in range( 1, cvs.nwin ):
-			com.send_r8( i, tmp_c[i*cvs.ncrd:(i+1)*cvs.ncrd] )
-		cvs.fstr.write( "".join( [ "%20.10lf"%( tmp_c[j] ) for j in range( cvs.ncrd * cvs.nwin ) ] ) + "\n" )
-		cvs.fstr.flush()
-		ncrd2 = cvs.ncrd * cvs.ncrd
+		ncrd2 = ncrd * ncrd
+		tmp_c = obj.cvs.rcrd[:]
+		tmp_m = obj.cvs.cmet[:]
+		for i in range( 1, nwin ):
+			tmp_c += com.recv_r8( i, ncrd )
+			tmp_m += com.recv_r8( i, ncrd2 )
+		tmp_c = qm3.actions.string.string_distribute( ncrd, nwin, tmp_c, tmp_m )[0]
+		obj.cvs.rcrd = tmp_c[0:ncrd][:]
+		for i in range( 1, nwin ):
+			com.send_r8( i, tmp_c[i*ncrd:(i+1)*ncrd] )
+		obj.cvs.fstr.write( "".join( [ "%20.10lf"%( tmp_c[j] ) for j in range( ncrd * nwin ) ] ) + "\n" )
+		obj.cvs.fstr.flush()
 		tmp_a = []
 		tmp_b = []
-		for i in range( cvs.nwin ):
-			tmp_i = qm3.maths.matrix.inverse( [ tmp_m[i*ncrd2+j] for j in range( ncrd2 ) ], cvs.ncrd, cvs.ncrd )
-			tmp_a += [ tmp_c[i*cvs.ncrd+j] - cvs.icrd[i*cvs.ncrd+j] for j in range( cvs.ncrd ) ]
-			tmp_b += qm3.maths.matrix.mult( tmp_i, cvs.ncrd, cvs.ncrd, tmp_a[i*cvs.ncrd:(i+1)*cvs.ncrd], cvs.ncrd, 1 )
-		cvs.fcnv.write( "%20.10lf\n"%( math.sqrt( sum( [ tmp_a[i] * tmp_b[i] for i in range( cvs.ncrd * cvs.nwin ) ] ) / float( cvs.nwin ) ) ) )
-		cvs.fcnv.flush()
+		for i in range( nwin ):
+			tmp_i = qm3.maths.matrix.inverse( [ tmp_m[i*ncrd2+j] for j in range( ncrd2 ) ], ncrd, ncrd )
+			tmp_a += [ tmp_c[i*ncrd+j] - obj.cvs.icrd[i*ncrd+j] for j in range( ncrd ) ]
+			tmp_b += qm3.maths.matrix.mult( tmp_i, ncrd, ncrd, tmp_a[i*ncrd:(i+1)*ncrd], ncrd, 1 )
+		obj.cvs.fcnv.write( "%20.10lf\n"%( math.sqrt( sum( [ tmp_a[i] * tmp_b[i] for i in range( ncrd * nwin ) ] ) / float( nwin ) ) ) )
+		obj.cvs.fcnv.flush()
 	else:
-		com.send_r8( obj.str.rcrd )
-		com.send_r8( obj.str.cmet )
-		obj.str.rcrd = com.recv_r8( obj.str.ncrd )
+		com.send_r8( obj.cvs.rcrd )
+		com.send_r8( obj.cvs.cmet )
+		obj.cvs.rcrd = com.recv_r8( ncrd )
 
 
-obj.str.stop()
+dyn.stats()
+obj.cvs.stop()
 com.stop()
