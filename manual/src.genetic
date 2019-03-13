@@ -1,0 +1,35 @@
+\normalsize
+\subsection[genetic]{genetic.py}
+Three flavours of the differential evolution algorithm: \func{differential\_evolution} (corresponding
+to the standard serialized implementation: during the 'intercourses', the improved
+new generations are incorporated to the 'active' population, thus allowing mixing), 
+\func{mpi\_diffevo} (which depends on \_mpi.so module, in which the global population is splitted into ncpu
+groups, and at each generation, the best of each 'village' are compared to choose
+the global best one, thus 'intercourses' are 'local' with no interaction among 'villages'), and
+finally \func{smp\_diffevo} (a SMP implementation, which allows a parallel evaluation of the all
+possible trials generated, thus not allowing the improved trials to interact with the remaining
+parents...).
+\\
+The larger the population, the better the performance (but the larger the calculation...),
+a value of: population = 5 * size would be ideal whether it is affordable...
+\begin{pyglist}[language=python,fvset={frame=single}]
+def differential_evolution( obj, boundaries, step_number = 200, print_frequency = 10,
+    step_tolerance = 1.0e-6, population_size = 10, mutation_factor = 0.8,
+    crossover_probability = 0.75, checkpointing = True, log_function = default_log )
+
+def mpi_diffevo( obj, boundaries, mpi_node, mpi_ncpu, step_number = 200, print_frequency = 10,
+    step_tolerance = 1.0e-6, population_size = 10, mutation_factor = 0.8,
+    crossover_probability = 0.75, checkpointing = True, log_function = default_log )
+
+def smp_diffevo( objs, boundaries, step_number = 200, print_frequency = 10,
+    step_tolerance = 1.0e-6, population_size = 10, mutation_factor = 0.8,
+    crossover_probability = 0.75, checkpointing = True, log_function = default_log )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.genetic
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.genetic.log
+\end{pyglist}
