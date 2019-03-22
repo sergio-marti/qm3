@@ -33,19 +33,24 @@ class muller_brown( qm3.problem.template ):
 
 
 	def get_grad( self ):
-		self.get_func()
+		self.func = 0.0
 		self.grad = [ 0.0, 0.0 ]
 		for i in range( 4 ):
 			f = self.A[i] * math.exp( self.a[i] * math.pow( self.coor[0] - self.xo[i], 2.0 ) + self.b[i] * ( self.coor[0] - self.xo[i] ) * ( self.coor[1] - self.yo[i] ) + self.c[i] * math.pow( self.coor[1] - self.yo[i], 2.0 ) )
+			self.func    += f
 			self.grad[0] += f * ( 2.0 * self.a[i] * ( self.coor[0] - self.xo[i] ) + self.b[i] * ( self.coor[1] - self.yo[i] ) )
 			self.grad[1] += f * ( self.b[i] * ( self.coor[0] - self.xo[i] ) + 2.0 * self.c[i] * ( self.coor[1] - self.yo[i] ) )
 
 
 	def get_hess( self ):
-		self.get_grad()
+		self.func = 0.0
+		self.grad = [ 0.0, 0.0 ]
 		self.hess = [ 0.0, 0.0, 0.0, 0.0 ]
 		for i in range( 4 ):
 			f = self.A[i] * math.exp( self.a[i] * math.pow( self.coor[0] - self.xo[i], 2.0 ) + self.b[i] * ( self.coor[0] - self.xo[i] ) * ( self.coor[1] - self.yo[i] ) + self.c[i] * math.pow( self.coor[1] - self.yo[i], 2.0 ) )
+			self.func    += f
+			self.grad[0] += f * ( 2.0 * self.a[i] * ( self.coor[0] - self.xo[i] ) + self.b[i] * ( self.coor[1] - self.yo[i] ) )
+			self.grad[1] += f * ( self.b[i] * ( self.coor[0] - self.xo[i] ) + 2.0 * self.c[i] * ( self.coor[1] - self.yo[i] ) )
 			self.hess[0] += f * ( 2.0 * self.a[i] + math.pow( 2.0 * self.a[i] * ( self.coor[0] - self.xo[i] ) + self.b[i] * ( self.coor[1] - self.yo[i] ), 2.0 ) )
 			self.hess[3] += f * ( 2.0 * self.c[i] + math.pow( 2.0 * self.c[i] * ( self.coor[1] - self.yo[i] ) + self.b[i] * ( self.coor[0] - self.xo[i] ), 2.0 ) )
 			t = f * ( self.b[i] + ( 2.0 * self.a[i] * ( self.coor[0] - self.xo[i] ) + self.b[i] *( self.coor[1] - self.yo[i] ) ) * ( self.b[i] * ( self.coor[0] - self.xo[i] ) + 2.0 * self.c[i] * ( self.coor[1] - self.yo[i] ) ) )
