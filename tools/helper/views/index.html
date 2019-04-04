@@ -1,0 +1,219 @@
+<html>
+<head>
+<style>
+body { background-color: #fff7ae; font-family: monospace; font-size: 12pt; }
+.form { font-family: monospace; font-size: 12pt; }
+td { font-family: monospace; font-size: 12pt; }
+.label{ width: 140px; }
+
+a:link, a:visited { color: #0000ff; text-decoration: none; }
+a:hover, a:active { background-color: #0000ff; color: #ffffff; }
+
+.tooltip { position: relative; display: inline-block; }
+.tooltip .tooltiptext { visibility: hidden; width: 780px; background-color: #cccccc; color: black; text-align: left; padding: 5px 0; border-radius: 6px; position: absolute; z-index: 1; font-family: monospace; font-size: 10pt; }
+.tooltip:hover .tooltiptext { visibility: visible; }
+</style>
+</head>
+<body>
+<script language="JavaScript">
+var f_QM = false;
+var f_MM = false;
+var f_QMcor = false;
+var f_QMenv = false;
+function __submit() {
+	document.FORM.submit();
+	return( true );
+}
+function __toggle_QM() {
+	var i = document.getElementById( "d_QM" );
+	if( f_QM ) {
+		i.style.display = "none";
+		f_QM = false;
+	} else {
+		i.style.display = "block";
+		f_QM = true;
+	}
+}
+function __toggle_QMcor() {
+	if( f_QMcor ) {
+		document.FORM.QMcor.style.display = "none";
+		f_QMcor = false;
+	} else {
+		document.FORM.QMcor.style.display = "block";
+		f_QMcor = true;
+	}
+}
+function __toggle_QMenv() {
+	if( f_QMenv ) {
+		document.FORM.QMenv.style.display = "none";
+		f_QMenv = false;
+	} else {
+		document.FORM.QMenv.style.display = "block";
+		f_QMenv = true;
+	}
+}
+function __toggle_MM() {
+	var i = document.getElementById( "d_MM" );
+	if( f_MM ) {
+		i.style.display = "none";
+		f_MM = false;
+	} else {
+		i.style.display = "block";
+		f_MM = true;
+	}
+}
+function __toggle_Todo() {
+	var itm = new Array();
+	itm.push( document.getElementById( "d_fire" ) );
+	itm.push( document.getElementById( "d_scan" ) );
+	itm.push( document.getElementById( "d_quad" ) );
+	itm.push( document.getElementById( "d_mode" ) );
+	itm.push( document.getElementById( "d_path" ) );
+	itm.push( document.getElementById( "d_lang" ) );
+	for( var i = 0; i < itm.length; i++ ) itm[i].style.display = "none";
+	switch( document.FORM.Todo.value ) {
+		case "min_fire":
+			itm[0].style.display = "block";
+			break;
+		case "pes_scan":
+			itm[1].style.display = "block";
+			break;
+		case "min_quad":
+			itm[2].style.display = "block";
+			break;
+		case "nor_mode":
+			itm[3].style.display = "block";
+			break;
+		case "mep_path":
+			itm[4].style.display = "block";
+			break;
+		case "dyn_lang":
+			itm[5].style.display = "block";
+			break;
+	}
+}
+</script>
+<form name="FORM" method="post" action="/mkinput">
+<center>
+<table border="0" width="100%">
+<tr>
+<td align="left"><a href="/editor" target="_blank">Editor</a></td>
+<td align="right"><input type="button" value="&nbsp;Build!&nbsp;" onclick="__submit();" class="form"></td>
+</tr>
+</table>
+</center>
+<hr>
+<table boder="0">
+<tr><td class="label">Molecule:</td><td>{{!pdb}}</td></tr>
+<tr><td class="label">Topology:</td><td>{{top}}</td></tr>
+</table>
+<hr>
+[<a onclick="__toggle_QM();">&nbsp;QM&nbsp;</a>]<br>
+<div id="d_QM" style="display: none;">
+<table border="0">
+<tr><td class="label">Engine:</td><td><select name="QMeng" class="form"><option value="--">&nbsp;</option>{{!qm_eng}}</select></td></tr>
+<tr><td class="label">Charge:</td><td><input name="QMchg" type="text" value="0" size="10" class="form"></td></tr>
+<tr><td class="label">Multiplicity:</td><td><input name="QMmul" type="text" value="1" size="10" class="form"></td></tr>
+<tr><td class="label">Method:</td><td><input name="QMmet" type="text" value="hf" size="20" class="form"></td></tr>
+<tr><td class="label">Basis Set:</td><td><input name="QMbas" type="text" value="3-21g" size="20" class="form"></td></tr>
+<tr><td class="label">Selection:</td><td>
+<div class="tooltip">
+<textarea name="QMsel" rows="2" cols="40" class="form" placeholder=""></textarea>
+<pre class="tooltiptext"> *            all atoms
+ int          atom number (C-indexing)
+ int-int      range of atom numbers
+ str:int      residue number (int) from chain (str)
+ str:int-int  range of residue numbers from chain (str)
+ str/int/lbl  atom label (lbl) from residue number (int) of chain (str)
+ str:int@rad  selection by residue around radii (rad) of residue number (int) of chain (str)
+ not          found at any position negates the resulting selection</pre>
+</div>
+</td>
+</tr>
+<tr><td class="label"><a onclick="__toggle_QMenv();">Environment</a>:</td>
+<td>
+<div class="tooltip">
+<textarea name="QMenv" rows="2" cols="40" class="form" style="display: none;"></textarea>
+<pre class="tooltiptext"> *            all atoms
+ int          atom number (C-indexing)
+ int-int      range of atom numbers
+ str:int      residue number (int) from chain (str)
+ str:int-int  range of residue numbers from chain (str)
+ str/int/lbl  atom label (lbl) from residue number (int) of chain (str)
+ str:int@rad  selection by residue around radii (rad) of residue number (int) of chain (str)
+ not          found at any position negates the resulting selection</pre>
+</div>
+</td></tr>
+<tr><td class="label"><a onclick="__toggle_QMcor();">Cartesians</a>:&nbsp;</td>
+<td><textarea name="QMcor" rows="20" cols="40" class="form" style="display: none;"></textarea></td></tr>
+</table>
+</div>
+<hr>
+[<a onclick="__toggle_MM();">&nbsp;MM&nbsp;</a>]<br>
+<div id="d_MM" style="display: none;">
+<table border="0">
+<tr><td class="label">Engine:</td><td><select name="MMeng" class="form"><option value="--">&nbsp;</option>{{!mm_eng}}</select></td></tr>
+<tr><td>PBC (&#197;):&nbsp;</td><td>
+<input name="box_X" type="text" value="" size="9" class="form" placeholder="&nbsp;X">
+<input name="box_X" type="text" value="" size="9" class="form" placeholder="&nbsp;Y">
+<input name="box_X" type="text" value="" size="9" class="form" placeholder="&nbsp;Z">
+</td></tr>
+<tr>
+<td class="label">Movile:</td><td>
+<div class="tooltip">
+<textarea name="MMmov" rows="2" cols="40" class="form"></textarea>
+<pre class="tooltiptext"> *            all atoms
+ int          atom number (C-indexing)
+ int-int      range of atom numbers
+ str:int      residue number (int) from chain (str)
+ str:int-int  range of residue numbers from chain (str)
+ str/int/lbl  atom label (lbl) from residue number (int) of chain (str)
+ str:int@rad  selection by residue around radii (rad) of residue number (int) of chain (str)
+ not          found at any position negates the resulting selection</pre>
+</div>
+</td></tr>
+</table>
+</div>
+<hr>
+<table border="0">
+<tr><td class="label">Action:</td><td><select name="Todo" onchange="__toggle_Todo();" class="form">
+<option value="min_fire" selected>Minimize (FIRE)</option>
+<option value="pes_scan">PES Scan</option>
+<option value="min_quad">Minimize (BAKER)</option>
+<option value="nor_mode">Normal Modes</option>
+<option value="mep_path">MEP Path</option>
+<option value="dyn_lang">Dynamics (Langevin: NVT)</option>
+</select></td></tr>
+</table>
+<div id="d_fire" style="display: block;">
+<table border="0">
+<tr><td class="label">Steps:</td><td><input name="fire_stp" type="text" value="1000" size="10" class="form"></td></tr>
+<tr><td  class="label">Step Size:</td><td><input name="fire_siz" type="text" value="0.1" size="10" class="form" title="units: &#197;"></td></tr>
+<tr><td class="label">Printing:</td><td><input name="fire_prt" type="text" value="1" size="10" class="form"></td></tr>
+<tr><td class="label">Gradient:</td><td><input name="fire_tol" type="text" value="1" size="10" class="form" title="units: kJ/mol.&#197;"></td></tr>
+</table>
+</div>
+<div id="d_scan" style="display: none;">
+<span>pes_scan</span>
+</div>
+<div id="d_lang" style="display: none;">
+<table border="0">
+<tr><td class="label">Steps:</td><td><input name="lang_stp" type="text" value="1000" size="10" class="form"></td></tr>
+<tr><td class="label">Step Size:</td><td><input name="lang_siz" type="text" value="0.001" size="10" class="form" title="units: ps"></td></tr>
+<tr><td class="label">Printing:</td><td><input name="lang_prt" type="text" value="1" size="10" class="form"></td></tr>
+<tr><td class="label">Gamma:</td><td><input name="lang_gam" type="text" value="50" size="10" class="form" title="units: 1/ps"></td></tr>
+<tr><td class="label">Temperature:</td><td><input name="lang_tmp" type="text" value="300" size="10" class="form" title="units: K"></td></tr>
+</table>
+</div>
+<div id="d_mode" style="display: none;">
+<span>nor_mode</span>
+</div>
+<div id="d_quad" style="display: none;">
+<span>min_quad</span>
+</div>
+<div id="d_path" style="display: none;">
+<span>mep_path</span>
+</div>
+</form>
+</body>
+</html>
