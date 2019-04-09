@@ -173,18 +173,18 @@ class client:
 	def send( self, dst, lst ):
 		msg = b"W%03d%03d%010d"%( self.node, dst, len( lst ) * 8 )
 		for r in lst:
-			msg += struct.pack( "d", r )
+			msg += struct.pack( "d", float( r ) )
 		sckt = socket.socket( self.kind, socket.SOCK_STREAM )
 		sckt.connect( self.addr )
 		self.__send( sckt, msg )
-		flg, msg = self.__recv( sckt, 1 )
+		flg, tmp = self.__recv( sckt, 1 )
 		sckt.close()
 		while( not flg ):
 			time.sleep( 0.1 )
 			sckt = socket.socket( self.kind, socket.SOCK_STREAM )
 			sckt.connect( self.addr )
 			self.__send( sckt, msg )
-			flg, msg = self.__recv( sckt, 1 )
+			flg, tmp = self.__recv( sckt, 1 )
 			sckt.close()
 
 
