@@ -10,7 +10,7 @@ jmol_isReady = function( applet ) {
 	Jmol.script( applet, "set platformSpeed 2" );
 	Jmol.script( applet, "set measurementUnits ANGSTROMS" );
 	Jmol.script( applet, "load /flushpdb" );
-	Jmol.script( applet, "cpk 23%; wireframe 0.15" );
+	Jmol.script( applet, "cpk 0.2; wireframe 0.1; select water; cpk off; wireframe 0.01" );
 }
 
 var hei = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
