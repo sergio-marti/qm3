@@ -11,10 +11,7 @@ nwin = 18
 ncpu = 6
 size = nwin // ncpu
 
-if( len( sys.argv ) == 1 ):
-	com = qm3.utils.msi.server( ncpu )
-else:
-	com = qm3.utils.msi.client( sys.argv[1] )
+com = qm3.utils.msi.client( sys.argv[1] )
 
 cwd = os.getcwd()
 obj = []
@@ -43,14 +40,14 @@ for _ in range( 10000 ):
 			tmp_m += obj[j].cvs.cmet[:]
 		for i in range( 1, ncpu ):
 			for j in range( size ):
-				tmp_c += com.recv_r8( i, ncrd )
-				tmp_m += com.recv_r8( i, ncrd2 )
+				tmp_c += com.recv( i, ncrd )
+				tmp_m += com.recv( i, ncrd2 )
 		tmp_c = qm3.actions.string.string_distribute( ncrd, nwin, tmp_c, tmp_m )[0]
 		for j in range( size ):
 			obj[j].cvs.rcrd = tmp_c[j*ncrd:(j+1)*ncrd][:]
 		for i in range( 1, ncpu ):
 			for j in range( size ):
-				com.send_r8( i, tmp_c[(size*i+j)*ncrd:(size*i+j+1)*ncrd] )
+				com.send( i, tmp_c[(size*i+j)*ncrd:(size*i+j+1)*ncrd] )
 		obj[0].cvs.fstr.write( "".join( [ "%20.10lf"%( tmp_c[j] ) for j in range( ncrd * nwin ) ] ) + "\n" )
 		obj[0].cvs.fstr.flush()
 		tmp_a = []
@@ -63,10 +60,10 @@ for _ in range( 10000 ):
 		obj[0].cvs.fcnv.flush()
 	else:
 		for j in range( size ):
-			com.send_r8( obj[j].cvs.rcrd )
-			com.send_r8( obj[j].cvs.cmet )
+			com.send( 0, obj[j].cvs.rcrd )
+			com.send( 0, obj[j].cvs.cmet )
 		for j in range( size ):
-			obj[j].cvs.rcrd = com.recv_r8( ncrd )
+			obj[j].cvs.rcrd = com.recv( 0, ncrd )
 
 
 for j in range( size ):
