@@ -1,0 +1,46 @@
+[server] listening at: /Users/smarti/Devel/qm3/qm3_msi
+[server] barrier 0 +++ (node: 008)
+[server] barrier 0 --- (node: 009)
+[server] barrier 1 +++ (node: 005)
+[server] barrier 1 --- (node: 001)
+[server] barrier 2 +++ (node: 007)
+006 >> 0: writ: 1158.068
+002 >> 0: writ: 1148.071
+009 >> 0: writ: 1147.134
+007 >> 0: writ: 1157.950
+005 >> 0: writ: 1151.563
+008 >> 0: writ: 1148.260
+[server] barrier 2 --- (node: 004)
+001 >> 0: writ: 1157.548
+003 >> 0: writ: 1153.133
+004 >> 0: writ: 1170.544
+0 << 001: read: 1157.548
+0 << 002: read: 1148.071
+0 << 003: read: 1153.133
+0 << 004: read: 1170.544
+0 << 005: read: 1151.563
+0 << 006: read: 1158.068
+0 << 007: read: 1157.950
+0 << 008: read: 1148.260
+0 << 009: read: 1147.134
+009     : diff: 0.000
+002     : diff: 0.000
+006     : diff: 0.000
+005     : diff: 0.000
+007     : diff: 0.000
+001     : diff: 0.000
+004     : diff: 0.000
+003     : diff: 0.000
+008     : diff: 0.000
+[server] barrier 3 +++ (node: 004)
+005: done!
+007: done!
+004: done!
+001: done!
+008: done!
+006: done!
+009: done!
+002: done!
+000: done!
+[server] barrier 3 --- (node: 003)
+003: done!
