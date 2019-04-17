@@ -57,7 +57,7 @@ function __toggle_QMenv() {
 			document.FORM.QMenv.style.display = "block";
 			f_QMenv = true;
 		}
-	} else { alert( "-- No Molecule and Topology provided!" ); }
+	}
 }
 */
 function __toggle_MM() {
@@ -70,7 +70,7 @@ function __toggle_MM() {
 			i.style.display = "block";
 			f_MM = true;
 		}
-	} else { alert( "-- No Molecule and Topology provided!" ); }
+	}
 }
 function __toggle_RR() {
 	var i = document.getElementById( "d_RR" );
@@ -165,9 +165,9 @@ function __del_rest( w ) {
 <tr><td class="label">Multiplicity:</td><td><input name="QMmul" type="text" value="1" size="10" class="form"></td></tr>
 <tr><td class="label">Method:</td><td><input name="QMmet" type="text" value="hf" size="20" class="form"></td></tr>
 <tr><td class="label">Basis Set:</td><td><input name="QMbas" type="text" value="3-21g" size="20" class="form"></td></tr>
-<tr><td class="label">Selection:</td><td>
+<tr><td class="label" style="display: {{!qm_chg}};">Selection:</td><td>
 <div class="tooltip">
-<textarea name="QMsel" rows="2" cols="40" class="form"{{!qm_chg}}>{{!qm_sel}}</textarea>
+<textarea name="QMsel" rows="2" cols="40" class="form" style="display: {{!qm_chg}};">{{!qm_sel}}</textarea>
 <pre class="tooltiptext"> *            all atoms
  int          atom number
  int-int      range of atom numbers
@@ -180,7 +180,7 @@ function __del_rest( w ) {
 </td>
 </tr>
 <!--<tr><td class="label"><a onclick="__toggle_QMenv();">Environment</a>:</td>-->
-<tr><td class="label">Environment:</td>
+<tr><td class="label" style="display: {{!qm_env}};">Environment:</td>
 <td>
 <div class="tooltip">
 <textarea name="QMenv" rows="2" cols="40" class="form" style="display: {{!qm_env}};"></textarea>
@@ -195,7 +195,7 @@ function __del_rest( w ) {
 </div>
 </td></tr>
 <!--<tr><td class="label"><a onclick="__toggle_QMcor();">Cartesians</a>:&nbsp;</td>-->
-<tr><td class="label">Cartesians:&nbsp;</td>
+<tr><td class="label" style="display: {{!qm_cor}};">Cartesians:&nbsp;</td>
 <td><textarea name="QMcor" rows="20" cols="40" class="form" style="display: {{!qm_cor}};"></textarea></td></tr>
 </table>
 </div>
@@ -209,10 +209,14 @@ function __del_rest( w ) {
 <input name="box_X" type="text" value="" size="9" class="form" placeholder="&nbsp;Y">
 <input name="box_X" type="text" value="" size="9" class="form" placeholder="&nbsp;Z">
 </td></tr>
+</table>
+</div>
+<hr>
+<table border="0">
 <tr>
-<td class="label">Movile:</td><td>
+<td class="label">Active sel.:</td><td>
 <div class="tooltip">
-<textarea name="MMmov" rows="2" cols="40" class="form"></textarea>
+<textarea name="Selec" rows="2" cols="40" class="form">{{!qm_sel}}</textarea>
 <pre class="tooltiptext"> *            all atoms
  int          atom number
  int-int      range of atom numbers

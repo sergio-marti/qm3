@@ -45,12 +45,12 @@ def __index():
 		pdb_view = "<a href=\"/loadpdb\" target=\"_blank\">%s</a>"%( os.path.basename( pdb ) )
 	qm_sel = ""
 	qm_cor = "none"
-	qm_chg = ""
+	qm_chg = "block"
 	qm_env = "block"
 	if( top == "None" and pdb == "None" ):
 		qm_sel = "*"
 		qm_cor = "block"
-		qm_chg = " disabled"
+		qm_chg = "none"
 		qm_env = "none"
 	return( bottle.template( "index.html", 
 		pdb = pdb_view,
@@ -154,6 +154,9 @@ def __mkinput():
 		mol = None
 	sel = []
 	# -- selections: QMsel, QMenv, MMmov (possible link_atoms and exclussions...)
+	_sqm = bottle.request.forms.get( "QMsel" ).strip()
+	_eqm = bottle.request.forms.get( "QMenv" ).strip()
+	_sel = bottle.request.forms.get( "Selec" ).strip()
 	# -- let's go!
 	f = open( job, "wt" )
 	f.write( """from __future__ import print_function, division
@@ -244,6 +247,8 @@ class my_problem( qm3.problem.template ):
 		self.hess = []
 """ )
 	# -- engines: QMeng (QMchg QMmul QMmet QMbas), MMeng, Other (like restraints...)
+# >> todos los restraints en una lista, de modo que los llama en bucle si hay alguno...
+# >> parsear y definir lo que sea
 	# -- zero QM charges on the MM engine (if any...)
 	# -- update_coor method
 	f.write( """
@@ -291,7 +296,7 @@ obj = my_problem()
 	# -- actions
 	# -- stop engines (if needed...)
 	f.close()
-	return( "<h1>Script generated: %s</h1>"%( job ) )
+	return( "<h1>Check the script generated:</h1><h1>%s</h1>"%( job ) )
 
 
 bottle.run( host = "localhost", port = 8080 )
