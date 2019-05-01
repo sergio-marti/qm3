@@ -10,8 +10,13 @@ class my_eng( qm3.problem.template ):
         self.mol.xyz_read( "xyz" )
         self.mol.chrg = [ -0.834, 0.417, 0.417, -0.834, 0.417, 0.417 ]
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
-        self.eng = qm3.engines.dftb.dftb( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ] )
-        self.eng.prm = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
+        self.eng = qm3.engines.dftb.dftb( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ],
+                         parm = "/Users/smarti/Devel/dftb+/params/3ob-3-1/",
+                         xopt = """ThirdOrderFull = Yes
+HubbardDerivs = { H = -0.1857; O = -0.1575 }
+HCorrection = Damping { Exponent = 4.0 }
+Dispersion = DftD3 {}
+""" )
         self.eng.exe = "/Users/smarti/Devel/dftb+/dftbplus/bin/dftb+ > dftb_in.log"
 
         self.size = 3 * self.mol.natm

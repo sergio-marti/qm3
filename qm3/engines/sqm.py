@@ -13,6 +13,40 @@ import	qm3.utils
 import	qm3.engines
 
 
+def sqm_input( obj, mol, run ):
+	f = open( "mdin", "wt" )
+	f.write( "single point energy calculation\n" )
+	f.write( "&qmmm\n" + obj.ini + "maxcyc = 0,\nqmmm_int = 1,\nverbosity = 4\n /\n" )
+	j = 0
+	for i in obj.sel:
+		i3 = i * 3
+		f.write( "%3d%4s%20.10lf%20.10lf%20.10lf\n"%( qm3.elements.rsymbol[obj.smb[j]], obj.smb[j],
+			mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
+			mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
+			mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
+		j += 1
+	if( obj.lnk ):
+		obj.vla = []
+		k = len( obj.sel )
+		for i,j in obj.lnk:
+			c, v = qm3.utils.LA_coordinates( i, j, mol )
+			# To allow the interaction of the Link-Atom with the environment change atomic number to "1"
+			f.write( "%3d%4s%20.10lf%20.10lf%20.10lf\n"%( -1, "H", c[0], c[1], c[2] ) )
+			obj.vla.append( ( obj.sel.index( i ), k, v[:] ) )
+			k += 1
+	f.write( "\n" )
+	if( obj.nbn ):
+		f.write( "#EXCHARGES\n" )
+		for i in obj.nbn:
+			i3 = i * 3
+			f.write( "%3d%4s%20.10lf%20.10lf%20.10lf%12.4lf\n"%( 1, "H",
+				mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
+				mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
+				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ), mol.chrg[i] ) )
+		f.write( "#END\n" )
+	f.close()
+
+
 
 class sqm( qm3.engines.qmbase ):
 
@@ -23,37 +57,7 @@ class sqm( qm3.engines.qmbase ):
 
 
 	def mk_input( self, mol, run ):
-		f = open( "mdin", "wt" )
-		f.write( "single point energy calculation\n" )
-		f.write( "&qmmm\n" + self.ini + "maxcyc = 0,\nqmmm_int = 1,\nverbosity = 4\n /\n" )
-		j = 0
-		for i in self.sel:
-			i3 = i * 3
-			f.write( "%3d%4s%20.10lf%20.10lf%20.10lf\n"%( qm3.elements.rsymbol[self.smb[j]], self.smb[j],
-				mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
-				mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
-				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
-			j += 1
-		if( self.lnk ):
-			self.vla = []
-			k = len( self.sel )
-			for i,j in self.lnk:
-				c, v = qm3.utils.LA_coordinates( i, j, mol )
-				# To allow the interaction of the Link-Atom with the environment change atomic number to "1"
-				f.write( "%3d%4s%20.10lf%20.10lf%20.10lf\n"%( -1, "H", c[0], c[1], c[2] ) )
-				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
-				k += 1
-		f.write( "\n" )
-		if( self.nbn ):
-			f.write( "#EXCHARGES\n" )
-			for i in self.nbn:
-				i3 = i * 3
-				f.write( "%3d%4s%20.10lf%20.10lf%20.10lf%12.4lf\n"%( 1, "H",
-					mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
-					mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
-					mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ), mol.chrg[i] ) )
-			f.write( "#END\n" )
-		f.close()
+		sqm_input( self, mol, run )
 
 
 	def parse_log( self, mol, run ):
@@ -95,44 +99,10 @@ try:
 			self.lib.qm3_sqm_calc_.argtypes = [ ctypes.POINTER( ctypes.c_int ), ctypes.POINTER( ctypes.c_double ) ]
 			self.lib.qm3_sqm_calc_.restype = None
 
-			self.mk_input( mol, ini )
+			sqm_input( self, mol, ini )
 			self.lib.qm3_sqm_init_()
 	
 	
-		def mk_input( self, mol, ini ):
-			f = open( "mdin", "wt" )
-			f.write( "single point energy calculation\n" )
-			f.write( "&qmmm\n" + ini + "maxcyc = 0,\nqmmm_int = 1,\nverbosity = 4\n /\n" )
-			j = 0
-			for i in self.sel:
-				i3 = i * 3
-				f.write( "%3d%4s%20.10lf%20.10lf%20.10lf\n"%( qm3.elements.rsymbol[self.smb[j]], self.smb[j],
-					mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
-					mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
-					mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
-				j += 1
-			if( self.lnk ):
-				self.vla = []
-				k = len( self.sel )
-				for i,j in self.lnk:
-					c, v = qm3.utils.LA_coordinates( i, j, mol )
-					# To allow the interaction of the Link-Atom with the environment change atomic number to "1"
-					f.write( "%3d%4s%20.10lf%20.10lf%20.10lf\n"%( -1, "H", c[0], c[1], c[2] ) )
-					self.vla.append( ( self.sel.index( i ), k, v[:] ) )
-					k += 1
-			f.write( "\n" )
-			if( self.nbn ):
-				f.write( "#EXCHARGES\n" )
-				for i in self.nbn:
-					i3 = i * 3
-					f.write( "%3d%4s%20.10lf%20.10lf%20.10lf%12.4lf\n"%( 1, "H",
-						mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
-						mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
-						mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ), mol.chrg[i] ) )
-				f.write( "#END\n" )
-			f.close()
-
-
 		def update_coor( self, mol ):
 			for i in range( len( self.sel ) ):
 				i3 = self.sel[i] * 3

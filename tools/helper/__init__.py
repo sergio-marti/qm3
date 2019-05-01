@@ -153,10 +153,31 @@ def __mkinput():
 	except:
 		mol = None
 	sel = []
-	# -- selections: QMsel, QMenv, MMmov (possible link_atoms and exclussions...)
+	# -- selections: QMsel, QMenv, Selec (possible link_atoms and exclussions...)
 	_sqm = bottle.request.forms.get( "QMsel" ).strip()
 	_eqm = bottle.request.forms.get( "QMenv" ).strip()
 	_sel = bottle.request.forms.get( "Selec" ).strip()
+
+	"""
+casos posibles:
+
+_sel == "" || _sel == "*":
+	entra todo en la definición del sistema: sel = []
+	
+_sel != "" && _sel != "*":
+
+	mol == None:
+		solo una parte de los átomos QM es activa de cara a las acciones
+		veo dos posibilidades:
+			1) restringir las posibles selecciones: *, int, int-int
+			2) cargar las coordenadas cartesianas en la molécula con un pickle
+				y aplicar parseo de selecciones igualmente...
+
+	mol != None:
+		hay mezcla de QM y MM: aplicar parseo de selecciones
+		es responsabilidad del usuario congelar átomos en el engine MM
+	"""
+
 	# -- let's go!
 	f = open( job, "wt" )
 	f.write( """from __future__ import print_function, division
