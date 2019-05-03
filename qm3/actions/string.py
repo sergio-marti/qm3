@@ -180,7 +180,7 @@ def string_integrate( ncrd, nwin, i_from = 0, i_to = -1, interpolant = qm3.maths
 
 class string( object ):
 
-	def __init__( self, node, conf, molec, all_nodes = True ):
+	def __init__( self, node, conf, molec ):
 		"""
 String config:
 ------------------------------------------------------------------------
@@ -196,8 +196,8 @@ tstp ~ 0.001 / 100.0  (dt / gamma) ~ 1.e-5 (dyn) / 1.e-4 (min)
 kumb ~ 3000
 ------------------------------------------------------------------------
 """
+		self.mdyn = True
 		self.node = node
-		self.mall = all_nodes
 		f = open( conf, "rt" )
 		t = f.readline().strip().split()
 		self.ncrd = int( t[0] )
@@ -289,7 +289,7 @@ kumb ~ 3000
 		self.fmet.write( "".join( [ "%20.10lf"%( i ) for i in self.cmet ] ) + "\n" )
 		self.fmet.flush()
 		# perform dynamics on the reference CVs and box'em (eq. 17 @ 10.1016/j.cplett.2007.08.017)
-		if( self.mall or ( self.node > 0 and self.node < self.nwin - 1 ) ):
+		if( self.mdyn ):
 			grad = qm3.maths.matrix.mult( diff, 1, self.ncrd, self.cmet, self.ncrd, self.ncrd )
 			for i in range( self.ncrd ):
 				self.rcrd[i] += grad[i] * self.tstp
