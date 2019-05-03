@@ -92,6 +92,7 @@ try:
 		def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
 			qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
 
+			self.ini = ini
 			self.nQM = len( self.sel ) + len( self.lnk )
 			self.siz = 1 + 3 * ( self.nQM + len( self.nbn ) ) + self.nQM
 			self.vec = ( ctypes.c_double * self.siz )()
@@ -99,7 +100,7 @@ try:
 			self.lib.qm3_sqm_calc_.argtypes = [ ctypes.POINTER( ctypes.c_int ), ctypes.POINTER( ctypes.c_double ) ]
 			self.lib.qm3_sqm_calc_.restype = None
 
-			sqm_input( self, mol, ini )
+			sqm_input( self, mol, "grad" )
 			self.lib.qm3_sqm_init_()
 	
 	
