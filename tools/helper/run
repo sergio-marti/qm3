@@ -6,4 +6,4 @@ if [ $# -ge 1 ]; then export HELPR_COR=$1; fi
 if [ $# -ge 2 ]; then export HELPR_TOP=$2; fi
 export PYTHONPATH=$cwd:$PYTHONPATH
 #/Applications/Firefox.app/Contents/MacOS/firefox --new-instance http://127.0.0.1:8080/ &
-python3 $cwd/__init__.py
+python $cwd/__init__.py

@@ -7,12 +7,12 @@ if( sys.version_info[0] == 2 ):
 
 QM_engines = {
 	"Gaussian": "qm3.engines.gaussian.gaussian",
-	"Amber SQM": "qm3.engines.sqm.dl_sqm",
+	"SQM (Amber)": "qm3.engines.sqm.dl_sqm",
 	"deMon2k": "qm3.engines.demon.demon",
 	"fDynamo": "qm3.engines.dynamo.py_dynamo",
 	"Orca": "qm3.engines.orca.orca",
 	"NWChem": "qm3.engines.nwchem.nwchem",
-	"DFTB+": "qm3.engines.dftb.dftb" }
+	"DFTB+": "qm3.engines.dftb.dl_dftb" }
 
 
 MM_engines = {

@@ -105,7 +105,7 @@ class dftb( qm3.engines.qmbase ):
 		tmp = { 1: "s", 2: "p", 3: "d", 4: "f", 5: "g" }
 		for elm in self.tbl:
 			f = open( parm + "%s-%s.skf"%( elm, elm ), "rt" )
-			self.ang[elm] = tmp[int( f.readline().strip().split()[-1] )]
+			self.ang[elm] = tmp[int( f.readline().split( "," )[-1].strip() )]
 			f.close()
 
 
@@ -162,7 +162,7 @@ try:
 			tmp = { 1: "s", 2: "p", 3: "d", 4: "f", 5: "g" }
 			for elm in self.tbl:
 				f = open( parm + "%s-%s.skf"%( elm, elm ), "rt" )
-				self.ang[elm] = tmp[int( f.readline().strip().split()[-1] )]
+				self.ang[elm] = tmp[int( f.readline().split( "," )[-1].strip() )]
 				f.close()
 
 			self.nQM = len( self.sel ) + len( self.lnk )

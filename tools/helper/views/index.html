@@ -36,30 +36,6 @@ function __toggle_QM() {
 		f_QM = true;
 	}
 }
-/*
-function __toggle_QMcor() {
-	if( "{{qm_cor}}" != "none" ) {
-		if( f_QMcor ) {
-			document.FORM.QMcor.style.display = "none";
-			f_QMcor = false;
-		} else {
-			document.FORM.QMcor.style.display = "block";
-			f_QMcor = true;
-		}
-	}
-}
-function __toggle_QMenv() {
-	if( "{{qm_cor}}" == "none" ) {
-		if( f_QMenv ) {
-			document.FORM.QMenv.style.display = "none";
-			f_QMenv = false;
-		} else {
-			document.FORM.QMenv.style.display = "block";
-			f_QMenv = true;
-		}
-	}
-}
-*/
 function __toggle_MM() {
 	var i = document.getElementById( "d_MM" );
 	if( "{{qm_cor}}" == "none" ) {
@@ -161,10 +137,12 @@ function __del_rest( w ) {
 <div id="d_QM" style="display: none;">
 <table border="0">
 <tr><td class="label">Engine:</td><td><select name="QMeng" class="form"><option value="--">&nbsp;</option>{{!qm_eng}}</select></td></tr>
+<!-- not in use:
 <tr><td class="label">Charge:</td><td><input name="QMchg" type="text" value="0" size="10" class="form"></td></tr>
 <tr><td class="label">Multiplicity:</td><td><input name="QMmul" type="text" value="1" size="10" class="form"></td></tr>
 <tr><td class="label">Method:</td><td><input name="QMmet" type="text" value="hf" size="20" class="form"></td></tr>
 <tr><td class="label">Basis Set:</td><td><input name="QMbas" type="text" value="3-21g" size="20" class="form"></td></tr>
+-->
 <tr><td class="label" style="display: {{!qm_chg}};">Selection:</td><td>
 <div class="tooltip">
 <textarea name="QMsel" rows="2" cols="40" class="form" style="display: {{!qm_chg}};">{{!qm_sel}}</textarea>
@@ -179,7 +157,6 @@ function __del_rest( w ) {
 </div>
 </td>
 </tr>
-<!--<tr><td class="label"><a onclick="__toggle_QMenv();">Environment</a>:</td>-->
 <tr><td class="label" style="display: {{!qm_env}};">Environment:</td>
 <td>
 <div class="tooltip">
@@ -194,7 +171,6 @@ function __del_rest( w ) {
  not          found at any position negates the resulting selection</pre>
 </div>
 </td></tr>
-<!--<tr><td class="label"><a onclick="__toggle_QMcor();">Cartesians</a>:&nbsp;</td>-->
 <tr><td class="label" style="display: {{!qm_cor}};">Cartesians:&nbsp;</td>
 <td><textarea name="QMcor" rows="20" cols="40" class="form" style="display: {{!qm_cor}};"></textarea></td></tr>
 </table>
@@ -247,22 +223,19 @@ function __del_rest( w ) {
 <tr><td class="label">Action:</td><td><select name="Todo" onchange="__toggle_Todo();" class="form">
 <option value="min_fire" selected>Minimize (FIRE)</option>
 <option value="pes_scan">PES Scan</option>
-<option value="min_quad">Minimize (BAKER)</option>
+<option value="min_quad">Minimize (Baker)</option>
 <option value="nor_mode">Normal Modes</option>
-<option value="mep_path">MEP Path</option>
+<option value="mep_path">MEP (Page/McIver)</option>
 <option value="dyn_lang">Dynamics (Langevin: NVT)</option>
 </select></td></tr>
 </table>
 <div id="d_fire" style="display: block;">
 <table border="0">
 <tr><td class="label">Steps:</td><td><input name="fire_stp" type="text" value="1000" size="10" class="form"></td></tr>
-<tr><td  class="label">Step Size:</td><td><input name="fire_siz" type="text" value="0.1" size="10" class="form" placeholder="&nbsp;&#197;"></td></tr>
+<tr><td class="label">Step Size:</td><td><input name="fire_siz" type="text" value="0.1" size="10" class="form" placeholder="&nbsp;&#197;"></td></tr>
 <tr><td class="label">Printing:</td><td><input name="fire_prt" type="text" value="1" size="10" class="form"></td></tr>
 <tr><td class="label">Gradient:</td><td><input name="fire_tol" type="text" value="1" size="10" class="form" placeholder="&nbsp;kJ/mol.&#197;"></td></tr>
 </table>
-</div>
-<div id="d_scan" style="display: none;">
-<span>pes_scan</span>
 </div>
 <div id="d_lang" style="display: none;">
 <table border="0">
@@ -274,13 +247,31 @@ function __del_rest( w ) {
 </table>
 </div>
 <div id="d_mode" style="display: none;">
-<span>nor_mode</span>
+<table border="0">
+<tr><td class="label">Temperature:</td><td><input name="mode_tmp" type="text" value="300" size="10" class="form" placeholder="&nbsp;K"></td></tr>
+<tr><td class="label">Pressure:</td><td><input name="mode_pre" type="text" value="1" size="10" class="form" placeholder="&nbsp;atm"></td></tr>
+<tr><td class="label">Masses:</td><td><input name="mode_mas" type="text" size="40" class="form" placeholder="&nbsp;#:g/mol"></td></tr>
+</table>
 </div>
 <div id="d_quad" style="display: none;">
-<span>min_quad</span>
+<table border="0">
+<tr><td class="label">Steps:</td><td><input name="quad_stp" type="text" value="1000" size="10" class="form"></td></tr>
+<tr><td class="label">Step Size:</td><td><input name="quad_siz" type="text" value="0.1" size="10" class="form" placeholder="&nbsp;&#197;"></td></tr>
+<tr><td class="label">Follow mode:</td><td><input name="quad_mod" type="text" value="-1" size="10" class="form"></td></tr>
+<tr><td class="label">Printing:</td><td><input name="quad_prt" type="text" value="1" size="10" class="form"></td></tr>
+<tr><td class="label">Gradient:</td><td><input name="quad_tol" type="text" value="1" size="10" class="form" placeholder="&nbsp;kJ/mol.&#197;"></td></tr>
+</table>
 </div>
 <div id="d_path" style="display: none;">
-<span>mep_path</span>
+<table border="0">
+<tr><td class="label">Steps:</td><td><input name="path_stp" type="text" value="1000" size="10" class="form"></td></tr>
+<tr><td class="label">Step Size:</td><td><input name="path_siz" type="text" value="0.01" size="10" class="form" placeholder="&nbsp;&#177;&#197;"></td></tr>
+<tr><td class="label">Printing:</td><td><input name="path_prt" type="text" value="1" size="10" class="form"></td></tr>
+<tr><td class="label">Gradient:</td><td><input name="path_tol" type="text" value="1" size="10" class="form" placeholder="&nbsp;kJ/mol.&#197;"></td></tr>
+</table>
+</div>
+<div id="d_scan" style="display: none;">
+<span>pes_scan</span>
 </div>
 </form>
 </body>
