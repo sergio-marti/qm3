@@ -131,6 +131,32 @@ static PyObject* w_guess_angles( PyObject *self, PyObject *args ) {
 		}
 		for( i = 0; i < cpu; i++ ) pthread_join( pid[i], NULL );
 
+// access to the connectivity array to check possible bonds between i & k 
+long nat = PyLong_AsLong( PyObject_GetAttrString( object, "natm" ) );
+long **con, *nel;
+PyObject *olst;
+otmp = PyObject_GetAttrString( object, "conn" );
+con = (long**) malloc( nat * sizeof( long* ) );
+nel = (long*) malloc( nat * sizeof( long ) );
+for( i = 0 ; i < nat; i++ ) {
+	olst = PyList_GetItem( otmp, i );
+	nel[i] = PyList_Size( olst );
+	con[i] = (long*) malloc( nel[i] * sizeof( long ) );
+	for( j = 0; j < nel[i]; j++ ) con[i][j] = PyLong_AsLong( PyList_GetItem( olst, j ) );
+}
+Py_DECREF( otmp );
+out = PyList_New( 0 );
+for( i = 0; i < cpu; i++ ) {
+	ptr = arg[i].ang->n;
+	while( ptr != NULL ) {
+			siz = 0; for( j = 0; j < nel[ptr->i]; j++ ) if( ptr->k == con[ptr->i][j] ) siz++;
+			if( siz == 0 ) PyList_Append( out, Py_BuildValue( "[l,l,l]", ptr->i, ptr->j, ptr->k ) );
+		ptr = ptr->n;
+	}
+}
+free( nel ); for( i = 0; i < nat; i++ ) free( con[i] ); free( con );
+
+/*
 		siz = 0;
 		for( i = 0; i < cpu; i++ ) { siz += arg[i].ang->i; }
 		out = PyList_New( siz );
@@ -142,6 +168,7 @@ static PyObject* w_guess_angles( PyObject *self, PyObject *args ) {
 				ptr = ptr->n;
 			}
 		}
+*/
 
 		free( rng ); free( lst ); free( pid );
 		for( i = 0; i < cpu; i++ ) {
@@ -251,6 +278,32 @@ static PyObject* w_guess_dihedrals( PyObject *self, PyObject *args ) {
 		}
 		for( i = 0; i < cpu; i++ ) pthread_join( pid[i], NULL );
 
+// access to the connectivity array to check possible bonds between i & k 
+long nat = PyLong_AsLong( PyObject_GetAttrString( object, "natm" ) );
+long **con, *nel;
+PyObject *olst;
+otmp = PyObject_GetAttrString( object, "conn" );
+con = (long**) malloc( nat * sizeof( long* ) );
+nel = (long*) malloc( nat * sizeof( long ) );
+for( i = 0 ; i < nat; i++ ) {
+	olst = PyList_GetItem( otmp, i );
+	nel[i] = PyList_Size( olst );
+	con[i] = (long*) malloc( nel[i] * sizeof( long ) );
+	for( j = 0; j < nel[i]; j++ ) con[i][j] = PyLong_AsLong( PyList_GetItem( olst, j ) );
+}
+Py_DECREF( otmp );
+out = PyList_New( 0 );
+for( i = 0; i < cpu; i++ ) {
+	ptr = arg[i].dih->n;
+	while( ptr != NULL ) {
+			siz = 0; for( j = 0; j < nel[ptr->i]; j++ ) if( ptr->l == con[ptr->i][j] ) siz++;
+			if( siz == 0 ) PyList_Append( out, Py_BuildValue( "[l,l,l,l]", ptr->i, ptr->j, ptr->k, ptr->l ) );
+		ptr = ptr->n;
+	}
+}
+free( nel ); for( i = 0; i < nat; i++ ) free( con[i] ); free( con );
+
+/*
 		siz = 0;
 		for( i = 0; i < cpu; i++ ) { siz += arg[i].dih->i; }
 		out = PyList_New( siz );
@@ -262,6 +315,7 @@ static PyObject* w_guess_dihedrals( PyObject *self, PyObject *args ) {
 				ptr = ptr->n;
 			}
 		}
+*/
 
 		free( rng ); free( lst ); free( pid );
 		for( i = 0; i < cpu; i++ ) {

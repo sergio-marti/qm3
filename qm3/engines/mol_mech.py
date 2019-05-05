@@ -158,6 +158,9 @@ class simple_force_field( object ):
 						self.angl.append( [ self.bond[i][0], self.bond[i][1], self.bond[j][1] ] )
 					elif( self.bond[i][1] == self.bond[j][1] ):
 						self.angl.append( [ self.bond[i][0], self.bond[i][1], self.bond[j][0] ] )
+			for i in range( len( self.angl )-1, -1, -1 ):
+				if( self.angl[i][0] in self.conn[self.angl[i][2]] ):
+					del self.angl[i]
 
 
 	def guess_dihedrals( self ):
@@ -175,6 +178,9 @@ class simple_force_field( object ):
 						self.dihe.append( [ self.angl[i][2], self.angl[i][1], self.angl[i][0], self.angl[j][2] ] )
 					elif( self.angl[i][1] == self.angl[j][2] and self.angl[i][0] == self.angl[j][1] ):
 						self.dihe.append( [ self.angl[i][2], self.angl[i][1], self.angl[i][0], self.angl[j][0] ] )
+			for i in range( len( self.dihe )-1, -1, -1 ):
+				if( self.dihe[i][0] in self.conn[self.dihe[i][3]] ):
+					del self.dihe[i]
 
 
 	def parse_molecule( self, mol ):
