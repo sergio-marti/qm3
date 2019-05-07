@@ -15,7 +15,7 @@ import	qm3.utils
 import	qm3.constants
 
 try:
-	import _mol_mech
+	import qm3.engines._mol_mech
 	mol_mech_so = True
 except:
 	mol_mech_so = False
@@ -145,7 +145,7 @@ class simple_force_field( object ):
 
 	def guess_angles( self ):
 		if( mol_mech_so ):
-			self.angl = _mol_mech.guess_angles( self )
+			self.angl = qm3.engines._mol_mech.guess_angles( self )
 		else:
 			self.angl = []
 			for i in range( len( self.bond ) - 1 ):
@@ -165,7 +165,7 @@ class simple_force_field( object ):
 
 	def guess_dihedrals( self ):
 		if( mol_mech_so ):
-			self.dihe = _mol_mech.guess_dihedrals( self )
+			self.dihe = qm3.engines._mol_mech.guess_dihedrals( self )
 		else:
 			self.dihe = []
 			for i in range( len( self.angl ) - 1 ):
@@ -357,7 +357,7 @@ class simple_force_field( object ):
 		if( self.bond == [] ):
 			return( 0.0 )
 		if( mol_mech_so ):
-			out = _mol_mech.energy_bond( self, mol, gradient )
+			out = qm3.engines._mol_mech.energy_bond( self, mol, gradient )
 		else:
 			out = 0.0
 			for i in range( len( self.bond ) ):
@@ -380,7 +380,7 @@ class simple_force_field( object ):
 		if( self.angl == [] ):
 			return( 0.0 )
 		if( mol_mech_so ):
-			out = _mol_mech.energy_angle( self, mol, gradient )
+			out = qm3.engines._mol_mech.energy_angle( self, mol, gradient )
 		else:
 			out = 0.0
 			for i in range( len( self.angl ) ):
@@ -417,7 +417,7 @@ class simple_force_field( object ):
 		if( self.dihe == [] ):
 			return( 0.0 )
 		if( mol_mech_so ):
-			out = _mol_mech.energy_dihedral( self, mol, gradient )
+			out = qm3.engines._mol_mech.energy_dihedral( self, mol, gradient )
 		else:
 			out = 0.0
 			for i in range( len( self.dihe ) ):
@@ -571,7 +571,7 @@ class simple_force_field( object ):
 
 	def update_non_bonded( self, mol ):
 		if( mol_mech_so ):
-			self.nbnd = _mol_mech.update_non_bonded( self, mol )
+			self.nbnd = qm3.engines._mol_mech.update_non_bonded( self, mol )
 		else:
 			self.nbnd = []
 			if( self.cut_list > 0.0 ):
@@ -687,7 +687,7 @@ class simple_force_field( object ):
 		if( not self.nbnd ):
 			self.update_non_bonded( mol )
 		if( mol_mech_so ):
-			oel, olj = _mol_mech.energy_non_bonded( self, mol, gradient )
+			oel, olj = qm3.engines._mol_mech.energy_non_bonded( self, mol, gradient )
 		else:
 			oel,   olj   = self.__non_bonded_interactions( mol, self.nbnd, 1.0, gradient, epsilon )
 			oel14, olj14 = self.__non_bonded_interactions( mol, self.nb14, 0.5, gradient, epsilon )
