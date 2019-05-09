@@ -120,9 +120,7 @@ def multi_newton_raphson( function, x0, max_iter = 1000, max_stp = 1.0, eps = 1.
 	nv = len( x0 )
 	xc = x0[:]
 	fx = [ function[i]( xc ) for i in range( nv ) ]
-	mx = [ math.fabs( i ) for i in fx ]
-	mx.sort()
-	mx = mx[-1]
+	mx = max( [ math.fabs( i ) for i in fx ] )
 	ni = 0
 	while( ni < max_iter and mx > eps ):
 		gx = []
@@ -137,6 +135,7 @@ def multi_newton_raphson( function, x0, max_iter = 1000, max_stp = 1.0, eps = 1.
 			dx = [ i / mx * max_stp for i in dx ]
 		xc = [ xc[i] - dx[i] for i in range( nv ) ]
 		fx = [ function[i]( xc ) for i in range( nv ) ]
+		mx = max( [ math.fabs( i ) for i in fx ] )
 		ni += 1
 	if( ni >= max_iter ):
 		return( None )
