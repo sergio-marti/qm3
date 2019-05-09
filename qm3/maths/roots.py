@@ -126,9 +126,9 @@ def multi_newton_raphson( function, x0, max_iter = 1000, max_stp = 1.0, eps = 1.
 		gx = []
 		for i in range( nv ):
 			for j in range( nv ):
-				cc = xc[:]
-				cc[j] += dsp
-				gx.append( ( function[i]( cc ) - fx[i] ) / dsp )
+				xc[j] += dsp
+				gx.append( ( function[i]( xc ) - fx[i] ) / dsp )
+				xc[j] -= dsp
 		dx = qm3.maths.matrix.mult( qm3.maths.matrix.inverse( gx, nv, nv ), nv, nv, fx, nv, 1 )
 		mx = math.sqrt( sum( i*i for i in dx ) )
 		if( mx > max_stp ):
