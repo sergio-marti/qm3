@@ -78,8 +78,8 @@ def RK42_step( function, dt, t, x, v ):
 
 
 
-def least_squares_finite_elements_2d( nx, dx, ny, dy, grd ):
+def least_squares_finite_elements_2d( nx, dx, ny, dy, grd, step_size = 10.0, deltaQ = -1 ):
 	try:
-		return( qm3.maths._ode.least_squares_finite_elements_2d( nx, dx, ny, dy, grd ) )
+		return( qm3.maths._ode.least_squares_finite_elements_2d( nx, dx, ny, dy, grd, step_size, deltaQ ) )
 	except:
 		raise Exception( "ode.least_squares_finite_elements_2d: qm3.maths._ode.so not available..." )

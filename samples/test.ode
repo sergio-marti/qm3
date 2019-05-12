@@ -82,6 +82,7 @@ print( "%12.6lf%12.6lf%12.6lf%12.6lf%12.6lf%12.6lf%12.6lf%12.6lf"%( tf, cx[0], c
 
 
 # Least-Squares Finite Elements integration (2D)
+print( "\n" )
 nx  = 50
 ny  = 50
 x0  = -0.5

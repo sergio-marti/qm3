@@ -49,7 +49,7 @@ static PyObject* w_lsfe_2d( PyObject *self, PyObject *args ) {
 	double		norm, grms, tmp, alph, ssiz, vsiz, vfac;
 	long		it, k, nstp;
 
-	if( PyArg_ParseTuple( args, "ldldO", &nx, &dx, &ny, &dy, &object ) ) {
+	if( PyArg_ParseTuple( args, "ldldOdd", &nx, &dx, &ny, &dy, &object, &step_size, &delt ) ) {
 
 		size = nx * ny;
 		coor = (double*) malloc( sizeof(double) * size );
@@ -68,10 +68,10 @@ static PyObject* w_lsfe_2d( PyObject *self, PyObject *args ) {
 			grdy[k] = PyFloat_AsDouble( PyList_GetItem( PyList_GetItem( object, k ), 1 ) );
 		}
 		
-		delt = min( 1.0e-4, min( dx, dy ) / 100.0 );
+		if( delt < 0.0 ) delt = min( 1.0e-4, min( dx, dy ) / 100.0 );
 		printf( "---- Least-Squares Finite Elements Integration / 2D (FIRE)\n" );
 		printf( "nx = %20ld\nny = %20ld\n", nx, ny );
-		printf( "dx = %20.10lf\ndy = %20.10lf\nds = %20.10lf\n", dx, dy, delt );
+		printf( "dx = %20.10lf\ndy = %20.10lf\ndq = %20.10lf\n", dx, dy, delt );
 		norm = 0.0;
 		grms = 0.0;
 		func = get_func( nx, dx, grdx, ny, dy, grdy, coor );
@@ -89,8 +89,6 @@ static PyObject* w_lsfe_2d( PyObject *self, PyObject *args ) {
 		norm = sqrt( norm );
 
 		step_number = 100000;
-		step_size = 1.0;
-		step_size = 10.0;
 		print_frequency = 100;
 		tolerance = 0.01;
 
@@ -100,6 +98,8 @@ static PyObject* w_lsfe_2d( PyObject *self, PyObject *args ) {
 
 		it = 0;
 		printf( "ss = %20.10lf\nfg = %20.10lf\n", step_size, tolerance );
+		printf( "----------------------------------------------------------------------\n" );
+		printf( "%10s%20s%20s%20s\n", "Iter", "Function", "Gradient", "Step Size" );
 		printf( "%10ld%20.5lf%20.10lf%20.10lf\n", it, func, grms, ssiz );
 		while( it < step_number && ( func > tolerance || grms > tolerance ) ) {
 			vsiz = 0.0; vfac = 0.0;
@@ -148,6 +148,7 @@ static PyObject* w_lsfe_2d( PyObject *self, PyObject *args ) {
 		}
 
 		if( it%print_frequency != 0 ) { printf( "%10ld%20.5lf%20.10lf%20.10lf\n", it, func, grms, ssiz ); }
+		printf( "----------------------------------------------------------------------\n" );
 
 		output = PyList_New( size );
 		for( k = 0; k < size; k++ ) PyList_SetItem( output, k, PyFloat_FromDouble( coor[k] ) );
