@@ -23,7 +23,7 @@ try:
 		return( list( numpy.random.choice( lst, num, replace = False ) ) )
 
 	def randint( a, b ):
-		return( numpy.random.random_integers( a, b ) )
+		return( numpy.random.random_integers( a, b + 1 ) )
 
 	def gauss( mean, stdv ):
 		return( numpy.random.normal( mean, stdv ) )

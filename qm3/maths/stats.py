@@ -7,6 +7,7 @@ if( sys.version_info[0] == 2 ):
 import	math
 import	qm3.maths.rand
 import	qm3.maths.matrix
+import	copy
 
 
 
@@ -50,75 +51,58 @@ def sampling_ratio( v ):
 	return( ( 1.0 + o ) / ( 1.0 - o ) )
 
 
-# REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE
-# REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE
+
 # http://home.deib.polimi.it/matteucc/Clustering/tutorial_html/kmeans.html
 # http://datasciencelab.wordpress.com/2014/01/15/improved-seeding-for-clustering-with-k-means/
-class k_means( object ):
-
-	def __init__( self, data ):
-		self._x = data[:]
-		self._k = None
-		self._mu = None
-		self._omu = None
-		self.clusters = None
-		self.indexes  = None
- 
-
-	def _cluster_points( self ):
-		self.clusters = {}
-		self.indexes  = {}
-		for j in range( len( self._x ) ):
-			key = min( [ ( i[0], math.fabs( self._x[j] - self._mu[i[0]] ) ) for i in enumerate( self._mu ) ], key = lambda t: t[1] )[0]
+def k_means( data, K ):
+	def __dist( vi, vj ):
+		if( type( vi ) == list ):
+			o = sum( [ ( vi[k] - vj[k] ) * ( vi[k] - vj[k] ) for k in range( len( vi ) ) ] )
+		else:
+			o = ( vi - vj ) * ( vi - vj )
+		return( o )
+	M = [ data[qm3.maths.rand.randint( 0, len( data ) - 1 )] ]
+	while( len( M ) < K ):
+		d2 = [ min( [ __dist( x, c ) for c in M ] ) for x in data ]
+		s2 = sum( d2 )
+		p  = [ i / s2 for i in d2 ]
+		c  = [ sum( p[0:i+1] ) for i in range( len( p ) ) ]
+		r  = qm3.maths.rand.random()
+		i  = c.index( [ j for j in c if j >= r ][0] )
+		M.append( data[i] )
+	C = None
+	I = None
+	o = [ data[i] for i in qm3.maths.rand.sample( range( len( data ) ), K ) ]
+	if( type( M[0] ) == list ):
+		t = len( set( sum( M, [] ) ).difference( set( sum( o, [] ) ) ) )
+	else:
+		t = len( set( M ).difference( set( o ) ) )
+	while( C == None or t != 0 ):
+		o = copy.deepcopy( M )
+		C = {}
+		I = {}
+		for j in range( len( data ) ):
+			w = min( [ ( __dist( data[j], M[i] ), i ) for i in range( len( M ) ) ] )[1]
 			try:
-				self.clusters[key].append( self._x[j] )
-				self.indexes[key].append( j )
-			except KeyError:
-				self.clusters[key] = [ self._x[j] ]
-				self.indexes[key] = [ j ]
- 
-
-	def _reevaluate_centers( self ):
-		self._mu = []
-		for k in sorted( self.clusters ):
-			self._mu.append( sum( self.clusters[k] ) / float( len( self.clusters[k] ) ) )
- 
-
-	def _has_converged( self ):
-		return( set( self._mu ) == set( self._omu ) and len( self._mu ) == len( self._omu ) )
-
-
-	def _choose_next_center( self ):
-		d2 = [ min( [ (x-c)*(x-c) for c in self._mu ] ) for x in self._x ]
-		s = sum( d2 )
-		p = [ i / s for i in d2 ]
-		c = [ sum( p[0:i+1] ) for i in range( len( p ) ) ]
-		r = qm3.maths.rand.random()
-		i = c.index( [ j for j in c if j >= r ][0] )
-		return( self._x[i] )
- 
-
-	def _init_centers(self):
-# ---------------------------------------------------
-#		self._mu = qm3.maths.rand.random.sample( self._x, self._k )
-# ---------------------------------------------------
-		self._mu = qm3.maths.rand.sample( self._x, 1 )
-		while( len( self._mu ) < self._k ):
-			self._mu.append( self._choose_next_center() )
-# ---------------------------------------------------
- 
-
-	def find_centers( self, k ):
-		self._k = k
-		self._omu = qm3.maths.rand.sample( self._x, self._k )
-		self._init_centers()
-		while( not self._has_converged() ):
-			self._omu = self._mu[:]
-			self._cluster_points()
-			self._reevaluate_centers()
-		return( self.clusters )
-# REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE
-# REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE - REWRITE
+				C[w].append( data[j] )
+				I[w].append( j )
+			except:
+				C[w] = [ data[j] ]
+				I[w] = [ j ]
+		if( type( M[0] ) == list ):
+			n = len( M[0] )	
+			M = []
+			for k in iter( C ):
+				t = [ 0.0 for i in range( n ) ]
+				for p in C[k]:
+					for j in range( n ):
+						t[j] += p[j]
+				M.append( [ i / float( len( C[k] ) ) for i in t ] )
+			t = len( set( sum( M, [] ) ).difference( set( sum( o, [] ) ) ) )
+		else:
+			M = [ sum( C[k] ) / float( len( C[k] ) ) for k in iter( C ) ]
+			t = len( set( M ).difference( set( o ) ) )
+	return( C, I )
 
 
 
@@ -126,7 +110,6 @@ class k_means( object ):
 # X: [ [x1_N], ..., [xk_N] ] (vars:k, data:N)
 #
 class PCA( object ):
-
 	def __init__( self, x ):
 		self.var = len( x )
 		self.dim = len( x[0] )
@@ -188,7 +171,7 @@ try:
 		I = None
 		o = data[numpy.random.choice( range( data.shape[0] ), K, replace = False )]
 		while( C == None or numpy.setdiff1d( numpy.unique( o ), numpy.unique( M ) ).size != 0 ):
-			o =M 
+			o = M 
 			C = {}
 			I = {}
 			for j in range( data.shape[0] ):
@@ -200,6 +183,7 @@ try:
 					C[w] = [ data[j] ]
 					I[w] = [ j ]
 			M = numpy.array( [ numpy.mean( C[k], axis = 0 ) for k in iter( C ) ] )
+		C = { k: numpy.array( C[k] ).reshape( (len(C[k]),len(C[k][0])) ) for k in iter( C ) }
 		return( C, I )
 	
 
