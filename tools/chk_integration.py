@@ -19,16 +19,26 @@ crd = int( sys.argv[1] )
 win = t // crd
 dsp = 1000
 
+his = []
 for i in range( int( round( n / float( dsp ), 0 ) ) ):
 	qm3.actions.string.string_integrate( crd, win, i * dsp, -1 )
 	f = open( "string.mfep", "rt" )
-	ene = [ float( l.strip() ) for l in f ]
+	ene = [ float( l.strip() ) / 4.184 for l in f ]
+	his.append( ene[:] )
 	f.close()
 	plt.clf()
 	plt.grid( True )
 	plt.title( "%d:"%( i * dsp ), loc = "left" )
-	plt.plot( [ ene[i] / 4.184 for i in xrange( win ) ], "-o" )
+	plt.plot( ene, "-o" )
 	pdf.savefig()
 	plt.close()
+
+plt.clf()
+plt.grid( True )
+for i in range( len( his ) ):
+	plt.plot( his[i], "-", label = "%d:"%( i * dsp ) )
+plt.legend( loc = "lower left" )
+pdf.savefig()
+plt.close()
 
 pdf.close()
