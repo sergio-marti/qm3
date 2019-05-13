@@ -61,7 +61,7 @@ def k_means( data, K ):
 		else:
 			o = ( vi - vj ) * ( vi - vj )
 		return( o )
-	M = [ data[qm3.maths.rand.randint( 0, len( data ) - 1 )] ]
+	M = [ data[qm3.maths.rand.randint( 0, len( data ) - 2 )] ]
 	while( len( M ) < K ):
 		d2 = [ min( [ __dist( x, c ) for c in M ] ) for x in data ]
 		s2 = sum( d2 )
@@ -183,7 +183,10 @@ try:
 					C[w] = [ data[j] ]
 					I[w] = [ j ]
 			M = numpy.array( [ numpy.mean( C[k], axis = 0 ) for k in iter( C ) ] )
-		C = { k: numpy.array( C[k] ).reshape( (len(C[k]),len(C[k][0])) ) for k in iter( C ) }
+		if( type( C[0][0] ) == numpy.array ):
+			C = { k: numpy.array( C[k] ).reshape( ( len( C[k] ), len( C[k][0] ) ) ) for k in iter( C ) }
+		else:
+			C = { k: numpy.array( C[k] ) for k in iter( C ) }
 		return( C, I )
 	
 

@@ -123,7 +123,7 @@ def fep_integrate( dene, temperature = 300.0, clusters = 1, tries = 10 ):
 		exp = [ math.exp( - dene[i] / rt ) for i in range( len( dene ) ) ]
 		dat = {}
 		for i in range( tries ):
-			grp = qm3.maths.stats.k_means( exp ).find_centers( clusters )
+			grp = qm3.maths.stats.k_means( exp, clusters )[0]
 			for j in range( clusters ):
 				n = len( grp[j] )
 				e = [ dene[exp.index(k)] for k in grp[j] ]
