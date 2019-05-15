@@ -6,7 +6,7 @@
 
 /* --------------------------------------------------------------------------------------
  *
- *	QM-LJ interactions (gradient + hessian)
+ *	QM-LJ interactions ([function], gradient + hessian)
  */
 
 
@@ -108,6 +108,53 @@ static void QMLJ__dealloc( oQMLJ *self ) {
 	self->epsi = NULL;
 	self->rmin = NULL;
 	Py_TYPE( self )->tp_free( (PyObject*) self );
+}
+
+
+static PyObject* QMLJ__get_func( PyObject *self, PyObject *args ) {
+	PyObject	*o_mol, *o_coor, *o_boxl, *o_tmp;
+	long		i, k;
+	double		*coor = NULL;
+	double		boxl[3], dr[3], r2, ss, tmp, ff;
+	oQMLJ		*obj = NULL;
+
+	obj = (oQMLJ*) self;
+	if( PyArg_ParseTuple( args, "O", &o_mol ) ) {
+		o_boxl = PyObject_GetAttrString( o_mol, "boxl" );
+		for( k = 0; k < 3; k++ ) boxl[k] = PyFloat_AsDouble( PyList_GetItem( o_boxl, k ) );
+		Py_DECREF( o_boxl );
+		o_coor = PyObject_GetAttrString( o_mol, "coor" );
+		coor = (double*) malloc( 3 * obj->natm * sizeof( double ) );
+		for( i = 0; i < 3 * obj->natm; i++ ) {
+			coor[i] = PyFloat_AsDouble( PyList_GetItem( o_coor, i ) );
+		}
+		Py_DECREF( o_coor );
+
+		ff = 0.0;
+		for( i = 0; i < obj->ni; i++ ) {
+			r2 = 0.0;
+			for( k = 0; k < 3; k++ ) {
+				dr[k] = coor[3*obj->qm[i]+k] - coor[3*obj->mm[i]+k];
+//				if( dr[k] >    boxl[k] * 0.5 ) { dr[k] -= boxl[k]; }
+//				if( dr[k] <= - boxl[k] * 0.5 ) { dr[k] += boxl[k]; }
+				dr[k] -= boxl[k] * round( dr[k] / boxl[k] );
+				r2 += dr[k] * dr[k];
+			}
+			ss = ( obj->rmin[obj->qm[i]] + obj->rmin[obj->mm[i]] ) / sqrt( r2 );
+			ss = ss * ss * ss * ss * ss * ss;
+			ff += obj->epsi[obj->qm[i]] * obj->epsi[obj->mm[i]] * ss * ( ss - 2.0 ) * obj->sc[i];
+		}
+
+		o_tmp = PyObject_GetAttrString( o_mol, "func" );
+		tmp = PyFloat_AsDouble( o_tmp );
+		Py_DECREF( o_tmp );
+		PyObject_SetAttrString( o_mol, "func", PyFloat_FromDouble( tmp + ff ) );
+
+		free( coor );
+		
+	}
+	Py_INCREF( Py_None );
+	return( Py_None );
 }
 
 
@@ -233,6 +280,7 @@ static PyObject* QMLJ__get_hess( PyObject *self, PyObject *args ) {
 
 
 static struct PyMethodDef QMLJ_methods [] = {
+    { "get_func", (PyCFunction)QMLJ__get_func, METH_VARARGS },
     { "get_grad", (PyCFunction)QMLJ__get_grad, METH_VARARGS },
     { "get_hess", (PyCFunction)QMLJ__get_hess, METH_VARARGS },
 	{ 0, 0, 0 }
