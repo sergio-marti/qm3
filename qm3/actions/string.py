@@ -180,21 +180,21 @@ def string_integrate( ncrd, nwin, i_from = 0, i_to = -1, interpolant = qm3.maths
 
 class string( object ):
 
-	def __init__( self, node, conf, molec ):
+	def __init__( self, node, conf, molec, tstp = 1.e-5 ):
 		"""
 String config:
-------------------------------------------------------------------------
-ncrd      nwin      tstp|1e-5
+--------------------------------------------------------------------------
+ncrd      nwin
 dist      atom_i    atom_j    kumb      min_val|.0      max_val|9.e99
 ...
 dist      atom_i    atom_j    kumb      min_val|.0      max_val|9.e99
 ref_1,1   ...       ref_1,nc
 ...       ...       ...    
 ref_nw,1  ...       ref_nw,nc
-------------------------------------------------------------------------
-tstp ~ 0.001 / 100.0  (dt / gamma) ~ 1.e-5 (dyn) / 1.e-4 (min)
+--------------------------------------------------------------------------
+tstp = dt / gamma ~ 1.e-5 (dyn) / 1.e-4 (min) / 0.0 (fix)
 kumb ~ 3000
-------------------------------------------------------------------------
+--------------------------------------------------------------------------
 """
 		self.metadyn = True
 		self.node = node
@@ -202,9 +202,7 @@ kumb ~ 3000
 		t = f.readline().strip().split()
 		self.ncrd = int( t[0] )
 		self.nwin = int( t[1] )
-		self.tstp = 0.001 / 100.0
-		if( len( t ) == 3 ):
-			self.tstp = float( t[2] )
+		self.tstp = tstp
 		self.jidx = {}
 		self.func = []
 		self.atom = []
@@ -289,11 +287,10 @@ kumb ~ 3000
 		self.fmet.write( "".join( [ "%20.10lf"%( i ) for i in self.cmet ] ) + "\n" )
 		self.fmet.flush()
 		# perform dynamics on the reference CVs and box'em (eq. 17 @ 10.1016/j.cplett.2007.08.017)
-		if( self.metadyn ):
-			grad = qm3.maths.matrix.mult( diff, 1, self.ncrd, self.cmet, self.ncrd, self.ncrd )
-			for i in range( self.ncrd ):
-				self.rcrd[i] += grad[i] * self.tstp
-				self.rcrd[i] = min( max( self.rcrd[i], self.bcrd[i][0] ), self.bcrd[i][1] )
+		grad = qm3.maths.matrix.mult( diff, 1, self.ncrd, self.cmet, self.ncrd, self.ncrd )
+		for i in range( self.ncrd ):
+			self.rcrd[i] += grad[i] * self.tstp
+			self.rcrd[i] = min( max( self.rcrd[i], self.bcrd[i][0] ), self.bcrd[i][1] )
 
 
 # -- MPI distributed --

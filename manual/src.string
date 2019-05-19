@@ -1,7 +1,7 @@
 \normalsize
 \subsection[string]{string.py}
 This module allows to calculate a on-the-fly-string\footnote{https://www.sciencedirect.com/science/article/pii/S000926140701086X}\footnote{https://onlinelibrary.wiley.com/doi/abs/10.1002/jcc.23673}\footnote{https://pubs.acs.org/doi/abs/10.1021/acs.jpca.7b10842} for a given child of "problem.template".
-At present time, it only allows to use distances for building the collective variable (as much as desired). The typical value of the collective variable dynamics time\_step ($dt/\gamma$) should be around the molecular dynamics time\_step over 100 ($\approx 10^{-5}$); meanwhile for MEP calculations it can be increased around of $\approx 10^{-4}$.
+At present time, it only allows to use distances for building the collective variable (as much as desired). The typical value of the collective variable dynamics time\_step ($dt/\gamma$) should be around the molecular dynamics time\_step over 100 ($\approx 10^{-5}$); meanwhile for MEP calculations it can be increased around of $\approx 10^{-4}$. Finally, it can be set to zero to avoid matadynamics (for all nodes to place the system in the right starting point, or in the first and last nodes to refine a quadratic region...).
 The module also provides the function \func{string\_integrate} for parsing the results and integrating the MFEP. This function allows a range of points to be taken into account (\parm{i\_from} -- \parm{i\_to}), and the forces can be recycled (\parm{kumb} == None) or re-calcualted (\parm{kumb} == list of force constants for each distance appearing in "srting.def").
 Finally, the function \func{string\_distribute} is intended mainly for internal purposes...
 \begin{pyglist}[language=python,fvset={frame=single}]
@@ -10,7 +10,7 @@ def string_distribute( ncrd, nwin, rcrd, rmet, interpolant = qm3.maths.interpola
 def string_integrate( ncrd, nwin, i_from = 0, i_to = -1,
     interpolant = interpolation.hermite_spline, kumb = None, spline_derivatives = True )
 
-class string( node, conf, molec )
+class string( node, conf, molec, tstp = 1.e-5 )
     def stop()
     def get_grad( molec )
     def distance( icrd, molec, jacob )
@@ -20,7 +20,7 @@ The shape of the "string.def" config file (\parm{conf}) should be like the follo
 \begin{pyglist}[fvset={frame=single}]
 String config:
 ------------------------------------------------------------------------
-ncrd      nwin      tstp|1e-5
+ncrd      nwin
 dist      atom_i    atom_j    kumb      min_val|.0      max_val|9.e99
 ...
 dist      atom_i    atom_j    kumb      min_val|.0      max_val|9.e99
@@ -28,7 +28,7 @@ ref_1,1   ...       ref_1,nc
 ...       ...       ...    
 ref_nw,1  ...       ref_nw,nc
 ------------------------------------------------------------------------
-tstp ~ 0.001 / 100.0  (dt / gamma) ~ 1.e-5 (dyn) / 1.e-4 (min)
+tstp = dt / gamma ~ 1.e-5 (dyn) / 1.e-4 (min) / 0.0 (fix)
 kumb ~ 3000
 ------------------------------------------------------------------------
 \end{pyglist}
