@@ -685,5 +685,4 @@ obj.mole.pdb_write( "last.pdb" )
 
 
 bottle.TEMPLATE_PATH.append( os.path.join( cwd, "views" ) )
-print( bottle.TEMPLATE_PATH )
 bottle.run( host = "localhost", port = 8080 )
