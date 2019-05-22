@@ -74,9 +74,9 @@ def __index():
 @bottle.route( "/jsmol/<sub:path>" )
 def __jsmol( sub ):
 	if( sub[-3:] == "png" ):
-		return( bottle.static_file( sub, root = "jsmol", mimetype = "image/png" ) )
+		return( bottle.static_file( sub, root = os.path.join( cwd, "jsmol" ), mimetype = "image/png" ) )
 	else:
-		return( bottle.static_file( sub, root = "jsmol" ) )
+		return( bottle.static_file( sub, root = os.path.join( cwd, "jsmol" ) ) )
 
 
 @bottle.route( "/editor" )
@@ -684,4 +684,6 @@ obj.mole.pdb_write( "last.pdb" )
 	return( "<h1>Check the script generated:</h1><h1>%s</h1>"%( job ) )
 
 
+bottle.TEMPLATE_PATH.append( os.path.join( cwd, "views" ) )
+print( bottle.TEMPLATE_PATH )
 bottle.run( host = "localhost", port = 8080 )
