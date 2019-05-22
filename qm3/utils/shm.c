@@ -6,7 +6,7 @@
 #include <sys/shm.h>
 
 
-// for i in `ipcs -m --human | grep $USER | awk '{print $2}'`; do ipcrm -m $i; done
+// for i in `ipcs -m | grep $USER | awk '{print $2}'`; do ipcrm -m $i; done
 
 
 static PyObject* __alloc( PyObject *self, PyObject *args ){
