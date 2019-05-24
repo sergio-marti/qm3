@@ -9,6 +9,10 @@ import	qm3.maths.matrix
 
 
 
+__vcut = 0.00035481432270250985
+
+
+
 def default_log( txt ):
 	sys.stdout.write( txt + "\n" )
 	sys.stdout.flush()
@@ -62,6 +66,33 @@ def __project_RT_modes( w, x, g, h ):
 		h[i] = t[i]
 
 
+# use positive/forward or negative/reverse
+def initial_step( obj, step_size = 0.0028, project_RT = True ):
+	s = min( len( obj.mass ), obj.size )
+	k = obj.size // s
+	w = [ 0.0 for i in range( obj.size ) ]
+	for i in range( s ):
+		w[i*k] = math.sqrt( obj.mass[i] )
+		for j in range( 1, k ):
+			w[i*k+j] = w[i*k]
+	x = [ obj.coor[i] * w[i] for i in range( obj.size ) ]
+	obj.get_hess()
+	h = []
+	k = 0
+	for i in range( obj.size ):
+		for j in range( obj.size ):
+			h.append( obj.hess[k] / ( w[i] * w[j] ) )
+			k += 1
+	g = [ obj.grad[i] / w[i] for i in range( obj.size ) ]
+	if( project_RT ):
+		__project_RT_modes( w, x, g, h )
+	val, vec = qm3.maths.matrix.diag( h, obj.size )
+	nskp = sum( [ 1 for i in range( obj.size ) if val[i] < __vcut ] )
+	tmp  = step_size / math.sqrt( sum( [ vec[i*obj.size] * vec[i*obj.size] for i in range( obj.size ) ] ) )
+	dx   = [ vec[i*obj.size] * tmp for i in range( obj.size ) ]
+	return( nskp, dx )
+
+
 
 def steepest_descent( obj, 
 			step_number = 100,
@@ -108,7 +139,6 @@ def baker( obj,
 	log_function( "Avoid Recrossing:   %20s\n"%( avoid_recrossing ) )
 	log_function( "%10s%20s%20s%10s"%( "Step", "Function", "Gradient", "Nskip" ) )
 	log_function( "-" * 60 )
-	vcut = 0.00035481432270250985
 	lrge = 1.0e+6
 	step = 50.0
 	tol2 = 1.0e-8
@@ -124,20 +154,7 @@ def baker( obj,
 	gx = [ 0.0 for i in range( obj.size ) ]
 	x  = [ obj.coor[i] * w[i] for i in range( obj.size ) ]
 	if( from_saddle ):
-		obj.get_hess()
-		h = []
-		k = 0
-		for i in range( obj.size ):
-			for j in range( obj.size ):
-				h.append( obj.hess[k] / ( w[i] * w[j] ) )
-				k += 1
-		g = [ obj.grad[i] / w[i] for i in range( obj.size ) ]
-		if( project_RT ):
-			__project_RT_modes( w, x, g, h )
-		val, vec = qm3.maths.matrix.diag( h, obj.size )
-		nskp = sum( [ 1 for i in range( obj.size ) if val[i] < vcut ] )
-		tmp  = step_size / math.sqrt( sum( [ vec[i*obj.size] * vec[i*obj.size] for i in range( obj.size ) ] ) )
-		dx   = [ vec[i*obj.size] * tmp for i in range( obj.size ) ]
+		nskp, dx = initial_step( obj, step_size, project_RT )
 		if( avoid_recrossing ):
 			ox   = dx[:]
 	else:
@@ -163,7 +180,7 @@ def baker( obj,
 		if( project_RT ):
 			__project_RT_modes( w, x, g, h )
 		val, vec = qm3.maths.matrix.diag( h, obj.size )
-		nskp = sum( [ 1 for i in range( obj.size ) if val[i] < vcut ] )
+		nskp = sum( [ 1 for i in range( obj.size ) if val[i] < __vcut ] )
 		grms = math.sqrt( sum( [ g[i] * g[i] for i in range( obj.size ) ] ) )
 		# transform gradient vector to the local hessian modes
 		for i in range( obj.size ):
@@ -241,7 +258,6 @@ def page_mciver( obj,
 	log_function( "Avoid Recrossing:   %20s\n"%( avoid_recrossing ) )
 	log_function( "%10s%20s%20s%10s"%( "Step", "Function", "Gradient", "Nskip" ) )
 	log_function( "-" * 60 )
-	vcut = 0.00035481432270250985
 	it2m = 1000
 	it3m = 100000
 	s    = min( len( obj.mass ), obj.size )
@@ -255,20 +271,7 @@ def page_mciver( obj,
 	v  = [ 0.0 for i in range( obj.size ) ]
 	x  = [ obj.coor[i] * w[i] for i in range( obj.size ) ]
 	if( from_saddle ):
-		obj.get_hess()
-		h = []
-		k = 0
-		for i in range( obj.size ):
-			for j in range( obj.size ):
-				h.append( obj.hess[k] / ( w[i] * w[j] ) )
-				k += 1
-		g = [ obj.grad[i] / w[i] for i in range( obj.size ) ]
-		if( project_RT ):
-			__project_RT_modes( w, x, g, h )
-		val, vec = qm3.maths.matrix.diag( h, obj.size )
-		nskp = sum( [ 1 for i in range( obj.size ) if val[i] < vcut ] )
-		tmp  = step_size / math.sqrt( sum( [ vec[i*obj.size] * vec[i*obj.size] for i in range( obj.size ) ] ) )
-		dx   = [ vec[i*obj.size] * tmp for i in range( obj.size ) ]
+		nskp, dx = initial_step( obj, step_size, project_RT )
 		if( avoid_recrossing ):
 			ox   = dx[:]
 	else:
@@ -294,7 +297,7 @@ def page_mciver( obj,
 		if( project_RT ):
 			__project_RT_modes( w, x, g, h )
 		val, vec = qm3.maths.matrix.diag( h, obj.size )
-		nskp = sum( [ 1 for i in range( obj.size ) if val[i] < vcut ] )
+		nskp = sum( [ 1 for i in range( obj.size ) if val[i] < __vcut ] )
 		grms = math.sqrt( sum( [ g[i] * g[i] for i in range( obj.size ) ] ) )
 		# transform gradient vector to the local hessian modes
 		for i in range( obj.size ):
