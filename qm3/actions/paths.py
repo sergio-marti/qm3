@@ -90,7 +90,7 @@ def initial_step( obj, step_size = 0.0028, project_RT = True ):
 	nskp = sum( [ 1 for i in range( obj.size ) if val[i] < __vcut ] )
 	tmp  = step_size / math.sqrt( sum( [ vec[i*obj.size] * vec[i*obj.size] for i in range( obj.size ) ] ) )
 	dx   = [ vec[i*obj.size] * tmp for i in range( obj.size ) ]
-	return( nskp, dx )
+	return( nskp, dx, [ dx[i] / w[i] for i in range( obj.size ) ] )
 
 
 
@@ -154,7 +154,7 @@ def baker( obj,
 	gx = [ 0.0 for i in range( obj.size ) ]
 	x  = [ obj.coor[i] * w[i] for i in range( obj.size ) ]
 	if( from_saddle ):
-		nskp, dx = initial_step( obj, step_size, project_RT )
+		nskp, dx, tt = initial_step( obj, step_size, project_RT )
 		if( avoid_recrossing ):
 			ox   = dx[:]
 	else:
@@ -271,7 +271,7 @@ def page_mciver( obj,
 	v  = [ 0.0 for i in range( obj.size ) ]
 	x  = [ obj.coor[i] * w[i] for i in range( obj.size ) ]
 	if( from_saddle ):
-		nskp, dx = initial_step( obj, step_size, project_RT )
+		nskp, dx, tt = initial_step( obj, step_size, project_RT )
 		if( avoid_recrossing ):
 			ox   = dx[:]
 	else:
