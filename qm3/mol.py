@@ -254,7 +254,7 @@ class molecule( object ):
 
 	def guess_symbols( self, sele = None ):
 		if( sele ):
-			t_sel = sorted( sele )
+			t_sel = sele[:]
 		else:
 			t_sel = range( self.natm )
 		smb = []

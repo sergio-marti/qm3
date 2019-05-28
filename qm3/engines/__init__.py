@@ -17,7 +17,7 @@ class qmbase( object ):
 		self._cg = self._ce / qm3.constants.A0
 		self._ch = self._cg / qm3.constants.A0
 
-		self.sel = sele[:]
+		self.sel = sorted( sele )
 		self.lnk = link[:]
 #		t = [ j for i,j in self.lnk ]
 #		self.nbn = [ i for i in nbnd if not i in t ]
@@ -26,7 +26,7 @@ class qmbase( object ):
 		self.exe = ""
 		self.vla = []
 #		self.smb = [ i.title() for i in mol.guess_symbols( sele ) ]
-		self.smb = mol.guess_symbols( sele )
+		self.smb = mol.guess_symbols( self.sel )
 
 		if( not mol.chrg ):
 			mol.chrg = [ 0.0 for i in range( mol.natm ) ]
