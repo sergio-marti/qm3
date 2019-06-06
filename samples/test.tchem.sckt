@@ -74,7 +74,15 @@ charge        0
 spinmult      1
 method        b3lyp
 dftd          no
+gpus          1 0
+dftgrid       1
+threall       1.e-11
+convthre      3.e-5
 guess         scr/c0
+run           gradient
+coordinates   tchem_qm.xyz
+pointcharges  tchem_mm.xyz
+amber         yes
 """ )
 f.close()
 

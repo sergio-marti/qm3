@@ -12,37 +12,36 @@ import	qm3.engines
 
 class demon( qm3.engines.qmbase ):
 
-	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
-		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
-		self.ini = ini
+	def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
+		qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
 		self.exe = "bash r.demon"
 
 
 	def mk_input( self, mol, run ):
-		f = open( "deMon.inp", "wt" )
-		f.write( "title slave\nsymmetry off\nqm/mm charmm\nvisualization off\n" )
-		f.write( self.ini )
+		s_wf = ""
 		if( os.access( "deMon.rst", os.R_OK ) ):
-			f.write( "guess restart\n" )
-		if( self.nbn ):
-			f.write( "embed file\n" )
-		f.write( "geometry cartesian angstrom\n" )
+			s_wf = "guess restart"
+		s_qm = ""
 		j = 0
 		for i in self.sel:
 			i3 = i * 3
-			f.write( "%4s%20.10lf%20.10lf%20.10lf\n"%( self.smb[j],
+			s_qm += "%4s%20.10lf%20.10lf%20.10lf\n"%( self.smb[j],
 				mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
 				mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
-				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
+				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
 			j += 1
 		if( self.lnk ):
 			self.vla = []
 			k = len( self.sel )
 			for i,j in self.lnk:
 				c, v = qm3.utils.LA_coordinates( i, j, mol )
-				f.write( "%-4s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] ) )
+				s_qm += "%-4s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] )
 				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
 				k += 1
+		f = open( "deMon.inp", "wt" )
+		buf = self.inp.replace( "qm3_atoms", s_qm )
+		buf = buf.replace( "qm3_guess", s_wf )
+		f.write( buf )
 		f.close()
 		if( self.nbn ):
 			f = open( "deMon.cub", "wt" )

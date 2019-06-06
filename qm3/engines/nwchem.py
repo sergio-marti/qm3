@@ -13,39 +13,36 @@ import	qm3.engines
 
 class nwchem( qm3.engines.qmbase ):
 
-	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
-		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
-		self.ini = ini
+	def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
+		qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
 		self.exe = "bash r.nwchem"
 
 
 	def mk_input( self, mol, run ):
-		f = open( "nwchem.nw", "wt" )
-		f.write( "start nwchem\ngeometry units angstroms nocenter noautoz noautosym\n" )
+		s_qm = ""
 		j = 0
 		for i in self.sel:
 			i3 = i * 3
-			f.write( "%4s%20.10lf%20.10lf%20.10lf\n"%( self.smb[j],
+			s_qm += "%4s%20.10lf%20.10lf%20.10lf\n"%( self.smb[j],
 				mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
 				mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
-				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
+				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
 			j += 1
 		if( self.lnk ):
 			self.vla = []
 			k = len( self.sel )
 			for i,j in self.lnk:
 				c, v = qm3.utils.LA_coordinates( i, j, mol )
-				f.write( "%-4s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] ) )
+				s_qm += "%-4s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] )
 				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
 				k += 1
-		f.write( "end\n" )
+		s_wf = ""
 		if( os.access( "nwchem.movecs", os.R_OK ) ):
-			f.write( self.ini.replace( "@@@", "vectors input nwchem.movecs" ) )
-		else:
-			f.write( self.ini.replace( "@@@\n", "" ) )
+			s_wf = "vectors input nwchem.movecs"
+		s_mm = ""
 		if( self.nbn ):
-			f.write( "set bq:max_nbq %d\n"%( len( self.nbn ) + 1 ) )
-			f.write( "bq units angstroms\n force nwchem.mmgrad\n load nwchem.mmchrg units angstroms format 1 2 3 4\nend\n" )
+			s_mm = "set bq:max_nbq %d\n"%( len( self.nbn ) + 1 )
+			s_mm += "bq units angstroms\n  force nwchem.mmgrad\n  load nwchem.mmchrg units angstroms format 1 2 3 4\nend"
 			g = open( "nwchem.mmchrg", "wt" )
 			for i in self.nbn:
 				i3 = i * 3
@@ -54,13 +51,18 @@ class nwchem( qm3.engines.qmbase ):
 					mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
 					mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ), mol.chrg[i] ) )
 			g.close()
-		who = "scf"
-		if( self.ini.lower().find( "dft" ) > -1 ):
-			who = "dft"
-		if( run == "grad" ):
-			f.write( "task " + who + " gradient\n" )
+		if( self.inp.lower().find( "dft" ) > -1 ):
+			s_rn = "task dft"
 		else:
-			f.write( "task " + who + "\n" )
+			s_rn = "task scf"
+		if( run == "grad" ):
+			s_rn += " gradient"
+		f = open( "nwchem.nw", "wt" )
+		buf = self.inp.replace( "qm3_atoms", s_qm[:-1] )
+		buf = buf.replace( "qm3_job", s_rn )
+		buf = buf.replace( "qm3_guess", s_wf )
+		buf = buf.replace( "qm3_charges", s_mm )
+		f.write( buf )
 		f.close()
 
 

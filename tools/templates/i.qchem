@@ -1,0 +1,20 @@
+$rem
+jobtype qm3_job
+method b3lyp
+basis def2-svp
+qm3_guess
+qm_mm true
+skip_charge_self_interact true
+igdefield 2
+symmetry off
+sym_ignore true
+print_input false
+qmmm_print true
+$end
+
+$molecule
+0 1
+qm3_atoms
+$end
+
+qm3_charges

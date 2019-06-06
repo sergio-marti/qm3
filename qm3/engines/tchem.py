@@ -10,37 +10,27 @@ import	socket
 import	struct
 import	qm3.utils
 import	qm3.engines
+try:
+	import cStringIO as io
+except:
+	import io
 
 
 
 class tchem( qm3.engines.qmbase ):
 
-	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
-		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
-		self.ini = ini
+	def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
+		qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
 		self.exe = "bash r.tchem"
-		self.smb = [ i.title() for i in self.smb ]
 
 
 	def mk_input( self, mol, run ):
-		f = open( "tchem.inp", "wt" )
-		f.write( self.ini )
-		f.write( "\n#" + 80 * "-" + "\n" )
-		if( run == "grad" ):
-			f.write( "run gradient\n" )
-		else:
-			f.write( "run energy\n" )
-		if( os.access( "scr/c0", os.R_OK ) ):
-			f.write( "guess scr/c0\n" )
-		if( os.access( "scr/ca", os.R_OK ) and os.access( "scr/cb", os.R_OK ) ):
-			f.write( "guess scr/ca scr/cb\n" )
-		f.write( "coordinates tchem_qm.xyz\n" )
-		g = open( "tchem_qm.xyz", "wt" )
-		g.write( "%d\n\n"%( len( self.sel ) + len( self.lnk ) ) )
+		f = open( "tchem_qm.xyz", "wt" )
+		f.write( "%d\n\n"%( len( self.sel ) + len( self.lnk ) ) )
 		j = 0
 		for i in self.sel:
 			i3 = i * 3
-			g.write( "%4s%20.10lf%20.10lf%20.10lf\n"%( self.smb[j],
+			f.write( "%4s%20.10lf%20.10lf%20.10lf\n"%( self.smb[j],
 				mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
 				mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
 				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
@@ -50,22 +40,29 @@ class tchem( qm3.engines.qmbase ):
 			k = len( self.sel )
 			for i,j in self.lnk:
 				c, v = qm3.utils.LA_coordinates( i, j, mol )
-				g.write( "%4s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] ) )
+				f.write( "%4s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] ) )
 				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
 				k += 1
-		g.close()
+		f.close()
+		s_mm = ""
+		s_rn = "energy"
+		if( run == "grad" ):
+			s_rn = "gradient"
 		if( self.nbn ):
-			f.write( "pointcharges tchem_mm.xyz\namber yes\n" )
-			g = open( "tchem_mm.xyz", "wt" )
-			g.write( "%d\n\n"%( len( self.nbn ) ) )
+			s_mm = "pointcharges  tchem_mm.xyz\namber         yes\n"
+			f = open( "tchem_mm.xyz", "wt" )
+			f.write( "%d\n\n"%( len( self.nbn ) ) )
 			for i in self.nbn:
 				i3 = i * 3
-				g.write( "%12.4lf%20.10lf%20.10lf%20.10lf\n"%( mol.chrg[i],
+				f.write( "%12.4lf%20.10lf%20.10lf%20.10lf\n"%( mol.chrg[i],
 					mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
 					mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
 					mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
-			g.close()
-		f.write( "end\n" )
+			f.close()
+		f = open( "tchem.inp", "wt" )
+		buf = self.inp.replace( "qm3_job", s_rn )
+		buf = buf.replace( "qm3_charges", s_mm )
+		f.write( buf )
 		f.close()
 
 
@@ -103,12 +100,13 @@ class tchem( qm3.engines.qmbase ):
 class tchem_sckt( qm3.engines.qmbase ):
 
 	def __init__( self, unx, mol, sele, nbnd = [], link = [] ):
-		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
+		f = io.StringIO( "" )
+		qm3.engines.qmbase.__init__( self, mol, f, sele, nbnd, link )
 
 		self.ssz = 1000 * 3 * 8
 		self.unx = unx
 		self.tot = len( sele ) + len( link )
-		self.smb = "".join( [ "%-2s"%( i.title() ) for i in self.smb ] + len( link ) * [ "H " ] )
+		self.smb = "".join( [ "%-2s"%( i ) for i in self.smb ] + len( link ) * [ "H " ] )
 
 
 	def connect( self, mol ):

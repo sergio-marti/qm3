@@ -2,6 +2,11 @@ import qm3.mol
 import qm3.problem
 import qm3.engines.demon
 import qm3.maths.matrix
+try:
+  import cStringIO as io
+except:
+  import io
+
 
 class my_eng( qm3.problem.template ):
 
@@ -10,14 +15,24 @@ class my_eng( qm3.problem.template ):
         self.mol.xyz_read( "xyz" )
         self.mol.chrg = [ -0.834, 0.417, 0.417, -0.834, 0.417, 0.417 ]
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
-        self.eng = qm3.engines.demon.demon( self.mol, """
+        f = io.StringIO( """
+title _slave_
+symmetry off
+visualization off
 charge 0
 multiplicity 1
 basis (def2-svp)
 scftype rks tol=1.0e-6
 vxctype b3lyp
 eris mixed
-""", [ 0, 1, 2 ], [ 3, 4, 5 ] )
+qm3_guess
+embed file
+qm/mm charmm
+geometry cartesian angstrom
+qm3_atoms
+""" )
+        f.seek( 0 )
+        self.eng = qm3.engines.demon.demon( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
         self.eng.exe = "/Users/smarti/Devel/deMon2k/4/deMon_4.4.1"
 
         self.size = 3 * self.mol.natm

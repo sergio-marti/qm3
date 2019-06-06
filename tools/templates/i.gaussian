@@ -1,3 +1,15 @@
+%chk=g09.chk
+%mem=2048mb
+%nproc=2
+#p b3lyp/gen qm3_job qm3_guess charge prop=(field,read) scf=direct nosymm fchk
+
+.
+
+0 1
+qm3_atoms
+
+qm3_charges
+
 H     0 
 S   3   1.00
      13.0107010              0.19682158E-01   
@@ -28,3 +40,5 @@ P   1   1.00
 D   1   1.00
       1.2000000              1.0000000        
 ****
+
+qm3_field

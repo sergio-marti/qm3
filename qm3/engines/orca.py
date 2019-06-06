@@ -15,39 +15,32 @@ import	qm3.engines
 
 class orca( qm3.engines.qmbase ):
 
-	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
-		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
-		self.ini = ini
+	def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
+		qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
 		self.exe = "bash r.orca"
 
 
 	def mk_input( self, mol, run ):
-		f = open( "orca.inp", "wt" )
-		T = ""
-		if( run == "grad" ):
-			T = " engrad"
-		if( self.nbn ):
-			f.write( "%pointcharges \"orca.pc\"\n" )
-		f.write( self.ini % ( T ) )
+		s_qm = ""
 		j = 0
 		for i in self.sel:
 			i3 = i * 3
-			f.write( "%2s%20.10lf%20.10lf%20.10lf\n"%( self.smb[j], 
+			s_qm += "%2s%20.10lf%20.10lf%20.10lf\n"%( self.smb[j], 
 				mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
 				mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
-				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
+				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
 			j += 1
 		if( self.lnk ):
 			self.vla = []
 			k = len( self.sel )
 			for i,j in self.lnk:
 				c, v = qm3.utils.LA_coordinates( i, j, mol )
-				f.write( "%-2s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] ) )
+				s_qm += "%-2s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] )
 				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
 				k += 1
-		f.write( "*" )
-		f.close()
+		s_mm = ""
 		if( self.nbn ):
+			s_mm = "%pointcharges \"orca.pc\""
 			f = open( "orca.pc", "wt" )
 			f.write( "%d\n"%( len( self.nbn ) ) )
 			for i in self.nbn:
@@ -57,6 +50,15 @@ class orca( qm3.engines.qmbase ):
 					mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
 					mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
 			f.close()
+		s_rn = ""
+		if( run == "grad" ):
+			s_rn = "engrad"
+		f = open( "orca.inp", "wt" )
+		buf = self.inp.replace( "qm3_atoms", s_qm[:-1] )
+		buf = buf.replace( "qm3_job", s_rn )
+		buf = buf.replace( "qm3_charges", s_mm )
+		f.write( buf )
+		f.close()
 
 
 	def parse_log( self, mol, run ):
@@ -98,7 +100,6 @@ class orca( qm3.engines.qmbase ):
 ~/Devel/orca/3.0.2/bin/orca_chelpg orca.gbw		>> standard output
 
 
-
 [...]
 
 CHELPG Charges            
@@ -116,7 +117,6 @@ Total charge:    -0.000000
 CHELPG charges calculated...
 
 [...]
-
 
 
 

@@ -1,6 +1,14 @@
+title _slave_
+symmetry off
+visualization off
 charge 0
 multiplicity 1
-basis (6-31++G**)
+basis (def2-svp)
 scftype rks tol=1.0e-6
 vxctype b3lyp
 eris mixed
+qm3_guess
+embed file
+qm/mm charmm
+geometry cartesian angstrom
+qm3_atoms

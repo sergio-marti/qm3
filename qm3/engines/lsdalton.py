@@ -15,20 +15,19 @@ import	qm3.engines
 
 class lsdalton( qm3.engines.qmbase ):
 
-	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
-		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
-		self.ini = ini
+	def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
+		qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
+		self.exe = "bash r.lsdalton"
 		self.bas = "6-31G*"
 		self.chg = 0
-		self.exe = "bash r.lsdalton"
 
 
 	def mk_input( self, mol, run ):
-		f = open( "LSDALTON.INP", "wt" )
+		s_rn = ""
 		if( run == "grad" ):
-			f.write( self.ini.replace( "@@@", "**RESPONS\n*MOLGRA" ) )
-		else:
-			f.write( self.ini.replace( "@@@", "" ) )
+			s_rn = "**RESPONS\n*MOLGRA"
+		f = open( "LSDALTON.INP", "wt" )
+		f.write( self.inp.replace( "qm3_job", s_rn ) )
 		f.close()
 		f = open( "MOLECULE.INP", "wt" )
 		n = len( self.sel ) + len( self.lnk ) + len( self.nbn )

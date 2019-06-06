@@ -2,6 +2,12 @@ import qm3.mol
 import qm3.problem
 import qm3.engines.orca
 import qm3.maths.matrix
+try:
+  import cStringIO as io
+except:
+  import io
+
+
 
 class my_eng( qm3.problem.template ):
 
@@ -10,11 +16,16 @@ class my_eng( qm3.problem.template ):
         self.mol.xyz_read( "xyz" )
         self.mol.chrg = [ -0.834, 0.417, 0.417, -0.834, 0.417, 0.417 ]
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
-        self.eng = qm3.engines.orca.orca( self.mol, """
-%%pal nprocs 2 end
-!%s rks b3lyp def2-svp
+        f = io.StringIO( """
+%pal nprocs 1 end
+qm3_charges
+! qm3_job rks b3lyp def2-svp
 *xyz 0 1
-""", [ 0, 1, 2 ], [ 3, 4, 5 ] )
+qm3_atoms
+*
+""" )
+        f.seek( 0 )
+        self.eng = qm3.engines.orca.orca( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
         self.eng.exe = "bash r.orca"
 
         self.size = 3 * self.mol.natm
@@ -53,13 +64,16 @@ f.close()
 
 f = open( "r.orca", "wt" )
 f.write( """
-mpi=/usr/local/chem/openmpi-2.0.2
-export PATH=$mpi/bin:$PATH
-export LD_LIBRARY_PATH=$mpi/lib:$LD_LIBRARY_PATH
+#mpi=/usr/local/chem/openmpi-2.0.2
+#export PATH=$mpi/bin:$PATH
+#export LD_LIBRARY_PATH=$mpi/lib:$LD_LIBRARY_PATH
 
-cwd=/usr/local/chem/orca_4.0.1
-export PATH=$cwd:$PATH
-export LD_LIBRARY_PATH=$cwd:$LD_LIBRARY_PATH
+#cwd=/usr/local/chem/orca_4.0.1
+#export PATH=$cwd:$PATH
+#export LD_LIBRARY_PATH=$cwd:$LD_LIBRARY_PATH
+#$cwd/orca orca.inp > orca.out
+
+cwd=/Users/smarti/Devel/orca/orca_4_0_1_2_macosx_openmpi202
 $cwd/orca orca.inp > orca.out
 """ )
 f.close()

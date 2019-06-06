@@ -1,1 +1,3 @@
-job %s method=b3lyp basis=6-31g(d,p) memory=2GB
+job qm3_job method=b3lyp basis=6-31g(d,p) memory=2GB
+geom
+qm3_atoms

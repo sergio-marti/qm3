@@ -2,6 +2,11 @@ import qm3.mol
 import qm3.problem
 import qm3.engines.dftb
 import qm3.maths.matrix
+try:
+  import cStringIO as io
+except:
+  import io
+
 
 class my_eng( qm3.problem.template ):
 
@@ -10,13 +15,45 @@ class my_eng( qm3.problem.template ):
         self.mol.xyz_read( "xyz" )
         self.mol.chrg = [ -0.834, 0.417, 0.417, -0.834, 0.417, 0.417 ]
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
-        self.eng = qm3.engines.dftb.dftb( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ],
-                         parm = "/Users/smarti/Devel/dftb+/params/3ob-3-1/",
-                         xopt = """ThirdOrderFull = Yes
-HubbardDerivs = { H = -0.1857; O = -0.1575 }
-HCorrection = Damping { Exponent = 4.0 }
-Dispersion = DftD3 {}
+        f = io.StringIO( """
+Driver = {}
+Geometry = GenFormat {
+qm3_atoms
+}
+Hamiltonian = DFTB {
+  SCC = Yes
+  MaxSCCIterations = 1000
+  SlaterKosterFiles = Type2FileNames {
+    Prefix = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
+    Separator = "-"
+    Suffix = ".skf"
+  }
+  MaxAngularMomentum { H = "p"; O = "p" }
+  Charge = 0
+  ThirdOrderFull = Yes
+  HubbardDerivs = { H = -0.1857; O = -0.1575 }
+  HCorrection = Damping { Exponent = 4.0 }
+  Dispersion = DftD3 {}
+qm3_guess
+  ElectricField = {
+    PointCharges = {
+      CoordsAndCharges [Angstrom] = DirectRead {
+        Records = qm3_nchg
+        File = "charges.dat"
+      }
+    }
+  }
+}
+Options { WriteDetailedOut = Yes }
+Analysis {
+  MullikenAnalysis = Yes
+  WriteBandOut = No
+qm3_job
+}
+ParserOptions { WriteHSDInput = No }
 """ )
+        f.seek( 0 )
+        self.eng = qm3.engines.dftb.dftb( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
         self.eng.exe = "/Users/smarti/Devel/dftb+/dftbplus/bin/dftb+ > dftb_in.log"
 
         self.size = 3 * self.mol.natm

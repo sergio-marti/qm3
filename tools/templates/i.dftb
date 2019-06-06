@@ -1,0 +1,35 @@
+Driver = {}
+Geometry = GenFormat {
+qm3_atoms
+}
+Hamiltonian = DFTB {
+  SCC = Yes
+  MaxSCCIterations = 1000
+  SlaterKosterFiles = Type2FileNames {
+    Prefix = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
+    Separator = "-"
+    Suffix = ".skf"
+  }
+  MaxAngularMomentum { H = "p"; O = "p" }
+  Charge = 0
+  ThirdOrderFull = Yes
+  HubbardDerivs = { H = -0.1857; O = -0.1575 }
+  HCorrection = Damping { Exponent = 4.0 }
+  Dispersion = DftD3 {}
+qm3_guess
+  ElectricField = {
+    PointCharges = {
+      CoordsAndCharges [Angstrom] = DirectRead {
+        Records = qm3_nchg
+        File = "charges.dat"
+      }
+    }
+  }
+}
+Options { WriteDetailedOut = Yes }
+Analysis {
+  MullikenAnalysis = Yes
+  WriteBandOut = No
+qm3_job
+}
+ParserOptions { WriteHSDInput = No }

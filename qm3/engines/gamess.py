@@ -15,41 +15,44 @@ import	qm3.engines
 
 class gamess( qm3.engines.qmbase ):
 
-	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
-		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
-		self.ini = ini
+	def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
+		qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
 		self.exe = "bash r.gamess"
 		self.chk = None
 
 
 	def mk_input( self, mol, run ):
-		f = open( "gamess.inp", "wt" )
-		if( run == "grad" ):
-			f.write( self.ini %( "gradient" ) )
-		elif( run == "hess" ):
-			f.write( self.ini %( "hessian" ) )
-		else:
-			f.write( self.ini %( "energy" ) )
-		f.write( "\n $data\nc1\n" )
+		s_qm = ""
 		j = 0
 		for i in self.sel:
 			i3 = i * 3
-			f.write( "%4s%6.1lf%20.10lf%20.10lf%20.10lf\n"%( self.smb[j], float( qm3.elements.rsymbol[self.smb[j]] ),
+			s_qm += "%4s%6.1lf%20.10lf%20.10lf%20.10lf\n"%( self.smb[j], float( qm3.elements.rsymbol[self.smb[j]] ),
 				mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
 				mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
-				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
+				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
 			j += 1
 		if( self.lnk ):
 			self.vla = []
 			k = len( self.sel )
 			for i,j in self.lnk:
 				c, v = qm3.utils.LA_coordinates( i, j, mol )
-				f.write( "%-4s%6.1lf%20.10lf%20.10lf%20.10lf\n"%( "H", 1., c[0], c[1], c[2] ) )
+				s_qm += "%-4s%6.1lf%20.10lf%20.10lf%20.10lf\n"%( "H", 1., c[0], c[1], c[2] )
 				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
 				k += 1
-		f.write( " $end\n\n" )
+		if( run == "grad" ):
+			s_rn = "gradient"
+		elif( run == "hess" ):
+			s_rn = "hessian"
+		else:
+			s_rn = "energy"
+		s_wf = ""
 		if( self.chk ):
-			f.write( " $guess\nguess=moread\n $end\n%s"%( self.chk ) )
+			s_wf = " $guess\nguess=moread\n $end\n%s"%( self.chk )
+		f = open( "gamess.inp", "wt" )
+		buf = self.inp.replace( "qm3_atoms", s_qm[:-1] )
+		buf = buf.replace( "qm3_guess", s_wf )
+		buf = buf.replace( "qm3_job", s_rn )
+		f.write( buf )
 		f.close()
 		if( self.nbn ):
 			f = open( "mm_charges", "wb" )

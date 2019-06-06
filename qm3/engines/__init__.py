@@ -6,12 +6,13 @@ if( sys.version_info[0] == 2 ):
 	range = xrange
 import	os
 import	qm3.constants
+import	qm3.io
 
 
 
 class qmbase( object ):
 
-	def __init__( self, mol, sele, nbnd = [], link = [] ):
+	def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
 		self._cx = qm3.constants.A0
 		self._ce = qm3.constants.H2J
 		self._cg = self._ce / qm3.constants.A0
@@ -20,7 +21,7 @@ class qmbase( object ):
 		self.sel = sorted( sele )
 		self.lnk = link[:]
 #		t = [ j for i,j in self.lnk ]
-#		self.nbn = [ i for i in nbnd if not i in t ]
+#		self.nbn = sorted( [ i for i in nbnd if not i in t ] )
 		self.nbn = sorted( set( nbnd ).difference( set( sele + sum( link, [] ) ) ) )
 
 		self.exe = ""
@@ -30,6 +31,10 @@ class qmbase( object ):
 
 		if( not mol.chrg ):
 			mol.chrg = [ 0.0 for i in range( mol.natm ) ]
+
+		f = qm3.io.open_r( inp )
+		self.inp = f.read()
+		qm3.io.close( f, inp )
 
 
 	def mk_input( self, mol, run ):

@@ -1,12 +1,18 @@
+start nwchem
+geometry units angstroms nocenter noautoz noautosym
+qm3_atoms
+end
 basis
- * library 6-31++gss
+ * library def2-svp
 end
 charge 0
 dft
- @@@
+ qm3_guess
  mulliken
  mult 1
  iterations 100
  direct
  xc b3lyp 
 end
+qm3_charges
+qm3_job

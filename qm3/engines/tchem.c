@@ -72,11 +72,13 @@ int main( int argc, char **argv ) {
 		j = 0; o = p; while( *p != 0 ) { p++; j++; } p--; *p = 0;
 		memcpy( &inp[i*128], o, j - 1 ); i++;
 	}
+/*
 	memcpy( &inp[i*128], "run",      3 ); i++; memcpy( &inp[i*128], "gradient", 8 ); i++;
 	memcpy( &inp[i*128], "amber",    5 ); i++; memcpy( &inp[i*128], "yes",      3 ); i++;
 	memcpy( &inp[i*128], "dftgrid",  7 ); i++; memcpy( &inp[i*128], "1",        1 ); i++;
 	memcpy( &inp[i*128], "threall",  7 ); i++; memcpy( &inp[i*128], "1.e-11",   6 ); i++;
 	memcpy( &inp[i*128], "convthre", 8 ); i++; memcpy( &inp[i*128], "3.e-5",    5 ); i++;
+*/
 	memcpy( &inp[i*128], "end",     3 ); i++;
 	dim = ( i + 1 ) * 128; inp[dim] = 0;
 fprintf( stderr, "input_buff:\n%s\n-------------\n", inp );

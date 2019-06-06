@@ -1,2 +1,10 @@
+_slave_
+&qmmm 
+maxcyc    = 0,
 qm_theory = "DFTB",
-qmcharge = 0,
+qmcharge  = 0,
+qmmm_int  = 1,
+verbosity = 4
+ /
+qm3_atoms
+qm3_charges

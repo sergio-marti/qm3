@@ -392,38 +392,21 @@ class my_problem( qm3.problem.template ):
 """ )
 		if( config.QM_engines[eqm] == "qm3.engines.gaussian.gaussian" ):
 			f.write( """
-		f = open( "i.g09_ini", "rt" )
-		_it = f.read()
-		f.close()
-		f = open( "i.g09_mid", "rt" )
-		_mt = f.read()
-		f.close()
-		f = open( "i.g09_end", "rt" )
-		_et = f.read()
-		f.close()
-		self.eqm = %s( self.mole, _it, _mt, _et, sqm, smm, sla )
+		self.eqm = %s( self.mole, "i.g09", sqm, smm, sla )
 		self.eqm.exe = "bash ./r.g09"
 """%( config.QM_engines[eqm] ) )
 		elif( config.QM_engines[eqm] in [ "qm3.engines.demon.demon", "qm3.engines.orca.orca", "qm3.engines.nwchem.nwchem" ] ):
 			_w = config.QM_engines[eqm].split( "." )[-1]
 			f.write( """
-		f = open( "i%s", "rt" )
-		tmp = f.read()
-		f.close()
-		self.eqm = %s( self.mole, tmp, sqm, smm, sla )
+		self.eqm = %s( self.mole, "i%s", sqm, smm, sla )
 		self.eqm.exe = "bash ./r.%s"
-"""%( _w, config.QM_engines[eqm], _w ) )
+"""%( config.QM_engines[eqm], _w, _w ) )
 		elif( config.QM_engines[eqm] == "qm3.engines.dynamo.py_dynamo" ):
 			f.write( "\n		self.eqm = %s( \"./dynamo.so\" )\n"%( config.QM_engines[eqm] ) )
 		elif( config.QM_engines[eqm] == "qm3.engines.dftb.dl_dftb" ):
-			f.write( "\n		self.eqm = %s( self.mole, sqm, smm, sla, chrg = _CHARGE_, parm = \"_PARMETERSFOLDER_/\" )\n"%( config.QM_engines[eqm] ) )
+			f.write( "\n		self.eqm = %s( self.mole, \"i.dftb\", sqm, smm, sla )\n"%( config.QM_engines[eqm] ) )
 		elif( config.QM_engines[eqm] == "qm3.engines.sqm.dl_sqm" ):
-			f.write( """
-		f = open( "i.sqm", "rt" )
-		tmp = f.read()
-		f.close()
-		self.eqm = %s( self.mole, tmp, sqm, smm, sla )
-"""%( config.QM_engines[eqm] ) )
+			f.write( "		self.eqm = %s( self.mole, \"i.sqm\", sqm, smm, sla )\n"%( config.QM_engines[eqm] ) )
 			pass
 	# -- QM(LJ) fixing
 	if( sqm != [] and smm != [] ):

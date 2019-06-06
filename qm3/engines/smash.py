@@ -12,48 +12,85 @@ import	qm3.engines
 
 class smash( qm3.engines.qmbase ):
 
-	def __init__( self, mol, ini, sele, nbnd = [], link = [] ):
-		qm3.engines.qmbase.__init__( self, mol, sele, nbnd, link )
-		self.ini = ini
+	def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
+		qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
 		self.exe = "bash r.smash"
 
 
 	def mk_input( self, mol, run ):
-		f = open( "smash.inp", "wt" )
-		k = "runtype=energy"
-		if( run != "ener" ):
-			k = "runtype=gradient"
-		f.write( self.ini % ( k ) )
-		f.write( "\ngeom\n" )
+		s_qm = ""
 		j = 0
 		for i in self.sel:
 			i3 = i * 3
-			f.write( "%2s%20.10lf%20.10lf%20.10lf\n"%( self.smb[j], 
+			s_qm += "%2s%20.10lf%20.10lf%20.10lf\n"%( self.smb[j], 
 				mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
 				mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
-				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
+				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
 			j += 1
 		if( self.lnk ):
 			self.vla = []
 			k = len( self.sel )
 			for i,j in self.lnk:
 				c, v = qm3.utils.LA_coordinates( i, j, mol )
-				f.write( "%-2s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] ) )
+				s_qm += "%-2s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] )
 				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
 				k += 1
 		if( self.nbn ):
 			for i in self.nbn:
 				i3 = i * 3
-				f.write( "X %20.10lf%20.10lf%20.10lf\n"%( 
+				s_qm += "X %20.10lf%20.10lf%20.10lf\n"%( 
 					mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3] / mol.boxl[0], 0 ), 
 					mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
-					mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
-			f.write( "\ncharge\n" )
+					mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
+			s_qm += "\ncharge\n"
 			k = len( self.sel ) + len( self.lnk ) + 1
 			for i in self.nbn:
-				f.write( "%-6d%8.3lf\n"%( k, mol.chrg[i] ) )
+				s_qm += "%-6d%8.3lf\n"%( k, mol.chrg[i] )
 				k += 1
+		s_rn = "runtype=energy"
+		if( run == "grad" ):
+			s_rn = "runtype=gradient"
+		f = open( "smash.inp", "wt" )
+		buf = self.inp.replace( "qm3_atoms", s_qm )
+		buf = buf.replace( "qm3_job", s_rn )
+		f.write( buf )
 		f.close()
+
+#		f = open( "smash.inp", "wt" )
+#		k = "runtype=energy"
+#		if( run != "ener" ):
+#			k = "runtype=gradient"
+#		f.write( self.ini % ( k ) )
+#		f.write( "\ngeom\n" )
+#		j = 0
+#		for i in self.sel:
+#			i3 = i * 3
+#			f.write( "%2s%20.10lf%20.10lf%20.10lf\n"%( self.smb[j], 
+#				mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3]   / mol.boxl[0], 0 ), 
+#				mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
+#				mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
+#			j += 1
+#		if( self.lnk ):
+#			self.vla = []
+#			k = len( self.sel )
+#			for i,j in self.lnk:
+#				c, v = qm3.utils.LA_coordinates( i, j, mol )
+#				f.write( "%-2s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] ) )
+#				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
+#				k += 1
+#		if( self.nbn ):
+#			for i in self.nbn:
+#				i3 = i * 3
+#				f.write( "X %20.10lf%20.10lf%20.10lf\n"%( 
+#					mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3] / mol.boxl[0], 0 ), 
+#					mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
+#					mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
+#			f.write( "\ncharge\n" )
+#			k = len( self.sel ) + len( self.lnk ) + 1
+#			for i in self.nbn:
+#				f.write( "%-6d%8.3lf\n"%( k, mol.chrg[i] ) )
+#				k += 1
+#		f.close()
 
 
 	def parse_log( self, mol, run ):

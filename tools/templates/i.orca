@@ -1,3 +1,6 @@
-%%pal nprocs 2 end
-!%s rks b3lyp 6-31++g**
+%pal nprocs 2 end
+qm3_charges
+! qm3_job rks b3lyp def2-svp
 *xyz 0 1
+qm3_atoms
+*
