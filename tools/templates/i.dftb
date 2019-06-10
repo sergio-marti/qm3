@@ -4,19 +4,31 @@ qm3_atoms
 }
 Hamiltonian = DFTB {
   SCC = Yes
-  ShellResolvedSCC = Yes
   MaxSCCIterations = 1000
+#  ShellResolvedSCC = Yes
+  Mixer = DIIS {}
+  Eigensolver = DivideAndConquer {}
   SlaterKosterFiles = Type2FileNames {
     Prefix = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
     Separator = "-"
     Suffix = ".skf"
   }
-  MaxAngularMomentum { H = "p"; O = "p" }
+  MaxAngularMomentum { H = "s"; O = "p" }
   Charge = 0
   ThirdOrderFull = Yes
-  HubbardDerivs = { H = -0.1857; O = -0.1575 }
+  HubbardDerivs = { 
+    H = -0.1857
+    O = -0.1575
+  }
   HCorrection = Damping { Exponent = 4.0 }
-  Dispersion = DftD3 {}
+  Dispersion = DftD3 {
+    Damping = BeckeJohnson {
+      a1 = 0.5719
+      a2 = 3.6017
+    }
+    s6 = 1.0
+    s8 = 0.5883
+  }
 qm3_guess
   ElectricField = {
     PointCharges = {
