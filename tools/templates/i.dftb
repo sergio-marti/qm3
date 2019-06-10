@@ -4,6 +4,7 @@ qm3_atoms
 }
 Hamiltonian = DFTB {
   SCC = Yes
+  OrbitalResolvedSCC = Yes
   MaxSCCIterations = 1000
   SlaterKosterFiles = Type2FileNames {
     Prefix = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
