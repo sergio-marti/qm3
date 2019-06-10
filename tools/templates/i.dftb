@@ -4,7 +4,7 @@ qm3_atoms
 }
 Hamiltonian = DFTB {
   SCC = Yes
-  OrbitalResolvedSCC = Yes
+  ShellResolvedSCC = Yes
   MaxSCCIterations = 1000
   SlaterKosterFiles = Type2FileNames {
     Prefix = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
@@ -33,4 +33,4 @@ Analysis {
   WriteBandOut = No
 qm3_job
 }
-ParserOptions { ParserVersion = 5; WriteHSDInput = No }
+ParserOptions { WriteHSDInput = No }
