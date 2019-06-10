@@ -1,4 +1,6 @@
-export PYTHONPATH=/Users/smarti/Devel/qm3:$PYTHONPATH
+cwd=/Users/smarti/Devel/qm3
+
+export PYTHONPATH=$cwd:$PYTHONPATH
 
 export QM3_OPENMM=/Users/smarti/Devel/openmm/dist_gnu/python
 export QM3_LAMMPS=/Users/smarti/Devel/lammps
