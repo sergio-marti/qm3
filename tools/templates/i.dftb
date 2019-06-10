@@ -32,4 +32,4 @@ Analysis {
   WriteBandOut = No
 qm3_job
 }
-ParserOptions { WriteHSDInput = No }
+ParserOptions { ParserVersion = 5; WriteHSDInput = No }
