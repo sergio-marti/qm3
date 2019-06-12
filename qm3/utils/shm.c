@@ -8,6 +8,8 @@
 
 // for i in `ipcs -m | grep $USER | awk '{print $2}'`; do ipcrm -m $i; done
 
+// sysctl -w kernel.shmmni=32768
+
 
 static PyObject* __alloc( PyObject *self, PyObject *args ){
 	int		i, siz, xid;
