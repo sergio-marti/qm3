@@ -390,7 +390,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 		if( sele ):
 			t_sel = sele[:]
 		else:
-			t_sel = range( self.natm )
+			t_sel = list( range( self.natm ) )
 		smb = self.guess_symbols( t_sel )
 		siz = len( t_sel )
 		f.write( "%d\n\n"%( siz ) )

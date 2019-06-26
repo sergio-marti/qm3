@@ -254,8 +254,8 @@ def superimpose_vector( vec_a, vec_b, coor_b = None ):
 	vec_p = qm3.maths.matrix.cross_product( nrm_b, nrm_a )
 	mat   = [ 1.-(vec_p[1]*vec_p[1]+vec_p[2]*vec_p[2])*fac_c, vec_p[0]*vec_p[1]*fac_c-vec_p[2], vec_p[0]*vec_p[2]*fac_c+vec_p[1], vec_p[0]*vec_p[1]*fac_c+vec_p[2], 1.-(vec_p[0]*vec_p[0]+vec_p[2]*vec_p[2])*fac_c, vec_p[1]*vec_p[2]*fac_c-vec_p[0], vec_p[0]*vec_p[2]*fac_c-vec_p[1], vec_p[1]*vec_p[2]*fac_c+vec_p[0], 1.-(vec_p[0]*vec_p[0]+vec_p[1]*vec_p[1])*fac_c ]
 	for i in range( size ):
-		i3 = i + 3
-		t = coor_b[i3:i3+3]
+		i3 = i * 3
+		t  = coor_b[i3:i3+3]
 		coor_b[i3  ] = mat[0] * t[0] + mat[1] * t[1] + mat[2] * t[2]
 		coor_b[i3+1] = mat[3] * t[0] + mat[4] * t[1] + mat[5] * t[2]
 		coor_b[i3+2] = mat[6] * t[0] + mat[7] * t[1] + mat[8] * t[2]

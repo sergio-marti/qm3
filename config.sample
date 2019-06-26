@@ -27,8 +27,8 @@ MLB = -framework Accelerate
 #MLB = lapack_deps.o -L/opt/local/Cellar/gcc/8.2.0/lib/gcc/8 -lgfortran
 
 #MTH = Intel_MKL
-#MKL = /opt/mkl
-#MLB = -L$(MKL)/lib -Wl,-rpath,$(MKL)/lib -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -ldl
+#MLB = -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_lp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl
+#MLB = -L${MKLROOT}/lib/intel64 -Wl,--no-as-needed -lmkl_rt -lpthread -lm -ldl
 
 #MTH = OpenBLAS
 #MLB = libopenblas.a -lpthread
