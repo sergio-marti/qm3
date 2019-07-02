@@ -1,2 +1,2 @@
 export AMBERHOME=[PATH]
-$AMBERHOME/bin/sander -O" )
+$AMBERHOME/bin/sander -O
