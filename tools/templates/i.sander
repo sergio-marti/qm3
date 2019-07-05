@@ -25,7 +25,7 @@ slave_faked_QM (patched sander: QM/MM Van der Waals will be computed)
  ntr    = 0, nstlim = 0, nscm   = 0,
  ntp    = 0,
  ntb    = 1,
- ifqnt  = 0,
+ ifqnt  = 1,
  cut    = 6.5
 /
 &qmmm
