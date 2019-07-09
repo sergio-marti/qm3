@@ -1,16 +1,15 @@
 # -*- coding: iso-8859-1 -*-
-
 from __future__ import print_function, division
 import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
 import	math
-import	elements
-import	constants
-import	matrix
-import	roots
-import	integration
-import	interpolation
+import	qm3.elements
+import	qm3.constants
+import	qm3.maths.matrix
+import	qm3.maths.roots
+import	qm3.maths.integration
+import	qm3.maths.interpolation
 
 
 ################################################################################################################
@@ -56,10 +55,10 @@ def __projections( size, mass, coor, grad, hess ):
 	for i in range( size ):
 		ix[size*i+i] += 1.0
 	# H' = P * H * P
-	hx = matrix.mult( ix, size, size, matrix.mult( hess, size, size, ix, size, size ), size, size )
+	hx = qm3.maths.matrix.mult( ix, size, size, qm3.maths.matrix.mult( hess, size, size, ix, size, size ), size, size )
 	for i in range( size * size ):
 		hess[i] = hx[i]
-	v, V = matrix.diag( hx, size )
+	v, V = qm3.maths.matrix.diag( hx, size )
 	t = 1.0e13 / ( 2.0 * math.pi )
 	for i in range( size ):
 		if( v[i] < 0.0 ):
@@ -75,7 +74,7 @@ def __mep_analysis( f, d_, e0_, x_, w_ ):
 	newline
 	t(s) = %eta^{ 1 over 2 }(s) left( %Ux210F over %my right)^{ 1 over 2 } left[ sum_m^{3N-7}{ B_m^2(s) %omega_m^2(s)} right]^{ - {1 over 4} } ~~~~ a( s ) = t( s ) %eta( s )
 	"""
-	wcm = 100.0 * constants.C
+	wcm = 100.0 * qm3.constants.C
 	n3_ = len( w_ )
 	n_  = n3_ // 3
 	nh_ = n3_ * ( n3_ + 1 ) // 2
@@ -96,7 +95,7 @@ def __mep_analysis( f, d_, e0_, x_, w_ ):
 		h = []
 		while( len( h ) < nh_ ):
 			h += [ float( j ) for j in f.readline().split() ]
-		h = matrix.from_upper_diagonal_columns( h, n3_ )
+		h = qm3.maths.matrix.from_upper_diagonal_columns( h, n3_ )
 		for i in range( n3_ ):
 			for j in range( n3_ ):
 				h[i*n3_+j] /= ( w_[i] * w_[j] )
@@ -105,16 +104,16 @@ def __mep_analysis( f, d_, e0_, x_, w_ ):
 #		if( nn == 7 ):
 #		if( nn > 6 ):
 		if( True ):
-			z = 0.5 * constants.H * 1.0e-3 * constants.NA * sum( v[nn:] )
+			z = 0.5 * qm3.constants.H * 1.0e-3 * qm3.constants.NA * sum( v[nn:] )
 			# curvature analysis  ----------------------------------------------------------------------------------------------
 			G = math.sqrt( sum( [ i * i for i in g ] ) )
-			dgds = [ i / G for i in matrix.mult( h, n3_, n3_, [ -i / G for i in g ], n3_, 1 ) ]
+			dgds = [ i / G for i in qm3.maths.matrix.mult( h, n3_, n3_, [ -i / G for i in g ], n3_, 1 ) ]
 			Bm = []
 			for i in range( nn, n3_ ):
 				Bm.append( sum( [ V[i+n3_*j] * dgds[j] for j in range( n3_ ) ] ) )
 			eta  = math.sqrt( sum( [ i * i for i in Bm ] ) )
 			BmW2 = math.pow( sum( [ i*i * j*j for i,j in zip( Bm, v[nn:] ) ] ), 0.25 )
-			t_s  = math.sqrt( eta * constants.H / ( 2.0 * math.pi ) ) / BmW2 * 1.0e10 * math.sqrt( 1.0e3 * constants.NA )
+			t_s  = math.sqrt( eta * qm3.constants.H / ( 2.0 * math.pi ) ) / BmW2 * 1.0e10 * math.sqrt( 1.0e3 * qm3.constants.NA )
 			# ------------------------------------------------------------------------------------------------------------------
 			o.append( ( a, e - e0_, z, t_s, eta ) )
 			print( "%10.4lf%16.3lf%16.3lf%16.3lf  %8.1lf%8.1lf%8.1lf%8.1lf%8.1lf%8.1lf%8.1lf%8.1lf"%( 
@@ -160,7 +159,7 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	n_ = 0
 	w_ = []
 	for i in f.readline().split():
-		t = math.sqrt( elements.mass[int(i)] )
+		t = math.sqrt( qm3.elements.mass[int(i)] )
 		w_.append( t ); w_.append( t ); w_.append( t )
 		n_ += 1
 	for i,j in isotopes:
@@ -178,17 +177,17 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	nh_ = n3_ * ( n3_ + 1 ) // 2
 	while( len( h ) < nh_ ):
 		h += [ float( j ) for j in f.readline().split() ]
-	h = matrix.from_upper_diagonal_columns( h, n3_ )
+	h = qm3.maths.matrix.from_upper_diagonal_columns( h, n3_ )
 	for i in range( n3_ ):
 		for j in range( n3_ ):
 			h[i*n3_+j] /= ( w_[i] * w_[j] )
 	v = __projections( n3_, w_, x, None, h )[0]
 	print( "Reactant frequencies:" )
 	for i in range( n3_ ):
-		print( "%12.6lf"%( v[i] / ( 100.0 * constants.C ) ), end = "" )
+		print( "%12.6lf"%( v[i] / ( 100.0 * qm3.constants.C ) ), end = "" )
 		if( (i+1)%6 == 0 ):
 			print()
-	z0_ = 0.5 * constants.H * 1.0e-3 * constants.NA * sum( [ i for i in v[6:] if i > 1.0 ] )
+	z0_ = 0.5 * qm3.constants.H * 1.0e-3 * qm3.constants.NA * sum( [ i for i in v[6:] if i > 1.0 ] )
 	print()
 	print( "Reactant ZPE: %16.4lf"%( z0_ ) )
 	print()
@@ -202,22 +201,22 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	h = []
 	while( len( h ) < nh_ ):
 		h += [ float( j ) for j in f.readline().split() ]
-	h = matrix.from_upper_diagonal_columns( h, n3_ )
+	h = qm3.maths.matrix.from_upper_diagonal_columns( h, n3_ )
 	for i in range( n3_ ):
 		for j in range( n3_ ):
 			h[i*n3_+j] /= ( w_[i] * w_[j] )
 	v = __projections( n3_, w_, x_, None, h )[0]
 	print( "TS frequencies:" )
 	for i in range( n3_ ):
-		print( "%12.6lf"%( v[i] / ( 100.0 * constants.C ) ), end = "" )
+		print( "%12.6lf"%( v[i] / ( 100.0 * qm3.constants.C ) ), end = "" )
 		if( (i+1)%6 == 0 ):
 			print()
-	z = 0.5 * constants.H * 1.0e-3 * constants.NA * sum( [ i for i in v[7:] if i > 1.0 ] )
+	z = 0.5 * qm3.constants.H * 1.0e-3 * qm3.constants.NA * sum( [ i for i in v[7:] if i > 1.0 ] )
 	print()
 	print( "TS ZPE: %16.4lf"%( z ) )
 	print( "TS dE : %16.4lf"%( e - e0_ ) )
 	print( "TS dVa: %16.4lf"%( e - e0_ + z ) )
-	print( "WIGNER: %16.4lf"%( 1.0 + 1.0 / 24.0 * math.pow( v[0] * constants.H / ( constants.KB * temperature ), 2.0 ) ) )
+	print( "WIGNER: %16.4lf"%( 1.0 + 1.0 / 24.0 * math.pow( v[0] * qm3.constants.H / ( qm3.constants.KB * temperature ), 2.0 ) ) )
 	print()
 	# =========================================================================
 	# IRC
@@ -262,10 +261,10 @@ def effective_reduced_masses( s_coor, m_t, m_k ):
 	"""
 	%my_eff(s) = %my cdot min left lbrace stack{ e^{- 2 a(s) - left[ a(s) right]^2 + left( dt over ds right)^2 } # 1} right none ~~~~ %my_{ a.u. } = 1 over {  N_A m_e 10^3 }
 	"""
-	aki_dtds = interpolation.hermite_spline( s_coor, m_t )
+	dtds = qm3.maths.interpolation.hermite_spline( s_coor, m_t, "akima" )
 	rm = []
 	for i in range( len( s_coor ) ):
-		t = aki_dtds.calc( s_coor[i] )[1]
+		t = dtds.calc( s_coor[i] )[1]
 		t = - 2.0 * m_t[i] * m_k[i] - m_t[i] * m_t[i] * m_k[i] * m_k[i] + t * t
 		if( t < 0.0 ):
 			rm.append( min( 1.0, math.exp( t ) ) )
@@ -293,7 +292,7 @@ def transmission_probabilities( s_coor, v_adia, s_maxi, v_maxi, r_zpe, r_mass ):
 		r_zpe			ZPE of the reactants in kJ/mol
 		r_mass			scaling factor (float: ZCT) or relative reduced masses (list: SCT)
 	"""
-	def __get_turning_points( s_coor, v_adia, s_maxi, e_cr, aki_vag ):
+	def __get_turning_points( s_coor, v_adia, s_maxi, e_cr, vag ):
 # -------------------------------------------------------------------------------------------
 #		t = [ i - e_cr for i in v_adia ]
 #		T = t[:]; T.sort()
@@ -304,9 +303,9 @@ def transmission_probabilities( s_coor, v_adia, s_maxi, v_maxi, r_zpe, r_mass ):
 #				i = 0
 #				while( t[i] < 0.0 ):
 #					i += 1
-#				s_lt = roots.bisect( lambda x: aki_vag.calc( x )[0] - e_cr, s_coor[i-1], s_coor[i] )
+#				s_lt = qm3.maths.roots.bisect( lambda x: aki_vag.calc( x )[0] - e_cr, s_coor[i-1], s_coor[i] )
 #			else:
-#				s_lt = roots.bisect( lambda x: aki_vag.calc( x )[0] - e_cr, s_coor[0], s_maxi,  max_iter = 10000 )
+#				s_lt = qm3.maths.roots.bisect( lambda x: aki_vag.calc( x )[0] - e_cr, s_coor[0], s_maxi,  max_iter = 10000 )
 #		if( t[-1] > 0.0 ):
 #			s_gt = s_coor[-1]
 #		else:
@@ -314,21 +313,21 @@ def transmission_probabilities( s_coor, v_adia, s_maxi, v_maxi, r_zpe, r_mass ):
 #				i = -1
 #				while( t[i] < 0.0 ):
 #					i -= 1
-#				s_gt = roots.bisect( lambda x: aki_vag.calc( x )[0] - e_cr, s_coor[i], s_coor[i+1] )
+#				s_gt = qm3.maths.roots.bisect( lambda x: aki_vag.calc( x )[0] - e_cr, s_coor[i], s_coor[i+1] )
 #			else:
-#				s_gt = roots.bisect( lambda x: aki_vag.calc( x )[0] - e_cr, s_maxi, s_coor[-1], max_iter = 10000 )
+#				s_gt = qm3.maths.roots.bisect( lambda x: aki_vag.calc( x )[0] - e_cr, s_maxi, s_coor[-1], max_iter = 10000 )
 # -------------------------------------------------------------------------------------------
-		if( aki_vag.calc( s_coor[0] )[0] > e_cr ):
+		if( vag.calc( s_coor[0] )[0] > e_cr ):
 			s_lt = s_coor[0]
 		else:
-			s_lt = roots.bisect( lambda x: aki_vag.calc( x )[0] - e_cr, s_coor[0], s_maxi,  max_iter = 10000 )
-		if( aki_vag.calc( s_coor[-1] )[0] > e_cr ):
+			s_lt = qm3.maths.roots.bisect( lambda x: vag.calc( x )[0] - e_cr, s_coor[0], s_maxi,  max_iter = 10000 )
+		if( vag.calc( s_coor[-1] )[0] > e_cr ):
 			s_gt = s_coor[-1]
 		else:
-			s_gt = roots.bisect( lambda x: aki_vag.calc( x )[0] - e_cr, s_maxi, s_coor[-1], max_iter = 10000 )
+			s_gt = qm3.maths.roots.bisect( lambda x: vag.calc( x )[0] - e_cr, s_maxi, s_coor[-1], max_iter = 10000 )
 # -------------------------------------------------------------------------------------------
 		return( s_lt, s_gt )
-	npts = len( integration.gauss_legendre_xi )
+	npts = len( qm3.maths.integration.gauss_legendre_xi )
 	ener = []
 	prob = []
 	# -- setup masses
@@ -337,7 +336,7 @@ def transmission_probabilities( s_coor, v_adia, s_maxi, v_maxi, r_zpe, r_mass ):
 	else:
 		erm_ = [ 1.0 for i in range( len( s_coor ) ) ]
 	# -- integrate probabilities
-	c = 2.0e-10 * math.pi / ( constants.H * constants.NA )
+	c = 2.0e-10 * math.pi / ( qm3.constants.H * qm3.constants.NA )
 # -------------------------------------- #
 #	e_ds = ( v_maxi - r_zpe )
 # -------------------------------------- #
@@ -347,17 +346,17 @@ def transmission_probabilities( s_coor, v_adia, s_maxi, v_maxi, r_zpe, r_mass ):
 	print()
 	print( "%16s%20s%10s%10s"%( "dVa", "Trans. Probability", "s<", "s>" ) )
 	print( 56 * "=" )
-	aki_vag = interpolation.hermite_spline( s_coor, v_adia )
-	aki_erm = interpolation.hermite_spline( s_coor,   erm_ )
+	vag = qm3.maths.interpolation.hermite_spline( s_coor, v_adia, "akima" )
+	erm = qm3.maths.interpolation.hermite_spline( s_coor,   erm_, "akima" )
 	for i in range( npts ):
 # -------------------------------------- #
-#		e_cr = r_zpe + 0.5 * ( 1.0 + integration.gauss_legendre_xi[i] ) * e_ds
+#		e_cr = r_zpe + 0.5 * ( 1.0 + qm3.maths.integration.gauss_legendre_xi[i] ) * e_ds
 # -------------------------------------- #
-		e_cr = e_mx + 0.5 * ( 1.0 + integration.gauss_legendre_xi[i] ) * e_ds
+		e_cr = e_mx + 0.5 * ( 1.0 + qm3.maths.integration.gauss_legendre_xi[i] ) * e_ds
 # -------------------------------------- #
 		ener.append( e_cr )
-		s_lt, s_gt = __get_turning_points( s_coor, v_adia, s_maxi, e_cr, aki_vag )
-		o = c * integration.Gauss( lambda x: math.sqrt( 2.0 * math.fabs( aki_erm.calc( x )[0] ) * math.fabs( aki_vag.calc( x )[0] - e_cr ) ), s_lt, s_gt )
+		s_lt, s_gt = __get_turning_points( s_coor, v_adia, s_maxi, e_cr, vag )
+		o = c * qm3.maths.integration.Gauss( lambda x: math.sqrt( 2.0 * math.fabs( erm.calc( x )[0] ) * math.fabs( vag.calc( x )[0] - e_cr ) ), s_lt, s_gt )
 		prob.append( 1.0 / ( 1.0 + math.exp( 2.0 * o ) ) )
 		print( "%16.3lf%20.4le%10.4lf%10.4lf"%( e_cr - r_zpe, prob[-1], s_lt, s_gt ) )
 	return( ener, prob )
@@ -373,9 +372,9 @@ def calc_kappa( energy, probability, temperature = 298.15 ):
 		probability		in adimensional
 		temperature		in kelvin
 	"""
-	r = 1.0e3 / ( constants.R * temperature )
+	r = 1.0e3 / ( qm3.constants.R * temperature )
 # -- don't know why... (subroutine boltz / polyag.f)
-#	n = len( integration.gauss_legendre_xi )
+#	n = len( qm3.maths.integration.gauss_legendre_xi )
 #	d = energy[-1] - energy[0]
 #	o = 0.0
 #	for i in range( n ):
@@ -386,8 +385,8 @@ def calc_kappa( energy, probability, temperature = 298.15 ):
 # --------------------------------------------------------
 # The Journal of Physical Chemistry, Vol. 84, No. 13, 1980
 #
-	aki_ene = interpolation.hermite_spline( energy, [ i * math.exp( - j * r ) for i,j in zip( probability, energy ) ] )
-	o = integration.Gauss( lambda x: aki_ene.calc( x )[0], energy[0], energy[-1] )
+	ene = qm3.maths.interpolation.hermite_spline( energy, [ i * math.exp( - j * r ) for i,j in zip( probability, energy ) ], "akima" )
+	o = qm3.maths.integration.Gauss( lambda x: ene.calc( x )[0], energy[0], energy[-1] )
 	return( 1.0 + r * o * math.exp( energy[-1] * r ) )
 
 
@@ -402,7 +401,7 @@ def calc_sigma( s_coor, v_adia, temperature = 298.15 ):
 		temperature		in kelvin
 	"""
 	def __find_max( s_, v_ ):
-		o = interpolation.hermite_spline( s_, v_ )
+		o = qm3.maths.interpolation.hermite_spline( s_, v_, "akima" )
 		d = 0.1
 		x = 0.0
 		f, g = o.calc( x )
@@ -424,17 +423,17 @@ def calc_sigma( s_coor, v_adia, temperature = 298.15 ):
 	t = v_adia[:]
 	t.sort()
 	w = v_adia.index( t[-1] )
-	v = matrix.mult( 
-			matrix.inverse( [ 1.0, s_coor[w-1], s_coor[w-1]*s_coor[w-1], 1.0, s_coor[w], s_coor[w]*s_coor[w], 1.0, s_coor[w+1], s_coor[w+1]*s_coor[w+1] ], 3, 3 ), 3, 3, 
+	v = qm3.maths.matrix.mult( 
+			qm3.maths.matrix.inverse( [ 1.0, s_coor[w-1], s_coor[w-1]*s_coor[w-1], 1.0, s_coor[w], s_coor[w]*s_coor[w], 1.0, s_coor[w+1], s_coor[w+1]*s_coor[w+1] ], 3, 3 ), 3, 3, 
 			[ v_adia[w-1], v_adia[w], v_adia[w+1] ], 3, 1 )
 	s_MX = - v[1] / ( 2.0 * v[2] )
 	v_MX = v[0] + v[1] * s_MX + v[2] * s_MX * s_MX
 	print( "Quad.Interp. maximum: %14.6lf%14.6lf"%( s_MX, v_MX ) )
 	# ----------------------------------------------
 	if( flg ):
-		return( s_mx, v_mx, math.exp( - math.fabs( v_mx - v_ts ) * 1.0e3 / ( constants.R * temperature ) ) )
+		return( s_mx, v_mx, math.exp( - math.fabs( v_mx - v_ts ) * 1.0e3 / ( qm3.constants.R * temperature ) ) )
 	else:
-		return( s_MX, v_MX, math.exp( - math.fabs( v_MX - v_ts ) * 1.0e3 / ( constants.R * temperature ) ) )
+		return( s_MX, v_MX, math.exp( - math.fabs( v_MX - v_ts ) * 1.0e3 / ( qm3.constants.R * temperature ) ) )
 
 
 
@@ -448,7 +447,7 @@ if( __name__ == "__main__" ):
 
 	T_ = 298.0
 
-	z_, s_, t_e, t_z, t_t, t_k = parse_MEP( "samples/nh3.data", T_ )
+	z_, s_, t_e, t_z, t_t, t_k = parse_MEP( "nh3.data", T_ )
 	v_ = [ i + j for i,j in zip( t_e, t_z ) ]
 	sx_, vx_, S_ = calc_sigma( s_, v_, T_ )
 	print()
