@@ -54,6 +54,7 @@ def __project_RT_modes( w, x, g, h ):
 		tmp = sum( [ g[k] * rt[i*s+k] for k in range( s ) ] )
 		for k in range( s ):
 			g[k] -= tmp * rt[i*s+k]
+	gg = sum( [ i*i for i in g ] )
 	# hessian
 	ix = [ 0.0 for i in range( s * s ) ]
 	for i in range( s ):
@@ -61,6 +62,8 @@ def __project_RT_modes( w, x, g, h ):
 		for j in range( s ):
 			for k in range( 6 ):
 				ix[s*i+j] -= rt[k*s+i] * rt[k*s+j]
+			# remove also any mode perpendicular to the reaction coordinate
+			ix[s*i+j] -= g[i] * g[j] / gg
 	t = qm3.maths.matrix.mult( ix, s, s, qm3.maths.matrix.mult( h, s, s, ix, s, s ), s, s )
 	for i in range( s * s ):
 		h[i] = t[i]

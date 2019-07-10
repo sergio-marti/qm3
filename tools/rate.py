@@ -12,6 +12,16 @@ import	qm3.maths.integration
 import	qm3.maths.interpolation
 
 
+"""
+>> comprobar que las unidades son las que tocan:
+coor = sqrt(m) * x
+grad = 1/sqrt(m) * g
+hess = 1/m * h
+
+>> no se está proyectando el gradiente de la hessiana!
+
+>> mirar si se puede interpolar información obtenida de la hessiana: menos hessianas (sobre todo cerca del TS)
+"""
 ################################################################################################################
 def __projections( size, mass, coor, grad, hess ): 
 	mc = [ 0.0, 0.0, 0.0 ]
@@ -46,7 +56,7 @@ def __projections( size, mass, coor, grad, hess ):
 			t = sum( [ ii * jj  for ii,jj in zip( grad, rt[i] ) ] )
 			for j in range( size ):
 				grad[j] -= t * rt[i][j]
-	# P = I - Tx * Tx - ... - Rx * Rx - ... [- G * G]
+	# P = I - Tx * Tx - ... - Rx * Rx - ... [- G * G] >> gradiente normalizado!
 	ix = [ 0.0 for ii in range( size * size ) ]
 	for i in range( size ):
 		for j in range( size ):
@@ -284,6 +294,7 @@ def effective_reduced_masses( s_coor, m_t, m_k ):
 def transmission_probabilities( s_coor, v_adia, s_maxi, v_maxi, r_zpe, r_mass ):
 	"""
 	%theta left( E right) = %Ux210F ^{ {}-1 } int_{ s<{} }^{ s>{} }{ left(2 %my_eff left[ V_a left( s right)- E right] right)^{1 over 2} ds }
+	newline
 	P left( E right) = left(  1 + e^{2 cdot %theta left( E right)} right)^{ {}-1 } ~~~~ E <= V_a^{s=0}
 
 		s_coor			in amu^0.5*A
@@ -378,9 +389,9 @@ def calc_kappa( energy, probability, temperature = 298.15 ):
 #	d = energy[-1] - energy[0]
 #	o = 0.0
 #	for i in range( n ):
-#		t = math.exp( 0.5 * d * r * ( 1.0 - integration.gauss_legendre_xi[i] ) )
+#		t = math.exp( 0.5 * d * r * ( 1.0 - qm3.maths.integration.gauss_legendre_xi[i] ) )
 #		t -= 1.0 / t
-#		o += integration.gauss_legendre_wi[i] * t * probability[i]
+#		o += qm3.maths.integration.gauss_legendre_wi[i] * t * probability[i]
 #	return( 1.0 + 0.5 * d * r * o )
 # --------------------------------------------------------
 # The Journal of Physical Chemistry, Vol. 84, No. 13, 1980
@@ -447,7 +458,7 @@ if( __name__ == "__main__" ):
 
 	T_ = 298.0
 
-	z_, s_, t_e, t_z, t_t, t_k = parse_MEP( "nh3.data", T_ )
+	z_, s_, t_e, t_z, t_t, t_k = parse_MEP( "rate.data", T_ )
 	v_ = [ i + j for i,j in zip( t_e, t_z ) ]
 	sx_, vx_, S_ = calc_sigma( s_, v_, T_ )
 	print()
@@ -481,7 +492,6 @@ if( __name__ == "__main__" ):
 	for i in range( len( s_ ) ):
 		f.write( "%20.10lf%20.10lf\n"%( s_[i], m_[i] ) )
 	f.close()
-#	m_ = t_m[:]
 	# -------
 	e_, p_ = transmission_probabilities( s_, v_, sx_, vx_, z_, m_ )
 	K1_ = calc_kappa( e_, p_, T_ )
