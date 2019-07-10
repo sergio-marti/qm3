@@ -12,16 +12,7 @@ import	qm3.maths.integration
 import	qm3.maths.interpolation
 
 
-"""
->> comprobar que las unidades son las que tocan:
-coor = sqrt(m) * x
-grad = 1/sqrt(m) * g
-hess = 1/m * h
 
->> no se está proyectando el gradiente de la hessiana!
-
->> mirar si se puede interpolar información obtenida de la hessiana: menos hessianas (sobre todo cerca del TS)
-"""
 ################################################################################################################
 def __projections( size, mass, coor, grad, hess ): 
 	mc = [ 0.0, 0.0, 0.0 ]
@@ -56,12 +47,17 @@ def __projections( size, mass, coor, grad, hess ):
 			t = sum( [ ii * jj  for ii,jj in zip( grad, rt[i] ) ] )
 			for j in range( size ):
 				grad[j] -= t * rt[i][j]
-	# P = I - Tx * Tx - ... - Rx * Rx - ... [- G * G] >> gradiente normalizado!
+	# P = I - Tx * Tx - ... - Rx * Rx - ... - G * G
 	ix = [ 0.0 for ii in range( size * size ) ]
 	for i in range( size ):
 		for j in range( size ):
 			for l in range( 6 ):
 				ix[size*i+j] -= rt[l][i] * rt[l][j]
+	if( grad ):
+		t = sum( [ grad[i] * grad[i] for i in range( size ) ] )
+		for i in range( size ):
+			for j in range( size ):
+				ix[size*i+j] -= grad[i] * grad[j] / t
 	for i in range( size ):
 		ix[size*i+i] += 1.0
 	# H' = P * H * P
@@ -76,6 +72,7 @@ def __projections( size, mass, coor, grad, hess ):
 		else:
 			v[i] =   math.sqrt( math.fabs( v[i] ) ) * t
 	return( v, V )
+
 
 
 def __mep_analysis( f, d_, e0_, x_, w_ ):
@@ -105,7 +102,10 @@ def __mep_analysis( f, d_, e0_, x_, w_ ):
 		h = []
 		while( len( h ) < nh_ ):
 			h += [ float( j ) for j in f.readline().split() ]
+
+		# >> cambiar esto por algo mas "QM3"
 		h = qm3.maths.matrix.from_upper_diagonal_columns( h, n3_ )
+
 		for i in range( n3_ ):
 			for j in range( n3_ ):
 				h[i*n3_+j] /= ( w_[i] * w_[j] )
@@ -138,8 +138,8 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	"""
 	MEP structure:
 
-	*reac
 	Z		atomic number
+	*reac
 	vpot	kJ/mol
 	coor	A
 	hess 	kJ/(mol*A^2)
@@ -163,8 +163,10 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	returns:
 		ZPE(r), s_coordinate, V(i)-V(reac), ZPE(i), relative centrifugal-dominant masses [t(s),eta(s)]
 	"""
+	print( 80 * "=" )
+	print( " s in (g/mol)^0.5 * A\n dE, ZPE, dVa in kJ/mol\n mu_eff is adimensional (mu_eff/mu)\n Frequencies in cm^-1" )
+	print( 80 * "-", "\n" )
 	f = open( fname, "rt" )
-	f.readline()
 	# masses and system size
 	n_ = 0
 	w_ = []
@@ -178,6 +180,7 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	s_ = []
 	# =========================================================================
 	# Reactant
+	f.readline()
 	e0_ = float( f.readline() )
 	x = []
 	for i in range( n_ ):
@@ -187,14 +190,17 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	nh_ = n3_ * ( n3_ + 1 ) // 2
 	while( len( h ) < nh_ ):
 		h += [ float( j ) for j in f.readline().split() ]
+
+	# >> cambiar esto por algo mas "QM3"
 	h = qm3.maths.matrix.from_upper_diagonal_columns( h, n3_ )
+
 	for i in range( n3_ ):
 		for j in range( n3_ ):
 			h[i*n3_+j] /= ( w_[i] * w_[j] )
 	v = __projections( n3_, w_, x, None, h )[0]
 	print( "Reactant frequencies:" )
 	for i in range( n3_ ):
-		print( "%12.6lf"%( v[i] / ( 100.0 * qm3.constants.C ) ), end = "" )
+		print( "%12.2lf"%( v[i] / ( 100.0 * qm3.constants.C ) ), end = "" )
 		if( (i+1)%6 == 0 ):
 			print()
 	z0_ = 0.5 * qm3.constants.H * 1.0e-3 * qm3.constants.NA * sum( [ i for i in v[6:] if i > 1.0 ] )
@@ -211,14 +217,17 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	h = []
 	while( len( h ) < nh_ ):
 		h += [ float( j ) for j in f.readline().split() ]
+
+	# >> cambiar esto por algo mas "QM3"
 	h = qm3.maths.matrix.from_upper_diagonal_columns( h, n3_ )
+
 	for i in range( n3_ ):
 		for j in range( n3_ ):
 			h[i*n3_+j] /= ( w_[i] * w_[j] )
 	v = __projections( n3_, w_, x_, None, h )[0]
 	print( "TS frequencies:" )
 	for i in range( n3_ ):
-		print( "%12.6lf"%( v[i] / ( 100.0 * qm3.constants.C ) ), end = "" )
+		print( "%12.2lf"%( v[i] / ( 100.0 * qm3.constants.C ) ), end = "" )
 		if( (i+1)%6 == 0 ):
 			print()
 	z = 0.5 * qm3.constants.H * 1.0e-3 * qm3.constants.NA * sum( [ i for i in v[7:] if i > 1.0 ] )
@@ -231,7 +240,7 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	# =========================================================================
 	# IRC
 	print( "%10s%16s%16s%16s  %64s"%( "s ", "dE ", "ZPE ", "dVa ", "Frequencies " ) )
-	print( 124 * "=" )
+	print( 124 * "-" )
 	d_ = 1.0
 	if( f.readline().lower().strip() == "*>>reac" ):
 		d_ = -1.0
@@ -258,7 +267,7 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	rk.insert( i, 0.5 * ( rk[i] + rk[i-1] ) )
 	print()
 	print( "%20s%20s%20s%20s%20s"%( "s ", "dE ", "ZPE ", "t ", "k " ) )
-	print( 100 * "=" )
+	print( 100 * "-" )
 	for i in range( len( rs ) ):
 		print( "%20.10lf%20.10lf%20.10lf%20.10lf%20.10lf"%( rs[i], re[i], rz[i], rt[i], rk[i] ) )
 	print()
@@ -282,7 +291,7 @@ def effective_reduced_masses( s_coor, m_t, m_k ):
 			rm.append( 1.0 )
 	print()
 	print( "%20s%20s"%( "s ", "mu_cd-sc " ) )
-	print( 40 * "=" )
+	print( 40 * "-" )
 	for i in range( len( s_coor ) ):
 		print( "%20.10lf%20.10lf"%( s_coor[i], rm[i] ) )
 	print()
@@ -356,7 +365,7 @@ def transmission_probabilities( s_coor, v_adia, s_maxi, v_maxi, r_zpe, r_mass ):
 # -------------------------------------- #
 	print()
 	print( "%16s%20s%10s%10s"%( "dVa", "Trans. Probability", "s<", "s>" ) )
-	print( 56 * "=" )
+	print( 56 * "-" )
 	vag = qm3.maths.interpolation.hermite_spline( s_coor, v_adia, "akima" )
 	erm = qm3.maths.interpolation.hermite_spline( s_coor,   erm_, "akima" )
 	for i in range( npts ):
@@ -452,9 +461,6 @@ def calc_sigma( s_coor, v_adia, temperature = 298.15 ):
 
 ################################################################################################################
 if( __name__ == "__main__" ):
-	print( 80 * "#" )
-	print( " s in amu^0.5*A\n dE, ZPE, dVa in kJ/mol\n mu_eff is adimensional (mu_eff/mu)\n Frequencies in cm^-1" )
-	print( 80 * "#", "\n" )
 
 	T_ = 298.0
 
@@ -488,10 +494,6 @@ if( __name__ == "__main__" ):
 		m_.append( t_m[i] )
 	for i in range( t_p, len( s_ ) ):
 		m_.append( t_m[t_p] )
-	f = open( "rmass", "wt" )
-	for i in range( len( s_ ) ):
-		f.write( "%20.10lf%20.10lf\n"%( s_[i], m_[i] ) )
-	f.close()
 	# -------
 	e_, p_ = transmission_probabilities( s_, v_, sx_, vx_, z_, m_ )
 	K1_ = calc_kappa( e_, p_, T_ )
