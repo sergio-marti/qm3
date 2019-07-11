@@ -99,11 +99,11 @@ def __mep_analysis( f, d_, e0_, x_, w_ ):
 		g = []
 		for i in range( n_ ):
 			g += [ float( j ) / w_[3*i] for j in f.readline().split() ]
+
+		# >> cambiar esto por algo mas "QM3"
 		h = []
 		while( len( h ) < nh_ ):
 			h += [ float( j ) for j in f.readline().split() ]
-
-		# >> cambiar esto por algo mas "QM3"
 		h = qm3.maths.matrix.from_upper_diagonal_columns( h, n3_ )
 
 		for i in range( n3_ ):
@@ -185,13 +185,13 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	x = []
 	for i in range( n_ ):
 		x += [ float( j ) * w_[3*i] for j in f.readline().split() ]
-	h = []
 	n3_ = n_ * 3
 	nh_ = n3_ * ( n3_ + 1 ) // 2
-	while( len( h ) < nh_ ):
-		h += [ float( j ) for j in f.readline().split() ]
 
 	# >> cambiar esto por algo mas "QM3"
+	h = []
+	while( len( h ) < nh_ ):
+		h += [ float( j ) for j in f.readline().split() ]
 	h = qm3.maths.matrix.from_upper_diagonal_columns( h, n3_ )
 
 	for i in range( n3_ ):
@@ -214,11 +214,11 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	x_ = []
 	for i in range( n_ ):
 		x_ += [ float( j ) * w_[3*i] for j in f.readline().split() ]
+
+	# >> cambiar esto por algo mas "QM3"
 	h = []
 	while( len( h ) < nh_ ):
 		h += [ float( j ) for j in f.readline().split() ]
-
-	# >> cambiar esto por algo mas "QM3"
 	h = qm3.maths.matrix.from_upper_diagonal_columns( h, n3_ )
 
 	for i in range( n3_ ):
