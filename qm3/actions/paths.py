@@ -54,8 +54,8 @@ def __project_RT_modes( w, x, g, h ):
 		tmp = sum( [ g[k] * rt[i*s+k] for k in range( s ) ] )
 		for k in range( s ):
 			g[k] -= tmp * rt[i*s+k]
-	gg = sum( [ i*i for i in g ] )
 	# hessian
+#	gg = sum( [ i*i for i in g ] )
 	ix = [ 0.0 for i in range( s * s ) ]
 	for i in range( s ):
 		ix[s*i+i] += 1.
@@ -63,14 +63,14 @@ def __project_RT_modes( w, x, g, h ):
 			for k in range( 6 ):
 				ix[s*i+j] -= rt[k*s+i] * rt[k*s+j]
 			# remove also any mode perpendicular to the reaction coordinate
-			ix[s*i+j] -= g[i] * g[j] / gg
+#			ix[s*i+j] -= g[i] * g[j] / gg
 	t = qm3.maths.matrix.mult( ix, s, s, qm3.maths.matrix.mult( h, s, s, ix, s, s ), s, s )
 	for i in range( s * s ):
 		h[i] = t[i]
 
 
 # use positive/forward or negative/reverse
-def initial_step( obj, step_size = 0.0028, project_RT = True ):
+def initial_step( obj, step_size = 0.0053, project_RT = True ):
 	s = min( len( obj.mass ), obj.size )
 	k = obj.size // s
 	w = [ 0.0 for i in range( obj.size ) ]
@@ -99,7 +99,7 @@ def initial_step( obj, step_size = 0.0028, project_RT = True ):
 
 def steepest_descent( obj, 
 			step_number = 100,
-			step_size = 0.0028,			# use positive/forward or negative/reverse
+			step_size = 0.0053,			# use positive/forward or negative/reverse
 			gradient_tolerance = 0.1,
 			print_frequency = 10,
 			project_RT = True,
@@ -124,7 +124,7 @@ def steepest_descent( obj,
 
 def baker( obj, 
 			step_number = 100,
-			step_size = 0.0028,			# use positive/forward or negative/reverse
+			step_size = 0.0053,			# use positive/forward or negative/reverse
 			gradient_tolerance = 0.1,
 			print_frequency = 10,
 			project_RT = True,
@@ -243,7 +243,7 @@ def baker( obj,
 
 def page_mciver( obj, 
 			step_number = 100,
-			step_size = 0.0028,			# use positive/forward or negative/reverse
+			step_size = 0.0053,			# use positive/forward or negative/reverse
 			gradient_tolerance = 0.1,
 			print_frequency = 10,
 			project_RT = True,

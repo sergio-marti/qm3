@@ -53,11 +53,12 @@ def __projections( size, mass, coor, grad, hess ):
 		for j in range( size ):
 			for l in range( 6 ):
 				ix[size*i+j] -= rt[l][i] * rt[l][j]
-	if( grad ):
-		t = sum( [ grad[i] * grad[i] for i in range( size ) ] )
-		for i in range( size ):
-			for j in range( size ):
-				ix[size*i+j] -= grad[i] * grad[j] / t
+# -- don't take out the gradient (rection coordinate) or won't be any change in the curvature...
+#	t = sum( [ grad[i] * grad[i] for i in range( size ) ] )
+#	for i in range( size ):
+#		for j in range( size ):
+#			ix[size*i+j] -= grad[i] * grad[j] / t
+# ----------------------------------------------------------------------------------------------
 	for i in range( size ):
 		ix[size*i+i] += 1.0
 	# H' = P * H * P
@@ -99,36 +100,30 @@ def __mep_analysis( f, d_, e0_, x_, w_ ):
 		g = []
 		for i in range( n_ ):
 			g += [ float( j ) / w_[3*i] for j in f.readline().split() ]
-
-		# >> cambiar esto por algo mas "QM3"
 		h = []
 		while( len( h ) < nh_ ):
 			h += [ float( j ) for j in f.readline().split() ]
-		h = qm3.maths.matrix.from_upper_diagonal_columns( h, n3_ )
-
+		h = qm3.maths.matrix.from_upper_diagonal_rows( h, n3_ )
 		for i in range( n3_ ):
 			for j in range( n3_ ):
 				h[i*n3_+j] /= ( w_[i] * w_[j] )
 		v, V = __projections( n3_, w_, x, g, h )
 		nn = sum( [ 1 for i in v if i < wcm ] )
-#		if( nn == 7 ):
-#		if( nn > 6 ):
-		if( True ):
-			z = 0.5 * qm3.constants.H * 1.0e-3 * qm3.constants.NA * sum( v[nn:] )
-			# curvature analysis  ----------------------------------------------------------------------------------------------
-			G = math.sqrt( sum( [ i * i for i in g ] ) )
-			dgds = [ i / G for i in qm3.maths.matrix.mult( h, n3_, n3_, [ -i / G for i in g ], n3_, 1 ) ]
-			Bm = []
-			for i in range( nn, n3_ ):
-				Bm.append( sum( [ V[i+n3_*j] * dgds[j] for j in range( n3_ ) ] ) )
-			eta  = math.sqrt( sum( [ i * i for i in Bm ] ) )
-			BmW2 = math.pow( sum( [ i*i * j*j for i,j in zip( Bm, v[nn:] ) ] ), 0.25 )
-			t_s  = math.sqrt( eta * qm3.constants.H / ( 2.0 * math.pi ) ) / BmW2 * 1.0e10 * math.sqrt( 1.0e3 * qm3.constants.NA )
-			# ------------------------------------------------------------------------------------------------------------------
-			o.append( ( a, e - e0_, z, t_s, eta ) )
-			print( "%10.4lf%16.3lf%16.3lf%16.3lf  %8.1lf%8.1lf%8.1lf%8.1lf%8.1lf%8.1lf%8.1lf%8.1lf"%( 
-				a, ( e - e0_), z, ( e - e0_ + z ),
-				v[0] / wcm, v[1] / wcm, v[2] / wcm, v[3] / wcm, v[4] / wcm, v[5] / wcm, v[6] / wcm, v[7] / wcm ) )
+		z = 0.5 * qm3.constants.H * 1.0e-3 * qm3.constants.NA * sum( v[nn:] )
+		# curvature analysis  ----------------------------------------------------------------------------------------------
+		G = math.sqrt( sum( [ i * i for i in g ] ) )
+		dgds = [ i / G for i in qm3.maths.matrix.mult( h, n3_, n3_, [ -i / G for i in g ], n3_, 1 ) ]
+		Bm = []
+		for i in range( nn, n3_ ):
+			Bm.append( sum( [ V[i+n3_*j] * dgds[j] for j in range( n3_ ) ] ) )
+		eta  = math.sqrt( sum( [ i * i for i in Bm ] ) )
+		BmW2 = math.pow( sum( [ i*i * j*j for i,j in zip( Bm, v[nn:] ) ] ), 0.25 )
+		t_s  = math.sqrt( eta * qm3.constants.H / ( 2.0 * math.pi ) ) / BmW2 * 1.0e10 * math.sqrt( 1.0e3 * qm3.constants.NA )
+		# ------------------------------------------------------------------------------------------------------------------
+		o.append( ( a, e - e0_, z, t_s, eta ) )
+		print( "%10.4lf%16.3lf%16.3lf%16.3lf  %8.1lf%8.1lf%8.1lf%8.1lf%8.1lf%8.1lf%8.1lf%8.1lf"%( 
+			a, ( e - e0_), z, ( e - e0_ + z ),
+			v[0] / wcm, v[1] / wcm, v[2] / wcm, v[3] / wcm, v[4] / wcm, v[5] / wcm, v[6] / wcm, v[7] / wcm ) )
 		e = f.readline()
 	return( o )
 
@@ -187,13 +182,10 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 		x += [ float( j ) * w_[3*i] for j in f.readline().split() ]
 	n3_ = n_ * 3
 	nh_ = n3_ * ( n3_ + 1 ) // 2
-
-	# >> cambiar esto por algo mas "QM3"
 	h = []
 	while( len( h ) < nh_ ):
 		h += [ float( j ) for j in f.readline().split() ]
-	h = qm3.maths.matrix.from_upper_diagonal_columns( h, n3_ )
-
+	h = qm3.maths.matrix.from_upper_diagonal_rows( h, n3_ )
 	for i in range( n3_ ):
 		for j in range( n3_ ):
 			h[i*n3_+j] /= ( w_[i] * w_[j] )
@@ -214,13 +206,10 @@ def parse_MEP( fname, temperature = 298.15, isotopes = [] ):
 	x_ = []
 	for i in range( n_ ):
 		x_ += [ float( j ) * w_[3*i] for j in f.readline().split() ]
-
-	# >> cambiar esto por algo mas "QM3"
 	h = []
 	while( len( h ) < nh_ ):
 		h += [ float( j ) for j in f.readline().split() ]
-	h = qm3.maths.matrix.from_upper_diagonal_columns( h, n3_ )
-
+	h = qm3.maths.matrix.from_upper_diagonal_rows( h, n3_ )
 	for i in range( n3_ ):
 		for j in range( n3_ ):
 			h[i*n3_+j] /= ( w_[i] * w_[j] )
@@ -393,7 +382,7 @@ def calc_kappa( energy, probability, temperature = 298.15 ):
 		temperature		in kelvin
 	"""
 	r = 1.0e3 / ( qm3.constants.R * temperature )
-# -- don't know why... (subroutine boltz / polyag.f)
+# -- (subroutine boltz / polyag.f)
 #	n = len( qm3.maths.integration.gauss_legendre_xi )
 #	d = energy[-1] - energy[0]
 #	o = 0.0
@@ -403,8 +392,6 @@ def calc_kappa( energy, probability, temperature = 298.15 ):
 #		o += qm3.maths.integration.gauss_legendre_wi[i] * t * probability[i]
 #	return( 1.0 + 0.5 * d * r * o )
 # --------------------------------------------------------
-# The Journal of Physical Chemistry, Vol. 84, No. 13, 1980
-#
 	ene = qm3.maths.interpolation.hermite_spline( energy, [ i * math.exp( - j * r ) for i,j in zip( probability, energy ) ], "akima" )
 	o = qm3.maths.integration.Gauss( lambda x: ene.calc( x )[0], energy[0], energy[-1] )
 	return( 1.0 + r * o * math.exp( energy[-1] * r ) )
@@ -436,6 +423,7 @@ def calc_sigma( s_coor, v_adia, temperature = 298.15 ):
 			h = ( o.calc( x + d )[1] - o.calc( x - d )[1] ) / ( 2.0 * d )
 			i += 1
 		return( i < 1000, x, f )
+## >> it should be technically the gibbs energy (now missing partition functions...)
 	v_ts = v_adia[s_coor.index( 0.0 )]
 	flg, s_mx, v_mx = __find_max( s_coor, v_adia )
 	print( "Akima-fitted maximum: %14.6lf%14.6lf"%( s_mx, v_mx ) )
@@ -477,6 +465,7 @@ if( __name__ == "__main__" ):
 	print( "Kappa_ZCT (T = %.2lf): %.3lf"%( T_, K0_ ) )
 
 	t_m = effective_reduced_masses( s_, t_t, t_k )
+	# this is not really working... the shapes are not good...
 	# -------
 	i = s_.index( 0.0 )
 	j = i - 2
@@ -500,4 +489,9 @@ if( __name__ == "__main__" ):
 	print()
 	print( "Kappa_SCT (T = %.2lf): %.3lf"%( T_, K1_ ) )
 
-
+	import matplotlib.pyplot
+	matplotlib.pyplot.clf()
+	matplotlib.pyplot.grid()
+	matplotlib.pyplot.plot( s_, t_m, '-o' )
+	matplotlib.pyplot.plot( s_, m_, '-s' )
+	matplotlib.pyplot.show()
