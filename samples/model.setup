@@ -1,7 +1,7 @@
 import os
 import qm3.constants
 import qm3.elements
-import qm3.setup.prepare
+import qm3.utils.prepare
 import qm3.mol
 import re
 try:
@@ -76,7 +76,7 @@ m.fill_masses()
 s = qm3.mol.molecule( "wat" )
 s.anum = [ qm3.elements.rsymbol[s.labl[i][0]] for i in range( s.natm ) ]
 s.fill_masses()
-m.append( qm3.setup.prepare.solvate( m, s ) )
+m.append( qm3.utils.prepare.solvate( m, s ) )
 for i in range( m.res_lim[1], m.natm ):
     m.segn[i] = "W"
 m.settle()
