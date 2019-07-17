@@ -10,6 +10,7 @@ typedef void (*Tfunc_initialize)();
 typedef void (*Tfunc_update_coor)(double*);
 typedef void (*Tfunc_get_func)(double*, double*);
 typedef void (*Tfunc_get_grad)(double*, double*, double*);
+typedef void (*Tfunc_facade)();
 
 
 typedef struct {
@@ -20,6 +21,7 @@ typedef struct {
 	Tfunc_update_coor	qm3_update_chrg;
 	Tfunc_get_func		qm3_get_func;
 	Tfunc_get_grad		qm3_get_grad;
+	Tfunc_facade		qm3_facade;
 } oDynamo;
 
 
@@ -35,6 +37,7 @@ static int __init( oDynamo *self, PyObject *args, PyObject *kwds ) {
 		self->qm3_update_chrg = (Tfunc_update_coor) dlsym( self->lib, "qm3_update_chrg_" );
 		self->qm3_get_func    = (Tfunc_get_func) dlsym( self->lib, "qm3_get_func_" );
 		self->qm3_get_grad    = (Tfunc_get_grad) dlsym( self->lib, "qm3_get_grad_" );
+		self->qm3_facade      = (Tfunc_facade) dlsym( self->lib, "qm3_facade_" );
 		(*(self->qm3_initialize))();
 	}
 	return( 0 );
@@ -53,6 +56,16 @@ static PyObject* __new( PyTypeObject *type, PyObject *args, PyObject *kwds ) {
 static void __dealloc( oDynamo *self ) {
 	if( self->lib ) dlclose( self->lib );
 	Py_TYPE( self )->tp_free( (PyObject*) self );
+}
+
+
+static PyObject* qm3_facade( PyObject *self ) {
+	oDynamo		*obj = NULL;
+
+	obj = (oDynamo*) self;
+	(*(obj->qm3_facade))();
+	Py_INCREF( Py_None );
+	return( Py_None );
 }
 
 
@@ -175,6 +188,7 @@ static struct PyMethodDef __methods [] = {
     { "update_chrg", (PyCFunction)qm3_update_chrg, METH_VARARGS },
     { "get_func",    (PyCFunction)qm3_get_func, METH_VARARGS },
     { "get_grad",    (PyCFunction)qm3_get_grad, METH_VARARGS },
+    { "facade",      (PyCFunction)qm3_facade, METH_NOARGS },
 	{ 0, 0, 0 }
 };
 

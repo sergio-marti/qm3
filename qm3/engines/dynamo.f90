@@ -33,6 +33,11 @@ subroutine qm3_initialize
 end subroutine qm3_initialize
 
 
+subroutine qm3_facade
+	use dynamo
+	implicit none
+end subroutine qm3_facade
+
 
 subroutine qm3_update_coor( coor )
 	use dynamo
