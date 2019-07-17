@@ -50,10 +50,16 @@ o.cut_list = -1
 o.parse_molecule( m )
 o.guess_partial_charges( m )
 
+_g = m.chrg[:]
+m.chrg = [ .0 for i in range( m.natm ) ]
+o.guess_partial_charges( m, "eem" )
+t = m.chrg[:]
+m.chrg = _g[:]
+
 print( 80*"=" )
-print( "%-4s%-4s%8s%10s "%( "", "Atm", "Chrg", "Typ" ), "Con" )
+print( "%-4s%-4s%8s%8s%10s "%( "", "Atm", "EEM", "Chrg", "Typ" ), "Con" )
 for i in range( m.natm ):
-    print( "%-4d%-4s%8.3lf%10s "%( i, m.labl[i], m.chrg[i], m.type[i] ), o.conn[i] )
+    print( "%-4d%-4s%8.3lf%8.3lf%10s "%( i, m.labl[i], t[i], m.chrg[i], m.type[i] ), o.conn[i] )
 print( 80*"-" )
 print( "Charge: %8.3lf"%( sum( m.chrg ) ) )
 

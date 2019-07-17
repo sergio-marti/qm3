@@ -70,7 +70,7 @@ class simple_force_field( object ):
 	
 	# SYBYL atom types (kinda)
 	# http://www.sdsc.edu/CCMS/Packages/cambridge/pluto/atom_types.html
-	#         uses FORMAL CHARGES present in MOL.CHRG
+	# uses FORMAL CHARGES present in MOL.CHRG
 	def guess_types( self, mol ):
 		def __any( lst_a, lst_b ):
 			return( len( set( lst_a ).intersection( set( lst_b ) ) ) > 0 )
@@ -191,67 +191,115 @@ class simple_force_field( object ):
 		self.guess_types( mol )
 
 
-	# Gasteiger partial charges ("adapted" from AmberTools/antechamber/charge.c)
-	#         uses FORMAL CHARGES present in MOL.CHRG
-	def guess_partial_charges( self, mol ):
-		gas = {
-			"H":     [  7.17,  6.24, -0.56,  20.02 ],	# polar hydrogen
-			"Hn":    [  7.17,  6.24, -0.56,  20.02 ],	# non-polar hydrogen
-			"C.1":   [ 10.39,  9.45,  0.73,  20.57 ],	# C sp1
-			"C.2":   [  8.79,  9.32,  1.51,  19.62 ],	# C sp2 in single
-			"C.ar":  [  8.79,  9.32,  1.51,  19.62 ],	# C sp2 in aromatic/conjugated
-			"C.co":  [  8.79,  9.32,  1.51,  19.62 ],	# C sp2 in C=O
-			"C.3":   [  7.98,  9.18,  1.88,  19.04 ],	# C sp3
-			"N.1":   [ 15.68, 11.70, -0.27,  27.11 ],	# N sp1
-			"N.2":   [ 12.87, 11.15,  0.85,  24.87 ],	# N sp2	in C=N
-			"N.pl":  [ 12.32, 11.20,  1.34,  24.86 ],	# N sp2 (+)
-			"N.3":   [ 11.54, 10.82,  1.36,  23.72 ],	# N sp3
-			"N.4":   [  0.00, 11.86, 11.86,  23.72 ],	# N sp3 (+)
-			"O.2":   [ 17.07, 13.79,  0.47,  31.33 ],	# O sp2 in C=O
-			"O.3":   [ 14.18, 12.92,  1.39,  28.49 ],	# O sp3
-			"O.h":   [ 17.07, 13.79,  0.47,  31.33 ],	# O sp3 in O-H
-			"O.x":   [ 17.07, 13.79,  0.47,  31.33 ],	# O sp3 in O(-)
-			"O.co2": [ 17.07, 13.79,  0.47,  31.33 ],	# O sp2/sp3 in CO2(-0.5 * 2)
-			"S.2":   [ 10.88,  9.485, 1.325, 21.69 ],	# S sp2	
-			"S.3":   [ 10.14,  9.13,  1.38,  20.65 ],	# S sp3
-			"S.h":   [ 10.88,  9.485, 1.325, 21.69 ],	# S sp3 in S-H
-			"S.x":   [ 10.88,  9.485, 1.325, 21.69 ],	# S sp3 in S(-)
-			"S.o":   [ 10.14,  9.13,  1.38,  20.65 ],	# S sp2d in S=O
-			"S.o2":  [ 12.00, 10.805, 1.195, 24.00 ],	# S spd2 in O=S=O
-			"F":     [ 14.66, 13.85,  2.31,  30.82 ],
-			"Cl":    [ 11.00,  9.69,  1.35,  22.04 ],
-			"Br":    [ 10.08,  8.47,  1.16,  19.71 ],
-			"I":     [  9.90,  7.96,  0.96,  18.82 ],
-			"P.3":   [  8.90,  8.24,  0.96,  18.10 ]	# P (any)
-		}
-		ep = mol.chrg[:]
-		ea = mol.chrg[:]
-		ff = True
-		it = 0
-		df = 0.5
-		while( it < 1000 and ff ):
-			x = []
+	# uses FORMAL CHARGES present in MOL.CHRG
+	def guess_partial_charges( self, mol, method = "gasteiger" ):
+		if( method == "eem" ):
+			# Electronegativity Equalization Method (B3LYP_6-311G_NPA.par) [10.1186/s13321-015-0107-1]
+			kap = 0.2509
+			prm = {
+				"H":     [ 2.3864, 0.6581 ],	# polar hydrogen
+				"Hn":    [ 2.3864, 0.6581 ],	# non-polar hydrogen
+				"C.1":   [ 2.4617, 0.3489 ],	# C sp1
+				"C.2":   [ 2.5065, 0.3173 ],	# C sp2 in single
+				"C.ar":  [ 2.5065, 0.3173 ],	# C sp2 in aromatic/conjugated
+				"C.co":  [ 2.5065, 0.3173 ],	# C sp2 in C=O
+				"C.3":   [ 2.4992, 0.3220 ],	# C sp3
+				"N.1":   [ 2.5348, 0.4025 ],	# N sp1
+				"N.2":   [ 2.5568, 0.2949 ],	# N sp2	in C=N
+				"N.pl":  [ 2.5568, 0.2949 ],	# N sp2 (+)
+				"N.3":   [ 2.5891, 0.4072 ],	# N sp3
+				"N.4":   [ 2.5891, 0.4072 ],	# N sp3 (+)
+				"O.2":   [ 2.6588, 0.4232 ],	# O sp2 in C=O
+				"O.3":   [ 2.6342, 0.4041 ],	# O sp3
+				"O.h":   [ 2.6342, 0.4041 ],	# O sp3 in O-H
+				"O.x":   [ 2.6342, 0.4041 ],	# O sp3 in O(-)
+				"O.co2": [ 2.6588, 0.4232 ],	# O sp2/sp3 in CO2(-0.5 * 2)
+				"S.2":   [ 2.4884, 0.2043 ],	# S sp2	
+				"S.3":   [ 2.4506, 0.2404 ],	# S sp3
+				"S.h":   [ 2.4506, 0.2404 ],	# S sp3 in S-H
+				"S.x":   [ 2.4506, 0.2404 ],	# S sp3 in S(-)
+				"S.o":   [ 2.4884, 0.2043 ],	# S sp2d in S=O
+				"S.o2":  [ 2.4884, 0.2043 ],	# S spd2 in O=S=O
+				"F":     [ 3.0028, 1.2433 ],
+				"Cl":    [ 2.5104, 0.8364 ],
+				"Br":    [ 2.4244, 0.7511 ],
+				"I":     [ 2.3272, 0.9303 ],
+				"P.2":   [ 2.2098, 0.3281 ],	# P sp2
+				"P.3":   [ 2.3898, 0.1902 ] 	# P sp3
+			}
+			mat = []
+			vec = []
 			for i in range( mol.natm ):
-				x.append( gas[mol.type[i]][0] + ep[i] * ( gas[mol.type[i]][1] + ep[i] * gas[mol.type[i]][2] ) )
-				if( x[i] == 0.0 ):
-					x[i] = 1.0e-10
-			for i,j in self.bond:
-				if( x[i] <= x[j] ):
-					q = ( x[j] - x[i] ) / gas[mol.type[i]][3] * df
-					ea[i] += q
-					ea[j] -= q
-				else:
-					q = ( x[i] - x[j] ) / gas[mol.type[j]][3] * df
-					ea[i] -= q
-					ea[j] += q
-			s = 0.0
-			for i in range( mol.natm ):
-				s += ( ep[i] - ea[i] ) * ( ep[i] - ea[i] )
-				ep[i] = ea[i]
-			ff = math.sqrt( s / float( mol.natm ) ) > 1.0e-5
-			df *= 0.5
-			it += 1
-		mol.chrg = ea[:]
+				for j in range( mol.natm ):
+					if( j == i ):
+						mat.append( prm[mol.type[i]][1] )
+					else:
+						mat.append( kap / qm3.utils.distance( mol.coor[3*i:3*i+3], mol.coor[3*j:3*j+3] ) )
+				mat.append( -1 )
+				vec.append( - prm[mol.type[i]][0] )
+			mat += [ 1 ] * mol.natm + [ sum( mol.chrg ) ]
+			vec.append( 0 )
+			mol.chrg = qm3.maths.matrix.solve( mat, vec )[0:mol.natm]
+		else:
+			# Gasteiger partial charges ("adapted" from AmberTools/antechamber/charge.c)
+			gas = {
+				"H":     [  7.17,  6.24, -0.56,  20.02 ],	# polar hydrogen
+				"Hn":    [  7.17,  6.24, -0.56,  20.02 ],	# non-polar hydrogen
+				"C.1":   [ 10.39,  9.45,  0.73,  20.57 ],	# C sp1
+				"C.2":   [  8.79,  9.32,  1.51,  19.62 ],	# C sp2 in single
+				"C.ar":  [  8.79,  9.32,  1.51,  19.62 ],	# C sp2 in aromatic/conjugated
+				"C.co":  [  8.79,  9.32,  1.51,  19.62 ],	# C sp2 in C=O
+				"C.3":   [  7.98,  9.18,  1.88,  19.04 ],	# C sp3
+				"N.1":   [ 15.68, 11.70, -0.27,  27.11 ],	# N sp1
+				"N.2":   [ 12.87, 11.15,  0.85,  24.87 ],	# N sp2	in C=N
+				"N.pl":  [ 12.32, 11.20,  1.34,  24.86 ],	# N sp2 (+)
+				"N.3":   [ 11.54, 10.82,  1.36,  23.72 ],	# N sp3
+				"N.4":   [  0.00, 11.86, 11.86,  23.72 ],	# N sp3 (+)
+				"O.2":   [ 17.07, 13.79,  0.47,  31.33 ],	# O sp2 in C=O
+				"O.3":   [ 14.18, 12.92,  1.39,  28.49 ],	# O sp3
+				"O.h":   [ 17.07, 13.79,  0.47,  31.33 ],	# O sp3 in O-H
+				"O.x":   [ 17.07, 13.79,  0.47,  31.33 ],	# O sp3 in O(-)
+				"O.co2": [ 17.07, 13.79,  0.47,  31.33 ],	# O sp2/sp3 in CO2(-0.5 * 2)
+				"S.2":   [ 10.88,  9.485, 1.325, 21.69 ],	# S sp2	
+				"S.3":   [ 10.14,  9.13,  1.38,  20.65 ],	# S sp3
+				"S.h":   [ 10.88,  9.485, 1.325, 21.69 ],	# S sp3 in S-H
+				"S.x":   [ 10.88,  9.485, 1.325, 21.69 ],	# S sp3 in S(-)
+				"S.o":   [ 10.14,  9.13,  1.38,  20.65 ],	# S sp2d in S=O
+				"S.o2":  [ 12.00, 10.805, 1.195, 24.00 ],	# S spd2 in O=S=O
+				"F":     [ 14.66, 13.85,  2.31,  30.82 ],
+				"Cl":    [ 11.00,  9.69,  1.35,  22.04 ],
+				"Br":    [ 10.08,  8.47,  1.16,  19.71 ],
+				"I":     [  9.90,  7.96,  0.96,  18.82 ],
+				"P.3":   [  8.90,  8.24,  0.96,  18.10 ]	# P (any)
+			}
+			ep = mol.chrg[:]
+			ea = mol.chrg[:]
+			ff = True
+			it = 0
+			df = 0.5
+			while( it < 1000 and ff ):
+				x = []
+				for i in range( mol.natm ):
+					x.append( gas[mol.type[i]][0] + ep[i] * ( gas[mol.type[i]][1] + ep[i] * gas[mol.type[i]][2] ) )
+					if( x[i] == 0.0 ):
+						x[i] = 1.0e-10
+				for i,j in self.bond:
+					if( x[i] <= x[j] ):
+						q = ( x[j] - x[i] ) / gas[mol.type[i]][3] * df
+						ea[i] += q
+						ea[j] -= q
+					else:
+						q = ( x[i] - x[j] ) / gas[mol.type[j]][3] * df
+						ea[i] -= q
+						ea[j] += q
+				s = 0.0
+				for i in range( mol.natm ):
+					s += ( ep[i] - ea[i] ) * ( ep[i] - ea[i] )
+					ep[i] = ea[i]
+				ff = math.sqrt( s / float( mol.natm ) ) > 1.0e-5
+				df *= 0.5
+				it += 1
+			mol.chrg = ea[:]
 
 
 	def load_parameters( self, mol, ffield = None ):
