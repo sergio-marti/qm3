@@ -192,55 +192,8 @@ class simple_force_field( object ):
 
 
 	# uses FORMAL CHARGES present in MOL.CHRG
-	def guess_partial_charges( self, mol, method = "gasteiger" ):
-		if( method == "eem" ):
-			# Electronegativity Equalization Method (B3LYP_6-311G_NPA.par) [10.1186/s13321-015-0107-1]
-			kap = 0.2509
-			prm = {
-				"H":     [ 2.3864, 0.6581 ],	# polar hydrogen
-				"Hn":    [ 2.3864, 0.6581 ],	# non-polar hydrogen
-				"C.1":   [ 2.4617, 0.3489 ],	# C sp1
-				"C.2":   [ 2.5065, 0.3173 ],	# C sp2 in single
-				"C.ar":  [ 2.5065, 0.3173 ],	# C sp2 in aromatic/conjugated
-				"C.co":  [ 2.5065, 0.3173 ],	# C sp2 in C=O
-				"C.3":   [ 2.4992, 0.3220 ],	# C sp3
-				"N.1":   [ 2.5348, 0.4025 ],	# N sp1
-				"N.2":   [ 2.5568, 0.2949 ],	# N sp2	in C=N
-				"N.pl":  [ 2.5568, 0.2949 ],	# N sp2 (+)
-				"N.3":   [ 2.5891, 0.4072 ],	# N sp3
-				"N.4":   [ 2.5891, 0.4072 ],	# N sp3 (+)
-				"O.2":   [ 2.6588, 0.4232 ],	# O sp2 in C=O
-				"O.3":   [ 2.6342, 0.4041 ],	# O sp3
-				"O.h":   [ 2.6342, 0.4041 ],	# O sp3 in O-H
-				"O.x":   [ 2.6342, 0.4041 ],	# O sp3 in O(-)
-				"O.co2": [ 2.6588, 0.4232 ],	# O sp2/sp3 in CO2(-0.5 * 2)
-				"S.2":   [ 2.4884, 0.2043 ],	# S sp2	
-				"S.3":   [ 2.4506, 0.2404 ],	# S sp3
-				"S.h":   [ 2.4506, 0.2404 ],	# S sp3 in S-H
-				"S.x":   [ 2.4506, 0.2404 ],	# S sp3 in S(-)
-				"S.o":   [ 2.4884, 0.2043 ],	# S sp2d in S=O
-				"S.o2":  [ 2.4884, 0.2043 ],	# S spd2 in O=S=O
-				"F":     [ 3.0028, 1.2433 ],
-				"Cl":    [ 2.5104, 0.8364 ],
-				"Br":    [ 2.4244, 0.7511 ],
-				"I":     [ 2.3272, 0.9303 ],
-				"P.2":   [ 2.2098, 0.3281 ],	# P sp2
-				"P.3":   [ 2.3898, 0.1902 ] 	# P sp3
-			}
-			mat = []
-			vec = []
-			for i in range( mol.natm ):
-				for j in range( mol.natm ):
-					if( j == i ):
-						mat.append( prm[mol.type[i]][1] )
-					else:
-						mat.append( kap / qm3.utils.distance( mol.coor[3*i:3*i+3], mol.coor[3*j:3*j+3] ) )
-				mat.append( -1 )
-				vec.append( - prm[mol.type[i]][0] )
-			mat += [ 1 ] * mol.natm + [ 0 ]
-			vec.append( sum( mol.chrg ) )
-			mol.chrg = qm3.maths.matrix.solve( mat, vec )[0:mol.natm]
-		else:
+	def guess_partial_charges( self, mol, method = "eem" ):
+		if( method == "gasteiger" ):
 			# Gasteiger partial charges ("adapted" from AmberTools/antechamber/charge.c)
 			gas = {
 				"H":     [  7.17,  6.24, -0.56,  20.02 ],	# polar hydrogen
@@ -300,6 +253,53 @@ class simple_force_field( object ):
 				df *= 0.5
 				it += 1
 			mol.chrg = ea[:]
+		else:
+			# Electronegativity Equalization Method (B3LYP_6-311G_NPA.par) [10.1186/s13321-015-0107-1]
+			kap = 0.2509
+			prm = {
+				"H":     [ 2.3864, 0.6581 ],	# polar hydrogen
+				"Hn":    [ 2.3864, 0.6581 ],	# non-polar hydrogen
+				"C.1":   [ 2.4617, 0.3489 ],	# C sp1
+				"C.2":   [ 2.5065, 0.3173 ],	# C sp2 in single
+				"C.ar":  [ 2.5065, 0.3173 ],	# C sp2 in aromatic/conjugated
+				"C.co":  [ 2.5065, 0.3173 ],	# C sp2 in C=O
+				"C.3":   [ 2.4992, 0.3220 ],	# C sp3
+				"N.1":   [ 2.5348, 0.4025 ],	# N sp1
+				"N.2":   [ 2.5568, 0.2949 ],	# N sp2	in C=N
+				"N.pl":  [ 2.5568, 0.2949 ],	# N sp2 (+)
+				"N.3":   [ 2.5891, 0.4072 ],	# N sp3
+				"N.4":   [ 2.5891, 0.4072 ],	# N sp3 (+)
+				"O.2":   [ 2.6588, 0.4232 ],	# O sp2 in C=O
+				"O.3":   [ 2.6342, 0.4041 ],	# O sp3
+				"O.h":   [ 2.6342, 0.4041 ],	# O sp3 in O-H
+				"O.x":   [ 2.6342, 0.4041 ],	# O sp3 in O(-)
+				"O.co2": [ 2.6588, 0.4232 ],	# O sp2/sp3 in CO2(-0.5 * 2)
+				"S.2":   [ 2.4884, 0.2043 ],	# S sp2	
+				"S.3":   [ 2.4506, 0.2404 ],	# S sp3
+				"S.h":   [ 2.4506, 0.2404 ],	# S sp3 in S-H
+				"S.x":   [ 2.4506, 0.2404 ],	# S sp3 in S(-)
+				"S.o":   [ 2.4884, 0.2043 ],	# S sp2d in S=O
+				"S.o2":  [ 2.4884, 0.2043 ],	# S spd2 in O=S=O
+				"F":     [ 3.0028, 1.2433 ],
+				"Cl":    [ 2.5104, 0.8364 ],
+				"Br":    [ 2.4244, 0.7511 ],
+				"I":     [ 2.3272, 0.9303 ],
+				"P.2":   [ 2.2098, 0.3281 ],	# P sp2
+				"P.3":   [ 2.3898, 0.1902 ] 	# P sp3
+			}
+			mat = []
+			vec = []
+			for i in range( mol.natm ):
+				for j in range( mol.natm ):
+					if( j == i ):
+						mat.append( prm[mol.type[i]][1] )
+					else:
+						mat.append( kap / qm3.utils.distance( mol.coor[3*i:3*i+3], mol.coor[3*j:3*j+3] ) )
+				mat.append( -1 )
+				vec.append( - prm[mol.type[i]][0] )
+			mat += [ 1 ] * mol.natm + [ 0 ]
+			vec.append( sum( mol.chrg ) )
+			mol.chrg = qm3.maths.matrix.solve( mat, vec )[0:mol.natm]
 
 
 	def load_parameters( self, mol, ffield = None ):
