@@ -224,6 +224,37 @@ def inverse( mat, row, col ):
 
 
 
+def solve( mat, vec, eps = 1.e-14 ):
+	_at = mat[:]
+	_ec = vec[:]
+	siz = len( _ec )
+	if( len( _at ) != siz * siz ):
+		return( None )
+	for i in range( siz - 1 ):
+		k = i
+		for j in range( i + 1, siz ):
+			if( math.fabs( _at[j*siz+i] ) > math.fabs( _at[k*siz+i] ) ):
+				k = j
+		if( k != i ):
+			t = _ec[i]; _ec[i] = _ec[k]; _ec[k] = t
+			for j in range( siz ):
+				t = _at[i*siz+j]; _at[i*siz+j] = _at[k*siz+j]; _at[k*siz+j] = t
+		if( math.fabs( _at[i*siz+i] ) < eps ):
+			return( None )
+		for j in range( i + 1, siz ):
+			t = _at[j*siz+i] / _at[i*siz+i]
+			_ec[j] -= t * _ec[i]
+			for k in range( i + 1, siz ):
+				_at[j*siz+k] -= t * _at[i*siz+k]
+	for i in range( siz - 1, -1, -1 ):
+		for j in range( i + 1, siz ):
+			_ec[i] -= _ec[j] * _at[i*siz+j]
+		_ec[i] /= _at[i*siz+i]
+	return( _ec )
+
+
+
+
 # TODO ============================================================================================
 #
 #	.to_upper_diagonal_rows()					return upper-diagonal row-packed
