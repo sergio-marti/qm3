@@ -237,8 +237,8 @@ class simple_force_field( object ):
 						mat.append( kap / qm3.utils.distance( mol.coor[3*i:3*i+3], mol.coor[3*j:3*j+3] ) )
 				mat.append( -1 )
 				vec.append( - prm[mol.type[i]][0] )
-			mat += [ 1 ] * mol.natm + [ sum( mol.chrg ) ]
-			vec.append( 0 )
+			mat += [ 1 ] * mol.natm + [ 0 ]
+			vec.append( sum( mol.chrg ) )
 			mol.chrg = qm3.maths.matrix.solve( mat, vec )[0:mol.natm]
 		else:
 			# Gasteiger partial charges ("adapted" from AmberTools/antechamber/charge.c)
