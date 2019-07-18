@@ -124,13 +124,6 @@ qm3_atoms
 		self.func = self.mol.func
 
 
-	def relax_envi( self ):
-		self.get_func()
-		self.envi.eng.update_chrg( self.mol )
-		qm3.actions.minimize.fire( self.envi, print_frequency = 1, gradient_tolerance = 1, step_number = 1000 )
-		self.mol.pdb_write( "mm_opt.pdb" )
-
-
 	def get_grad( self ):
 		self.update_coor()
 		self.mol.func = 0.0
@@ -150,18 +143,24 @@ qm3_atoms
 		self.num_hess()
 
 
+	def relax_envi( self ):
+		self.get_func()
+		self.envi.eng.update_chrg( self.mol )
+		qm3.actions.minimize.fire( self.envi, print_frequency = 1, gradient_tolerance = 1, step_number = 1000 )
+		self.mol.pdb_write( "mm_opt.pdb" )
 
-	def fake_fchk( self, cmd, dst ):
-		# ------- Update coordiantes ----
-		f = open( "%s.gjf"%( dst ), "rt" )
-		f.readline()
-		for i in range( self.size // 3 ):
-			t = [ float( j ) for j in f.readline().strip().split()[1:] ]
-			for j in [0, 1, 2]:
-				self.coor[3*i+j] = t[j]
-		f.close()
-		# -----------------------------------------------------------------
-		self.relax_envi()
+
+	def fake_fchk( self, cmd, dst, update = True ):
+		if( update ):
+			# ------- Update coordiantes ----
+			f = open( "%s.gjf"%( dst ), "rt" )
+			f.readline()
+			for i in range( self.size // 3 ):
+				t = [ float( j ) for j in f.readline().strip().split()[1:] ]
+				for j in [0, 1, 2]:
+					self.coor[3*i+j] = t[j]
+			f.close()
+			self.relax_envi()
 		# -----------------------------------------------------------------
 		if( cmd == "force" ):
 			self.get_grad()
@@ -233,11 +232,11 @@ obj = core_problem()
 
 #qm3.actions.minimize.baker( obj, print_frequency = 1, gradient_tolerance = 1, step_number = 1000, follow_mode = 0 )
 #qm3.engines.namd.pdb_write( obj.mol, "t.pdb", [ 0, 1, 2, 3 ] )
-#obj.fake_fchk( "freq=noraman", "t" )
+#obj.fake_fchk( "freq=noraman", "t", False )
 
 #qm3.actions.minimize.baker( obj, print_frequency = 1, gradient_tolerance = 1, step_number = 1000 )
 #qm3.engines.namd.pdb_write( obj.mol, "r.pdb", [ 0, 1, 2, 3 ] )
-#obj.fake_fchk( "freq=noraman", "r" )
+#obj.fake_fchk( "freq=noraman", "r", False )
 
 if( True ):
 	sck = socket.socket( socket.AF_UNIX, socket.SOCK_STREAM )
@@ -252,7 +251,7 @@ if( True ):
 			while( len( buf ) < 1024 ):
 				buf += son.recv( 1024 )
 			cmd, fld = buf.strip().split()
-			obj.fake_fchk( cmd, fld )
+			obj.fake_fchk( cmd, fld, True )
 			son.sendall( "done" )
 		except:
 			son.sendall( "fail" )
