@@ -8,12 +8,11 @@ if( sys.version_info[0] == 2 ):
 
 import	qm3.mol
 import	qm3.utils
-import	qm3.maths.matrix
 
 import	qm3.engines.dynamo
 
 
-mol = qm3.engines.dynamo.coordinates_read( "crd" )
+mol = qm3.engines.dynamo.coordinates_read( "sadd" )
 mol.fill_masses()
 
 
@@ -30,14 +29,12 @@ crd = []
 for i in sel:
 	mas.append( mol.mass[i] )
 	crd += mol.coor[3*i:3*i+3]
-cen, rot = qm3.utils.moments_of_inertia( mas, crd )
+cen = qm3.utils.center( mas, crd )
 for i in range( mol.natm ):
 	i3 = i * 3
-	t = mol.coor[i3:i3+3][:]
 	for j in [0, 1, 2]:
-		t[j] -= cen[j]
-	mol.coor[i3:i3+3] = qm3.maths.matrix.mult( t, 1, 3, rot, 3, 3 )
-	
+		mol.coor[i3+j] -= cen[j]
 
-qm3.engines.dynamo.coordinates_write( mol, "crd.pa" )
-mol.pdb_write( "pdb.pa" )
+
+qm3.engines.dynamo.coordinates_write( mol, "sadd.cen" )
+mol.xyz_write( "acs", sele = sel )
