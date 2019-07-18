@@ -59,7 +59,7 @@ static void __dealloc( oDynamo *self ) {
 }
 
 
-static PyObject* qm3_facade( PyObject *self ) {
+static PyObject* qm3_facade( PyObject *self, PyObject *args ) {
 	PyObject	*omol, *ocrd;
 	long		i, natm;
 	double		*coor;
