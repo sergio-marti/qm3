@@ -33,9 +33,12 @@ subroutine qm3_initialize
 end subroutine qm3_initialize
 
 
-subroutine qm3_facade
+subroutine qm3_facade( coor )
 	use dynamo
 	implicit none
+	real*8, dimension(1:3,1:natoms), intent( in ) :: coor
+	call qm3_update_coor( coor )
+	! ...
 end subroutine qm3_facade
 
 
