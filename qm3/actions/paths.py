@@ -19,54 +19,53 @@ def default_log( txt ):
 
 
 
-def __project_RT_modes( w, x, g, h ):
-	s  = len( x )
-	mt = 0.0
-	mc = [ 0.0, 0.0, 0.0 ]
-	for i in range( s // 3 ):
-		i3 = i * 3
-		mt += w[i3] * w[i3]
+# mass weighted:  xyz * sqrt(m)  ;  grd / sqrt(m)  ;  hes / sqrt(mi * mj)
+def __project_RT_modes( mas, crd, grd, hes ):
+	siz = len( crd )
+	mtt = 0.0
+	cen = [ 0.0, 0.0, 0.0 ]
+	for i in range( siz // 3 ):
+		k = i * 3
+		mtt += mas[k] * mas[k]
 		for j in [0, 1, 2]:
-			mc[j] += x[i3+j] * w[i3]
-	mc = [ mc[i] / mt for i in [0, 1, 2] ]
-	rt = [ 0.0 for i in range( 6 * s ) ]
-	for i in range( s // 3 ):
-		j = 3 * i
-		rt[j]	    = w[j]
-		rt[s+j+1]   = w[j]
-		rt[2*s+j+2] = w[j]
-		rt[3*s+j+1] = - ( x[j+2] - mc[2] * w[j] )
-		rt[3*s+j+2] =   ( x[j+1] - mc[1] * w[j] )
-		rt[4*s+j]   =   ( x[j+2] - mc[2] * w[j] )
-		rt[4*s+j+2] = - ( x[j  ] - mc[0] * w[j] )
-		rt[5*s+j]   = - ( x[j+1] - mc[1] * w[j] )
-		rt[5*s+j+1] =   ( x[j  ] - mc[0] * w[j] )
+			cen[j] += crd[k+j] * mas[k]
+	cen = [ cen[i] / mtt for i in [0, 1, 2] ]
+	rtm = [ 0.0 for i in range( 6 * siz ) ]
+	for i in range( siz // 3 ):
+		k              = i * 3
+		rtm[k]	       = mas[k]
+		rtm[siz+k+1]   = mas[k]
+		rtm[2*siz+k+2] = mas[k]
+		rtm[3*siz+k+1] = - ( crd[k+2] - cen[2] * mas[k] )
+		rtm[3*siz+k+2] =   ( crd[k+1] - cen[1] * mas[k] )
+		rtm[4*siz+k]   =   ( crd[k+2] - cen[2] * mas[k] )
+		rtm[4*siz+k+2] = - ( crd[k  ] - cen[0] * mas[k] )
+		rtm[5*siz+k]   = - ( crd[k+1] - cen[1] * mas[k] )
+		rtm[5*siz+k+1] =   ( crd[k  ] - cen[0] * mas[k] )
 	for i in range( 6 ):
 		for j in range( i ):
-			tmp = sum( [ rt[i*s+k] * rt[j*s+k] for k in range( s ) ] )
-			for k in range( s ):
-				rt[i*s+k] -= tmp * rt[j*s+k]
-		tmp = math.sqrt( sum( [ rt[i*s+k] * rt[i*s+k] for k in range( s ) ] ) )
-		for k in range( s ):
-			rt[i*s+k] /= tmp
+			tmp = sum( [ rtm[i*siz+k] * rtm[j*siz+k] for k in range( siz ) ] )
+			for k in range( siz ):
+				rtm[i*siz+k] -= tmp * rtm[j*siz+k]
+		tmp = math.sqrt( sum( [ rtm[i*siz+k] * rtm[i*siz+k] for k in range( siz ) ] ) )
+		for k in range( siz ):
+			rtm[i*siz+k] /= tmp
 	# gradient
 	for i in range( 6 ):
-		tmp = sum( [ g[k] * rt[i*s+k] for k in range( s ) ] )
-		for k in range( s ):
-			g[k] -= tmp * rt[i*s+k]
+		tmp = sum( [ grd[k] * rtm[i*siz+k] for k in range( siz ) ] )
+		for k in range( siz ):
+			grd[k] -= tmp * rtm[i*siz+k]
 	# hessian
-#	gg = sum( [ i*i for i in g ] )
-	ix = [ 0.0 for i in range( s * s ) ]
-	for i in range( s ):
-		ix[s*i+i] += 1.
-		for j in range( s ):
+	ixx = [ 0.0 for i in range( siz * siz ) ]
+	for i in range( siz ):
+		ixx[siz*i+i] += 1.
+		for j in range( siz ):
 			for k in range( 6 ):
-				ix[s*i+j] -= rt[k*s+i] * rt[k*s+j]
-			# remove also any mode perpendicular to the reaction coordinate
-#			ix[s*i+j] -= g[i] * g[j] / gg
-	t = qm3.maths.matrix.mult( ix, s, s, qm3.maths.matrix.mult( h, s, s, ix, s, s ), s, s )
-	for i in range( s * s ):
-		h[i] = t[i]
+				ixx[siz*i+j] -= rtm[k*siz+i] * rtm[k*siz+j]
+	tmp = qm3.maths.matrix.mult( ixx, siz, siz, qm3.maths.matrix.mult( hes, siz, siz, ixx, siz, siz ), siz, siz )
+	for i in range( siz * siz ):
+		hes[i] = tmp[i]
+
 
 
 # use positive/forward or negative/reverse
