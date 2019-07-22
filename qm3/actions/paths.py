@@ -230,7 +230,7 @@ def baker( obj,
 			tmp = sum( [ ox[i] * dx[i] for i in range( obj.size ) ] )
 			if( tmp < 0.0 ):
 				dx = [ -dx[i] for i in range( obj.size ) ]
-		grms /= math.sqrt( float( obj.size ) )
+		grms = math.sqrt( sum( [ i * i for i in obj.grad ] ) / float( obj.size ) )
 		it1 += 1
 		if( it1%print_frequency == 0 ):
 			log_function( "%10ld%20.5lf%20.10lf%10ld"%( it1, obj.func, grms, nskp ) )
@@ -347,7 +347,7 @@ def page_mciver( obj,
 				tmp = sum( [ ox[i] * dx[i] for i in range( obj.size ) ] )
 				if( tmp < 0.0 ):
 					dx = [ -dx[i] for i in range( obj.size ) ]
-		grms /= math.sqrt( float( obj.size ) )
+		grms = math.sqrt( sum( [ i * i for i in obj.grad ] ) / float( obj.size ) )
 		it1 += 1
 		if( it1%print_frequency == 0 ):
 			log_function( "%10ld%20.5lf%20.10lf%10ld"%( it1, obj.func, grms, nskp ) )
