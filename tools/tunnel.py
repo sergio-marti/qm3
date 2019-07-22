@@ -6,6 +6,7 @@ import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
 
+import	os
 import	math
 import	qm3.mol
 import	qm3.elements
@@ -154,6 +155,11 @@ for i in range( len( irc ) ):
 	eta.append( irc[i][4] )
 	tau.append( irc[i][5] )
 mef = qm3.actions.rate.effective_reduced_masses( crd, eta, tau )
+
+#if( os.path.isfile( "tunnel.mef" ) ):
+#	f = open( "tunnel.mef", "rt" )
+#	mef = [ float( i ) for i in f.read().strip().split() ]
+#	f.close()
 
 plt.clf()
 plt.grid( True )
