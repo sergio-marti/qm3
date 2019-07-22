@@ -86,6 +86,8 @@ def path_write( fd, obj ):
 			if( k%6 == 0 ):
 				fd.write( "\n" )
 			k += 1
+	if( k%6 != 0 ):
+		fd.write( "\n" )
 	fd.flush()
 
 
@@ -185,7 +187,7 @@ def effective_reduced_masses( s_coor, eta, tau ):
 
 
 
-def transmission_probabilities( s_coor, v_adia, r_mass = 1.0 ):
+def transmission_coefficient( s_coor, v_adia, r_mass = 1.0, temp = 298.15 ):
 	"""
 		s_coor		ang * sqrt( g/mol )
 		v_adia		adiabatic energy (V+ZPE) relative to reactants potential (V) in kJ/mol
@@ -201,6 +203,7 @@ def transmission_probabilities( s_coor, v_adia, r_mass = 1.0 ):
 			s_gt = s_prod
 		else:
 			s_gt = qm3.maths.roots.bisect( lambda x: vad.calc( x )[0] - ecr, s_max, s_prod, max_iter = 10000 )
+		sys.stdout.flush()
 		return( s_lt, s_gt )
 	# ------------------------------------------------------------------------------------
 	who = s_coor.index( 0.0 )
@@ -209,25 +212,27 @@ def transmission_probabilities( s_coor, v_adia, r_mass = 1.0 ):
 	d    = 1.e-4
 	smax = max( -0.1, s_coor[0] )
 	f, g = vad.calc( smax )
-	h    = ( vad.calc( smax + d )[1] - vad.calc( smax - d )[1] ) / ( 2.0 * d )
+	h    = - math.fabs( ( vad.calc( smax + d )[1] - vad.calc( smax - d )[1] ) / ( 2.0 * d ) )
 	i    = 0
-	while( i < 1000 and math.fabs( g ) > 1.0e-6 ):
+	while( i < 10000 and math.fabs( g ) > 1.0e-6 ):
 		ds   = g / h
 		smax -= ds / math.fabs( ds ) * min( math.fabs( ds ), 0.001 )
 		f, g = vad.calc( smax )
-		h    = ( vad.calc( smax + d )[1] - vad.calc( smax - d )[1] ) / ( 2.0 * d )
+		h    = - math.fabs( ( vad.calc( smax + d )[1] - vad.calc( smax - d )[1] ) / ( 2.0 * d ) )
 		i += 1
-	if( i < 1000 ):
+	print()
+	if( i < 10000 ):
 		vmax = vad.calc( smax )[0]
+		print( "V_max(s_max: %.4lf): %.4lf kJ/mol [spline]"%( smax, vmax ) )
 	else:
 		# try quadratic interpolation
 		tmp = qm3.maths.matrix.mult( 
 				qm3.maths.matrix.inverse( [ 1.0, s_coor[who-1], s_coor[who-1]*s_coor[who-1], 1.0, s_coor[who], s_coor[who]*s_coor[who], 1.0, s_coor[who+1], s_coor[who+1]*s_coor[who+1] ], 3, 3 ), 3, 3, 
 				[ v_adia[who-1], v_adia[who], v_adia[who+1] ], 3, 1 )
 		smax = - tmp[1] / ( 2.0 * tmp[2] )
-		vmax = tmp[0] + ( tmp[1] + tmp[2] * smax ) * smax
-	print( "\nV_max(s_max: %.4lf): %.4lf kJ/mol\n"%( smax, vmax ) )
-	# -- transmission_probabilities ------------------------------------------------------
+		vmax = vad.calc( smax )[0]
+		print( "V_max(s_max: %.4lf): %.4lf kJ/mol [quadint]"%( smax, vmax ) )
+	# -- transmission probabilities ------------------------------------------------------
 	c   = 2.0e-10 * math.pi / ( qm3.constants.H * qm3.constants.NA )
 	emx = max( v_adia[0], v_adia[-1] ) + 1.0
 	npt = len( qm3.maths.integration.gauss_legendre_xi )
@@ -248,14 +253,14 @@ def transmission_probabilities( s_coor, v_adia, r_mass = 1.0 ):
 		tmp = c * qm3.maths.integration.Gauss( lambda x: math.sqrt( 2.0 * math.fabs( mef.calc( x )[0] ) * math.fabs( vad.calc( x )[0] - ecr ) ), s_lt, s_gt )
 		prob.append( 1.0 / ( 1.0 + math.exp( 2.0 * tmp ) ) )
 		print( "%16.3lf%16.4le%10.4lf%10.4lf"%( ecr, prob[-1], s_lt, s_gt ) )
-	return( ener, prob )
-
-
-
-def transmission_coefficient( ener, prob, temp = 298.15 ):
+	# -- transmission coefficient ------------------------------------------------------
 	r = 1.0e3 / ( qm3.constants.R * temp )
 	e = qm3.maths.interpolation.hermite_spline( ener, [ i * math.exp( - j * r ) for i,j in zip( prob, ener ) ] )
-	o = 1.0 + r * qm3.maths.integration.Gauss( lambda x: e.calc( x )[0], ener[0], ener[-1] ) * math.exp( ener[-1] * r )
+	K = 1.0 + r * qm3.maths.integration.Gauss( lambda x: e.calc( x )[0], ener[0], ener[-1] ) * math.exp( ener[-1] * r )
 	print()
-	print( "Kappa: %.4lf (%.2lf)"%( o, temp ) )
-	return( o )
+	if( type( r_mass ) == float ):
+		print( "Kappa_ZCT: %.4lf (%.2lf)"%( K, temp ) )
+	else:
+		print( "Kappa_SCT: %.4lf (%.2lf)"%( K, temp ) )
+	return( K, ener, prob )
+

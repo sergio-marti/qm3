@@ -22,11 +22,9 @@ def bisect( function, x0, xf, max_iter = 1000, eps = 1.0e-10 ):
 		if( f0 * fm <= 0.0 ):
 			lf = lm
 			ff = fm
-		elif( fm * ff < 0.0 ):
+		else:
 			l0 = lm
 			f0 = fm
-		else:
-			return( None )
 		ni += 1
 	if( ni >= max_iter ):
 		return( None )

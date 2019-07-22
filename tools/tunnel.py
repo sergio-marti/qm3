@@ -136,6 +136,8 @@ print( 80 * "-" )
 for i in range( len( irc ) ):
 	print( "%16.4lf%64s"%( irc[i][0], "".join( [ "%8.1lf"%( j ) for j in irc[i][3][0:8] ] ) ) )
 print()
+print( "WIGNER: %.4lf (%.2lf)"%( wig, temp ) )
+print()
 print( "%16s%16s%16s%16s%16s%16s"%( "s ", "V ", "ZPE ", "V_adi ", "eta ", "tau " ) )
 print( 96 * "-" )
 for i in range( len( irc ) ):
@@ -161,18 +163,15 @@ pdf.savefig()
 plt.close()
 
 # -- kappa calculation
-ene, prb = qm3.actions.rate.transmission_probabilities( crd, adi, mef )
+k, e0, p0 = qm3.actions.rate.transmission_coefficient( crd, adi, 1.0, temp )
+k, em, pm = qm3.actions.rate.transmission_coefficient( crd, adi, mef, temp )
 
 plt.clf()
 plt.grid( True )
 plt.title( "prob" )
-plt.plot( ene, prb, '-o' )
+plt.plot( e0, p0, '-o' )
+plt.plot( em, pm, '-o' )
 pdf.savefig()
 plt.close()
-
-print()
-print( "WIGNER: %.4lf (%.2lf)"%( wig, temp ) )
-
-qm3.actions.rate.transmission_coefficient( ene, prb )
 
 pdf.close()
