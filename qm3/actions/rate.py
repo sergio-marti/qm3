@@ -86,6 +86,7 @@ def path_write( fd, obj ):
 			if( k%6 == 0 ):
 				fd.write( "\n" )
 			k += 1
+	fd.flush()
 
 
 
