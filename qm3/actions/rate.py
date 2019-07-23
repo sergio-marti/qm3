@@ -14,7 +14,7 @@ import	qm3.maths.interpolation
 
 
 # mass weighted:  xyz * sqrt(m)  ;  grd / sqrt(m)  ;  hes / sqrt(mi * mj)
-def __project( mas, crd, grd, hes, saddle = False ):
+def __project( mas, crd, grd, hes, prjgrad = False ):
 	siz = len( crd )
 	mtt = 0.0
 	cen = [ 0.0, 0.0, 0.0 ]
@@ -60,6 +60,7 @@ def __project( mas, crd, grd, hes, saddle = False ):
 	for i in range( siz * siz ):
 		hes[i] = tmp[i]
 	val, vec = qm3.maths.matrix.diag( tmp, siz )
+	# -- remove the reaction coordinate from the frequencies...
 	c = 1.0e13 / ( 2.0 * math.pi )
 	t = []
 	for i in range( siz ):
@@ -68,7 +69,7 @@ def __project( mas, crd, grd, hes, saddle = False ):
 		else:
 			t.append(   math.sqrt( math.fabs( val[i] ) ) * c )
 	skp  = sum( [ 1 for i in val if i < 1 ] )
-	if( not saddle ):
+	if( prjgrad ):
 		tmp = sum( [ i * i for i in grd ] )
 		ixx = [ 0.0 for i in range( siz * siz ) ]
 		for i in range( siz ):
@@ -140,7 +141,7 @@ def path_read( fd, obj ):
 
 
 
-def curvature( obj, saddle = False ):
+def curvature( obj, prjgrad = False ):
 	"""
 		frq			cm^-1
 		zpe			kJ/mol		
@@ -159,7 +160,7 @@ def curvature( obj, saddle = False ):
 		for j in range( obj.size ):
 			h.append( obj.hess[k] / ( w[i] * w[j] ) )
 			k += 1
-	neg, val, vec = __project( w, x, g, h, saddle )
+	neg, val, vec = __project( w, x, g, h, prjgrad )
 	c = 1.0e13 / ( 2.0 * math.pi )
 	for i in range( obj.size ):
 		if( val[i] < 0.0 ):

@@ -60,7 +60,7 @@ irc = []
 # -- parse irc towards products
 f  = open( sys.argv[3], "rt" )
 qm3.actions.rate.path_read( f, mol )
-neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol, True )
+neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol )
 wig = 1.0 + 1.0 / 24.0 * math.pow( val[0] * 100.0 * qm3.constants.C * qm3.constants.H / ( qm3.constants.KB * temp ), 2.0 )
 acc = 0.0
 lst = mol.coor[:]
@@ -68,7 +68,7 @@ irc.append( [ 0.0, zpe, mol.func - ref + zpe, val, None, None ] )
 while( qm3.actions.rate.path_read( f, mol ) ):
 	acc += s_coor( mol, lst )
 	lst = mol.coor[:]
-	neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol, False )
+	neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol )
 	if( neg == 7 ):
 		irc.append( [ acc, zpe, mol.func - ref + zpe, val, eta, tau ] )
 f.close()
@@ -81,7 +81,7 @@ lst = mol.coor[:]
 while( qm3.actions.rate.path_read( f, mol ) ):
 	acc -= s_coor( mol, lst )
 	lst = mol.coor[:]
-	neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol, False )
+	neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol )
 	if( neg == 7 ):
 		irc.append( [ acc, zpe, mol.func - ref + zpe, val, eta, tau ] )
 f.close()
