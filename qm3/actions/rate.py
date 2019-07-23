@@ -14,7 +14,7 @@ import	qm3.maths.interpolation
 
 
 # mass weighted:  xyz * sqrt(m)  ;  grd / sqrt(m)  ;  hes / sqrt(mi * mj)
-def __project( mas, crd, grd, hes, prjgrad = False ):
+def __project( mas, crd, grd, hes ):
 	siz = len( crd )
 	mtt = 0.0
 	cen = [ 0.0, 0.0, 0.0 ]
@@ -60,25 +60,26 @@ def __project( mas, crd, grd, hes, prjgrad = False ):
 	for i in range( siz * siz ):
 		hes[i] = tmp[i]
 	val, vec = qm3.maths.matrix.diag( tmp, siz )
-	# -- remove the reaction coordinate from the frequencies...
-	c = 1.0e13 / ( 2.0 * math.pi )
-	t = []
-	for i in range( siz ):
-		if( val[i] < 0.0 ):
-			t.append( - math.sqrt( math.fabs( val[i] ) ) * c )
-		else:
-			t.append(   math.sqrt( math.fabs( val[i] ) ) * c )
-	skp  = sum( [ 1 for i in val if i < 1 ] )
-	if( prjgrad ):
-		tmp = sum( [ i * i for i in grd ] )
-		ixx = [ 0.0 for i in range( siz * siz ) ]
-		for i in range( siz ):
-			ixx[siz*i+i] += 1.
-			for j in range( siz ):
-				ixx[siz*i+j] -= grd[i] * grd[j] / tmp
-		tmp = qm3.maths.matrix.mult( ixx, siz, siz, qm3.maths.matrix.mult( hes, siz, siz, ixx, siz, siz ), siz, siz )
-		val, tmp = qm3.maths.matrix.diag( tmp, siz )
-	return( skp, val, vec )
+	return( val, vec )
+#	# -- remove the reaction coordinate from the frequencies...
+#	c = 1.0e13 / ( 2.0 * math.pi )
+#	t = []
+#	for i in range( siz ):
+#		if( val[i] < 0.0 ):
+#			t.append( - math.sqrt( math.fabs( val[i] ) ) * c )
+#		else:
+#			t.append(   math.sqrt( math.fabs( val[i] ) ) * c )
+#	skp  = sum( [ 1 for i in val if i < 1 ] )
+#	if( prjgrad ):
+#		tmp = sum( [ i * i for i in grd ] )
+#		ixx = [ 0.0 for i in range( siz * siz ) ]
+#		for i in range( siz ):
+#			ixx[siz*i+i] += 1.
+#			for j in range( siz ):
+#				ixx[siz*i+j] -= grd[i] * grd[j] / tmp
+#		tmp = qm3.maths.matrix.mult( ixx, siz, siz, qm3.maths.matrix.mult( hes, siz, siz, ixx, siz, siz ), siz, siz )
+#		val, tmp = qm3.maths.matrix.diag( tmp, siz )
+#	return( skp, val, vec )
 
 
 
@@ -160,7 +161,7 @@ def curvature( obj, prjgrad = False ):
 		for j in range( obj.size ):
 			h.append( obj.hess[k] / ( w[i] * w[j] ) )
 			k += 1
-	neg, val, vec = __project( w, x, g, h, prjgrad )
+	val, vec = __project( w, x, g, h )
 	c = 1.0e13 / ( 2.0 * math.pi )
 	for i in range( obj.size ):
 		if( val[i] < 0.0 ):
@@ -183,7 +184,7 @@ def curvature( obj, prjgrad = False ):
 	except:
 		eta  = None
 		tau  = None
-	return( neg, [ i / wcn for i in val ], zpe, eta, tau )
+	return( skp, [ i / wcn for i in val ], zpe, eta, tau )
 
 
 
