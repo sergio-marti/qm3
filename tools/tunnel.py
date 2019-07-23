@@ -60,7 +60,8 @@ irc = []
 # -- parse irc towards products
 f  = open( sys.argv[3], "rt" )
 qm3.actions.rate.path_read( f, mol )
-neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol )
+neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol, True )
+print( neg )
 wig = 1.0 + 1.0 / 24.0 * math.pow( val[0] * 100.0 * qm3.constants.C * qm3.constants.H / ( qm3.constants.KB * temp ), 2.0 )
 acc = 0.0
 lst = mol.coor[:]
@@ -68,8 +69,9 @@ irc.append( [ 0.0, zpe, mol.func - ref + zpe, val, None, None ] )
 while( qm3.actions.rate.path_read( f, mol ) ):
 	acc += s_coor( mol, lst )
 	lst = mol.coor[:]
-	neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol )
-	irc.append( [ acc, zpe, mol.func - ref + zpe, val, eta, tau ] )
+	neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol, False )
+	if( neg == 7 ):
+		irc.append( [ acc, zpe, mol.func - ref + zpe, val, eta, tau ] )
 f.close()
 
 # -- parse irc towards reactants (skip first structure, already parsed...)
@@ -80,8 +82,9 @@ lst = mol.coor[:]
 while( qm3.actions.rate.path_read( f, mol ) ):
 	acc -= s_coor( mol, lst )
 	lst = mol.coor[:]
-	neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol )
-	irc.append( [ acc, zpe, mol.func - ref + zpe, val, eta, tau ] )
+	neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol, False )
+	if( neg == 7 ):
+		irc.append( [ acc, zpe, mol.func - ref + zpe, val, eta, tau ] )
 f.close()
 
 irc.sort()
@@ -132,10 +135,10 @@ pdf.savefig()
 plt.close()
 
 print()
-print( "%16s%64s"%( "s ", "Frequencies " ) )
+print( "%12s%68s"%( "s ", "Frequencies [...] " ) )
 print( 80 * "-" )
 for i in range( len( irc ) ):
-	print( "%16.4lf%64s"%( irc[i][0], "".join( [ "%8.1lf"%( j ) for j in irc[i][3][0:8] ] ) ) )
+	print( "%12.4lf%68s"%( irc[i][0], "".join( [ "%8.1lf"%( j ) for j in irc[i][3][0:8] ] ) ) )
 print()
 print( "WIGNER: %.4lf (%.2lf)"%( wig, temp ) )
 print()
@@ -175,8 +178,8 @@ k, em, pm = qm3.actions.rate.transmission_coefficient( crd, adi, mef, temp )
 plt.clf()
 plt.grid( True )
 plt.title( "prob" )
-plt.plot( e0, p0, '-o' )
-plt.plot( em, pm, '-o' )
+plt.plot( e0, p0, '-' )
+plt.plot( em, pm, '-' )
 pdf.savefig()
 plt.close()
 

@@ -14,7 +14,7 @@ import	qm3.maths.interpolation
 
 
 # mass weighted:  xyz * sqrt(m)  ;  grd / sqrt(m)  ;  hes / sqrt(mi * mj)
-def __project( mas, crd, grd, hes ):
+def __project( mas, crd, grd, hes, saddle = False ):
 	siz = len( crd )
 	mtt = 0.0
 	cen = [ 0.0, 0.0, 0.0 ]
@@ -59,6 +59,25 @@ def __project( mas, crd, grd, hes ):
 	tmp = qm3.maths.matrix.mult( ixx, siz, siz, qm3.maths.matrix.mult( hes, siz, siz, ixx, siz, siz ), siz, siz )
 	for i in range( siz * siz ):
 		hes[i] = tmp[i]
+	val, vec = qm3.maths.matrix.diag( tmp, siz )
+	c = 1.0e13 / ( 2.0 * math.pi )
+	t = []
+	for i in range( siz ):
+		if( val[i] < 0.0 ):
+			t.append( - math.sqrt( math.fabs( val[i] ) ) * c )
+		else:
+			t.append(   math.sqrt( math.fabs( val[i] ) ) * c )
+	skp  = sum( [ 1 for i in val if i < 1 ] )
+	if( not saddle ):
+		tmp = sum( [ i * i for i in grd ] )
+		ixx = [ 0.0 for i in range( siz * siz ) ]
+		for i in range( siz ):
+			ixx[siz*i+i] += 1.
+			for j in range( siz ):
+				ixx[siz*i+j] -= grd[i] * grd[j] / tmp
+		tmp = qm3.maths.matrix.mult( ixx, siz, siz, qm3.maths.matrix.mult( hes, siz, siz, ixx, siz, siz ), siz, siz )
+		val, tmp = qm3.maths.matrix.diag( tmp, siz )
+	return( skp, val, vec )
 
 
 
@@ -121,7 +140,7 @@ def path_read( fd, obj ):
 
 
 
-def curvature( obj ):
+def curvature( obj, saddle = False ):
 	"""
 		frq			cm^-1
 		zpe			kJ/mol		
@@ -140,14 +159,13 @@ def curvature( obj ):
 		for j in range( obj.size ):
 			h.append( obj.hess[k] / ( w[i] * w[j] ) )
 			k += 1
-	__project( w, x, g, h )
-	val, vec = qm3.maths.matrix.diag( h, obj.size )
-	t = 1.0e13 / ( 2.0 * math.pi )
+	neg, val, vec = __project( w, x, g, h, saddle )
+	c = 1.0e13 / ( 2.0 * math.pi )
 	for i in range( obj.size ):
 		if( val[i] < 0.0 ):
-			val[i] = - math.sqrt( math.fabs( val[i] ) ) * t
+			val[i] = - math.sqrt( math.fabs( val[i] ) ) * c
 		else:
-			val[i] =   math.sqrt( math.fabs( val[i] ) ) * t
+			val[i] =   math.sqrt( math.fabs( val[i] ) ) * c
 	# -----------------------------------------------------------------------
 	wcn  = 100.0 * qm3.constants.C
 	skp  = sum( [ 1 for i in val if i < wcn ] )
@@ -160,11 +178,11 @@ def curvature( obj ):
 			Bm.append( sum( [ vec[i+obj.size*j] * dgds[j] for j in range( obj.size ) ] ) )
 		eta  = math.sqrt( sum( [ i * i for i in Bm ] ) )
 		Bmw2 = math.pow( sum( [ i*i * j*j for i,j in zip( Bm, val[skp:] ) ] ), 0.25 )
-		tau  = math.sqrt( eta * qm3.constants.H / ( 2.0 * math.pi ) ) / Bmw2 * math.sqrt( 1.0e23 * qm3.constants.NA )
+		tau  = math.sqrt( eta * qm3.constants.H / ( 2.0 * math.pi ) * 1.0e23 * qm3.constants.NA ) / Bmw2
 	except:
 		eta  = None
 		tau  = None
-	return( skp, [ i / wcn for i in val ], zpe, eta, tau )
+	return( neg, [ i / wcn for i in val ], zpe, eta, tau )
 
 
 
@@ -206,8 +224,8 @@ def transmission_coefficient( s_coor, v_adia, r_mass = 1.0, temp = 298.15 ):
 		sys.stdout.flush()
 		return( s_lt, s_gt )
 	# ------------------------------------------------------------------------------------
-	who = s_coor.index( 0.0 )
 	# -- maximum of the adiabatic potential ----------------------------------------------
+	who = s_coor.index( 0.0 )
 	vad  = qm3.maths.interpolation.hermite_spline( s_coor, v_adia )
 	d    = 1.e-4
 	smax = max( -0.1, s_coor[0] )
@@ -235,6 +253,8 @@ def transmission_coefficient( s_coor, v_adia, r_mass = 1.0, temp = 298.15 ):
 	# -- transmission probabilities ------------------------------------------------------
 	c   = 2.0e-10 * math.pi / ( qm3.constants.H * qm3.constants.NA )
 	emx = max( v_adia[0], v_adia[-1] ) + 1.0
+#	npt = 100
+#	eds = ( vmax - emx ) / ( npt - 1 )
 	npt = len( qm3.maths.integration.gauss_legendre_xi )
 	eds = vmax - emx
 	print()
@@ -247,6 +267,7 @@ def transmission_coefficient( s_coor, v_adia, r_mass = 1.0, temp = 298.15 ):
 	ener = []
 	prob = []
 	for i in range( npt ):
+#		ecr = emx + i * eds
 		ecr = emx + 0.5 * ( 1.0 + qm3.maths.integration.gauss_legendre_xi[i] ) * eds
 		ener.append( ecr )
 		s_lt, s_gt = __turning_points( s_coor[0], s_coor[-1], smax, vad, ecr )
