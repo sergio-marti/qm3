@@ -61,7 +61,6 @@ irc = []
 f  = open( sys.argv[3], "rt" )
 qm3.actions.rate.path_read( f, mol )
 neg, val, zpe, eta, tau = qm3.actions.rate.curvature( mol, True )
-print( neg )
 wig = 1.0 + 1.0 / 24.0 * math.pow( val[0] * 100.0 * qm3.constants.C * qm3.constants.H / ( qm3.constants.KB * temp ), 2.0 )
 acc = 0.0
 lst = mol.coor[:]
