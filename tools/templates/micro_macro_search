@@ -136,7 +136,6 @@ qmcharge = +2,
 		self.mol.grad = [ 0 for i in range( 3 * self.mol.natm ) ]
 		self.eqm.get_grad( self.mol )
 		self.fix.get_func( self.mol )
-		self.fix.get_func( self.mol )
 		self.fix.get_grad( self.mol )
 		self.func = self.mol.func
 		self.grad = sum( [ self.mol.grad[3*i:3*i+3] for i in self.sel ], [] )
