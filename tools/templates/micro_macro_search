@@ -181,8 +181,8 @@ val, vec = qm3.utils.hessian_frequencies( obj.mass, obj.coor, obj.hess )
 print( val )
 for i in range( min( 10, obj.size ) ):
 	if( val[i] < .0 ):
-		qm3.utils.normal_mode_view( obj.coor, val, vec, obj.eng.smb, i, afac = 4 )
+		qm3.utils.normal_mode_view( obj.coor, val, vec, obj.eqm.smb, i, afac = 4 )
 	else:
-		qm3.utils.normal_mode_view( obj.coor, val, vec, obj.eng.smb, i )
+		qm3.utils.normal_mode_view( obj.coor, val, vec, obj.eqm.smb, i )
 
 obj.envi.emm.stop()
