@@ -38,6 +38,26 @@ def autocorrelation( v, k = 1 ):
 
 
 
+# 1: correlated;  0: uncorrelated;  -1: inv. correlated
+def pearson( x, y ):
+	n = len( x )
+	if( len( y ) != n ):
+		return( None )
+	sx  = 0.0
+	sx2 = 0.0
+	sy  = 0.0
+	sy2 = 0.0
+	sxy = 0.0
+	for i in range( n ):
+		sx  += x[i]
+		sx2 += x[i] * x[i]
+		sy  += y[i]
+		sy2 += y[i] * y[i]
+		sxy += x[i] * y[i]
+	return( ( n * sxy - sx * sy ) / ( math.sqrt( n * sx2 - sx * sx ) * math.sqrt( n * sy2 - sy * sy ) ) )
+
+
+
 # The value of the sampling ratio that arises from any given data sequence is the factor 
 # by which the number of configurations sampled must be increased in order to obtain the
 # same precision that would result from randomly distributed data points.
