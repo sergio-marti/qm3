@@ -45,8 +45,6 @@ class distance( object ):
 
 
 
-
-
 class angle( object ):
 
 	def __init__( self, kumb, xref, indx ):
@@ -105,8 +103,6 @@ class angle( object ):
 
 
 
-
-
 class multiple_distance( object ):
 
 	def __init__( self, kumb, xref, indx, weigh ):
@@ -156,4 +152,34 @@ class multiple_distance( object ):
 				molec.grad[ii+j] += tt * dr[i3+j]
 				molec.grad[jj+j] -= tt * dr[i3+j]
 		return( vv )
+
+
+
+class tether( object ):
+
+	def __init__( self, kumb, indx, molec ):
+		self.kumb = kumb
+		self.indx = {}
+		for i in indx:
+			self.indx[i] = molec.coor[3*i:3*i+3][:]
+
+
+	def get_func( self, molec ):
+		for w in self.indx:
+			w3 = w * 3
+			dr = [ i-j for i,j in zip( molec.coor[w3:w3+3], self.indx[w] ) ]
+			molec.func += 0.5 * self.kumb * sum( [ i * i for i in dr ] )
+		return( None )
+
+
+	def get_grad( self, molec ):
+		for w in self.indx:
+			w3 = w * 3
+			dr = [ i-j for i,j in zip( molec.coor[w3:w3+3], self.indx[w] ) ]
+			molec.func += 0.5 * self.kumb * sum( [ i * i for i in dr ] ) 
+			for i in [0, 1, 2]:
+				molec.grad[w3+i] += self.kumb * dr[i]
+		return( None )
+
+
 
