@@ -157,7 +157,7 @@ class multiple_distance( object ):
 
 class tether( object ):
 
-	def __init__( self, kumb, indx, molec ):
+	def __init__( self, molec, kumb, indx ):
 		self.kumb = kumb
 		self.indx = {}
 		for i in indx:
