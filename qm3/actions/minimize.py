@@ -440,8 +440,6 @@ def baker( obj,
 		# update coordinates
 		for i in range( obj.size ):
 			obj.coor[i] += dx[i]
-		if( k > 0 ):
-			obj.current_step( k )
 
 		# get into for the new point
 		obj.get_hess()
@@ -623,8 +621,6 @@ def rfo( obj,
 		# update coordinates
 		for i in range( obj.size ):
 			obj.coor[i] -= dx[i]
-		if( k > 0 ):
-			obj.current_step( k )
 	
 		# get into for the new point
 		obj.get_hess()
@@ -655,6 +651,7 @@ def rfo( obj,
 		# print something...
 		if( k%print_frequency == 0 ):
 			log_function( "%10ld%20.5lf%20.10lf"%( k, obj.func, grms ) )
+		obj.current_step( k )
 	
 	if( k%print_frequency != 0 ):
 		log_function( "%10ld%20.5lf%20.10lf"%( k, obj.func, grms ) )
