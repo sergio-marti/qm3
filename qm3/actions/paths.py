@@ -20,7 +20,7 @@ def default_log( txt ):
 
 
 # mass weighted:  xyz * sqrt(m)  ;  grd / sqrt(m)  ;  hes / sqrt(mi * mj)
-def __project_RT_modes( mas, crd, grd, hes ):
+def __project_RT_modes( mas, crd, grd, hes = None ):
 	siz = len( crd )
 	mtt = 0.0
 	cen = [ 0.0, 0.0, 0.0 ]
@@ -56,15 +56,16 @@ def __project_RT_modes( mas, crd, grd, hes ):
 		for k in range( siz ):
 			grd[k] -= tmp * rtm[i*siz+k]
 	# hessian
-	ixx = [ 0.0 for i in range( siz * siz ) ]
-	for i in range( siz ):
-		ixx[siz*i+i] += 1.
+	if( hes != None ):
+		ixx = [ 0.0 for i in range( siz * siz ) ]
+		for i in range( siz ):
+			ixx[siz*i+i] += 1.
 		for j in range( siz ):
-			for k in range( 6 ):
-				ixx[siz*i+j] -= rtm[k*siz+i] * rtm[k*siz+j]
-	tmp = qm3.maths.matrix.mult( ixx, siz, siz, qm3.maths.matrix.mult( hes, siz, siz, ixx, siz, siz ), siz, siz )
-	for i in range( siz * siz ):
-		hes[i] = tmp[i]
+				for k in range( 6 ):
+					ixx[siz*i+j] -= rtm[k*siz+i] * rtm[k*siz+j]
+		tmp = qm3.maths.matrix.mult( ixx, siz, siz, qm3.maths.matrix.mult( hes, siz, siz, ixx, siz, siz ), siz, siz )
+		for i in range( siz * siz ):
+			hes[i] = tmp[i]
 
 
 
@@ -96,16 +97,16 @@ def initial_step( obj, step_size = 0.0053, project_RT = True ):
 
 
 
-def steepest_descent( obj, 
+def euler( obj, 
 			step_number = 100,
 			step_size = 0.0053,			# use positive/forward or negative/reverse
-			gradient_tolerance = 0.1,
+			gradient_tolerance = 1.0,
 			print_frequency = 10,
 			project_RT = True,
 			from_saddle = True,
-			avoid_recrossing = True,
+			estabilize = True,
 			log_function = default_log ):
-	log_function( "\n---------------------------------------- Minimum Path (SD)\n" )
+	log_function( "\n---------------------------------------- Minimum Path (Euler)\n" )
 	log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
 	log_function( "Step Number:        %20d"%( step_number ) )
 	log_function( "Step Size:          %20.10lg"%( step_size ) )
@@ -113,10 +114,111 @@ def steepest_descent( obj,
 	log_function( "Gradient Tolerance: %20.10lg"%( gradient_tolerance ) )
 	log_function( "Project RT modes:   %20s"%( project_RT ) )
 	log_function( "From Saddle:        %20s"%( from_saddle ) )
-	log_function( "Avoid Recrossing:   %20s\n"%( avoid_recrossing ) )
-	log_function( "%10s%20s%20s%10s"%( "Step", "Function", "Gradient", "Nskip" ) )
+	log_function( "%10s%25s%25s"%( "Step", "Function", "Gradient" ) )
 	log_function( "-" * 60 )
-	# -- TODO --
+	s    = min( len( obj.mass ), obj.size )
+	k    = obj.size // s
+	w    = [ 0.0 for i in range( obj.size ) ]
+	for i in range( s ):
+		w[i*k] = math.sqrt( obj.mass[i] )
+		for j in range( 1, k ):
+			w[i*k+j] = w[i*k]
+	dx = [ 0.0 for i in range( obj.size ) ]
+	x  = [ obj.coor[i] * w[i] for i in range( obj.size ) ]
+	if( from_saddle ):
+		nskp, dx, tt = initial_step( obj, step_size, project_RT )
+	step_size = math.fabs( step_size )
+	grms      = gradient_tolerance * 2.0
+	it1       = 0
+	it2       = step_number // 10
+	# -- the minimal amount of iterations sholud be tunned (no information about the topology: nskp)
+	while( it1 < step_number and ( grms > gradient_tolerance or it1 < it2 ) ):
+		for i in range( obj.size ):
+			x[i] += dx[i]
+			obj.coor[i] = x[i] / w[i]
+		obj.current_step( it1 )
+		obj.get_grad()
+		gn = [ obj.grad[i] / w[i] for i in range( obj.size ) ]
+		if( project_RT ):
+			__project_RT_modes( w, x, gn )
+		gg   = math.sqrt( sum( [ gn[i] * gn[i] for i in range( obj.size ) ] ) )
+		dx   = [ - step_size * gn[i] / gg for i in range( obj.size ) ]
+		grms = math.sqrt( sum( [ i * i for i in obj.grad ] ) / float( obj.size ) )
+		it1 += 1
+		if( it1%print_frequency == 0 ):
+			log_function( "%10ld%25.5lf%25.10lf"%( it1, obj.func, grms ) )
+	if( it1%print_frequency != 0 ):
+		log_function( "%10ld%25.5lf%25.10lf"%( it1, obj.func, grms ) )
+	log_function( "-" * 60 + "\n" )
+
+
+
+def taylor( obj, 
+			step_number = 100,
+			step_size = 0.0053,			# use positive/forward or negative/reverse
+			gradient_tolerance = 1,
+			print_frequency = 10,
+			project_RT = True,
+			from_saddle = True,
+			avoid_recrossing = True,
+			log_function = default_log ):
+	log_function( "\n---------------------------------------- Minimum Path (Taylor)\n" )
+	log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
+	log_function( "Step Number:        %20d"%( step_number ) )
+	log_function( "Step Size:          %20.10lg"%( step_size ) )
+	log_function( "Print Frequency:    %20d"%( print_frequency ) )
+	log_function( "Gradient Tolerance: %20.10lg"%( gradient_tolerance ) )
+	log_function( "Project RT modes:   %20s"%( project_RT ) )
+	log_function( "From Saddle:        %20s"%( from_saddle ) )
+	log_function( "%10s%25s%25s"%( "Step", "Function", "Gradient" ) )
+	log_function( "-" * 60 )
+	s = min( len( obj.mass ), obj.size )
+	k = obj.size // s
+	w = [ 0.0 for i in range( obj.size ) ]
+	for i in range( s ):
+		w[i*k] = math.sqrt( obj.mass[i] )
+		for j in range( 1, k ):
+			w[i*k+j] = w[i*k]
+	dx = [ 0.0 for i in range( obj.size ) ]
+	v  = [ 0.0 for i in range( obj.size ) ]
+	x  = [ obj.coor[i] * w[i] for i in range( obj.size ) ]
+	if( from_saddle ):
+		nskp, dx, tt = initial_step( obj, step_size, project_RT )
+	step_size = math.fabs( step_size )
+	grms      = gradient_tolerance * 2.0
+	it1       = 0
+	it2       = step_number // 10
+	# -- the minimal amount of iterations sholud be tunned (no information about the topology: nskp)
+	while( it1 < step_number and ( grms > gradient_tolerance or it1 < it2 ) ):
+		for i in range( obj.size ):
+			x[i] += dx[i]
+			obj.coor[i] = x[i] / w[i]
+		obj.current_step( it1 )
+		obj.get_hess()
+		h = []
+		k = 0
+		for i in range( obj.size ):
+			for j in range( obj.size ):
+				h.append( obj.hess[k] / ( w[i] * w[j] ) )
+				k += 1
+		g = [ obj.grad[i] / w[i] for i in range( obj.size ) ]
+		if( project_RT ):
+			__project_RT_modes( w, x, g, h )
+		gg = math.sqrt( sum( [ g[i] * g[i] for i in range( obj.size ) ] ) )
+		# Eqs 2, 4, 7 & 13 of J. Chem. Phys. v88, p922 (1988) [10.1063/1.454172]
+		v0 = [ - g[i] / gg for i in range( obj.size ) ]
+		tt = qm3.maths.matrix.mult( h, obj.size, obj.size, v0, obj.size, 1 )
+		pp = sum( [ i * j for i,j in zip( v0, tt ) ] )
+		dx = []
+		for i in range( obj.size ):
+			v1 = ( tt[i] - pp * v0[i] ) / gg
+			dx.append( step_size * ( v0[i] + 0.5 * step_size * v1 ) )
+		grms = math.sqrt( sum( [ i * i for i in obj.grad ] ) / float( obj.size ) )
+		it1 += 1
+		if( it1%print_frequency == 0 ):
+			log_function( "%10ld%25.5lf%25.10lf"%( it1, obj.func, grms ) )
+	if( it1%print_frequency != 0 ):
+		log_function( "%10ld%25.5lf%25.10lf"%( it1, obj.func, grms ) )
 	log_function( "-" * 60 + "\n" )
 
 
@@ -214,9 +316,9 @@ def baker( obj,
 		if( i > mxit ):
 			log_function( "\n -- Too much lambda iterations..." )
 			flg = False
-		# check final step (too small or large...)
 		for i in range( obj.size ):
 			dx[i] += sum( [ vec[i*obj.size+j] * gx[j] / ( lmbd - val[j] ) for j in range( obj.size ) ] )
+		# check final step (too small or large...)
 		ovr = math.sqrt( sum( [ dx[i] * dx[i] for i in range( obj.size ) ] ) )
 		if( ovr < tol2 ):
 			log_function( "\n -- The step size is *very* small..." )
@@ -249,7 +351,7 @@ def page_mciver( obj,
 			from_saddle = True,
 			avoid_recrossing = True,
 			log_function = default_log ):
-	log_function( "\n---------------------------------------- Minimum Path (Page-McIver)\n" )
+	log_function( "\n---------------------------------------- Minimum Path (Page-McIver:LQA)\n" )
 	log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
 	log_function( "Step Number:        %20d"%( step_number ) )
 	log_function( "Step Size:          %20.10lg"%( step_size ) )
