@@ -398,7 +398,7 @@ class my_problem( qm3.problem.template ):
 		elif( config.QM_engines[eqm] in [ "qm3.engines.demon.demon", "qm3.engines.orca.orca", "qm3.engines.nwchem.nwchem" ] ):
 			_w = config.QM_engines[eqm].split( "." )[-1]
 			f.write( """
-		self.eqm = %s( self.mole, "i%s", sqm, smm, sla )
+		self.eqm = %s( self.mole, "i.%s", sqm, smm, sla )
 		self.eqm.exe = "bash ./r.%s"
 """%( config.QM_engines[eqm], _w, _w ) )
 		elif( config.QM_engines[eqm] == "qm3.engines.dynamo.py_dynamo" ):
