@@ -1,0 +1,203 @@
+#!/usr/bin/env python
+# -*- coding: iso-8859-1 -*-
+from __future__ import print_function, division
+import	sys
+if( sys.version_info[0] == 2 ):
+	range = xrange
+import	os
+import	_qmmm
+
+
+
+qm_RUN  = "%chk=qmmm.chk\n"
+qm_RUN += "%mem=2048mb\n%nproc=2\n"
+qm_RUN += "#p  b3lyp/sto-3g  _JOB_ _CHK_ charge scf=(direct) nosymm pop=chelpg fchk"
+qm_EXE  = "source /Users/smarti/Devel/g09/pgi.imac64/g09.profile; g09 qmmm.com"
+
+
+
+_ATM = 0.52917721067
+_ENE = 0.00159360164858473
+_SMB  = { 1 : "H", 2 : "He", 3 : "Li", 4 : "Be", 5 : "B", 6 : "C", 7 : "N", 8 : "O", 9 : "F", 10 : "Ne",
+	11 : "Na", 12 : "Mg", 13 : "Al", 14 : "Si", 15 : "P", 16 : "S", 17 : "Cl", 18 : "Ar", 19 : "K", 20 : "Ca",
+	21 : "Sc", 22 : "Ti", 23 : "V", 24 : "Cr", 25 : "Mn", 26 : "Fe", 27 : "Co", 28 : "Ni", 29 : "Cu", 30 : "Zn",
+	31 : "Ga", 32 : "Ge", 33 : "As", 34 : "Se", 35 : "Br", 36 : "Kr", 37 : "Rb", 38 : "Sr", 39 : "Y", 40 : "Zr",
+	41 : "Nb", 42 : "Mo", 43 : "Tc", 44 : "Ru", 45 : "Rh", 46 : "Pd", 47 : "Ag", 48 : "Cd", 49 : "In", 50 : "Sn",
+	51 : "Sb", 52 : "Te", 53 : "I", 54 : "Xe", 55 : "Cs", 56 : "Ba", 57 : "La", 58 : "Ce", 59 : "Pr", 60 : "Nd",
+	61 : "Pm", 62 : "Sm", 63 : "Eu", 64 : "Gg", 65 : "Tb", 66 : "Dy", 67 : "Ho", 68 : "Er", 69 : "Tm", 70 : "Yb",
+	71 : "Lu", 72 : "Hf", 73 : "Ta", 74 : "W", 75 : "Re", 76 : "Os", 77 : "Ir", 78 : "Pt", 79 : "Au", 80 : "Hg",
+	81 : "Tl", 82 : "Pb", 83 : "Bi", 84 : "Po", 85 : "At", 86 : "Rn", 87 : "Fr", 88 : "Ra", 89 : "Ac", 90 : "Th",
+	91 : "Pa", 92 : "U", 93 : "Np", 94 : "Pu", 95 : "Am", 96 : "Cm", 97 : "Bk", 98 : "Cf", 99 : "Es", 100 : "Fm",
+	101 : "Md", 102 : "No", 103 : "Lr", 104 : "Rf", 105 : "Db", 106 : "Sg", 107 : "Bh", 108 : "Hs", 109 : "Mt" }
+
+
+# -- load external charges
+mm_XYZ = []
+mm_CHG = []
+f = open( "qmmm.chrg", "rt" )
+for l in f:
+	t = [ float( i ) for i in l.strip().split() ]
+	mm_XYZ += [ t[0], t[1], t[2] ]
+	mm_CHG.append( t[3] )
+f.close()
+
+
+# -- load input file
+qm_NUM = []
+qm_XYZ = []
+f = open( sys.argv[2], "rt" )
+qm_NAT, qm_KND, qm_CHG, qm_MUL = [ int( i ) for i in f.readline().strip().split() ]
+for i in range( qm_NAT ):
+	t = f.readline().strip().split()
+	qm_NUM.append( int( t[0] ) )
+	qm_XYZ += [ float( t[1] ) * _ATM, float( t[2] ) * _ATM, float( t[3] ) * _ATM ]
+f.close()
+
+
+# -- submit gaussian/charge calcualtion...
+f = open( "qmmm.com", "wt" )
+tmp = qm_RUN
+if( os.access( "qmmm.chk", os.R_OK ) ):
+	tmp = tmp.replace( "_CHK_", "guess=read" )
+else:
+	tmp = tmp.replace( "_CHK_", "" )
+if( qm_KND == 2 ):
+	tmp = tmp.replace( "_JOB_", "freq=noraman" )
+elif( qm_KND == 1 ):
+	tmp = tmp.replace( "_JOB_", "force iop(1/10=10)" )
+else:
+	tmp = tmp.replace( "_JOB_", "" )
+f.write( tmp )
+f.write( "\n\n.\n\n%d %d\n"%( qm_CHG, qm_MUL ) )
+for i in range( qm_NAT ):
+	i3 = i * 3
+	f.write( "%-4s%20.10lf%20.10lf%20.10lf\n"%( _SMB[qm_NUM[i]], qm_XYZ[i3], qm_XYZ[i3+1], qm_XYZ[i3+2] ) )
+f.write( "\n" )
+for i in range( len( mm_CHG ) ):
+	i3 = i * 3
+	f.write( "%20.10lf%20.10lf%20.10lf%8.3lf\n"%( mm_XYZ[i3], mm_XYZ[i3+1], mm_XYZ[i3+2], mm_CHG[i] ) )
+f.write( "\n\n\n\n" )
+f.close()
+os.system( qm_EXE )
+try:
+	os.rename( "Test.FChk", "qmmm.fchk" )
+except:
+	sys.exit( -1 )
+
+
+# -- parse gaussian/charge calculation...
+qm_ENE = 0
+n3     = 3 * qm_NAT
+qm_GRD = [ 0 for i in range( n3 ) ]
+nh     = n3 * ( n3 + 1 ) // 2
+qm_HES = [ 0 for i in range( nh ) ]
+qm_DIP = [ 0, 0, 0 ]
+qm_POL = [ 0, 0, 0, 0, 0, 0 ]
+qm_DID = [ 0 for i in range( 9 * qm_NAT ) ]
+qm_FIT = [ 0 for i in range( qm_NAT ) ]
+f = open( "qmmm.fchk", "rt" )
+l = f.readline()
+while( l != "" ):
+	# energy
+	if( l[0:12] == "Total Energy" ):
+		qm_ENE = float( l.strip().split()[3] )
+	# gadient
+	elif( qm_KND > 0 and l[0:18] == "Cartesian Gradient" ):
+		j = int( n3 // 5 ) + ( n3 % 5 != 0 )
+		i = 0
+		qm_GRD = []
+		while( i < j ):
+			qm_GRD += [ float( k ) for k in f.readline().strip().split() ]
+			i += 1
+	# hessian
+	elif( qm_KND == 2 and l[0:25] == "Cartesian Force Constants" ):
+		j = int( nh // 5 ) + ( nh % 5 != 0 )
+		i = 0
+		qm_HES = []
+		while( i < j ):
+			qm_HES += [ float( k ) for k in f.readline().strip().split() ]
+			i += 1
+	# dipole moment
+	elif( l[0:13] == "Dipole Moment" ):
+		qm_DIP = [ float( i ) for i in f.readline().strip().split() ]
+	# dipole derivatives
+	elif( l[0:18] == "Dipole Derivatives" ):
+		i = 9 * qm_NAT
+		j = int( i // 5 ) + ( i % 5 != 0 )
+		i = 0
+		qm_DID = []
+		while( i < j ):
+			qm_DID += [ float( k ) for k in f.readline().strip().split() ]
+			i += 1
+	# polarizability
+	elif( l[0:14] == "Polarizability" ):
+		qm_POL = [ float( i ) for i in f.readline().strip().split() ] + [ float( f.readline().strip() ) ]
+	# fitted charges
+	elif( l[0:11] == "ESP Charges" ):
+		j = int( qm_NAT // 5 ) + ( qm_NAT % 5 != 0 )
+		i = 0
+		qm_FIT = []
+		while( i < j ):
+			qm_FIT += [ float( k ) for k in f.readline().strip().split() ]
+			i += 1
+	l = f.readline()
+f.close()
+qm_SLF = None
+f = open( "qmmm.log", "rt" )
+l = f.readline()
+while( l != "" and qm_SLF == None ):
+	if( l[0:29] == " Self energy of the charges =" ):
+		qm_SLF = float( l.strip().split()[-2] )
+	l = f.readline()
+f.close()
+
+
+# -- add QM/MM Lennar-Jones (epsi _kcal/mol, rmin/2 _ang)
+if( qm_KND == 1 ):
+	qm_ENE += _qmmm.grad( qm_XYZ, mm_XYZ, qm_GRD )
+elif( qm_KND == 2 ):
+	qm_ENE += _qmmm.hess( qm_XYZ, mm_XYZ, qm_GRD, qm_HES )
+else:
+	qm_ENE += _qmmm.func( qm_XYZ, mm_XYZ )
+
+
+# -- add QM harmonic restraints (kumb _kcal/mol.ang^2)
+def distance( calc, kumb, ref, ai, aj, coor, grad, hess ):
+	ii = ai * 3
+	jj = aj * 3
+	dr = [ i-j for i,j in zip( coor[ii:ii+3], coor[jj:jj+3] ) ]
+	vv = math.sqrt( sum( [ i * i for i in dr ] ) )
+	df = kumb * ( vv - self.xref )
+	ff = 0.5 * df * ( vv - ref ) * _ENE
+	if( calc > 0 ):
+		df /= vv
+		for i in [0, 1, 2]:
+			grad[ii+i] += df * dr[i]
+			grad[jj+i] -= df * dr[i]
+		if( calc == 2 ):
+			# ver asignacion de elementos de la hessiana en energy_nb.F90 de dynamo
+			pass
+	return( ff )
+
+#qm_ENE += distance( qm_KND, 500, 1.6, 0, 1, qm_XYZ, qm_GRD, qm_HES )
+
+
+# -- build output file
+f = open( sys.argv[3], "wt" )
+f.write( "%20.12LE%20.12LE%20.12LE%20.12LE\n"%( qm_ENE - qm_SLF, qm_DIP[0], qm_DIP[1], qm_DIP[2] ) )
+if( qm_KND > 0 ):
+	for i in range( qm_NAT ):
+		i3 = i * 3
+		f.write( "%20.12LE%20.12LE%20.12LE\n"%( qm_GRD[i3], qm_GRD[i3+1], qm_GRD[i3+2] ) )
+if( qm_KND == 2 ):
+	f.write( "%20.12LE%20.12LE%20.12LE\n"%( qm_POL[0], qm_POL[1], qm_POL[2] ) )
+	f.write( "%20.12LE%20.12LE%20.12LE\n"%( qm_POL[3], qm_POL[4], qm_POL[5] ) )
+	for i in range( 9 * qm_NAT ):
+		f.write( "%20.12LE"%( qm_DID[i] ) )
+		if( ( i + 1 ) % 3 == 0 ):
+			f.write( "\n" )
+	for i in range( nh ):
+		f.write( "%20.12LE"%( qm_HES[i] ) )
+		if( ( i + 1 ) % 3 == 0 ):
+			f.write( "\n" )
+f.close()
