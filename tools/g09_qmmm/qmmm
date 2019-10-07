@@ -5,6 +5,7 @@ import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
 import	os
+import	math
 import	_qmmm
 
 
@@ -13,6 +14,8 @@ qm_RUN  = "%chk=qmmm.chk\n"
 qm_RUN += "%mem=2048mb\n%nproc=2\n"
 qm_RUN += "#p  b3lyp/sto-3g  _JOB_ _CHK_ charge scf=(direct) nosymm pop=chelpg fchk"
 qm_EXE  = "source /Users/smarti/Devel/g09/pgi.imac64/g09.profile; g09 qmmm.com"
+
+mm_EXE  = "/Users/smarti/Devel/charmm/43b1/charmm < inp_charmm > charmm.out"
 
 
 
@@ -31,15 +34,71 @@ _SMB  = { 1 : "H", 2 : "He", 3 : "Li", 4 : "Be", 5 : "B", 6 : "C", 7 : "N", 8 : 
 	101 : "Md", 102 : "No", 103 : "Lr", 104 : "Rf", 105 : "Db", 106 : "Sg", 107 : "Bh", 108 : "Hs", 109 : "Mt" }
 
 
-# -- load external charges
-mm_XYZ = []
-mm_CHG = []
-f = open( "qmmm.chrg", "rt" )
-for l in f:
-	t = [ float( i ) for i in l.strip().split() ]
-	mm_XYZ += [ t[0], t[1], t[2] ]
-	mm_CHG.append( t[3] )
-f.close()
+
+def distance( calc, kumb, ref, ai, aj, coor, grad, hess ):
+	ii = ai * 3
+	jj = aj * 3
+	dr = [ i-j for i,j in zip( coor[ii:ii+3], coor[jj:jj+3] ) ]
+	r2 = sum( [ i * i for i in dr ] )
+	vv = math.sqrt( r2 )
+	df = kumb * ( vv - ref )
+	ff = 0.5 * df * ( vv - ref ) * _ENE
+	if( calc > 0 ):
+		_fg = _ENE * _ATM
+		df  /= vv
+		for i in [0, 1, 2]:
+			grad[ii+i] += df * dr[i] * _fg
+			grad[jj+i] -= df * dr[i] * _fg
+		if( calc == 2 ):
+			_fh = _fg * _ATM
+			tt  = ( kumb - df ) / r2
+			hxx = ( tt * dr[0] * dr[0] + df ) * _fh
+			hxy =   tt * dr[0] * dr[1]        * _fh
+			hxz =   tt * dr[0] * dr[2]        * _fh
+			hyy = ( tt * dr[1] * dr[1] + df ) * _fh
+			hyz =   tt * dr[1] * dr[2]        * _fh
+			hzz = ( tt * dr[2] * dr[2] + df ) * _fh
+			# ii
+			tt            = ii * ( ii + 1 ) // 2 + ii
+			qm_HES[tt]   += hxx
+			tt           += ii + 1
+			qm_HES[tt]   += hxy
+			qm_HES[tt+1] += hyy
+			tt           += ii + 2
+			qm_HES[tt]   += hxz
+			qm_HES[tt+1] += hyz
+			qm_HES[tt+2] += hzz
+			# jj
+			tt            = jj * ( jj + 1 ) // 2 + jj
+			qm_HES[tt]   += hxx
+			tt           += jj + 1
+			qm_HES[tt]   += hxy
+			qm_HES[tt+1] += hyy
+			tt           += jj + 2
+			qm_HES[tt]   += hxz
+			qm_HES[tt+1] += hyz
+			qm_HES[tt+2] += hzz
+			# ij
+			if( ii < jj ):
+				tt = ii
+				ii = jj
+				jj = tt
+			tt            = ii * ( ii + 1 ) // 2 + jj
+			qm_HES[tt]   -= hxx
+			qm_HES[tt+1] -= hxy
+			qm_HES[tt+2] -= hxz
+			tt           += ii + 1
+			qm_HES[tt]   -= hxy
+			qm_HES[tt+1] -= hyy
+			qm_HES[tt+2] -= hyz
+			tt           += ii + 2
+			qm_HES[tt]   -= hxz
+			qm_HES[tt+1] -= hyz
+			qm_HES[tt+2] -= hzz
+	return( ff )
+
+
+
 
 
 # -- load input file
@@ -52,6 +111,109 @@ for i in range( qm_NAT ):
 	qm_NUM.append( int( t[0] ) )
 	qm_XYZ += [ float( t[1] ) * _ATM, float( t[2] ) * _ATM, float( t[3] ) * _ATM ]
 f.close()
+
+
+# -- load selections
+qmat = []
+mmat = []
+f = open( "qmmm.sel", "rt" )
+for i in range( int( f.readline().strip() ) ):
+	qmat.append( int( f.readline().strip() ) )
+for i in range( int( f.readline().strip() ) ):
+	mmat.append( int( f.readline().strip() ) )
+f.close()
+qmat.sort()
+mmat.sort()
+mmat = list( set( mmat ).difference( set( qmat ) ) )
+
+
+# -- modify CARD with QM cartesians...
+f = open( "qmmm.crd", "rt" )
+g = open( "__qmmm__", "wt" )
+l = f.readline()
+while( l[0] == "*" ):
+	g.write( l )
+	l = f.readline()
+g.write( l )
+w = 0
+for i in range( int( l.strip() ) ):
+	l = f.readline()
+	if( i in qmat ):
+		j = w * 3
+#0123456789.123456789.123456789.123456789.123456789.
+# 4338 1442 HOH  OH2    2.19700  18.51600 -16.13200 W    1441   0.00000
+		g.write( l[0:20] + "%10.5lf%10.5lf%10.5lf"%( qm_XYZ[j], qm_XYZ[j+1], qm_XYZ[j+2] ) + l[50:] )
+		w += 1
+	else:
+		g.write( l )
+g.close()
+f.close()
+os.rename( "__qmmm__", "qmmm.crd" )
+
+
+# -- search for a previous QM fitted charges
+qfit = []
+if( os.access( "qmmm.fchk", os.R_OK ) ):
+	f = open( "qmmm.fchk", "rt" )
+	l = f.readline()
+	while( l != "" ):
+		if( l[0:11] == "ESP Charges" ):
+			j = int( qm_NAT // 5 ) + ( qm_NAT % 5 != 0 )
+			i = 0
+			while( i < j ):
+				qfit += [ float( k ) for k in f.readline().strip().split() ]
+				i += 1
+		l = f.readline()
+	f.close()
+
+
+# -- modify PSF with QM charges (whenever qmmm.fchk exists!)
+chrg = []
+f = open( "qmmm.psf", "rt" )
+g = open( "__qmmm__", "wt" )
+g.write( f.readline() ); g.write( f.readline() )
+l = f.readline(); g.write( l )
+for i in range( int( l.strip().split()[0] ) + 1 ):
+	g.write( f.readline() )
+l = f.readline(); g.write( l )
+w = 0
+for i in range( int( l.strip().split()[0] ) ):
+	l = f.readline();
+	chrg.append( float( l[34:44] ) )
+	if( qfit != [] ):
+		if( i in qmat ):
+#0123456789.123456789.123456789.123456789.1234567890.
+#       1 A    1    COP  C1   C2    -0.157000       12.0100           0   0.00000     -0.301140E-02
+			g.write( l[0:34] + "%10.6lf"%( qfit[w] ) + "    " + l[48:] )
+			w += 1
+		else:
+			g.write( l )
+	else:
+		g.write( l )
+g.write( f.read() )
+g.close()
+f.close()
+os.rename( "__qmmm__", "qmmm.psf" )
+
+
+# -- optimize environment
+os.system( mm_EXE )
+
+
+# -- load the optimized environment
+tmp = []
+f = open( "qmmm.crd", "rt" )
+l = f.readline()
+while( l[0] == "*" ):
+	l = f.readline()
+for l in f:
+	tmp += [ float( l[20:30] ), float( l[30:40] ), float( l[40:50] ) ]
+f.close()
+mm_CHG = []
+mm_XYZ = []
+for i in mmat:
+	mm_CHG.append( chrg[i] )
+	mm_XYZ += tmp[i*3:i*3+3]
 
 
 # -- submit gaussian/charge calcualtion...
@@ -161,25 +323,9 @@ else:
 	qm_ENE += _qmmm.func( qm_XYZ, mm_XYZ )
 
 
-# -- add QM harmonic restraints (kumb _kcal/mol.ang^2)
-def distance( calc, kumb, ref, ai, aj, coor, grad, hess ):
-	ii = ai * 3
-	jj = aj * 3
-	dr = [ i-j for i,j in zip( coor[ii:ii+3], coor[jj:jj+3] ) ]
-	vv = math.sqrt( sum( [ i * i for i in dr ] ) )
-	df = kumb * ( vv - self.xref )
-	ff = 0.5 * df * ( vv - ref ) * _ENE
-	if( calc > 0 ):
-		df /= vv
-		for i in [0, 1, 2]:
-			grad[ii+i] += df * dr[i]
-			grad[jj+i] -= df * dr[i]
-		if( calc == 2 ):
-			# ver asignacion de elementos de la hessiana en energy_nb.F90 de dynamo
-			pass
-	return( ff )
-
-#qm_ENE += distance( qm_KND, 500, 1.6, 0, 1, qm_XYZ, qm_GRD, qm_HES )
+# -- add QM harmonic restraints (kumb ~200 _kcal/mol.ang^2)
+#qm_ENE += distance( qm_KND, 200, 1.9, 1, 2, qm_XYZ, qm_GRD, qm_HES )
+#qm_ENE += distance( qm_KND, 200, 1.9, 4, 5, qm_XYZ, qm_GRD, qm_HES )
 
 
 # -- build output file
