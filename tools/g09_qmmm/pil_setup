@@ -4,7 +4,7 @@ pilgrim.py --gather
 
 pilgrim.py --input << EOD
 add temp 300
-add chem reac: x --> t --> x
+add chem reac: r --> t --> p
 add path t
 sbw=-1.05
 sfw=+1.05
