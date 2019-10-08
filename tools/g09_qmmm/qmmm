@@ -126,8 +126,8 @@ for i in range( int( f.readline().strip() ) ):
 	mmat.append( int( f.readline().strip() ) )
 f.close()
 qmat.sort()
-mmat.sort()
 mmat = list( set( mmat ).difference( set( qmat ) ) )
+mmat.sort()
 
 
 # -- modify CARD with QM cartesians...
