@@ -18,6 +18,9 @@ qm_EXE  = "source /Users/smarti/Devel/g09/pgi.imac64/g09.profile; g09 qmmm.com"
 mm_EXE  = "/Users/smarti/Devel/charmm/43b1/charmm < inp_charmm > charmm.out"
 
 
+# mostly for Pilgrim (since it uses local TMP folder for calculations...)
+#os.chdir( "@@@" )
+
 
 _ATM = 0.52917721067
 _ENE = 0.00159360164858473
