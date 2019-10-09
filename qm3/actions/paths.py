@@ -60,7 +60,7 @@ def __project_RT_modes( mas, crd, grd, hes = None ):
 		ixx = [ 0.0 for i in range( siz * siz ) ]
 		for i in range( siz ):
 			ixx[siz*i+i] += 1.
-		for j in range( siz ):
+			for j in range( siz ):
 				for k in range( 6 ):
 					ixx[siz*i+j] -= rtm[k*siz+i] * rtm[k*siz+j]
 		tmp = qm3.maths.matrix.mult( ixx, siz, siz, qm3.maths.matrix.mult( hes, siz, siz, ixx, siz, siz ), siz, siz )
@@ -91,6 +91,7 @@ def initial_step( obj, step_size = 0.0053, project_RT = True ):
 		__project_RT_modes( w, x, g, h )
 	val, vec = qm3.maths.matrix.diag( h, obj.size )
 	nskp = sum( [ 1 for i in range( obj.size ) if val[i] < __vcut ] )
+	print( "initial_step:", val[0:10] )
 	tmp  = step_size / math.sqrt( sum( [ vec[i*obj.size] * vec[i*obj.size] for i in range( obj.size ) ] ) )
 	dx   = [ vec[i*obj.size] * tmp for i in range( obj.size ) ]
 	return( nskp, dx, [ dx[i] / w[i] for i in range( obj.size ) ] )
