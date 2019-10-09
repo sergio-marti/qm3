@@ -434,6 +434,7 @@ def page_mciver( obj,
 			if( pm_os != pm_s ):
 				pm_t -= ( step_size - pm_s ) * pm_dt / ( pm_os - pm_s )
 			else:
+				log_function( "\n -- The current step-size did not converge..." )
 				flg = False
 		if( math.fabs( 1.0 - pm_t / pm_ot ) <= 1.0e-6 and flg ):
 			for i in range( obj.size ):
