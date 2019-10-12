@@ -1,0 +1,2 @@
+export BAGEL_NUM_THREADS=2
+/Users/smarti/Devel/bagel/dist/bin/BAGEL bagel.json > bagel.log
