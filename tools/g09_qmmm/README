@@ -6,3 +6,5 @@ Try centering the system before mk_input.py (for Pilgrim for example) using:
 	coor orie mass noro sele segi A show end
 
 
+MM counterparts of the link atoms should not be included in the MM selection...
+(since they will be passed as charges into gaussian calculations)
