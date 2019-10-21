@@ -685,18 +685,16 @@ def connectivity( molec, quick = True ):
 	return( bond )
 
 
-def exclussions( sele_QM, bonds = None, molec = None ):
+def exclussions( sele_QM, molec, bonds = None ):
 	if( bonds != None ):
 		bond = bonds
 		natm = 0
 		for i,j in bonds:
 			natm = max( natm, max( i, j ) )
 		natm += 1
-	elif( molec != None ):
+	else:
 		bond = connectivity( molec, quick = True )
 		natm = molec.natm
-	else:
-		return
 	atmm = []
 	conn = []
 	for i in range( natm ):
@@ -718,17 +716,17 @@ def exclussions( sele_QM, bonds = None, molec = None ):
 				latm.append( [ i, j ] )
 				excl.append( [ i, j, 0.0 ] )
 				nx12 += 1
-				print( "qm3.engines.restraints.distance( [ %d, %d ] )"%( i, j ) )
+				print( "qm3.engines.restraints.distance( molec, kumb, xref, [ %d, %d ] )"%( i, j ) )
 			for k in conn[j]:
 				if( k != i and atmm[k] ):
 					excl.append( [ i, k, 0.0 ] )
 					nx13 += 1
-					print( "qm3.engines.restraints.angle( [ %d, %d, %d ] )"%( i, j, k ) )
+					print( "qm3.engines.restraints.angle( molec, kumb, xref, [ %d, %d, %d ] )"%( i, j, k ) )
 				for l in conn[k]:
 					if( k != i and l != j and l != i and atmm[l] ):
 						excl.append( [ i, l, 0.5 ] )
 						nx14 += 1
-						print( "qm3.engines.restraints.dihedral( [ %d, %d, %d, %d ] )"%( i, j, k, l ) )
+#						print( "qm3.engines.restraints.dihedral( molec, { per: [ fc, dsp ] }, [ %d, %d, %d, %d ] )"%( i, j, k, l ) )
 	f = open( "sele_LA.pk", "wb" )
 	pickle.dump( latm, f )
 	f.close()
