@@ -777,37 +777,37 @@ void* __energy_dihedral( void *args ) {
 		cs6 = cs1 * cs5 - sn1 * sn5;
 		sn6 = cs1 * sn5 + sn1 * cs5;
 		dph = 0.0;
-		if( arg->dat[12*arg->ind[i]] > 0.0 ) { 
+		if( arg->dat[12*arg->ind[i]] != 0.0 ) { 
 			cd        = cos( arg->dat[12*arg->ind[i]+1] );
 			sd        = sin( arg->dat[12*arg->ind[i]+1] );
 			dph      += arg->dat[12*arg->ind[i]] * ( cs1 * sd - sn1 * cd );
 			arg->ene += arg->dat[12*arg->ind[i]] * ( 1.0 + cs1 * cd + sn1 * sd );
 		}
-		if( arg->dat[12*arg->ind[i]+2] > 0.0 ) { 
+		if( arg->dat[12*arg->ind[i]+2] != 0.0 ) { 
 			cd        = cos( arg->dat[12*arg->ind[i]+3] );
 			sd        = sin( arg->dat[12*arg->ind[i]+3] );
 			dph      += arg->dat[12*arg->ind[i]+2] * 2.0 * ( cs2 * sd - sn2 * cd );
 			arg->ene += arg->dat[12*arg->ind[i]+2] * ( 1.0 + cs2 * cd + sn2 * sd );
 		}
-		if( arg->dat[12*arg->ind[i]+4] > 0.0 ) { 
+		if( arg->dat[12*arg->ind[i]+4] != 0.0 ) { 
 			cd        = cos( arg->dat[12*arg->ind[i]+5] );
 			sd        = sin( arg->dat[12*arg->ind[i]+5] );
 			dph      += arg->dat[12*arg->ind[i]+4] * 3.0 * ( cs3 * sd - sn3 * cd );
 			arg->ene += arg->dat[12*arg->ind[i]+4] * ( 1.0 + cs3 * cd + sn3 * sd );
 		}
-		if( arg->dat[12*arg->ind[i]+6] > 0.0) { 
+		if( arg->dat[12*arg->ind[i]+6] != 0.0) { 
 			cd        = cos( arg->dat[12*arg->ind[i]+7] );
 			sd        = sin( arg->dat[12*arg->ind[i]+7] );
 			dph      += arg->dat[12*arg->ind[i]+6] * 4.0 * ( cs4 * sd - sn4 * cd );
 			arg->ene += arg->dat[12*arg->ind[i]+6] * ( 1.0 + cs4 * cd + sn4 * sd );
 		}
-		if( arg->dat[12*arg->ind[i]+8] > 0.0 ) { 
+		if( arg->dat[12*arg->ind[i]+8] != 0.0 ) { 
 			cd        = cos( arg->dat[12*arg->ind[i]+9] );
 			sd        = sin( arg->dat[12*arg->ind[i]+9] );
 			dph      += arg->dat[12*arg->ind[i]+8] * 5.0 * ( cs5 * sd - sn5 * cd );
 			arg->ene += arg->dat[12*arg->ind[i]+8] * ( 1.0 + cs5 * cd + sn5 * sd );
 		}
-		if( arg->dat[12*arg->ind[i]+10] > 0.0 ) { 
+		if( arg->dat[12*arg->ind[i]+10] != 0.0 ) { 
 			cd        = cos( arg->dat[12*arg->ind[i]+11] );
 			sd        = sin( arg->dat[12*arg->ind[i]+11] );
 			dph      += arg->dat[12*arg->ind[i]+10] * 6.0 * ( cs6 * sd - sn6 * cd );

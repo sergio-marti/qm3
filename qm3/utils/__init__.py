@@ -718,14 +718,17 @@ def exclussions( sele_QM, bonds = None, molec = None ):
 				latm.append( [ i, j ] )
 				excl.append( [ i, j, 0.0 ] )
 				nx12 += 1
+				print( "qm3.engines.restraints.distance( [ %d, %d ] )"%( i, j ) )
 			for k in conn[j]:
 				if( k != i and atmm[k] ):
 					excl.append( [ i, k, 0.0 ] )
 					nx13 += 1
+					print( "qm3.engines.restraints.angle( [ %d, %d, %d ] )"%( i, j, k ) )
 				for l in conn[k]:
 					if( k != i and l != j and l != i and atmm[l] ):
 						excl.append( [ i, l, 0.5 ] )
 						nx14 += 1
+						print( "qm3.engines.restraints.dihedral( [ %d, %d, %d, %d ] )"%( i, j, k, l ) )
 	f = open( "sele_LA.pk", "wb" )
 	pickle.dump( latm, f )
 	f.close()
@@ -733,5 +736,5 @@ def exclussions( sele_QM, bonds = None, molec = None ):
 	f = open( "sele_EX.pk", "wb" )
 	pickle.dump( excl, f )
 	f.close()
-	print( ">> %d exclussions generated (1-2:%d, 1-3:%d, 1-4:%d)"%( nx12 + nx13 + nx14, nx12, nx13, nx14 ) )
+	print( "\n>> %d exclussions generated (1-2:%d, 1-3:%d, 1-4:%d)"%( nx12 + nx13 + nx14, nx12, nx13, nx14 ) )
 	return( latm )

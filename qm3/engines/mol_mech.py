@@ -498,32 +498,32 @@ class simple_force_field( object ):
 				cs6 = cs1 * cs5 - sn1 * sn5
 				sn6 = cs1 * sn5 + sn1 * cs5
 				dph = 0.0
-				if( self.dihe_data[self.dihe_indx[i]][0] > 0.0 ):
-					cd   = math.cos( self.dihe_data[self.dihe_indx[i]][1] )
-					sd   = math.sin( self.dihe_data[self.dihe_indx[i]][1] )
+				if( self.dihe_data[self.dihe_indx[i]][0] != 0.0 ):
+					cd  = math.cos( self.dihe_data[self.dihe_indx[i]][1] )
+					sd  = math.sin( self.dihe_data[self.dihe_indx[i]][1] )
 					dph += self.dihe_data[self.dihe_indx[i]][0] * ( cs1 * sd - sn1 * cd )
 					out += self.dihe_data[self.dihe_indx[i]][0] * ( 1.0 + cs1 * cd + sn1 * sd )
-				if( self.dihe_data[self.dihe_indx[i]][2] > 0.0 ):
-					cd   = math.cos( self.dihe_data[self.dihe_indx[i]][3] )
-					sd   = math.sin( self.dihe_data[self.dihe_indx[i]][3] )
+				if( self.dihe_data[self.dihe_indx[i]][2] != 0.0 ):
+					cd  = math.cos( self.dihe_data[self.dihe_indx[i]][3] )
+					sd  = math.sin( self.dihe_data[self.dihe_indx[i]][3] )
 					dph += self.dihe_data[self.dihe_indx[i]][2] * 2.0 * ( cs2 * sd - sn2 * cd )
 					out += self.dihe_data[self.dihe_indx[i]][2] * ( 1.0 + cs2 * cd + sn2 * sd )
-				if( self.dihe_data[self.dihe_indx[i]][4] > 0.0 ):
+				if( self.dihe_data[self.dihe_indx[i]][4] != 0.0 ):
 					cd  = math.cos( self.dihe_data[self.dihe_indx[i]][5] )
 					sd  = math.sin( self.dihe_data[self.dihe_indx[i]][5] )
 					dph += self.dihe_data[self.dihe_indx[i]][4] * 3.0 * ( cs3 * sd - sn3 * cd )
 					out += self.dihe_data[self.dihe_indx[i]][4] * ( 1.0 + cs3 * cd + sn3 * sd )
-				if( self.dihe_data[self.dihe_indx[i]][6] > 0.0 ):
+				if( self.dihe_data[self.dihe_indx[i]][6] != 0.0 ):
 					cd  = math.cos( self.dihe_data[self.dihe_indx[i]][7] )
 					sd  = math.sin( self.dihe_data[self.dihe_indx[i]][7] )
-					dph = self.dihe_data[self.dihe_indx[i]][6] * 4.0 * ( cs4 * sd - sn4 * cd )
+					dph += self.dihe_data[self.dihe_indx[i]][6] * 4.0 * ( cs4 * sd - sn4 * cd )
 					out += self.dihe_data[self.dihe_indx[i]][6] * ( 1.0 + cs4 * cd + sn4 * sd )
-				if( self.dihe_data[self.dihe_indx[i]][8] > 0.0 ):
+				if( self.dihe_data[self.dihe_indx[i]][8] != 0.0 ):
 					cd  = math.cos( self.dihe_data[self.dihe_indx[i]][9] )
 					sd  = math.sin( self.dihe_data[self.dihe_indx[i]][9] )
 					dph += self.dihe_data[self.dihe_indx[i]][8] * 5.0 * ( cs5 * sd - sn5 * cd )
 					out += self.dihe_data[self.dihe_indx[i]][8] * ( 1.0 + cs5 * cd + sn5 * sd )
-				if( self.dihe_data[self.dihe_indx[i]][10] > 0.0 ):
+				if( self.dihe_data[self.dihe_indx[i]][10] != 0.0 ):
 					cd  = math.cos( self.dihe_data[self.dihe_indx[i]][11] )
 					sd  = math.sin( self.dihe_data[self.dihe_indx[i]][11] )
 					dph += self.dihe_data[self.dihe_indx[i]][10] * 6.0 * ( cs6 * sd - sn6 * cd )
