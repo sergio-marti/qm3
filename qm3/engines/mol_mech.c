@@ -615,7 +615,7 @@ static PyObject* w_energy_bond( PyObject *self, PyObject *args ) {
 void* __energy_angle( void *args ) {
 	ene_arg		*arg = (ene_arg*) args;
 	long		i, j, ai, aj, ak;
-	double		dij[3], rij, dkj[3], rkj, val, dif, tmp, fac, dtx, dti[3], dtj[3], dtk[3];
+	double		dij[3], rij, dkj[3], rkj, val, dif, tmp, fac, dti[3], dtj[3], dtk[3];
 
 	for( i = arg->_i0; i < arg->_if; i++ ) {
 		ai = 3 * arg->lst[3*i];
@@ -634,8 +634,7 @@ void* __energy_angle( void *args ) {
 		tmp = dif * arg->dat[arg->ind[i]*2];
 		arg->ene += tmp * dif;
 		if( arg->grd != NULL ) {
-			dtx = -1.0 / sqrt( 1.0 - fac * fac );
-			tmp *= 2.0 / dtx;
+			tmp *= -2.0 / sqrt( 1.0 - fac * fac );
 			for( j = 0; j < 3; j++ ) {
 				dti[j] = ( dkj[j] - fac * dij[j] ) / rij;
 				dtk[j] = ( dij[j] - fac * dkj[j] ) / rkj;

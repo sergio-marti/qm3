@@ -710,23 +710,51 @@ def exclussions( sele_QM, molec, bonds = None ):
 	nx12 = 0
 	nx13 = 0
 	nx14 = 0
+	fd = open( "exclussions.log", "wt" )
+	fd.write( "\t\tself.exc = []\n" )
 	for i in sele_QM:
 		for j in conn[i]:
 			if( j != i and atmm[j] ):
 				latm.append( [ i, j ] )
 				excl.append( [ i, j, 0.0 ] )
 				nx12 += 1
-				print( "qm3.engines.restraints.distance( molec, kumb, xref, [ %d, %d ] )"%( i, j ) )
+				fi = "1.0"; fj = "1.0"
+				if( atmm[j] ):
+					fj = "0.0"
+				fd.write( "\t\t# %s - %s\n"%( molec.labl[i], molec.labl[j] ) )
+				fd.write( "\t\tself.exc.append( qm3.engines.restraints.distance( kumb_kJ/mol.A^2, xref_A, [ %d, %d ] ) )\n"%( i, j ) )
+				fd.write( "\t\tself.exc[-1].ffac = 0.0\n" )
+				fd.write( "\t\tself.exc[-1].gfac = [ %s, %s ]\n"%( fi, fj ) )
 			for k in conn[j]:
 				if( k != i and atmm[k] ):
 					excl.append( [ i, k, 0.0 ] )
 					nx13 += 1
-					print( "qm3.engines.restraints.angle( molec, kumb, xref, [ %d, %d, %d ] )"%( i, j, k ) )
+					fi = "1.0"; fj = "1.0"; fk = "1.0"
+					if( atmm[j] ):
+						fj = "0.0"
+					if( atmm[k] ):
+						fk = "0.0"
+					fd.write( "\t\t# %s - %s - %s\n"%( molec.labl[i], molec.labl[j], molec.labl[k] ) )
+					fd.write( "\t\tself.exc.append( qm3.engines.restraints.angle( kumb_kJ/mol.rad^2, xref_deg, [ %d, %d, %d ] ) )\n"%( i, j, k ) )
+					fd.write( "\t\tself.exc[-1].ffac = 0.0\n" )
+					fd.write( "\t\tself.exc[-1].gfac = [ %s, %s, %s ]\n"%( fi, fj, fk ) )
 				for l in conn[k]:
 					if( k != i and l != j and l != i and atmm[l] ):
 						excl.append( [ i, l, 0.5 ] )
 						nx14 += 1
-#						print( "qm3.engines.restraints.dihedral( molec, { per: [ fc, dsp ] }, [ %d, %d, %d, %d ] )"%( i, j, k, l ) )
+# ------------------------------------------------ needed?
+#						fi = "1.0"; fj = "1.0"; fk = "1.0"; fl = "1.0"
+#						if( atmm[j] ):
+#							fj = "0.0"
+#						if( atmm[k] ):
+#							fk = "0.0"
+#						if( atmm[l] ):
+#							fl = "0.0"
+#						fd.write( "\t\t# %s - %s - %s - %s\n"%( molec.labl[i], molec.labl[j], molec.labl[k], molec.labl[l] ) )
+#						fd.write( "\t\tself.exc.append( qm3.engines.restraints.dihedral( { per: [ frc_kJ/mol, dsp_deg ] }, [ %d, %d, %d, %d ] ) )\n"%( i, j, k, l ) )
+#						fd.write( "\t\tself.exc[-1].ffac = 0.0\n" )
+#						fd.write( "\t\tself.exc[-1].gfac = [ %s, %s, %s, %s ]\n"%( fi, fj, fk, fl ) )
+	fd.close()
 	f = open( "sele_LA.pk", "wb" )
 	pickle.dump( latm, f )
 	f.close()

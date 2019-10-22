@@ -13,6 +13,7 @@ import	qm3.io
 import	qm3.mol
 import	qm3.utils
 import	qm3.constants
+import	qm3.engines.restraints
 
 try:
 	import qm3.engines._mol_mech
@@ -407,20 +408,16 @@ class simple_force_field( object ):
 		if( mol_mech_so ):
 			out = qm3.engines._mol_mech.energy_bond( self, mol, gradient )
 		else:
+			bak = mol.func
 			out = 0.0
 			for i in range( len( self.bond ) ):
-				ai  = 3 * self.bond[i][0]
-				aj  = 3 * self.bond[i][1]
-				vec = [ ii-jj for ii,jj in zip( mol.coor[ai:ai+3], mol.coor[aj:aj+3] ) ]
-				val = math.sqrt( vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2] )
-				dif = val - self.bond_data[self.bond_indx[i]][1]
-				tmp = dif * self.bond_data[self.bond_indx[i]][0]
-				out += tmp * dif
-				if( gradient ):
-					tmp *= 2.0 / val
-					for j in [0, 1, 2]:
-						mol.grad[ai+j] += tmp * vec[j]
-						mol.grad[aj+j] -= tmp * vec[j]
+				mol.func = 0.0
+				qm3.engines.restraints.mm_bond( mol, self.bond_data[self.bond_indx[i]][0],
+					self.bond_data[self.bond_indx[i]][1],
+					self.bond[i][0], self.bond[i][1],
+					grad = gradient )
+				out += mol.func
+			mol.func = bak
 		return( out )
 
 
@@ -430,37 +427,19 @@ class simple_force_field( object ):
 		if( mol_mech_so ):
 			out = qm3.engines._mol_mech.energy_angle( self, mol, gradient )
 		else:
+			bak = mol.func
 			out = 0.0
 			for i in range( len( self.angl ) ):
-				ai  = 3 * self.angl[i][0]
-				aj  = 3 * self.angl[i][1]
-				ak  = 3 * self.angl[i][2]
-				dij = [ ii-jj for ii,jj in zip( mol.coor[ai:ai+3], mol.coor[aj:aj+3] ) ]
-				rij = math.sqrt( sum( [ j*j for j in dij ] ) )
-				dij = [ j / rij for j in dij ]
-				dkj = [ ii-jj for ii,jj in zip( mol.coor[ak:ak+3], mol.coor[aj:aj+3] ) ]
-				rkj = math.sqrt( sum( [ j*j for j in dkj ] ) )
-				dkj = [ j / rkj for j in dkj ]
-				fac = sum( [ ii*jj for ii,jj in zip( dij, dkj ) ] )
-				fac = min( math.fabs( fac ), 1.0 - 1.0e-6 ) * fac / math.fabs( fac )
-				val = math.acos( fac )
-				dif = val - self.angl_data[self.angl_indx[i]][1]
-				tmp = dif * self.angl_data[self.angl_indx[i]][0]
-				out += tmp * dif
-				if( gradient ):
-					dtx =  - 1.0 / math.sqrt( 1.0 - fac * fac )
-					tmp *= 2.0 / dtx
-					dti = [ ( ii - fac * jj ) / rij for ii,jj in zip( dkj, dij ) ]
-					dtk = [ ( ii - fac * jj ) / rkj for ii,jj in zip( dij, dkj ) ]
-					dtj = [ - ( ii + jj ) for ii,jj in zip( dti, dtk ) ]
-					for j in [0, 1, 2]:
-						mol.grad[ai+j] += tmp * dti[j]
-						mol.grad[aj+j] += tmp * dtj[j]
-						mol.grad[ak+j] += tmp * dtk[j]
+				mol.func = 0.0
+				qm3.engines.restraints.mm_angle( mol, self.angl_data[self.angl_indx[i]][0],
+					self.angl_data[self.angl_indx[i]][1],
+					self.angl[i][0], self.angl[i][1], self.angl[i][2],
+					grad = gradient )
+				out += mol.func
+			mol.func = bak
 		return( out )
 
 
-	# Generic dihedral ("adapated" from Tinker)
 	def energy_dihedral( self, mol, gradient = False ):
 		if( self.dihe == [] ):
 			return( 0.0 )
@@ -468,152 +447,32 @@ class simple_force_field( object ):
 			out = qm3.engines._mol_mech.energy_dihedral( self, mol, gradient )
 		else:
 			out = 0.0
+			bak = mol.func
 			for i in range( len( self.dihe ) ):
-				ai  = 3 * self.dihe[i][0]
-				aj  = 3 * self.dihe[i][1]
-				ak  = 3 * self.dihe[i][2]
-				al  = 3 * self.dihe[i][3]
-				dji = [ ii-jj for ii,jj in zip( mol.coor[aj:aj+3], mol.coor[ai:ai+3] ) ]
-				dkj = [ ii-jj for ii,jj in zip( mol.coor[ak:ak+3], mol.coor[aj:aj+3] ) ]
-				rkj = math.sqrt( sum( [ ii*ii for ii in dkj ] ) )
-				dlk = [ ii-jj for ii,jj in zip( mol.coor[al:al+3], mol.coor[ak:ak+3] ) ]
-				vt  = [ dji[1] * dkj[2] - dkj[1] * dji[2], dji[2] * dkj[0] - dkj[2] * dji[0], dji[0] * dkj[1] - dkj[0] * dji[1] ]
-				rt2 = sum( [ ii*ii for ii in vt ] )
-				vu  = [ dkj[1] * dlk[2] - dlk[1] * dkj[2], dkj[2] * dlk[0] - dlk[2] * dkj[0], dkj[0] * dlk[1] - dlk[0] * dkj[1] ]
-				ru2 = sum( [ ii*ii for ii in vu ] )
-				vtu = [ vt[1] * vu[2] - vu[1] * vt[2], vt[2] * vu[0] - vu[2] * vt[0], vt[0] * vu[1] - vu[0] * vt[1] ]
-				rtu = math.sqrt( rt2 * ru2 )
-				if( rtu == 0.0 ):
-					continue
-				cs1 = sum( [ ii*jj for ii,jj in zip( vt, vu ) ] ) / rtu
-				sn1 = sum( [ ii*jj for ii,jj in zip( dkj, vtu ) ] ) / ( rkj * rtu )
-				cs2 = cs1 * cs1 - sn1 * sn1
-				sn2 = 2.0 * cs1 * sn1
-				cs3 = cs1 * cs2 - sn1 * sn2
-				sn3 = cs1 * sn2 + sn1 * cs2
-				cs4 = cs1 * cs3 - sn1 * sn3
-				sn4 = cs1 * sn3 + sn1 * cs3
-				cs5 = cs1 * cs4 - sn1 * sn4
-				sn5 = cs1 * sn4 + sn1 * cs4
-				cs6 = cs1 * cs5 - sn1 * sn5
-				sn6 = cs1 * sn5 + sn1 * cs5
-				dph = 0.0
-				if( self.dihe_data[self.dihe_indx[i]][0] != 0.0 ):
-					cd  = math.cos( self.dihe_data[self.dihe_indx[i]][1] )
-					sd  = math.sin( self.dihe_data[self.dihe_indx[i]][1] )
-					dph += self.dihe_data[self.dihe_indx[i]][0] * ( cs1 * sd - sn1 * cd )
-					out += self.dihe_data[self.dihe_indx[i]][0] * ( 1.0 + cs1 * cd + sn1 * sd )
-				if( self.dihe_data[self.dihe_indx[i]][2] != 0.0 ):
-					cd  = math.cos( self.dihe_data[self.dihe_indx[i]][3] )
-					sd  = math.sin( self.dihe_data[self.dihe_indx[i]][3] )
-					dph += self.dihe_data[self.dihe_indx[i]][2] * 2.0 * ( cs2 * sd - sn2 * cd )
-					out += self.dihe_data[self.dihe_indx[i]][2] * ( 1.0 + cs2 * cd + sn2 * sd )
-				if( self.dihe_data[self.dihe_indx[i]][4] != 0.0 ):
-					cd  = math.cos( self.dihe_data[self.dihe_indx[i]][5] )
-					sd  = math.sin( self.dihe_data[self.dihe_indx[i]][5] )
-					dph += self.dihe_data[self.dihe_indx[i]][4] * 3.0 * ( cs3 * sd - sn3 * cd )
-					out += self.dihe_data[self.dihe_indx[i]][4] * ( 1.0 + cs3 * cd + sn3 * sd )
-				if( self.dihe_data[self.dihe_indx[i]][6] != 0.0 ):
-					cd  = math.cos( self.dihe_data[self.dihe_indx[i]][7] )
-					sd  = math.sin( self.dihe_data[self.dihe_indx[i]][7] )
-					dph += self.dihe_data[self.dihe_indx[i]][6] * 4.0 * ( cs4 * sd - sn4 * cd )
-					out += self.dihe_data[self.dihe_indx[i]][6] * ( 1.0 + cs4 * cd + sn4 * sd )
-				if( self.dihe_data[self.dihe_indx[i]][8] != 0.0 ):
-					cd  = math.cos( self.dihe_data[self.dihe_indx[i]][9] )
-					sd  = math.sin( self.dihe_data[self.dihe_indx[i]][9] )
-					dph += self.dihe_data[self.dihe_indx[i]][8] * 5.0 * ( cs5 * sd - sn5 * cd )
-					out += self.dihe_data[self.dihe_indx[i]][8] * ( 1.0 + cs5 * cd + sn5 * sd )
-				if( self.dihe_data[self.dihe_indx[i]][10] != 0.0 ):
-					cd  = math.cos( self.dihe_data[self.dihe_indx[i]][11] )
-					sd  = math.sin( self.dihe_data[self.dihe_indx[i]][11] )
-					dph += self.dihe_data[self.dihe_indx[i]][10] * 6.0 * ( cs6 * sd - sn6 * cd )
-					out += self.dihe_data[self.dihe_indx[i]][10] * ( 1.0 + cs6 * cd + sn6 * sd )
-				if( gradient ):
-					dki = [ ii-jj for ii,jj in zip( mol.coor[ak:ak+3], mol.coor[ai:ai+3] ) ]
-					dlj = [ ii-jj for ii,jj in zip( mol.coor[al:al+3], mol.coor[aj:aj+3] ) ]
-					dvt = [ ( vt[1] * dkj[2] - dkj[1] * vt[2] ) / ( rt2 * rkj ), 
-							( vt[2] * dkj[0] - dkj[2] * vt[0] ) / ( rt2 * rkj ), 
-							( vt[0] * dkj[1] - dkj[0] * vt[1] ) / ( rt2 * rkj ) ]
-					dvu = [ ( vu[1] * dkj[2] - dkj[1] * vu[2] ) / ( ru2 * rkj ),
-							( vu[2] * dkj[0] - dkj[2] * vu[0] ) / ( ru2 * rkj ),
-							( vu[0] * dkj[1] - dkj[0] * vu[1] ) / ( ru2 * rkj ) ]
-					mol.grad[ai]   += ( dkj[2] * dvt[1] - dkj[1] * dvt[2] ) * dph
-					mol.grad[ai+1] += ( dkj[0] * dvt[2] - dkj[2] * dvt[0] ) * dph
-					mol.grad[ai+2] += ( dkj[1] * dvt[0] - dkj[0] * dvt[1] ) * dph
-					mol.grad[aj]   += ( dki[1] * dvt[2] - dki[2] * dvt[1] - dlk[2] * dvu[1] + dlk[1] * dvu[2] ) * dph
-					mol.grad[aj+1] += ( dki[2] * dvt[0] - dki[0] * dvt[2] - dlk[0] * dvu[2] + dlk[2] * dvu[0] ) * dph
-					mol.grad[aj+2] += ( dki[0] * dvt[1] - dki[1] * dvt[0] - dlk[1] * dvu[0] + dlk[0] * dvu[1] ) * dph
-					mol.grad[ak]   += ( dji[2] * dvt[1] - dji[1] * dvt[2] - dlj[1] * dvu[2] + dlj[2] * dvu[1] ) * dph
-					mol.grad[ak+1] += ( dji[0] * dvt[2] - dji[2] * dvt[0] - dlj[2] * dvu[0] + dlj[0] * dvu[2] ) * dph
-					mol.grad[ak+2] += ( dji[1] * dvt[0] - dji[0] * dvt[1] - dlj[0] * dvu[1] + dlj[1] * dvu[0] ) * dph
-					mol.grad[al]   += ( - dkj[2] * dvu[1] + dkj[1] * dvu[2] ) * dph
-					mol.grad[al+1] += ( - dkj[0] * dvu[2] + dkj[2] * dvu[0] ) * dph
-					mol.grad[al+2] += ( - dkj[1] * dvu[0] + dkj[0] * dvu[1] ) * dph
+				mol.func = 0.0
+				qm3.engines.restraints.mm_dihedral( mol, self.dihe_data[self.dihe_indx[i]],
+					self.dihe[i][0], self.dihe[i][1], self.dihe[i][2], self.dihe[i][3],
+					grad = gradient )
+				out += mol.func
+			mol.func = bak
 		return( out )
 
 
-	# Impropers (also "adapated" from Tinker)
 	def energy_improper( self, mol, gradient = False ):
+		"""
+		self.impr = [ [ central_i, j, k, l, kmb (kal/mol.rad^2), ref (deg) ], ... ]
+		"""
 		if( self.impr == [] ):
 			return( 0.0 )
 		out = 0.0
-		# self.impr = [ [ central_i, j, k, l, kmb (kcal/mol), ref (deg) ], ... ]
+		bak = mol.func
 		for i in range( len( self.impr ) ):
-			ai  = 3 * self.impr[i][0]
-			aj  = 3 * self.impr[i][1]
-			ak  = 3 * self.impr[i][2]
-			al  = 3 * self.impr[i][3]
-			dji = [ ii-jj for ii,jj in zip( mol.coor[aj:aj+3], mol.coor[ai:ai+3] ) ]
-			dkj = [ ii-jj for ii,jj in zip( mol.coor[ak:ak+3], mol.coor[aj:aj+3] ) ]
-			dlk = [ ii-jj for ii,jj in zip( mol.coor[al:al+3], mol.coor[ak:ak+3] ) ]
-			vt  = [ dji[1] * dkj[2] - dkj[1] * dji[2], dji[2] * dkj[0] - dkj[2] * dji[0], dji[0] * dkj[1] - dkj[0] * dji[1] ]
-			vu  = [ dkj[1] * dlk[2] - dlk[1] * dkj[2], dkj[2] * dlk[0] - dlk[2] * dkj[0], dkj[0] * dlk[1] - dlk[0] * dkj[1] ]
-			vtu = [ vt[1] * vu[2] - vu[1] * vt[2], vt[2] * vu[0] - vu[2] * vt[0], vt[0] * vu[1] - vu[0] * vt[1] ]
-			rt2 = sum( [ ii*ii for ii in vt ] )
-			ru2 = sum( [ ii*ii for ii in vu ] )
-			rtu = math.sqrt( rt2 * ru2 )
-			if( rtu == 0.0 ):
-				continue
-			rkj = math.sqrt( sum( [ ii*ii for ii in dkj ] ) )
-			cos = sum( [ ii*jj for ii,jj in zip( vt, vu ) ] ) / rtu
-			sin = sum( [ ii*jj for ii,jj in zip( dkj, vtu ) ] ) / ( rkj * rtu )
-			cos = min( 1.0, max( -1.0, cos ) )
-			ang = qm3.constants.R2D * math.acos( cos )
-			if( sin <= 0.0 ):
-				ang = -ang
-			kmb = self.impr[i][4] * qm3.constants.K2J
-			ref = self.impr[i][5]
-			if( math.fabs( ang + ref ) < math.fabs( ang - ref ) ):
-				ref = -ref
-			dt  = ang - ref
-			while( dt >  180.0 ):
-				dt -= 360.0
-			while( dt < -180.0 ):
-				dt += 360.0
-			dt  /= qm3.constants.R2D
-			out += kmb * dt * dt
-			if( gradient ):
-				dph = 2.0 * kmb * dt
-				dki = [ ii-jj for ii,jj in zip( mol.coor[ak:ak+3], mol.coor[ai:ai+3] ) ]
-				dlj = [ ii-jj for ii,jj in zip( mol.coor[al:al+3], mol.coor[aj:aj+3] ) ]
-				dvt = [ ( vt[1] * dkj[2] - dkj[1] * vt[2] ) / ( rt2 * rkj ), 
-						( vt[2] * dkj[0] - dkj[2] * vt[0] ) / ( rt2 * rkj ), 
-						( vt[0] * dkj[1] - dkj[0] * vt[1] ) / ( rt2 * rkj ) ]
-				dvu = [ ( vu[1] * dkj[2] - dkj[1] * vu[2] ) / ( ru2 * rkj ),
-						( vu[2] * dkj[0] - dkj[2] * vu[0] ) / ( ru2 * rkj ),
-						( vu[0] * dkj[1] - dkj[0] * vu[1] ) / ( ru2 * rkj ) ]
-				mol.grad[ai]   += ( dkj[2] * dvt[1] - dkj[1] * dvt[2] ) * dph
-				mol.grad[ai+1] += ( dkj[0] * dvt[2] - dkj[2] * dvt[0] ) * dph
-				mol.grad[ai+2] += ( dkj[1] * dvt[0] - dkj[0] * dvt[1] ) * dph
-				mol.grad[aj]   += ( dki[1] * dvt[2] - dki[2] * dvt[1] - dlk[2] * dvu[1] + dlk[1] * dvu[2] ) * dph
-				mol.grad[aj+1] += ( dki[2] * dvt[0] - dki[0] * dvt[2] - dlk[0] * dvu[2] + dlk[2] * dvu[0] ) * dph
-				mol.grad[aj+2] += ( dki[0] * dvt[1] - dki[1] * dvt[0] - dlk[1] * dvu[0] + dlk[0] * dvu[1] ) * dph
-				mol.grad[ak]   += ( dji[2] * dvt[1] - dji[1] * dvt[2] - dlj[1] * dvu[2] + dlj[2] * dvu[1] ) * dph
-				mol.grad[ak+1] += ( dji[0] * dvt[2] - dji[2] * dvt[0] - dlj[2] * dvu[0] + dlj[0] * dvu[2] ) * dph
-				mol.grad[ak+2] += ( dji[1] * dvt[0] - dji[0] * dvt[1] - dlj[0] * dvu[1] + dlj[1] * dvu[0] ) * dph
-				mol.grad[al]   += ( - dkj[2] * dvu[1] + dkj[1] * dvu[2] ) * dph
-				mol.grad[al+1] += ( - dkj[0] * dvu[2] + dkj[2] * dvu[0] ) * dph
-				mol.grad[al+2] += ( - dkj[1] * dvu[0] + dkj[0] * dvu[1] ) * dph
+			mol.func = 0.0
+			qm3.engines.restraints.mm_improper( mol, self.impr[i][4] * qm3.constants.K2J, self.impr[i][5],
+				self.impr[i][0], self.impr[i][1], self.impr[i][2], self.impr[i][3],
+				grad = gradient )
+			out += mol.func
+		mol.func = bak
 		return( out )
 
 
