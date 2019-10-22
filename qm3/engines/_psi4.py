@@ -20,8 +20,11 @@ try:
 
 	class py_psi4( object ):
 
-		def __init__( self, mol, sele, opts = { "reference": "rks", "basis": "6-31g*", "d_convergence": 6, "scf_type": "direct", "guess": "read",
-												"output": False, "charge": 0, "method": "b3lyp", "ncpus": 1, "memory": "1024 MB" }, nbnd = [], link = [] ):
+		def __init__( self, mol, opts, sele, nbnd = [], link = [] ):
+			"""
+		opts = { "reference": "rks", "basis": "6-31g*", "d_convergence": 6, "scf_type": "direct", "guess": "read",
+				"output": False, "charge": 0, "method": "b3lyp", "ncpus": 1, "memory": "1024 MB" }
+			"""
 			self._ce = qm3.constants.H2J
 			self._cg = self._ce / qm3.constants.A0
 			self.sel = sele[:]
