@@ -45,16 +45,16 @@ def distance( calc, kumb, ref, ai, aj, coor, grad, hess ):
 	r2 = sum( [ i * i for i in dr ] )
 	vv = math.sqrt( r2 )
 	df = kumb * ( vv - ref )
-	ff = 0.5 * df * ( vv - ref ) * _ENE
+	ff = df * ( vv - ref ) * _ENE
 	if( calc > 0 ):
 		_fg = _ENE * _ATM
-		df  /= vv
+		df  *= 2.0 / vv
 		for i in [0, 1, 2]:
 			grad[ii+i] += df * dr[i] * _fg
 			grad[jj+i] -= df * dr[i] * _fg
 		if( calc == 2 ):
 			_fh = _fg * _ATM
-			tt  = ( kumb - df ) / r2
+			tt  = ( 2.0 * kumb - df ) / r2
 			hxx = ( tt * dr[0] * dr[0] + df ) * _fh
 			hxy =   tt * dr[0] * dr[1]        * _fh
 			hxz =   tt * dr[0] * dr[2]        * _fh
@@ -326,9 +326,9 @@ else:
 	qm_ENE += _qmmm.func( qm_XYZ, mm_XYZ )
 
 
-# -- add QM harmonic restraints (kumb ~200 _kcal/mol.ang^2)
-#qm_ENE += distance( qm_KND, 200, 1.9, 1, 2, qm_XYZ, qm_GRD, qm_HES )
-#qm_ENE += distance( qm_KND, 200, 1.9, 4, 5, qm_XYZ, qm_GRD, qm_HES )
+# -- add QM harmonic restraints (kumb ~100 _kcal/mol.ang^2)
+#qm_ENE += distance( qm_KND, 100, 1.9, 1, 2, qm_XYZ, qm_GRD, qm_HES )
+#qm_ENE += distance( qm_KND, 100, 1.9, 4, 5, qm_XYZ, qm_GRD, qm_HES )
 
 
 # -- build output file

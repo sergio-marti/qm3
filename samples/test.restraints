@@ -18,9 +18,44 @@ H       0.05804      1.92714      2.01036
 m = qm3.mol.molecule()
 m.xyz_read( f )
 f.close()
+r = qm3.engines.restraints.distance( 3000.0, 1.8, [ 0, 4 ] )
 m.func = 0.0
 m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
-r = qm3.engines.restraints.distance( 3000.0, 1.8, [ 0, 4 ] )
 print( r.get_grad( m ) )
 print( m.func )
 qm3.maths.matrix.mprint( m.grad, m.natm, 3 )
+
+f = io.StringIO( """2
+
+X       0.12109      0.06944     -0.22458
+X      -0.29157      0.59483      1.39876
+""" )
+m = qm3.mol.molecule()
+m.xyz_read( f )
+f.close()
+r = qm3.engines.restraints.distance( 3000.0, 1.8, [ 0, 1 ] )
+m.func = 0.0
+m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
+m.hess = [ 0.0 for i in range( 9 * m.natm * m.natm ) ]
+# -- analytical hessian (set hessian indexes of the restrained atoms)
+r.hfac = [ 0, 1 ]
+print( r.get_hess( m ) )
+print( m.func )
+qm3.maths.matrix.mprint( m.grad, m.natm, 3 )
+qm3.maths.matrix.mprint( m.hess, 3 * m.natm, 3 * m.natm )
+# -- central difference
+nhes = []
+disp = 1.e-4
+for i in range( 3 * m.natm ):
+	bak = m.coor[i]
+	m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
+	m.coor[i] = bak + disp
+	r.get_grad( m )
+	gf = m.grad[:]
+	m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
+	m.coor[i] = bak - disp
+	r.get_grad( m )
+	gb = m.grad[:]
+	m.coor[i] = bak
+	nhes += [ (ii-jj) / ( 2.0 * disp ) for ii,jj in zip( gf, gb ) ]
+qm3.maths.matrix.mprint( nhes, 3 * m.natm, 3 * m.natm )

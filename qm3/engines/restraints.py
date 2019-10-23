@@ -8,7 +8,8 @@ import	math
 import	qm3.constants
 
 
-def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99, ffac = 1.0, grad = False, gfac = [ 1.0, 1.0 ] ):
+def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
+			ffac = 1.0, grad = False, gfac = [ 1.0, 1.0 ], hess = False, hfac = None ):
 	"""
 	bond = force_constant * ( distance - reference )^2
 
@@ -18,7 +19,8 @@ def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99, ffac =
 	ai = 3 * a_i
 	aj = 3 * a_j
 	dr = [ i-j for i,j in zip( molec.coor[ai:ai+3], molec.coor[aj:aj+3] ) ]
-	vv = math.sqrt( sum( [ i * i for i in dr ] ) )
+	r2 = sum( [ i * i for i in dr ] )
+	vv = math.sqrt( r2 )
 	df = kumb * ( vv - xref )
 	if( vv >= skip_LE and vv <= skip_BE ):
 		molec.func += df * ( vv - xref ) * ffac
@@ -27,10 +29,47 @@ def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99, ffac =
 			for i in [0, 1, 2]:
 				molec.grad[ai+i] += df * dr[i] * gfac[0]
 				molec.grad[aj+i] -= df * dr[i] * gfac[1]
+		if( hess ):
+			tt  = ( 2.0 * kumb - df ) / r2
+			hxx = ( tt * dr[0] * dr[0] + df )
+			hxy =   tt * dr[0] * dr[1]
+			hxz =   tt * dr[0] * dr[2]
+			hyy = ( tt * dr[1] * dr[1] + df )
+			hyz =   tt * dr[1] * dr[2]
+			hzz = ( tt * dr[2] * dr[2] + df )
+			# ii & jj -- hessian should has been previously initialized...
+			n  = int( math.sqrt( len( molec.hess ) ) )
+			n2 = n * 2
+			for ii in hfac:
+				if( ii > -1 ):
+					jj = 3 * ( n * ii + ii )
+					molec.hess[jj]      += hxx
+					molec.hess[jj+1]    += hxy
+					molec.hess[jj+2]    += hxz
+					molec.hess[jj+n]    += hxy
+					molec.hess[jj+n+1]  += hyy
+					molec.hess[jj+n+2]  += hyz
+					molec.hess[jj+n2]   += hxz
+					molec.hess[jj+n2+1] += hyz
+					molec.hess[jj+n2+2] += hzz
+			# ij & ji (only if both atoms are involved...)
+			if( hfac[0] > -1 and hfac[1] > -1 ):
+				for ii,jj in [ ( hfac[0], hfac[1] ), ( hfac[1], hfac[0] ) ]:
+					kk = 3 * ( n * ii + jj )
+					molec.hess[kk]      -= hxx
+					molec.hess[kk+1]    -= hxy
+					molec.hess[kk+2]    -= hxz
+					molec.hess[kk+n]    -= hxy
+					molec.hess[kk+n+1]  -= hyy
+					molec.hess[kk+n+2]  -= hyz
+					molec.hess[kk+n2]   -= hxz
+					molec.hess[kk+n2+1] -= hyz
+					molec.hess[kk+n2+2] -= hzz
 	return( vv )
 
 
-def mm_angle( molec, kumb, xref, a_i, a_j, a_k, ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0 ] ):
+def mm_angle( molec, kumb, xref, a_i, a_j, a_k,
+			ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0 ], hess = False, hfac = None ):
 	"""
 	angle = force_constant * ( angle - reference )^2
 
@@ -60,10 +99,13 @@ def mm_angle( molec, kumb, xref, a_i, a_j, a_k, ffac = 1.0, grad = False, gfac =
 			molec.grad[ai+i] += df * dti[i] * gfac[0]
 			molec.grad[aj+i] += df * dtj[i] * gfac[1]
 			molec.grad[ak+i] += df * dtk[i] * gfac[2]
+	if( hess ):
+		pass
 	return( vv )
 
 
-def mm_dihedral( molec, data, a_i, a_j, a_k, a_l, ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ] ):
+def mm_dihedral( molec, data, a_i, a_j, a_k, a_l,
+				ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False, hfac = None ):
 	"""
 	dihedral = force_constant * ( 1 + cos( periodicity * angle - displacement ) )
 
@@ -151,13 +193,16 @@ def mm_dihedral( molec, data, a_i, a_j, a_k, a_l, ffac = 1.0, grad = False, gfac
 		molec.grad[al]   += ( - dkj[2] * dvu[1] + dkj[1] * dvu[2] ) * dph * gfac[3]
 		molec.grad[al+1] += ( - dkj[0] * dvu[2] + dkj[2] * dvu[0] ) * dph * gfac[3]
 		molec.grad[al+2] += ( - dkj[1] * dvu[0] + dkj[0] * dvu[1] ) * dph * gfac[3]
+	if( hess ):
+		pass
 	ang = qm3.constants.R2D * math.acos( cs1 )
 	if( sn1 <= 0.0 ):
 		ang = -ang
 	return( ang )
 
 
-def mm_improper( molec, kumb, xref, a_i, a_j, a_k, a_l, ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ] ):
+def mm_improper( molec, kumb, xref, a_i, a_j, a_k, a_l,
+				ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False, hfac = None ):
 	"""
 	improper = force_constant * ( angle - reference )^2
 
@@ -216,6 +261,8 @@ def mm_improper( molec, kumb, xref, a_i, a_j, a_k, a_l, ffac = 1.0, grad = False
 		molec.grad[al]   += ( - dkj[2] * dvu[1] + dkj[1] * dvu[2] ) * dph * gfac[3]
 		molec.grad[al+1] += ( - dkj[0] * dvu[2] + dkj[2] * dvu[0] ) * dph * gfac[3]
 		molec.grad[al+2] += ( - dkj[1] * dvu[0] + dkj[0] * dvu[1] ) * dph * gfac[3]
+	if( hess ):
+		pass
 	return( ang )
 
 
@@ -230,6 +277,7 @@ class distance( object ):
 		self.skpB = skip_BE
 		self.ffac = 1.0
 		self.gfac = [ 1.0, 1.0 ]
+		self.hfac = [ -1, -1 ]
 
 
 	def get_func( self, molec ):
@@ -237,7 +285,13 @@ class distance( object ):
 
 
 	def get_grad( self, molec ):
-		return( mm_bond( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.skpL, self.skpB, self.ffac, True, self.gfac ) )
+		return( mm_bond( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.skpL, self.skpB,
+				self.ffac, True, self.gfac ) )
+
+
+	def get_hess( self, molec ):
+		return( mm_bond( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.skpL, self.skpB,
+				self.ffac, True, self.gfac, True, self.hfac ) )
 
 
 
@@ -248,6 +302,7 @@ class angle( object ):
 		self.indx = indx[:]
 		self.ffac = 1.0
 		self.gfac = [ 1.0, 1.0, 1.0 ]
+		self.hfac = [ -1, -1, -1 ]
 
 
 	def get_func( self, molec ):
@@ -255,7 +310,13 @@ class angle( object ):
 
 
 	def get_grad( self, molec ):
-		return( mm_angle( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.indx[2], self.ffac, True, self.gfac ) * qm3.constants.R2D )
+		return( mm_angle( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.indx[2],
+				self.ffac, True, self.gfac ) * qm3.constants.R2D )
+
+
+	def get_hess( self, molec ):
+		return( mm_angle( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.indx[2],
+				self.ffac, True, self.gfac, True, self.hfac ) * qm3.constants.R2D )
 
 
 
@@ -275,6 +336,7 @@ class dihedral( object ):
 				self.data[2*i+1] = data[i+1][1] / qm3.constants.R2D
 		self.ffac = 1.0
 		self.gfac = [ 1.0, 1.0, 1.0, 1.0 ]
+		self.hfac = [ -1, -1, -1, -1 ]
 
 
 	def get_func( self, molec ):
@@ -282,7 +344,13 @@ class dihedral( object ):
 
 
 	def get_grad( self, molec ):
-		return( mm_dihedral( molec, data, self.indx[0], self.indx[1], self.indx[2], self.indx[3], self.ffac, True, self.gfac ) )
+		return( mm_dihedral( molec, data, self.indx[0], self.indx[1], self.indx[2], self.indx[3],
+				self.ffac, True, self.gfac ) )
+
+
+	def get_hess( self, molec ):
+		return( mm_dihedral( molec, data, self.indx[0], self.indx[1], self.indx[2], self.indx[3],
+				self.ffac, True, self.gfac, True, self.hfac ) )
 
 
 
@@ -293,6 +361,7 @@ class improper( object ):
 		self.indx = indx[:]
 		self.ffac = 1.0
 		self.gfac = [ 1.0, 1.0, 1.0, 1.0 ]
+		self.hfac = [ -1, -1, -1, -1 ]
 
 
 	def get_func( self, molec ):
@@ -300,7 +369,13 @@ class improper( object ):
 
 
 	def get_grad( self, molec ):
-		return( mm_improper( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.indx[2], self.indx[3], self.ffac, True, self.gfac ) )
+		return( mm_improper( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.indx[2], self.indx[3],
+				self.ffac, True, self.gfac ) )
+
+
+	def get_hess( self, molec ):
+		return( mm_improper( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.indx[2], self.indx[3],
+				self.ffac, True, self.gfac, True, self.hfac ) )
 
 
 
