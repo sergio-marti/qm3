@@ -1,7 +1,7 @@
 \normalsize
 \subsection[restraints]{restraints.py}
 This (in process) module offers basic classes for applying harmonic restraints. The umbrella energy is
-accumulated to "molec.func", and the gradient (not hessian by the moment...) to "molec.grad". Additionally,
+accumulated to "molec.func", and the gradient to "molec.grad". Additionally,
 all methods return the value of the geometrical parameter (distance, ...).\\
 For the \func{distance} class, \parm{indx} is a two-elements-list containing the indexes of the atoms. Also,
 the restraint won't be applied if the distance value is lower (or equal) than \parm{skip\_LE}, 
@@ -12,15 +12,106 @@ In the \func{multiple\_distance}, the parameter \parm{indx} is a list containing
 involved in the combination; and \parm{weigh} is a list with the coefficients for the linear combination (sized half 
 of \parm{indx}).
 \begin{pyglist}[language=python,fvset={frame=single}]
+def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
+             ffac = 1.0, grad = False, gfac = [ 1.0, 1.0 ], hess = False, hfac = None )
+        """
+        bond = kumb * ( distance - xref )^2
+        
+        kumb [kJ/mol.A^2]
+        xref [A]
+        """
+
+def mm_angle( molec, kumb, xref, a_i, a_j, a_k,
+              ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0 ], hess = False, hfac = None )
+        """
+        angle = kumb * ( angle - xref )^2
+        
+        kumb [kJ/mol.rad^2]
+        xref [rad]
+        """
+
+def mm_dihedral( molec, data, a_i, a_j, a_k, a_l,
+                 ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False, hfac = None )
+        """
+        dihedral = force_constant * ( 1 + cos( periodicity * angle - displacement ) )
+
+        force_constant [kJ/mol]
+        displacement [rad]
+
+        data = [ frc_per=1, dsp_per=1, frc_per=2, dsp_per=2, ..., frc_per=6, dsp_per=6 ]
+        """
+
+def mm_improper( molec, kumb, xref, a_i, a_j, a_k, a_l,
+                 ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False, hfac = None )
+        """
+        improper = kumb * ( angle - xref )^2
+        
+        kumb [kJ/mol.rad^2]
+        xref [deg]
+        a_i should be central atom
+        """
+
 class distance( kumb, xref, indx, skip_LE = 0.0, skip_BE = 9.e99 )
+    """
+    kumb [kJ/mol.ang^2]
+    xref [ang]
+    """
     def get_func( molec )
     def get_grad( molec )
+    def get_hess( molec )
+
 
 class angle( kumb, xref, indx )
+    """
+    kumb [kJ/mol.rad^2]
+    xref [deg]
+    """
     def get_func( molec )
     def get_grad( molec )
 
+
+class dihedral( kumb, data, indx )
+    """
+    data = {  periodicity: [ force_constant [kJ/mol], displacement [degrees] ], ... }
+
+    X - C_sp3 - C_sp3 - X   =>  { 1: [ -0.3347, 0.0 ], 2: [ -0.5858, 84.8 ], 3: [ 1.3263, 0.0 ] }
+
+    valid periodicities = [ 1 : 6 ]
+    """
+    def get_func( molec )
+    def get_grad( molec )
+
+
+class improper( kumb, xref, indx )
+    """
+    kumb [kJ/mol.rad^2]
+    xref [deg]
+    a_i should be central atom
+    """
+    def get_func( molec )
+    def get_grad( molec )
+
+
 class multiple_distance( kumb, xref, indx, weigh )
+    """
+    multiple_distance = force_constant * ( value - reference )^2
+
+    value = SUM weigth_i * distance_i
+
+    force_constant [kJ/mol.A^2]
+    reference [A]
+    """
+    def get_func( molec )
+    def get_grad( molec )
+
+
+class tether( molec, kumb, indx )
+    """
+    thether = force_constant * SUM ( cartesian - reference )^2
+
+    force_constant [kJ/mol.A^2]
+    reference [A]
+    """
     def get_func( molec )
     def get_grad( molec )
 \end{pyglist}

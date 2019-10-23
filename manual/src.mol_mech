@@ -4,7 +4,7 @@ This module provides a basic (and inefficient) force-field implementation to per
 Some of the methods can take profit of the binary threaded version (\_mol\_mech.so) to improve performance.
 We can find three family of methods:
 1) methods for guessing molecular data (such as the internal connectivity and atoms types: \func{parse\_molecule}, 
-or Gasteiger-Marsilli sigma partial charges: \func{guess\_partial\_charges}, which uses "mol.chrg" as a starting
+or Electronegativity Equalization Method partial charges: \func{guess\_partial\_charges}, which uses "mol.chrg" as a starting
 point for those molecules with formal charges).
 2) methods for calculating the internal energy of the molecule (\func{get\_func}, \func{get\_grad}).
 3) methods providing topological indexes (QSAR: \func{topind\_*}), once non-polar hydrogens have been removed.
