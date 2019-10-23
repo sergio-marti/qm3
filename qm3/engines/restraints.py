@@ -37,7 +37,7 @@ def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
 			hyy = ( tt * dr[1] * dr[1] + df )
 			hyz =   tt * dr[1] * dr[2]
 			hzz = ( tt * dr[2] * dr[2] + df )
-			# ii & jj -- hessian should has been previously initialized...
+			# ii & jj -- hessian should have been previously initialized...
 			n  = int( math.sqrt( len( molec.hess ) ) )
 			n2 = n * 2
 			for ii in hfac:
