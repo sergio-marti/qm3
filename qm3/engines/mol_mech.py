@@ -415,7 +415,7 @@ class simple_force_field( object ):
 				qm3.engines.restraints.mm_bond( mol, self.bond_data[self.bond_indx[i]][0],
 					self.bond_data[self.bond_indx[i]][1],
 					self.bond[i][0], self.bond[i][1],
-					grad = gradient )
+					ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0 ] )
 				out += mol.func
 			mol.func = bak
 		return( out )
@@ -434,7 +434,7 @@ class simple_force_field( object ):
 				qm3.engines.restraints.mm_angle( mol, self.angl_data[self.angl_indx[i]][0],
 					self.angl_data[self.angl_indx[i]][1],
 					self.angl[i][0], self.angl[i][1], self.angl[i][2],
-					grad = gradient )
+					ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0, 1.0 ] )
 				out += mol.func
 			mol.func = bak
 		return( out )
@@ -452,7 +452,7 @@ class simple_force_field( object ):
 				mol.func = 0.0
 				qm3.engines.restraints.mm_dihedral( mol, self.dihe_data[self.dihe_indx[i]],
 					self.dihe[i][0], self.dihe[i][1], self.dihe[i][2], self.dihe[i][3],
-					grad = gradient )
+					ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0, 1.0, 1.0 ] )
 				out += mol.func
 			mol.func = bak
 		return( out )
@@ -470,7 +470,7 @@ class simple_force_field( object ):
 			mol.func = 0.0
 			qm3.engines.restraints.mm_improper( mol, self.impr[i][4] * qm3.constants.K2J, self.impr[i][5],
 				self.impr[i][0], self.impr[i][1], self.impr[i][2], self.impr[i][3],
-				grad = gradient )
+				ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0, 1.0, 1.0 ] )
 			out += mol.func
 		mol.func = bak
 		return( out )
