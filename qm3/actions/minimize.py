@@ -122,7 +122,7 @@ def steepest_descent( obj,
 						step_number = 100,
 						step_size = 0.1,
 						print_frequency = 10,
-						gradient_tolerance = 10.0,
+						gradient_tolerance = 15.,
 						log_function = default_log ):
 	log_function( "---------------------------------------- Minimization (SD)\n" )
 	log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
@@ -170,7 +170,7 @@ def adam( obj,
 				step_number = 100,
 				step_size = 0.1,
 				print_frequency = 10,
-				gradient_tolerance = 10.0,
+				gradient_tolerance = 15.,
 				log_function = default_log ):
 	log_function( "---------------------------------------- Minimization (ADAM)\n" )
 	log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
@@ -214,7 +214,7 @@ def fire( obj,
 			step_number = 100,
 			step_size = 0.1,
 			print_frequency = 10,
-			gradient_tolerance = 0.01,
+			gradient_tolerance = 1.5,
 			log_function = default_log ):
 	log_function( "---------------------------------------- Minimization (FIRE)\n" )
 	log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
@@ -275,7 +275,7 @@ def fire( obj,
 #			step_number = 100,
 #			step_size = 0.1,
 #			print_frequency = 10,
-#			gradient_tolerance = 10.0,
+#			gradient_tolerance = 1.5,
 #			log_function = default_log ):
 #	log_function( "---------------------------------------- Minimization (CG)\n" )
 #	log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
@@ -294,7 +294,7 @@ def l_bfgs( obj,
 			step_number = 100,
 			step_size = 0.1,
 			print_frequency = 10,
-			gradient_tolerance = 0.01,
+			gradient_tolerance = 1.5,
 			history = 9,
 			log_function = default_log ):
 	log_function( "---------------------------------------- Minimization (L-BFGS)\n" )
@@ -374,7 +374,7 @@ def l_bfgs( obj,
 def conjugate_gradient_plus( obj, 
 			step_number = 100,
 			print_frequency = 10,
-			gradient_tolerance = 0.01,
+			gradient_tolerance = 1.5,
 			method = "Polak-Ribiere", 
 			restart = True,
 			log_function = default_log ):
@@ -404,7 +404,7 @@ def baker( obj,
 			step_number = 100,
 			step_size = 0.1,
 			print_frequency = 10,
-			gradient_tolerance = 0.01,
+			gradient_tolerance = 1.5,
 			follow_mode = -1,		# -1 : minimum / 0... : mode following (TS)
 			allow_overlap = False,
 			log_function = default_log ):
@@ -595,7 +595,7 @@ def rfo( obj,
 			step_number = 100,
 			step_size = 0.1,
 			print_frequency = 10,
-			gradient_tolerance = 0.01,
+			gradient_tolerance = 1.5,
 			follow_mode = -1,		# -1 : minimum / 0... : mode following (TS)
 			log_function = default_log ):
 	if( follow_mode >= obj.size or follow_mode < -1 ):

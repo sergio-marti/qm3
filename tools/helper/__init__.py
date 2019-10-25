@@ -416,6 +416,8 @@ class my_problem( qm3.problem.template ):
 		f.close()
 		self.fix = qm3.engines._qmmm.Int_QMLJ( self.mole, sqm, smm, exc )
 """ )
+	# -- engines: QM/MM MM-exclussion terms: self.exc (ala self.umb, and only gradient)
+	# >> read excussions.log <<
 	# -- engines: restraints
 	if( len( umb ) > 0 ):
 		f.write( "\n		self.umb = []\n" )
@@ -485,8 +487,8 @@ class my_problem( qm3.problem.template ):
 		f.write( "		self.emm.get_func( self.mole )\n" )
 	if( sqm != [] ):
 		f.write( "		self.eqm.get_func( self.mole )\n" )
-	if( sqm != [] and smm != [] ):
-		f.write( "		self.fix.get_func( self.mole )\n" )
+#	if( sqm != [] and smm != [] ):
+#		f.write( "		self.fix.get_func( self.mole )\n" )
 	if( len( umb ) > 0 ):
 		f.write( "		for umb in self.umb:\n			umb.get_func( self.mole )\n" )
 	f.write( "		self.func = self.mole.func\n" )

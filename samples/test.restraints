@@ -6,42 +6,74 @@ except:
     import io
 import qm3.maths.matrix
 
-f = io.StringIO( """6
+f = io.StringIO( """4
 
-O       0.12109      0.06944     -0.22458
-H      -0.52694      0.16499     -0.94583
-H       0.70159     -0.63565     -0.54677
-O      -0.45114      1.12675      2.21102
-H      -0.29157      0.59483      1.39876
-H       0.05804      1.92714      2.01036
+C           2.0462659688       -0.7390557351       -1.2415870721
+C           3.5769772508       -0.7978398171       -1.3291287529
+C           4.0651517497       -1.6344633400       -2.5498538145
+C           5.5719572779       -1.6411989523       -2.5768153041
 """ )
 m = qm3.mol.molecule()
 m.xyz_read( f )
 f.close()
-r = qm3.engines.restraints.distance( 3000.0, 1.8, [ 0, 4 ] )
-m.func = 0.0
-m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
-print( r.get_grad( m ) )
-print( m.func )
-qm3.maths.matrix.mprint( m.grad, m.natm, 3 )
-
-f = io.StringIO( """2
-
-X       0.12109      0.06944     -0.22458
-X      -0.29157      0.59483      1.39876
-""" )
-m = qm3.mol.molecule()
-m.xyz_read( f )
-f.close()
-r = qm3.engines.restraints.distance( 3000.0, 1.8, [ 0, 1 ] )
+r = qm3.engines.restraints.distance( 222.5 * 4.184, 1.53, [ 0, 1 ] )
 m.func = 0.0
 m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
 m.hess = [ 0.0 for i in range( 9 * m.natm * m.natm ) ]
 # -- analytical hessian (set hessian indexes of the restrained atoms)
-r.hfac = [ 0, 1 ]
-print( r.get_hess( m ) )
-print( m.func )
+r.hind = [ 0, 1 ]
+r.get_hess( m )
 qm3.maths.matrix.mprint( m.grad, m.natm, 3 )
+qm3.maths.matrix.mprint( m.hess, 3 * m.natm, 3 * m.natm )
+# -- central difference
+nhes = []
+disp = 1.e-4
+for i in range( 3 * m.natm ):
+	bak = m.coor[i]
+	m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
+	m.coor[i] = bak + disp
+	r.get_grad( m )
+	gf = m.grad[:]
+	m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
+	m.coor[i] = bak - disp
+	r.get_grad( m )
+	gb = m.grad[:]
+	m.coor[i] = bak
+	nhes += [ (ii-jj) / ( 2.0 * disp ) for ii,jj in zip( gf, gb ) ]
+qm3.maths.matrix.mprint( nhes, 3 * m.natm, 3 * m.natm )
+
+
+r = qm3.engines.restraints.angle( 58.35 * 4.184, 113.6, [ 0, 1, 2 ] )
+m.func = 0.0
+m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
+m.hess = [ 0.0 for i in range( 9 * m.natm * m.natm ) ]
+r.hind = [ 0, 1, 2 ]
+r.get_hess( m )
+qm3.maths.matrix.mprint( m.hess, 3 * m.natm, 3 * m.natm )
+# -- central difference
+nhes = []
+disp = 1.e-4
+for i in range( 3 * m.natm ):
+	bak = m.coor[i]
+	m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
+	m.coor[i] = bak + disp
+	r.get_grad( m )
+	gf = m.grad[:]
+	m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
+	m.coor[i] = bak - disp
+	r.get_grad( m )
+	gb = m.grad[:]
+	m.coor[i] = bak
+	nhes += [ (ii-jj) / ( 2.0 * disp ) for ii,jj in zip( gf, gb ) ]
+qm3.maths.matrix.mprint( nhes, 3 * m.natm, 3 * m.natm )
+
+
+r = qm3.engines.restraints.dihedral( { 3: [ 0.195 * 4.184, 0.0 ] }, [ 0, 1, 2, 3 ] )
+m.func = 0.0
+m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
+m.hess = [ 0.0 for i in range( 9 * m.natm * m.natm ) ]
+r.hind = [ 0, 1, 2, 3 ]
+r.get_hess( m )
 qm3.maths.matrix.mprint( m.hess, 3 * m.natm, 3 * m.natm )
 # -- central difference
 nhes = []

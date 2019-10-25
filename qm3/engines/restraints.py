@@ -8,8 +8,186 @@ import	math
 import	qm3.constants
 
 
+
+def __maphes4( molec, hess, hind ):
+	n  = int( math.sqrt( len( molec.hess ) ) )
+	n2 = n * 2
+	if( hind[0] > -1 ):
+		jj = 3 * ( n * hind[0] + hind[0] )
+		molec.hess[jj]      += hess[0]
+		molec.hess[jj+1]    += hess[1]
+		molec.hess[jj+2]    += hess[2]
+		molec.hess[jj+n]    += hess[12]
+		molec.hess[jj+n+1]  += hess[13]
+		molec.hess[jj+n+2]  += hess[14]
+		molec.hess[jj+n2]   += hess[24]
+		molec.hess[jj+n2+1] += hess[25]
+		molec.hess[jj+n2+2] += hess[26]
+	if( hind[1] > -1 ):
+		jj = 3 * ( n * hind[1] + hind[1] )
+		molec.hess[jj]      += hess[39]
+		molec.hess[jj+1]    += hess[40]
+		molec.hess[jj+2]    += hess[41]
+		molec.hess[jj+n]    += hess[51]
+		molec.hess[jj+n+1]  += hess[52]
+		molec.hess[jj+n+2]  += hess[53]
+		molec.hess[jj+n2]   += hess[63]
+		molec.hess[jj+n2+1] += hess[64]
+		molec.hess[jj+n2+2] += hess[65]
+	if( hind[2] > -1 ):
+		jj = 3 * ( n * hind[2] + hind[2] )
+		molec.hess[jj]      += hess[78]
+		molec.hess[jj+1]    += hess[79]
+		molec.hess[jj+2]    += hess[80]
+		molec.hess[jj+n]    += hess[90]
+		molec.hess[jj+n+1]  += hess[91]
+		molec.hess[jj+n+2]  += hess[92]
+		molec.hess[jj+n2]   += hess[102]
+		molec.hess[jj+n2+1] += hess[103]
+		molec.hess[jj+n2+2] += hess[104]
+	if( hind[3] > -1 ):
+		jj = 3 * ( n * hind[3] + hind[3] )
+		molec.hess[jj]      += hess[117]
+		molec.hess[jj+1]    += hess[118]
+		molec.hess[jj+2]    += hess[119]
+		molec.hess[jj+n]    += hess[129]
+		molec.hess[jj+n+1]  += hess[130]
+		molec.hess[jj+n+2]  += hess[131]
+		molec.hess[jj+n2]   += hess[141]
+		molec.hess[jj+n2+1] += hess[142]
+		molec.hess[jj+n2+2] += hess[143]
+	if( hind[0] > -1 and hind[1] > -1 ):
+		jj = 3 * ( n * hind[0] + hind[1] )
+		molec.hess[jj]      += hess[3]
+		molec.hess[jj+1]    += hess[4]
+		molec.hess[jj+2]    += hess[5]
+		molec.hess[jj+n]    += hess[15]
+		molec.hess[jj+n+1]  += hess[16]
+		molec.hess[jj+n+2]  += hess[17]
+		molec.hess[jj+n2]   += hess[27]
+		molec.hess[jj+n2+1] += hess[28]
+		molec.hess[jj+n2+2] += hess[29]
+		jj = 3 * ( n * hind[1] + hind[0] )
+		molec.hess[jj]      += hess[36]
+		molec.hess[jj+1]    += hess[37]
+		molec.hess[jj+2]    += hess[38]
+		molec.hess[jj+n]    += hess[48]
+		molec.hess[jj+n+1]  += hess[49]
+		molec.hess[jj+n+2]  += hess[50]
+		molec.hess[jj+n2]   += hess[60]
+		molec.hess[jj+n2+1] += hess[61]
+		molec.hess[jj+n2+2] += hess[62]
+	if( hind[0] > -1 and hind[2] > -1 ):
+		jj = 3 * ( n * hind[0] + hind[2] )
+		molec.hess[jj]      += hess[6]
+		molec.hess[jj+1]    += hess[7]
+		molec.hess[jj+2]    += hess[8]
+		molec.hess[jj+n]    += hess[18]
+		molec.hess[jj+n+1]  += hess[19]
+		molec.hess[jj+n+2]  += hess[20]
+		molec.hess[jj+n2]   += hess[30]
+		molec.hess[jj+n2+1] += hess[31]
+		molec.hess[jj+n2+2] += hess[32]
+		jj = 3 * ( n * hind[2] + hind[0] )
+		molec.hess[jj]      += hess[72]
+		molec.hess[jj+1]    += hess[73]
+		molec.hess[jj+2]    += hess[74]
+		molec.hess[jj+n]    += hess[84]
+		molec.hess[jj+n+1]  += hess[85]
+		molec.hess[jj+n+2]  += hess[86]
+		molec.hess[jj+n2]   += hess[96]
+		molec.hess[jj+n2+1] += hess[97]
+		molec.hess[jj+n2+2] += hess[98]
+	if( hind[0] > -1 and hind[3] > -1 ):
+		jj = 3 * ( n * hind[0] + hind[3] )
+		molec.hess[jj]      += hess[9]
+		molec.hess[jj+1]    += hess[10]
+		molec.hess[jj+2]    += hess[11]
+		molec.hess[jj+n]    += hess[21]
+		molec.hess[jj+n+1]  += hess[22]
+		molec.hess[jj+n+2]  += hess[23]
+		molec.hess[jj+n2]   += hess[33]
+		molec.hess[jj+n2+1] += hess[34]
+		molec.hess[jj+n2+2] += hess[35]
+		jj = 3 * ( n * hind[3] + hind[0] )
+		molec.hess[jj]      += hess[108]
+		molec.hess[jj+1]    += hess[109]
+		molec.hess[jj+2]    += hess[110]
+		molec.hess[jj+n]    += hess[120]
+		molec.hess[jj+n+1]  += hess[121]
+		molec.hess[jj+n+2]  += hess[122]
+		molec.hess[jj+n2]   += hess[132]
+		molec.hess[jj+n2+1] += hess[133]
+		molec.hess[jj+n2+2] += hess[134]
+	if( hind[1] > -1 and hind[2] > -1 ):
+		jj = 3 * ( n * hind[1] + hind[2] )
+		molec.hess[jj]      += hess[42]
+		molec.hess[jj+1]    += hess[43]
+		molec.hess[jj+2]    += hess[44]
+		molec.hess[jj+n]    += hess[54]
+		molec.hess[jj+n+1]  += hess[55]
+		molec.hess[jj+n+2]  += hess[56]
+		molec.hess[jj+n2]   += hess[66]
+		molec.hess[jj+n2+1] += hess[67]
+		molec.hess[jj+n2+2] += hess[68]
+		jj = 3 * ( n * hind[2] + hind[1] )
+		molec.hess[jj]      += hess[75]
+		molec.hess[jj+1]    += hess[76]
+		molec.hess[jj+2]    += hess[77]
+		molec.hess[jj+n]    += hess[87]
+		molec.hess[jj+n+1]  += hess[88]
+		molec.hess[jj+n+2]  += hess[89]
+		molec.hess[jj+n2]   += hess[99]
+		molec.hess[jj+n2+1] += hess[100]
+		molec.hess[jj+n2+2] += hess[101]
+	if( hind[1] > -1 and hind[3] > -1 ):
+		jj = 3 * ( n * hind[1] + hind[3] )
+		molec.hess[jj]      += hess[45]
+		molec.hess[jj+1]    += hess[46]
+		molec.hess[jj+2]    += hess[47]
+		molec.hess[jj+n]    += hess[57]
+		molec.hess[jj+n+1]  += hess[58]
+		molec.hess[jj+n+2]  += hess[59]
+		molec.hess[jj+n2]   += hess[69]
+		molec.hess[jj+n2+1] += hess[70]
+		molec.hess[jj+n2+2] += hess[71]
+		jj = 3 * ( n * hind[3] + hind[1] )
+		molec.hess[jj]      += hess[111]
+		molec.hess[jj+1]    += hess[112]
+		molec.hess[jj+2]    += hess[113]
+		molec.hess[jj+n]    += hess[123]
+		molec.hess[jj+n+1]  += hess[124]
+		molec.hess[jj+n+2]  += hess[125]
+		molec.hess[jj+n2]   += hess[135]
+		molec.hess[jj+n2+1] += hess[136]
+		molec.hess[jj+n2+2] += hess[137]
+	if( hind[2] > -1 and hind[3] > -1 ):
+		jj = 3 * ( n * hind[2] + hind[3] )
+		molec.hess[jj]      += hess[81]
+		molec.hess[jj+1]    += hess[82]
+		molec.hess[jj+2]    += hess[83]
+		molec.hess[jj+n]    += hess[93]
+		molec.hess[jj+n+1]  += hess[94]
+		molec.hess[jj+n+2]  += hess[95]
+		molec.hess[jj+n2]   += hess[105]
+		molec.hess[jj+n2+1] += hess[106]
+		molec.hess[jj+n2+2] += hess[107]
+		jj = 3 * ( n * hind[3] + hind[2] )
+		molec.hess[jj]      += hess[114]
+		molec.hess[jj+1]    += hess[115]
+		molec.hess[jj+2]    += hess[116]
+		molec.hess[jj+n]    += hess[126]
+		molec.hess[jj+n+1]  += hess[127]
+		molec.hess[jj+n+2]  += hess[128]
+		molec.hess[jj+n2]   += hess[138]
+		molec.hess[jj+n2+1] += hess[139]
+		molec.hess[jj+n2+2] += hess[140]
+
+
+
+
 def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
-			ffac = 1.0, grad = False, gfac = [ 1.0, 1.0 ], hess = False, hfac = None ):
+			ffac = 1.0, grad = False, gfac = [ 1.0, 1.0 ], hess = False, hind = [ -1, -1 ] ):
 	"""
 	bond = force_constant * ( distance - reference )^2
 
@@ -40,7 +218,7 @@ def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
 			# ii & jj -- hessian should have been previously initialized...
 			n  = int( math.sqrt( len( molec.hess ) ) )
 			n2 = n * 2
-			for ii in hfac:
+			for ii in hind:
 				if( ii > -1 ):
 					jj = 3 * ( n * ii + ii )
 					molec.hess[jj]      += hxx
@@ -53,8 +231,8 @@ def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
 					molec.hess[jj+n2+1] += hyz
 					molec.hess[jj+n2+2] += hzz
 			# ij & ji (only if both atoms are involved...)
-			if( hfac[0] > -1 and hfac[1] > -1 ):
-				for ii,jj in [ ( hfac[0], hfac[1] ), ( hfac[1], hfac[0] ) ]:
+			if( hind[0] > -1 and hind[1] > -1 ):
+				for ii,jj in [ ( hind[0], hind[1] ), ( hind[1], hind[0] ) ]:
 					kk = 3 * ( n * ii + jj )
 					molec.hess[kk]      -= hxx
 					molec.hess[kk+1]    -= hxy
@@ -69,12 +247,13 @@ def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
 
 
 def mm_angle( molec, kumb, xref, a_i, a_j, a_k,
-			ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0 ], hess = False, hfac = None ):
+			ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0 ], hess = False, hind = [ -1, -1, -1 ] ):
 	"""
 	angle = force_constant * ( angle - reference )^2
 
 	force_constant [kJ/mol.rad^2]
-	reference & return_value [rad]
+	reference [rad]
+	return_value [deg]
 	"""
 	ai = 3 * a_i
 	aj = 3 * a_j
@@ -87,11 +266,13 @@ def mm_angle( molec, kumb, xref, a_i, a_j, a_k,
 	dkj = [ i / rkj for i in dkj ]
 	dot = sum( [ i * j for i,j in zip( dij, dkj ) ] )
 	dot = min( 1.0, max( -1.0, dot ) )
-	vv = math.acos( dot )
-	df = kumb * ( vv - xref )
-	molec.func += df * ( vv - xref ) * ffac
+	vv  = math.acos( dot )
+	dv  = ( vv - xref )
+	df  = kumb * dv
+	molec.func += df * dv * ffac
 	if( grad ):
-		df *= - 2.0 / math.sqrt( 1.0 - dot * dot )
+		dx  = - 1.0 / math.sqrt( 1.0 - dot * dot )
+		df *= 2.0 * dx
 		dti = [ ( dkj[i] - dot * dij[i] ) / rij for i in [ 0, 1, 2 ] ]
 		dtk = [ ( dij[i] - dot * dkj[i] ) / rkj for i in [ 0, 1, 2 ] ]
 		dtj = [ - ( dti[i] + dtk[i] ) for i in [ 0, 1, 2 ] ]
@@ -100,12 +281,126 @@ def mm_angle( molec, kumb, xref, a_i, a_j, a_k,
 			molec.grad[aj+i] += df * dtj[i] * gfac[1]
 			molec.grad[ak+i] += df * dtk[i] * gfac[2]
 	if( hess ):
-		pass
-	return( vv )
+		disp = 1.e-4
+		gbak = molec.grad[:]
+		xhes = []
+		for w in [ i for i,j in zip( [ ai, aj, ak ], hind ) if j > -1 ]:
+			for j in [0, 1, 2]:
+				cbak = molec.coor[w+j]
+				molec.coor[w+j] = cbak + disp
+				molec.grad = [ 0.0 for i in range( len( gbak ) ) ]
+				mm_angle( molec, kumb, xref, a_i, a_j, a_k, ffac = 0.0, grad = True, gfac = [ 1.0, 1.0, 1.0 ], hess = False )
+				fgrd = molec.grad[ai:ai+3] + molec.grad[aj:aj+3] + molec.grad[ak:ak+3]
+				molec.coor[w+j] = cbak - disp
+				molec.grad = [ 0.0 for i in range( len( gbak ) ) ]
+				mm_angle( molec, kumb, xref, a_i, a_j, a_k, ffac = 0.0, grad = True, gfac = [ 1.0, 1.0, 1.0 ], hess = False )
+				bgrd = molec.grad[ai:ai+3] + molec.grad[aj:aj+3] + molec.grad[ak:ak+3]
+				molec.coor[w+j] = cbak
+				xhes += [ ( ii - jj ) / ( 2.0 * disp ) for ii,jj in zip( fgrd, bgrd ) ]
+		molec.grad = gbak[:]
+		n  = int( math.sqrt( len( molec.hess ) ) )
+		n2 = n * 2
+		if( hind[0] > -1 ):
+			jj = 3 * ( n * hind[0] + hind[0] )
+			molec.hess[jj]      += xhes[0]
+			molec.hess[jj+1]    += xhes[1]
+			molec.hess[jj+2]    += xhes[2]
+			molec.hess[jj+n]    += xhes[6]
+			molec.hess[jj+n+1]  += xhes[7]
+			molec.hess[jj+n+2]  += xhes[8]
+			molec.hess[jj+n2]   += xhes[12]
+			molec.hess[jj+n2+1] += xhes[13]
+			molec.hess[jj+n2+2] += xhes[14]
+		if( hind[1] > -1 ):
+			jj = 3 * ( n * hind[1] + hind[1] )
+			molec.hess[jj]      += xhes[30]
+			molec.hess[jj+1]    += xhes[31]
+			molec.hess[jj+2]    += xhes[32]
+			molec.hess[jj+n]    += xhes[39]
+			molec.hess[jj+n+1]  += xhes[40]
+			molec.hess[jj+n+2]  += xhes[41]
+			molec.hess[jj+n2]   += xhes[48]
+			molec.hess[jj+n2+1] += xhes[49]
+			molec.hess[jj+n2+2] += xhes[50]
+		if( hind[2] > -1 ):
+			jj = 3 * ( n * hind[2] + hind[2] )
+			molec.hess[jj]      += xhes[60]
+			molec.hess[jj+1]    += xhes[61]
+			molec.hess[jj+2]    += xhes[62]
+			molec.hess[jj+n]    += xhes[69]
+			molec.hess[jj+n+1]  += xhes[70]
+			molec.hess[jj+n+2]  += xhes[71]
+			molec.hess[jj+n2]   += xhes[78]
+			molec.hess[jj+n2+1] += xhes[79]
+			molec.hess[jj+n2+2] += xhes[80]
+		if( hind[0] > -1 and hind[1] > -1 ):
+			jj = 3 * ( n * hind[0] + hind[1] )
+			molec.hess[jj]      += xhes[3]
+			molec.hess[jj+1]    += xhes[4]
+			molec.hess[jj+2]    += xhes[5]
+			molec.hess[jj+n]    += xhes[12]
+			molec.hess[jj+n+1]  += xhes[13]
+			molec.hess[jj+n+2]  += xhes[14]
+			molec.hess[jj+n2]   += xhes[21]
+			molec.hess[jj+n2+1] += xhes[22]
+			molec.hess[jj+n2+2] += xhes[23]
+			jj = 3 * ( n * hind[1] + hind[0] )
+			molec.hess[jj]      += xhes[27]
+			molec.hess[jj+1]    += xhes[28]
+			molec.hess[jj+2]    += xhes[29]
+			molec.hess[jj+n]    += xhes[36]
+			molec.hess[jj+n+1]  += xhes[37]
+			molec.hess[jj+n+2]  += xhes[38]
+			molec.hess[jj+n2]   += xhes[45]
+			molec.hess[jj+n2+1] += xhes[46]
+			molec.hess[jj+n2+2] += xhes[47]
+		if( hind[0] > -1 and hind[2] > -1 ):
+			jj = 3 * ( n * hind[0] + hind[2] )
+			molec.hess[jj]      += xhes[6]
+			molec.hess[jj+1]    += xhes[7]
+			molec.hess[jj+2]    += xhes[8]
+			molec.hess[jj+n]    += xhes[15]
+			molec.hess[jj+n+1]  += xhes[16]
+			molec.hess[jj+n+2]  += xhes[17]
+			molec.hess[jj+n2]   += xhes[24]
+			molec.hess[jj+n2+1] += xhes[25]
+			molec.hess[jj+n2+2] += xhes[26]
+			jj = 3 * ( n * hind[2] + hind[0] )
+			molec.hess[jj]      += xhes[54]
+			molec.hess[jj+1]    += xhes[55]
+			molec.hess[jj+2]    += xhes[56]
+			molec.hess[jj+n]    += xhes[63]
+			molec.hess[jj+n+1]  += xhes[64]
+			molec.hess[jj+n+2]  += xhes[65]
+			molec.hess[jj+n2]   += xhes[72]
+			molec.hess[jj+n2+1] += xhes[73]
+			molec.hess[jj+n2+2] += xhes[74]
+		if( hind[1] > -1 and hind[2] > -1 ):
+			jj = 3 * ( n * hind[1] + hind[2] )
+			molec.hess[jj]      += xhes[33]
+			molec.hess[jj+1]    += xhes[34]
+			molec.hess[jj+2]    += xhes[35]
+			molec.hess[jj+n]    += xhes[42]
+			molec.hess[jj+n+1]  += xhes[43]
+			molec.hess[jj+n+2]  += xhes[44]
+			molec.hess[jj+n2]   += xhes[51]
+			molec.hess[jj+n2+1] += xhes[52]
+			molec.hess[jj+n2+2] += xhes[53]
+			jj = 3 * ( n * hind[2] + hind[1] )
+			molec.hess[jj]      += xhes[57]
+			molec.hess[jj+1]    += xhes[58]
+			molec.hess[jj+2]    += xhes[59]
+			molec.hess[jj+n]    += xhes[66]
+			molec.hess[jj+n+1]  += xhes[67]
+			molec.hess[jj+n+2]  += xhes[68]
+			molec.hess[jj+n2]   += xhes[75]
+			molec.hess[jj+n2+1] += xhes[76]
+			molec.hess[jj+n2+2] += xhes[77]
+	return( vv * qm3.constants.R2D )
 
 
 def mm_dihedral( molec, data, a_i, a_j, a_k, a_l,
-				ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False, hfac = None ):
+				ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False, hind = [ -1, -1, -1, -1 ] ):
 	"""
 	dihedral = force_constant * ( 1 + cos( periodicity * angle - displacement ) )
 
@@ -194,7 +489,24 @@ def mm_dihedral( molec, data, a_i, a_j, a_k, a_l,
 		molec.grad[al+1] += ( - dkj[0] * dvu[2] + dkj[2] * dvu[0] ) * dph * gfac[3]
 		molec.grad[al+2] += ( - dkj[1] * dvu[0] + dkj[0] * dvu[1] ) * dph * gfac[3]
 	if( hess ):
-		pass
+		disp = 1.e-4
+		gbak = molec.grad[:]
+		xhes = []
+		for w in [ i for i,j in zip( [ ai, aj, ak, al ], hind ) if j > -1 ]:
+			for j in [0, 1, 2]:
+				cbak = molec.coor[w+j]
+				molec.coor[w+j] = cbak + disp
+				molec.grad = [ 0.0 for i in range( len( gbak ) ) ]
+				mm_dihedral( molec, data, a_i, a_j, a_k, a_l, ffac = 0.0, grad = True, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False )
+				fgrd = molec.grad[ai:ai+3] + molec.grad[aj:aj+3] + molec.grad[ak:ak+3] + molec.grad[al:al+3]
+				molec.coor[w+j] = cbak - disp
+				molec.grad = [ 0.0 for i in range( len( gbak ) ) ]
+				mm_dihedral( molec, data, a_i, a_j, a_k, a_l, ffac = 0.0, grad = True, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False )
+				bgrd = molec.grad[ai:ai+3] + molec.grad[aj:aj+3] + molec.grad[ak:ak+3] + molec.grad[al:al+3]
+				molec.coor[w+j] = cbak
+				xhes += [ ( ii - jj ) / ( 2.0 * disp ) for ii,jj in zip( fgrd, bgrd ) ]
+		molec.grad = gbak[:]
+		__maphes4( molec, xhes, hind )
 	ang = qm3.constants.R2D * math.acos( cs1 )
 	if( sn1 <= 0.0 ):
 		ang = -ang
@@ -202,7 +514,7 @@ def mm_dihedral( molec, data, a_i, a_j, a_k, a_l,
 
 
 def mm_improper( molec, kumb, xref, a_i, a_j, a_k, a_l,
-				ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False, hfac = None ):
+				ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False, hind = [ -1, -1, -1, -1 ] ):
 	"""
 	improper = force_constant * ( angle - reference )^2
 
@@ -262,7 +574,24 @@ def mm_improper( molec, kumb, xref, a_i, a_j, a_k, a_l,
 		molec.grad[al+1] += ( - dkj[0] * dvu[2] + dkj[2] * dvu[0] ) * dph * gfac[3]
 		molec.grad[al+2] += ( - dkj[1] * dvu[0] + dkj[0] * dvu[1] ) * dph * gfac[3]
 	if( hess ):
-		pass
+		disp = 1.e-4
+		gbak = molec.grad[:]
+		xhes = []
+		for w in [ i for i,j in zip( [ ai, aj, ak, al ], hind ) if j > -1 ]:
+			for j in [0, 1, 2]:
+				cbak = molec.coor[w+j]
+				molec.coor[w+j] = cbak + disp
+				molec.grad = [ 0.0 for i in range( len( gbak ) ) ]
+				mm_improper( molec, kumb, xref, a_i, a_j, a_k, a_l, ffac = 0.0, grad = True, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False )
+				fgrd = molec.grad[ai:ai+3] + molec.grad[aj:aj+3] + molec.grad[ak:ak+3] + molec.grad[al:al+3]
+				molec.coor[w+j] = cbak - disp
+				molec.grad = [ 0.0 for i in range( len( gbak ) ) ]
+				mm_improper( molec, kumb, xref, a_i, a_j, a_k, a_l, ffac = 0.0, grad = True, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False )
+				bgrd = molec.grad[ai:ai+3] + molec.grad[aj:aj+3] + molec.grad[ak:ak+3] + molec.grad[al:al+3]
+				molec.coor[w+j] = cbak
+				xhes += [ ( ii - jj ) / ( 2.0 * disp ) for ii,jj in zip( fgrd, bgrd ) ]
+		molec.grad = gbak[:]
+		__maphes4( molec, xhes, hind )
 	return( ang )
 
 
@@ -277,7 +606,7 @@ class distance( object ):
 		self.skpB = skip_BE
 		self.ffac = 1.0
 		self.gfac = [ 1.0, 1.0 ]
-		self.hfac = [ -1, -1 ]
+		self.hind = [ -1, -1 ]
 
 
 	def get_func( self, molec ):
@@ -291,7 +620,7 @@ class distance( object ):
 
 	def get_hess( self, molec ):
 		return( mm_bond( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.skpL, self.skpB,
-				self.ffac, True, self.gfac, True, self.hfac ) )
+				self.ffac, True, self.gfac, True, self.hind ) )
 
 
 
@@ -302,21 +631,22 @@ class angle( object ):
 		self.indx = indx[:]
 		self.ffac = 1.0
 		self.gfac = [ 1.0, 1.0, 1.0 ]
-		self.hfac = [ -1, -1, -1 ]
+		self.hind = [ -1, -1, -1 ]
 
 
 	def get_func( self, molec ):
-		return( mm_angle( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.indx[2], self.ffac ) * qm3.constants.R2D )
+		return( mm_angle( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.indx[2],
+				self.ffac ) )
 
 
 	def get_grad( self, molec ):
 		return( mm_angle( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.indx[2],
-				self.ffac, True, self.gfac ) * qm3.constants.R2D )
+				self.ffac, True, self.gfac ) )
 
 
 	def get_hess( self, molec ):
 		return( mm_angle( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.indx[2],
-				self.ffac, True, self.gfac, True, self.hfac ) * qm3.constants.R2D )
+				self.ffac, True, self.gfac, True, self.hind ) )
 
 
 
@@ -325,7 +655,7 @@ class dihedral( object ):
 		"""
 	data = {  periodicity: [ force_constant [kJ/mol], displacement [degrees] ], ... }
 
-	X - C_sp3 - C_sp3 - X   =>  { 1: [ -0.3347, 0.0 ], 2: [ -0.5858, 84.8 ], 3: [ 1.3263, 0.0 ] }
+	X - C_sp3 - C_sp3 - X   =>  { 3: [ 0.8159, 0.0 ] }
 
 	valid periodicities = [ 1 : 6 ]
 		"""
@@ -334,23 +664,24 @@ class dihedral( object ):
 			if( i+1 in data ):
 				self.data[2*i]   = data[i+1][0]
 				self.data[2*i+1] = data[i+1][1] / qm3.constants.R2D
+		self.indx = indx[:]
 		self.ffac = 1.0
 		self.gfac = [ 1.0, 1.0, 1.0, 1.0 ]
-		self.hfac = [ -1, -1, -1, -1 ]
+		self.hind = [ -1, -1, -1, -1 ]
 
 
 	def get_func( self, molec ):
-		return( mm_dihedral( molec, data, self.indx[0], self.indx[1], self.indx[2], self.indx[3], self.ffac ) )
+		return( mm_dihedral( molec, self.data, self.indx[0], self.indx[1], self.indx[2], self.indx[3], self.ffac ) )
 
 
 	def get_grad( self, molec ):
-		return( mm_dihedral( molec, data, self.indx[0], self.indx[1], self.indx[2], self.indx[3],
+		return( mm_dihedral( molec, self.data, self.indx[0], self.indx[1], self.indx[2], self.indx[3],
 				self.ffac, True, self.gfac ) )
 
 
 	def get_hess( self, molec ):
-		return( mm_dihedral( molec, data, self.indx[0], self.indx[1], self.indx[2], self.indx[3],
-				self.ffac, True, self.gfac, True, self.hfac ) )
+		return( mm_dihedral( molec, self.data, self.indx[0], self.indx[1], self.indx[2], self.indx[3],
+				self.ffac, True, self.gfac, True, self.hind ) )
 
 
 
@@ -361,7 +692,7 @@ class improper( object ):
 		self.indx = indx[:]
 		self.ffac = 1.0
 		self.gfac = [ 1.0, 1.0, 1.0, 1.0 ]
-		self.hfac = [ -1, -1, -1, -1 ]
+		self.hind = [ -1, -1, -1, -1 ]
 
 
 	def get_func( self, molec ):
@@ -375,7 +706,7 @@ class improper( object ):
 
 	def get_hess( self, molec ):
 		return( mm_improper( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.indx[2], self.indx[3],
-				self.ffac, True, self.gfac, True, self.hfac ) )
+				self.ffac, True, self.gfac, True, self.hind ) )
 
 
 

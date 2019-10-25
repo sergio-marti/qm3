@@ -13,7 +13,8 @@ involved in the combination; and \parm{weigh} is a list with the coefficients fo
 of \parm{indx}).
 \begin{pyglist}[language=python,fvset={frame=single}]
 def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
-             ffac = 1.0, grad = False, gfac = [ 1.0, 1.0 ], hess = False, hfac = None )
+             ffac = 1.0, grad = False, gfac = [ 1.0, 1.0 ],
+             hess = False, hind = [ -1, -1 ] )
         """
         bond = kumb * ( distance - xref )^2
         
@@ -22,7 +23,8 @@ def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
         """
 
 def mm_angle( molec, kumb, xref, a_i, a_j, a_k,
-              ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0 ], hess = False, hfac = None )
+              ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0 ],
+              hess = False, hind = [ -1, -1, -1 ] )
         """
         angle = kumb * ( angle - xref )^2
         
@@ -31,7 +33,8 @@ def mm_angle( molec, kumb, xref, a_i, a_j, a_k,
         """
 
 def mm_dihedral( molec, data, a_i, a_j, a_k, a_l,
-                 ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False, hfac = None )
+                 ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ],
+                 hess = False, hind = [ -1, -1, -1, -1 ] )
         """
         dihedral = force_constant * ( 1 + cos( periodicity * angle - displacement ) )
 
@@ -42,7 +45,8 @@ def mm_dihedral( molec, data, a_i, a_j, a_k, a_l,
         """
 
 def mm_improper( molec, kumb, xref, a_i, a_j, a_k, a_l,
-                 ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False, hfac = None )
+                 ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ],
+                 hess = False, hind = [ -1, -1, -1, -1 ] )
         """
         improper = kumb * ( angle - xref )^2
         
@@ -56,6 +60,9 @@ class distance( kumb, xref, indx, skip_LE = 0.0, skip_BE = 9.e99 )
     kumb [kJ/mol.ang^2]
     xref [ang]
     """
+    ffac = 1.0
+    gfac = [ 1.0, 1.0 ]
+    hind = [ -1, -1 ]
     def get_func( molec )
     def get_grad( molec )
     def get_hess( molec )
@@ -66,20 +73,28 @@ class angle( kumb, xref, indx )
     kumb [kJ/mol.rad^2]
     xref [deg]
     """
+    ffac = 1.0
+    gfac = [ 1.0, 1.0, 1.0 ]
+    hind = [ -1, -1, -1 ]
     def get_func( molec )
     def get_grad( molec )
+    def get_hess( molec )
 
 
 class dihedral( kumb, data, indx )
     """
     data = {  periodicity: [ force_constant [kJ/mol], displacement [degrees] ], ... }
 
-    X - C_sp3 - C_sp3 - X   =>  { 1: [ -0.3347, 0.0 ], 2: [ -0.5858, 84.8 ], 3: [ 1.3263, 0.0 ] }
+    X - C_sp3 - C_sp3 - X   =>  { 3: [ 0.8159, 0.0 ] }
 
     valid periodicities = [ 1 : 6 ]
     """
+    ffac = 1.0
+    gfac = [ 1.0, 1.0, 1.0, 1.0 ]
+    hind = [ -1, -1, -1, -1 ]
     def get_func( molec )
     def get_grad( molec )
+    def get_hess( molec )
 
 
 class improper( kumb, xref, indx )
@@ -88,8 +103,12 @@ class improper( kumb, xref, indx )
     xref [deg]
     a_i should be central atom
     """
+    ffac = 1.0
+    gfac = [ 1.0, 1.0, 1.0, 1.0 ]
+    hind = [ -1, -1, -1, -1 ]
     def get_func( molec )
     def get_grad( molec )
+    def get_hess( molec )
 
 
 class multiple_distance( kumb, xref, indx, weigh )
