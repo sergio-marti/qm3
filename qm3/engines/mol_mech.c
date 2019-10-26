@@ -35,11 +35,13 @@ typedef struct { long siz, _i0, _if; long *lst; con_ang *ang; } ang_arg;
 typedef struct con_dih_node { long i,j,k,l; struct con_dih_node *n; } con_dih;
 typedef struct { long siz, _i0, _if; long *lst; con_dih *dih; } dih_arg;
 
-typedef struct { long siz, _i0, _if; long n_bnd, n_ang, n_dih; long *bnd, *ang, *dih; double cut, *xyz, *box; con_bnd *nbn; } nbn_arg;
+typedef struct { long siz, _i0, _if; long n_bnd, n_ang, n_dih; long *qms, *bnd, *ang, *dih;
+				double cut, *xyz, *box; con_bnd *nbn; } nbn_arg;
 
 typedef struct { long who, _i0, _if, n_lst, *lst, n_dat, *ind; double *xyz, *grd, ene, *dat; } ene_arg;
 
-typedef struct { long who, _i0, _if, n_lst, *lst, n_dat; double *box, *xyz, *grd, ele, vdw, *dat, *scl, con, cof, eps; } int_arg;
+typedef struct { long who, _i0, _if, n_lst, *lst, n_dat; double *box, *xyz, *grd, ele, vdw,
+				*dat, *scl, con, cof, eps; } int_arg;
 
 
 
@@ -317,6 +319,7 @@ void* __update_non_bonded( void *args ) {
 	for( w = arg->_i0; w < arg->_if; w++ ) {
 		__ij( w, arg->siz, &i, &j );
 		if( i == -1 || j == -1 ) { continue; }
+		if( arg->qms[i] == 1 && arg->qms[j] == 1 ) { continue; }
 		i3  = 3 * i;
 		j3  = 3 * j;
 /*
@@ -367,7 +370,7 @@ void* __update_non_bonded( void *args ) {
 static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
 	PyObject	*out, *object, *molecule, *otmp;
 	double		*xyz, cut, box[3];
-	long		*bnd, *ang, *dih, n_bnd, n_ang, n_dih, i, j, n3, n, cpu, *lst, dsp, nit;
+	long		*bnd, *ang, *dih, n_bnd, n_ang, n_dih, i, j, n3, n, cpu, *lst, dsp, nit, *qms;
 	pthread_t	*pid;
 	nbn_arg		*arg;
 	con_bnd		*ptr;
@@ -390,6 +393,11 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
 		n    = n3 / 3;
 		xyz  = (double*) malloc( n3 * sizeof( double ) );
 		for( i = 0; i < n3; i++ ) xyz[i] = PyFloat_AsDouble( PyList_GetItem( otmp, i ) );
+		Py_DECREF( otmp );
+
+		otmp = PyObject_GetAttrString( object, "qmat" );
+		qms  = (long*) malloc( n * sizeof( long ) );
+		for( i = 0; i < n; i++ ) qms[i] = ( Py_True == PyList_GetItem( otmp, i ) );
 		Py_DECREF( otmp );
 
 		otmp  = PyObject_GetAttrString( object, "bond" );
@@ -433,6 +441,7 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
 			arg[i].cut    = cut;
 			arg[i].xyz    = xyz;
 			arg[i].box    = box;
+			arg[i].qms    = qms;
 			arg[i].bnd    = bnd;
 			arg[i].ang    = ang;
 			arg[i].dih    = dih;
@@ -459,7 +468,7 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
 			}
 		}
 
-		free( bnd ); free( ang ); free( dih ); free( xyz ); free( lst ); free( pid );
+		free( qms ); free( bnd ); free( ang ); free( dih ); free( xyz ); free( lst ); free( pid );
 		for( i = 0; i < cpu; i++ ) {
 			ptr = arg[i].nbn;
 			while( ptr != NULL ) {

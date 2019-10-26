@@ -40,6 +40,7 @@ class simple_force_field( object ):
 		# local vars
 		self.natm     = mol.natm
 		self.nbnd     = []
+		self.qmat     = [ False for i in range( self.natm ) ]
 		if( ppath ):
 			self.path = ppath + os.sep
 		else:
@@ -320,25 +321,31 @@ class simple_force_field( object ):
 
 
 	def qm_atoms( self, sele ):
-		tmp = [ False for i in range( self.natm ) ]
 		for i in sele:
-			tmp[i] = True
+			self.qmat[i] = True
 		# delete QM-QM bonds
 		for i in range( len( self.bond ) -1, -1, -1 ):
-			if( tmp[self.bond[i][0]] and tmp[self.bond[i][1]] ):
+			if( self.qmat[self.bond[i][0]] and self.qmat[self.bond[i][1]] ):
 				del self.bond[i]
+				del self.bond_indx[i]
 		# delete QM-QM-MM angles
 		for i in range( len( self.angl ) -1, -1, -1 ):
-			if( sum( [ tmp[j] for j in self.angl[i] ] ) >= 2 ):
+			if( sum( [ self.qmat[j] for j in self.angl[i] ] ) >= 2 ):
 				del self.angl[i]
+				del self.angl_indx[i]
 		# delete QM-QM-QM-MM dihedrals
 		for i in range( len( self.dihe ) -1, -1, -1 ):
-			if( sum( [ tmp[j] for j in self.dihe[i] ] ) >= 3 ):
+			if( sum( [ self.qmat[j] for j in self.dihe[i] ] ) >= 3 ):
 				del self.dihe[i]
+				del self.dihe_indx[i]
 		# delete QM-QM-QM-MM impropers
 		for i in range( len( self.impr ) -1, -1, -1 ):
-			if( sum( [ tmp[j] for j in self.impr[i] ] ) >= 3 ):
+			if( sum( [ self.qmat[j] for j in self.impr[i] ] ) >= 3 ):
 				del self.impr[i]
+		# delete QM-QM non_bonded
+		for i in range( len( self.nbnd ) -1, -1, -1 ):
+			if( self.qmat[self.nbnd[i][0]] and self.qmat[self.nbnd[i][1]] ):
+				del self.nbnd[i]
 		
 
 
@@ -426,28 +433,33 @@ class simple_force_field( object ):
 				i3 = 3 * i
 				i_crd = [ mol.coor[i3+k] - mol.boxl[k] * round( mol.coor[i3+k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2 ] ]
 				for j in range( i+1, mol.natm ):
-					j_crd = [ mol.coor[j*3+k] - mol.boxl[k] * round( mol.coor[j*3+k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2 ] ]
-					if( qm3.utils.distanceSQ( i_crd, j_crd ) <= c2l ):
-						f = False
-						n = len( self.bond )
-						k = 0
-						while( k < n and not f ):
-							f |= ( ( i == self.bond[k][0] and j == self.bond[k][1] ) or ( i == self.bond[k][1] and j == self.bond[k][0] )  )
-							k += 1
-						n = len( self.angl )
-						k = 0
-						while( k < n and not f ):
-							f |= ( ( i == self.angl[k][0] and j == self.angl[k][2] ) or ( i == self.angl[k][2] and j == self.angl[k][0] )  )
-							k += 1
-						n = len( self.dihe )
-						k = 0
-						while( k < n and not f ):
-							f |= ( ( i == self.dihe[k][0] and j == self.dihe[k][3] ) or ( i == self.dihe[k][3] and j == self.dihe[k][0] )  )
-							k += 1
-						if( not f ):
-							self.nbnd.append( [ i, j, 1.0 ] )
+					if( not ( self.qmat[i] and self.qmat[j] ) ):
+						j_crd = [ mol.coor[j*3+k] - mol.boxl[k] * round( mol.coor[j*3+k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2 ] ]
+						if( qm3.utils.distanceSQ( i_crd, j_crd ) <= c2l ):
+							f = False
+							n = len( self.bond )
+							k = 0
+							while( k < n and not f ):
+								f |= ( ( i == self.bond[k][0] and j == self.bond[k][1] ) or
+										( i == self.bond[k][1] and j == self.bond[k][0] )  )
+								k += 1
+							n = len( self.angl )
+							k = 0
+							while( k < n and not f ):
+								f |= ( ( i == self.angl[k][0] and j == self.angl[k][2] ) or
+										( i == self.angl[k][2] and j == self.angl[k][0] )  )
+								k += 1
+							n = len( self.dihe )
+							k = 0
+							while( k < n and not f ):
+								f |= ( ( i == self.dihe[k][0] and j == self.dihe[k][3] ) or
+										( i == self.dihe[k][3] and j == self.dihe[k][0] )  )
+								k += 1
+							if( not f ):
+								self.nbnd.append( [ i, j, 1.0 ] )
 		for i,j,k,l in self.dihe:
-			self.nbnd.append( [ i, l, 0.5 ] )
+			if( not ( self.qmat[l] and self.qmat[l] ) ):
+				self.nbnd.append( [ i, l, 0.5 ] )
 						
 
 	def __enonbonded( self, mol, gradient = False, epsilon = 1.0 ):
