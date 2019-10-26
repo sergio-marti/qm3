@@ -3,7 +3,7 @@
 import sys
 import math
 import qm3.problem
-import qm3.engines.restraints
+import qm3.engines.mmres
 import qm3.engines.colvar_s
 import qm3.actions.dynamics
 try:
@@ -20,7 +20,7 @@ class my_pes( qm3.problem.template ):
         self.grad = []
         self.hess = []
         self.mass = [ 1.0, 1.0, 1.0 ]
-        self.fix  = qm3.engines.restraints.angle( 1., 179., [ 0, 1, 2 ] )
+        self.fix  = qm3.engines.mmres.angle( 1., 179., [ 0, 1, 2 ] )
         self.node = node
         f = io.StringIO( """2 24
 dist      0     1

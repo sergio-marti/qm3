@@ -6,7 +6,7 @@ import qm3.elements
 import qm3.actions.minimize
 import qm3.engines.namd
 import qm3.engines.dftb
-import qm3.engines._qmmm
+import qm3.engines._mmint
 import time
 import os
 
@@ -79,7 +79,7 @@ class QM_problem( qm3.problem.template ):
         self.eng.prm = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
         self.eng.exe = "bash r.dftb"
 
-        self.fix = qm3.engines._qmmm.Int_QMLJ( self.mol, self.sel, self.nbn, [] )
+        self.fix = qm3.engines._mmint.QMLJ( self.mol, self.sel, self.nbn, [] )
 
         self.grad = []
         self.hess = []

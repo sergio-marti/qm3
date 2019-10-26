@@ -1,5 +1,5 @@
 import qm3.mol
-import qm3.engines.restraints
+import qm3.engines.mmres
 try:
     import cStringIO as io
 except:
@@ -16,7 +16,7 @@ C           5.5719572779       -1.6411989523       -2.5768153041
 m = qm3.mol.molecule()
 m.xyz_read( f )
 f.close()
-r = qm3.engines.restraints.distance( 222.5 * 4.184, 1.53, [ 0, 1 ] )
+r = qm3.engines.mmres.distance( 222.5 * 4.184, 1.53, [ 0, 1 ] )
 m.func = 0.0
 m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
 m.hess = [ 0.0 for i in range( 9 * m.natm * m.natm ) ]
@@ -43,7 +43,7 @@ for i in range( 3 * m.natm ):
 qm3.maths.matrix.mprint( nhes, 3 * m.natm, 3 * m.natm )
 
 
-r = qm3.engines.restraints.angle( 58.35 * 4.184, 113.6, [ 0, 1, 2 ] )
+r = qm3.engines.mmres.angle( 58.35 * 4.184, 113.6, [ 0, 1, 2 ] )
 m.func = 0.0
 m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
 m.hess = [ 0.0 for i in range( 9 * m.natm * m.natm ) ]
@@ -68,7 +68,7 @@ for i in range( 3 * m.natm ):
 qm3.maths.matrix.mprint( nhes, 3 * m.natm, 3 * m.natm )
 
 
-r = qm3.engines.restraints.dihedral( { 3: [ 0.195 * 4.184, 0.0 ] }, [ 0, 1, 2, 3 ] )
+r = qm3.engines.mmres.dihedral( { 3: [ 0.195 * 4.184, 0.0 ] }, [ 0, 1, 2, 3 ] )
 m.func = 0.0
 m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
 m.hess = [ 0.0 for i in range( 9 * m.natm * m.natm ) ]

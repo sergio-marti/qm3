@@ -38,8 +38,8 @@ qm3_job
 """ )
         f.seek( 0 )
         self.eng = qm3.engines.nwchem.nwchem( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
-        self.eng.exe = "NWCHEM_BASIS_LIBRARY=/Users/smarti/Devel/nwchem/6.6/data/libraries/"
-        self.eng.exe += " mpirun -n 2 /Users/smarti/Devel/nwchem/6.6/nwchem nwchem.nw > nwchem.log"
+        self.eng.exe = "NWCHEM_BASIS_LIBRARY=/Users/smarti/Devel/nwchem/6.8/data/libraries/"
+        self.eng.exe += " mpirun -n 2 /Users/smarti/Devel/nwchem/6.8/nwchem nwchem.nw > nwchem.log"
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

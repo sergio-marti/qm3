@@ -1,8 +1,8 @@
 import os
 import sys
 import qm3.actions.minimize
-import qm3.engines.restraints
-import qm3.engines._qmmm
+import qm3.engines.mmres
+import qm3.engines._mmint
 import qm3.problem
 import qm3.mol
 import qm3.engines.namd
@@ -87,11 +87,11 @@ while { [ gets $fd cmd ] >= 0 } {
         self.eqm.prm = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
         self.eqm.exe = "bash ../r.dftb"
 
-        self.fix = qm3.engines._qmmm.Int_QMLJ( self.mol, s_qm, s_mm, [] )
+        self.fix = qm3.engines._mmint.QMLJ( self.mol, s_qm, s_mm, [] )
 
-        self.rst_I = qm3.engines.restraints.distance( 5000., 1.50 + 0.075 * float( new_i ),
+        self.rst_I = qm3.engines.mmres.distance( 5000., 1.50 + 0.075 * float( new_i ),
             [ self.mol.indx["A"][1]["C2"], self.mol.indx["A"][1]["C3"] ] )
-        self.rst_J = qm3.engines.restraints.distance( 5000., 3.00 - 0.075 * float( new_j ),
+        self.rst_J = qm3.engines.mmres.distance( 5000., 3.00 - 0.075 * float( new_j ),
             [ self.mol.indx["A"][1]["C5"], self.mol.indx["A"][1]["C6"] ] )
 
         self.size = self.mol.natm * 3

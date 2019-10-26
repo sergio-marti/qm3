@@ -8,7 +8,6 @@ import	re
 import	os
 import	glob
 import	math
-import	qm3.utils
 import	qm3.engines
 
 
@@ -46,7 +45,7 @@ class lsdalton( qm3.engines.qmbase ):
 			self.vla = []
 			k = len( self.sel )
 			for i,j in self.lnk:
-				c, v = qm3.utils.LA_coordinates( i, j, mol )
+				c, v = qm3.engines.LA_coordinates( i, j, mol )
 				f.write( "Charge=1.0 Atoms=1 Basis=%s\n%-2s%20.10lf%20.10lf%20.10lf\n"%( 
 				self.bas, "H", c[0], c[1], c[2] ) )
 				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
@@ -74,7 +73,7 @@ class lsdalton( qm3.engines.qmbase ):
 				g = []
 				for i in range( len( self.sel ) + len( self.lnk ) + len( self.nbn ) ):
 					g += [ float( j ) * self._cg for j in f.readline().strip().split()[1:] ]
-				qm3.utils.LA_gradient( self.vla, g )
+				qm3.engines.LA_gradient( self.vla, g )
 				for i in range( len( self.sel ) ):
 					i3 = i * 3
 					for j in [0, 1, 2]:

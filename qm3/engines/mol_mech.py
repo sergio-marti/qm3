@@ -9,11 +9,10 @@ import	os
 import	inspect
 import	qm3.elements
 import	qm3.maths.matrix
-import	qm3.io
 import	qm3.mol
 import	qm3.utils
 import	qm3.constants
-import	qm3.engines.restraints
+import	qm3.engines.mmres
 
 try:
 	import qm3.engines._mol_mech
@@ -27,7 +26,10 @@ except:
 # SFF: Simple Force Field
 #
 class simple_force_field( object ):
-	def __init__( self ):
+	def __init__( self, mol, bond = [], angl = [], dihe = [], impr = [], qtyp = True, qchg = True, ppath = None ):
+		"""
+		impr = [ [ central_i, j, k, l, kmb (kal/mol.rad^2), ref (deg) ], ... ]
+		"""
 		if( mol_mech_so ):
 			self.ncpu = os.sysconf( 'SC_NPROCESSORS_ONLN' )
 		else:
@@ -35,47 +37,59 @@ class simple_force_field( object ):
 		self.cut_on   = 10.0
 		self.cut_off  = 12.0
 		self.cut_list = 14.0
-		self.initialize()
-
-
-	def initialize( self ):
-		self.natm = 0
-		self.bond = []
-		self.conn = []
-		self.angl = []
-		self.dihe = []
-		self.impr = []
-		self.nbnd = []
-		self.nb14 = []
+		# local vars
+		self.natm     = mol.natm
+		self.nbnd     = []
+		if( ppath ):
+			self.path = ppath + os.sep
+		else:
+			self.path = os.path.abspath( os.path.dirname( inspect.getfile( self.__class__ ) ) ) + os.sep
+		# guess (or not) bonds
+		if( bond != [] ):
+			self.bond = bond[:]
+		else:
+			self.bond = qm3.utils.connectivity( mol )
 		self.bond_data = []
 		self.bond_indx = []
-		self.angl_data = []
-		self.angl_indx = []
-		self.dihe_data = []
-		self.dihe_indx = []
-		self.QNA_U = []
-		self.QNA_V = []
-
-	def guess_bonds( self, mol, quick = False ):
-		self.initialize()
-		self.natm = mol.natm
-		self.bond = qm3.utils.connectivity( mol, quick )
-
-
-	def calc_connectivity( self ):
+		# build connectivity
 		self.conn = [ [] for i in range( self.natm ) ]
 		for i,j in self.bond:
 			self.conn[i].append( j )
 			self.conn[j].append( i )
+		# guess (or not) angles
+		if( angl != [] ):
+			self.angl = angl[:]
+		else:
+			self.__angles()
+		self.angl_data = []
+		self.angl_indx = []
+		# guess (or not) dihedrals
+		if( dihe != [] ):
+			self.dihe = dihe[:]
+		else:
+			self.__dihedrals()
+		self.dihe_data = []
+		self.dihe_indx = []
+		# copy impropers (if any...)
+		self.impr = impr[:]
+		# guess (or not) atom types
+		if( qtyp ):
+			self.__types( mol )
+		# guess (or not) partial charges
+		if( qchg and mol.chrg != [] ):
+			self.__charges( mol )
+		# load parameters
+		self.__parameters( mol )
+
+
 
 	
 	# SYBYL atom types (kinda)
 	# http://www.sdsc.edu/CCMS/Packages/cambridge/pluto/atom_types.html
 	# uses FORMAL CHARGES present in MOL.CHRG
-	def guess_types( self, mol ):
+	def __types( self, mol ):
 		def __any( lst_a, lst_b ):
 			return( len( set( lst_a ).intersection( set( lst_b ) ) ) > 0 )
-
 		mol.type = []
 		# default to atomic symbol...
 		for i in range( mol.natm ):
@@ -144,7 +158,7 @@ class simple_force_field( object ):
 				mol.type[i] = "S.o2"
 
 
-	def guess_angles( self ):
+	def __angles( self ):
 		if( mol_mech_so ):
 			self.angl = qm3.engines._mol_mech.guess_angles( self )
 		else:
@@ -164,7 +178,7 @@ class simple_force_field( object ):
 					del self.angl[i]
 
 
-	def guess_dihedrals( self ):
+	def __dihedrals( self ):
 		if( mol_mech_so ):
 			self.dihe = qm3.engines._mol_mech.guess_dihedrals( self )
 		else:
@@ -184,126 +198,32 @@ class simple_force_field( object ):
 					del self.dihe[i]
 
 
-	def parse_molecule( self, mol ):
-		self.guess_bonds( mol )
-		self.calc_connectivity()
-		self.guess_angles()
-		self.guess_dihedrals()
-		self.guess_types( mol )
-
-
 	# uses FORMAL CHARGES present in MOL.CHRG
-	def guess_partial_charges( self, mol, method = "eem" ):
-		if( method == "gasteiger" ):
-			# Gasteiger partial charges ("adapted" from AmberTools/antechamber/charge.c)
-			gas = {
-				"H":     [  7.17,  6.24, -0.56,  20.02 ],	# polar hydrogen
-				"Hn":    [  7.17,  6.24, -0.56,  20.02 ],	# non-polar hydrogen
-				"C.1":   [ 10.39,  9.45,  0.73,  20.57 ],	# C sp1
-				"C.2":   [  8.79,  9.32,  1.51,  19.62 ],	# C sp2 in single
-				"C.ar":  [  8.79,  9.32,  1.51,  19.62 ],	# C sp2 in aromatic/conjugated
-				"C.co":  [  8.79,  9.32,  1.51,  19.62 ],	# C sp2 in C=O
-				"C.3":   [  7.98,  9.18,  1.88,  19.04 ],	# C sp3
-				"N.1":   [ 15.68, 11.70, -0.27,  27.11 ],	# N sp1
-				"N.2":   [ 12.87, 11.15,  0.85,  24.87 ],	# N sp2	in C=N
-				"N.pl":  [ 12.32, 11.20,  1.34,  24.86 ],	# N sp2 (+)
-				"N.3":   [ 11.54, 10.82,  1.36,  23.72 ],	# N sp3
-				"N.4":   [  0.00, 11.86, 11.86,  23.72 ],	# N sp3 (+)
-				"O.2":   [ 17.07, 13.79,  0.47,  31.33 ],	# O sp2 in C=O
-				"O.3":   [ 14.18, 12.92,  1.39,  28.49 ],	# O sp3
-				"O.h":   [ 17.07, 13.79,  0.47,  31.33 ],	# O sp3 in O-H
-				"O.x":   [ 17.07, 13.79,  0.47,  31.33 ],	# O sp3 in O(-)
-				"O.co2": [ 17.07, 13.79,  0.47,  31.33 ],	# O sp2/sp3 in CO2(-0.5 * 2)
-				"S.2":   [ 10.88,  9.485, 1.325, 21.69 ],	# S sp2	
-				"S.3":   [ 10.14,  9.13,  1.38,  20.65 ],	# S sp3
-				"S.h":   [ 10.88,  9.485, 1.325, 21.69 ],	# S sp3 in S-H
-				"S.x":   [ 10.88,  9.485, 1.325, 21.69 ],	# S sp3 in S(-)
-				"S.o":   [ 10.14,  9.13,  1.38,  20.65 ],	# S sp2d in S=O
-				"S.o2":  [ 12.00, 10.805, 1.195, 24.00 ],	# S spd2 in O=S=O
-				"F":     [ 14.66, 13.85,  2.31,  30.82 ],
-				"Cl":    [ 11.00,  9.69,  1.35,  22.04 ],
-				"Br":    [ 10.08,  8.47,  1.16,  19.71 ],
-				"I":     [  9.90,  7.96,  0.96,  18.82 ],
-				"P.3":   [  8.90,  8.24,  0.96,  18.10 ]	# P (any)
-			}
-			ep = mol.chrg[:]
-			ea = mol.chrg[:]
-			ff = True
-			it = 0
-			df = 0.5
-			while( it < 1000 and ff ):
-				x = []
-				for i in range( mol.natm ):
-					x.append( gas[mol.type[i]][0] + ep[i] * ( gas[mol.type[i]][1] + ep[i] * gas[mol.type[i]][2] ) )
-					if( x[i] == 0.0 ):
-						x[i] = 1.0e-10
-				for i,j in self.bond:
-					if( x[i] <= x[j] ):
-						q = ( x[j] - x[i] ) / gas[mol.type[i]][3] * df
-						ea[i] += q
-						ea[j] -= q
-					else:
-						q = ( x[i] - x[j] ) / gas[mol.type[j]][3] * df
-						ea[i] -= q
-						ea[j] += q
-				s = 0.0
-				for i in range( mol.natm ):
-					s += ( ep[i] - ea[i] ) * ( ep[i] - ea[i] )
-					ep[i] = ea[i]
-				ff = math.sqrt( s / float( mol.natm ) ) > 1.0e-5
-				df *= 0.5
-				it += 1
-			mol.chrg = ea[:]
-		else:
-			# Electronegativity Equalization Method (B3LYP_6-311G_NPA.par) [10.1186/s13321-015-0107-1]
-			kap = 0.2509
-			prm = {
-				"H":     [ 2.3864, 0.6581 ],	# polar hydrogen
-				"Hn":    [ 2.3864, 0.6581 ],	# non-polar hydrogen
-				"C.1":   [ 2.4617, 0.3489 ],	# C sp1
-				"C.2":   [ 2.5065, 0.3173 ],	# C sp2 in single
-				"C.ar":  [ 2.5065, 0.3173 ],	# C sp2 in aromatic/conjugated
-				"C.co":  [ 2.5065, 0.3173 ],	# C sp2 in C=O
-				"C.3":   [ 2.4992, 0.3220 ],	# C sp3
-				"N.1":   [ 2.5348, 0.4025 ],	# N sp1
-				"N.2":   [ 2.5568, 0.2949 ],	# N sp2	in C=N
-				"N.pl":  [ 2.5568, 0.2949 ],	# N sp2 (+)
-				"N.3":   [ 2.5891, 0.4072 ],	# N sp3
-				"N.4":   [ 2.5891, 0.4072 ],	# N sp3 (+)
-				"O.2":   [ 2.6588, 0.4232 ],	# O sp2 in C=O
-				"O.3":   [ 2.6342, 0.4041 ],	# O sp3
-				"O.h":   [ 2.6342, 0.4041 ],	# O sp3 in O-H
-				"O.x":   [ 2.6342, 0.4041 ],	# O sp3 in O(-)
-				"O.co2": [ 2.6588, 0.4232 ],	# O sp2/sp3 in CO2(-0.5 * 2)
-				"S.2":   [ 2.4884, 0.2043 ],	# S sp2	
-				"S.3":   [ 2.4506, 0.2404 ],	# S sp3
-				"S.h":   [ 2.4506, 0.2404 ],	# S sp3 in S-H
-				"S.x":   [ 2.4506, 0.2404 ],	# S sp3 in S(-)
-				"S.o":   [ 2.4884, 0.2043 ],	# S sp2d in S=O
-				"S.o2":  [ 2.4884, 0.2043 ],	# S spd2 in O=S=O
-				"F":     [ 3.0028, 1.2433 ],
-				"Cl":    [ 2.5104, 0.8364 ],
-				"Br":    [ 2.4244, 0.7511 ],
-				"I":     [ 2.3272, 0.9303 ],
-				"P.2":   [ 2.2098, 0.3281 ],	# P sp2
-				"P.3":   [ 2.3898, 0.1902 ] 	# P sp3
-			}
-			mat = []
-			vec = []
-			for i in range( mol.natm ):
-				for j in range( mol.natm ):
-					if( j == i ):
-						mat.append( prm[mol.type[i]][1] )
-					else:
-						mat.append( kap / qm3.utils.distance( mol.coor[3*i:3*i+3], mol.coor[3*j:3*j+3] ) )
-				mat.append( -1 )
-				vec.append( - prm[mol.type[i]][0] )
-			mat += [ 1 ] * mol.natm + [ 0 ]
-			vec.append( sum( mol.chrg ) )
-			mol.chrg = qm3.maths.matrix.solve( mat, vec )[0:mol.natm]
+	def __charges( self, mol ):
+		# Electronegativity Equalization Method (B3LYP_6-311G_NPA.par) [10.1186/s13321-015-0107-1]
+		f = open( self.path + "mol_mech.eem", "rt" )
+		kap = float( f.readline().strip() )
+		prm = {}
+		for l in f:
+			t = l.strip().split()
+			prm[t[0]] = [ float( t[1] ), float( t[2] ) ]
+		f.close()
+		mat = []
+		vec = []
+		for i in range( mol.natm ):
+			for j in range( mol.natm ):
+				if( j == i ):
+					mat.append( prm[mol.type[i]][1] )
+				else:
+					mat.append( kap / qm3.utils.distance( mol.coor[3*i:3*i+3], mol.coor[3*j:3*j+3] ) )
+			mat.append( -1 )
+			vec.append( - prm[mol.type[i]][0] )
+		mat += [ 1 ] * mol.natm + [ 0 ]
+		vec.append( sum( mol.chrg ) )
+		mol.chrg = qm3.maths.matrix.solve( mat, vec )[0:mol.natm]
 
 
-	def load_parameters( self, mol, ffield = None ):
+	def __parameters( self, mol ):
 		out = True
 		self.bond_data = []
 		self.bond_indx = []
@@ -311,10 +231,7 @@ class simple_force_field( object ):
 		self.angl_indx = []
 		self.dihe_data = []
 		self.dihe_indx = []
-		if( ffield ):
-			f = qm3.io.open_r( ffield )
-		else:
-			f = open( os.path.abspath( os.path.dirname( inspect.getfile( self.__class__ ) ) ) + os.sep + "mol_mech.prm", "rt" )
+		f = open( self.path + "mol_mech.prm", "rt" )
 		tmp_typ = {}
 		cnt_bnd = 0
 		tmp_bnd = {}
@@ -345,7 +262,7 @@ class simple_force_field( object ):
 					self.dihe_data.append( tmp[:] )
 					tmp_dih["%s:%s:%s:%s"%( t[0], t[1], t[2], t[3] )] = cnt_dih
 					cnt_dih += 1
-		qm3.io.close( f, ffield )
+		f.close()
 		mol.epsi = []
 		mol.rmin = []
 		for i in range( mol.natm ):
@@ -402,17 +319,40 @@ class simple_force_field( object ):
 		return( out )
 
 
-	def energy_bond( self, mol, gradient = False ):
+	def qm_atoms( self, sele ):
+		tmp = [ False for i in range( self.natm ) ]
+		for i in sele:
+			tmp[i] = True
+		# delete QM-QM bonds
+		for i in range( len( self.bond ) -1, -1, -1 ):
+			if( tmp[self.bond[i][0]] and tmp[self.bond[i][1]] ):
+				del self.bond[i]
+		# delete QM-QM-MM angles
+		for i in range( len( self.angl ) -1, -1, -1 ):
+			if( sum( [ tmp[j] for j in self.angl[i] ] ) >= 2 ):
+				del self.angl[i]
+		# delete QM-QM-QM-MM dihedrals
+		for i in range( len( self.dihe ) -1, -1, -1 ):
+			if( sum( [ tmp[j] for j in self.dihe[i] ] ) >= 3 ):
+				del self.dihe[i]
+		# delete QM-QM-QM-MM impropers
+		for i in range( len( self.impr ) -1, -1, -1 ):
+			if( sum( [ tmp[j] for j in self.impr[i] ] ) >= 3 ):
+				del self.impr[i]
+		
+
+
+	def __ebond( self, mol, gradient = False ):
 		if( self.bond == [] ):
 			return( 0.0 )
 		if( mol_mech_so ):
-			out = qm3.engines._mol_mech.energy_bond( self, mol, gradient )
+			out = qm3.engines._mol_mech.ebond( self, mol, gradient )
 		else:
 			bak = mol.func
 			out = 0.0
 			for i in range( len( self.bond ) ):
 				mol.func = 0.0
-				qm3.engines.restraints.mm_bond( mol, self.bond_data[self.bond_indx[i]][0],
+				qm3.engines.mmres.mm_bond( mol, self.bond_data[self.bond_indx[i]][0],
 					self.bond_data[self.bond_indx[i]][1],
 					self.bond[i][0], self.bond[i][1],
 					ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0 ] )
@@ -421,17 +361,17 @@ class simple_force_field( object ):
 		return( out )
 
 
-	def energy_angle( self, mol, gradient = False ):
+	def __eangle( self, mol, gradient = False ):
 		if( self.angl == [] ):
 			return( 0.0 )
 		if( mol_mech_so ):
-			out = qm3.engines._mol_mech.energy_angle( self, mol, gradient )
+			out = qm3.engines._mol_mech.eangle( self, mol, gradient )
 		else:
 			bak = mol.func
 			out = 0.0
 			for i in range( len( self.angl ) ):
 				mol.func = 0.0
-				qm3.engines.restraints.mm_angle( mol, self.angl_data[self.angl_indx[i]][0],
+				qm3.engines.mmres.mm_angle( mol, self.angl_data[self.angl_indx[i]][0],
 					self.angl_data[self.angl_indx[i]][1],
 					self.angl[i][0], self.angl[i][1], self.angl[i][2],
 					ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0, 1.0 ] )
@@ -440,17 +380,17 @@ class simple_force_field( object ):
 		return( out )
 
 
-	def energy_dihedral( self, mol, gradient = False ):
+	def __edihedral( self, mol, gradient = False ):
 		if( self.dihe == [] ):
 			return( 0.0 )
 		if( mol_mech_so ):
-			out = qm3.engines._mol_mech.energy_dihedral( self, mol, gradient )
+			out = qm3.engines._mol_mech.edihedral( self, mol, gradient )
 		else:
 			out = 0.0
 			bak = mol.func
 			for i in range( len( self.dihe ) ):
 				mol.func = 0.0
-				qm3.engines.restraints.mm_dihedral( mol, self.dihe_data[self.dihe_indx[i]],
+				qm3.engines.mmres.mm_dihedral( mol, self.dihe_data[self.dihe_indx[i]],
 					self.dihe[i][0], self.dihe[i][1], self.dihe[i][2], self.dihe[i][3],
 					ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0, 1.0, 1.0 ] )
 				out += mol.func
@@ -458,17 +398,14 @@ class simple_force_field( object ):
 		return( out )
 
 
-	def energy_improper( self, mol, gradient = False ):
-		"""
-		self.impr = [ [ central_i, j, k, l, kmb (kal/mol.rad^2), ref (deg) ], ... ]
-		"""
+	def __eimproper( self, mol, gradient = False ):
 		if( self.impr == [] ):
 			return( 0.0 )
 		out = 0.0
 		bak = mol.func
 		for i in range( len( self.impr ) ):
 			mol.func = 0.0
-			qm3.engines.restraints.mm_improper( mol, self.impr[i][4] * qm3.constants.K2J, self.impr[i][5],
+			qm3.engines.mmres.mm_improper( mol, self.impr[i][4] * qm3.constants.K2J, self.impr[i][5],
 				self.impr[i][0], self.impr[i][1], self.impr[i][2], self.impr[i][3],
 				ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0, 1.0, 1.0 ] )
 			out += mol.func
@@ -508,107 +445,98 @@ class simple_force_field( object ):
 							f |= ( ( i == self.dihe[k][0] and j == self.dihe[k][3] ) or ( i == self.dihe[k][3] and j == self.dihe[k][0] )  )
 							k += 1
 						if( not f ):
-							self.nbnd.append( [ i, j ] )
-		self.nb14 = []
+							self.nbnd.append( [ i, j, 1.0 ] )
 		for i,j,k,l in self.dihe:
-			self.nb14.append( [ i, l ] )
+			self.nbnd.append( [ i, l, 0.5 ] )
 						
 
-	def __non_bonded_interactions( self, mol, lst_nbnd, scale = 1.0, gradient = False, epsilon = 1.0 ):
-		epsf = 1389.35484620709144110151 / epsilon
-		oel  = 0.0
-		olj  = 0.0
-		if( self.cut_on > 0.0 and self.cut_off > self.cut_on ):
-			c2on =  self.cut_on * self.cut_on
-			c2of = self.cut_off * self.cut_off
-			_g   = math.pow( c2of - c2on, 3.0 )
-			_a   = c2of * c2of * ( c2of - 3.0 * c2on ) / _g
-			_b   = 6.0 * c2of * c2on / _g
-			_c   = - ( c2of + c2on ) / _g
-			_d   = 0.4 / _g
-			_el1 = 8.0 * ( c2of * c2on * ( self.cut_off - self.cut_on ) - 0.2 * ( self.cut_off * c2of * c2of - self.cut_on * c2on * c2on ) ) / _g
-			_el2 = - _a / self.cut_off + _b * self.cut_off + _c * self.cut_off * c2of + _d * self.cut_off * c2of * c2of
-			k6   = ( self.cut_off * c2of ) / ( self.cut_off * c2of - self.cut_on * c2on )
-			k12  = math.pow( c2of, 3.0 ) / ( math.pow( c2of, 3.0 ) - math.pow( c2on, 3.0 ) )
-			for i,j in lst_nbnd:
-				ai = i * 3
-				aj = j * 3
-				dr = [ ii-jj for ii,jj in zip( mol.coor[ai:ai+3], mol.coor[aj:aj+3] ) ]
-				dr = [ dr[k] - mol.boxl[k] * round( dr[k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2] ]
-				r2 = sum( [ ii*ii for ii in dr ] )
-				if( r2 > c2of ):
-					continue
-				eij = mol.epsi[i] * mol.epsi[j]
-				sij = mol.rmin[i] + mol.rmin[j]
-				qij = mol.chrg[i] * mol.chrg[j] * epsf
-				r   = math.sqrt( r2 )
-				s   = 1.0 / r
-				s3  = math.pow( sij * s, 3.0 )
-				s6  = s3 * s3
-				if( r2 <= c2on ):
-					tmp = qij * s
-					oel += tmp + qij * _el1
-					s12  = s6 * s6
-					_lj1 = math.pow( sij / self.cut_off * sij / self.cut_on, 3.0 )
-					_lj2 = _lj1 * _lj1
-					olj += eij * ( ( s12 - _lj2 ) - 2.0 * ( s6 - _lj1 ) )
-					df   = ( 12.0 * eij * ( s6 - s12 ) - tmp ) / r2
-				else:
-					r3   = r * r2
-					r5   = r3 * r2
-					oel += qij * ( _a * s - _b * r - _c * r3 - _d * r5 + _el2 )
-					_lj1 = math.pow( sij / self.cut_off, 3.0 )
-					_lj2 = _lj1 * _lj1
-					olj += eij * ( k12 * math.pow( s6 - _lj2, 2.0 ) - 2.0 * k6 * math.pow( s3 - _lj1, 2.0 ) )
-					df   = - qij * ( _a / r3 + _b * s + 3.0 * _c * r + 5.0 * _d * r3 ) 
-					df  -= 12.0 * eij * ( k12 * s6 * ( s6 - _lj2 ) - k6 * s3 * ( s3 - _lj1 ) ) / r2
-				if( gradient ):
-					for j in [0, 1, 2]:
-						mol.grad[ai+j] += scale * df * dr[j]
-						mol.grad[aj+j] -= scale * df * dr[j]
-		else:
-			for i,j in lst_nbnd:
-				ai  = i * 3
-				aj  = j * 3
-				dr  = [ ii-jj for ii,jj in zip( mol.coor[ai:ai+3], mol.coor[aj:aj+3] ) ]
-				dr = [ dr[k] - mol.boxl[k] * round( dr[k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2] ]
-				r2  = sum( [ ii*ii for ii in dr ] )
-				eij = mol.epsi[i] * mol.epsi[j]
-				sij = mol.rmin[i] + mol.rmin[j]
-				qij = mol.chrg[i] * mol.chrg[j] * epsf
-				r   = 1.0 / math.sqrt( r2 )
-				s6  = math.pow( sij * r, 6.0 )
-				tmp = qij * r
-				oel += tmp
-				olj += eij * s6 * ( s6 - 2.0 )
-				if( gradient ):
-					df = scale * ( 12.0 * eij * s6 * ( 1.0 - s6 ) - tmp ) / r2;
-					for j in [0, 1, 2]:
-						mol.grad[ai+j] += df * dr[j]
-						mol.grad[aj+j] -= df * dr[j]
-		oel *= scale
-		olj *= scale
-		return( oel, olj )
-
-	def energy_non_bonded( self, mol, gradient = False, epsilon = 1.0 ):
+	def __enonbonded( self, mol, gradient = False, epsilon = 1.0 ):
 		if( not self.nbnd ):
 			self.update_non_bonded( mol )
 		if( mol_mech_so ):
-			oel, olj = qm3.engines._mol_mech.energy_non_bonded( self, mol, gradient )
+			oel, olj = qm3.engines._mol_mech.enonbonded( self, mol, gradient, epsilon )
 		else:
-			oel,   olj   = self.__non_bonded_interactions( mol, self.nbnd, 1.0, gradient, epsilon )
-			oel14, olj14 = self.__non_bonded_interactions( mol, self.nb14, 0.5, gradient, epsilon )
-			oel += oel14
-			olj += olj14
+			epsf = 1389.35484620709144110151 / epsilon
+			oel  = 0.0
+			olj  = 0.0
+			if( self.cut_on > 0.0 and self.cut_off > self.cut_on ):
+				c2on =  self.cut_on * self.cut_on
+				c2of = self.cut_off * self.cut_off
+				_g   = math.pow( c2of - c2on, 3.0 )
+				_a   = c2of * c2of * ( c2of - 3.0 * c2on ) / _g
+				_b   = 6.0 * c2of * c2on / _g
+				_c   = - ( c2of + c2on ) / _g
+				_d   = 0.4 / _g
+				_el1 = 8.0 * ( c2of * c2on * ( self.cut_off - self.cut_on ) - 0.2 * ( self.cut_off * c2of * c2of - self.cut_on * c2on * c2on ) ) / _g
+				_el2 = - _a / self.cut_off + _b * self.cut_off + _c * self.cut_off * c2of + _d * self.cut_off * c2of * c2of
+				k6   = ( self.cut_off * c2of ) / ( self.cut_off * c2of - self.cut_on * c2on )
+				k12  = math.pow( c2of, 3.0 ) / ( math.pow( c2of, 3.0 ) - math.pow( c2on, 3.0 ) )
+				for i,j,f in self.nbnd:
+					ai = i * 3
+					aj = j * 3
+					dr = [ ii-jj for ii,jj in zip( mol.coor[ai:ai+3], mol.coor[aj:aj+3] ) ]
+					dr = [ dr[k] - mol.boxl[k] * round( dr[k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2] ]
+					r2 = sum( [ ii*ii for ii in dr ] )
+					if( r2 > c2of ):
+						continue
+					eij = mol.epsi[i] * mol.epsi[j]
+					sij = mol.rmin[i] + mol.rmin[j]
+					qij = mol.chrg[i] * mol.chrg[j] * epsf
+					r   = math.sqrt( r2 )
+					s   = 1.0 / r
+					s3  = math.pow( sij * s, 3.0 )
+					s6  = s3 * s3
+					if( r2 <= c2on ):
+						tmp = qij * s
+						oel += f * ( tmp + qij * _el1 )
+						s12  = s6 * s6
+						_lj1 = math.pow( sij / self.cut_off * sij / self.cut_on, 3.0 )
+						_lj2 = _lj1 * _lj1
+						olj += f * eij * ( ( s12 - _lj2 ) - 2.0 * ( s6 - _lj1 ) )
+						df   = ( 12.0 * eij * ( s6 - s12 ) - tmp ) / r2
+					else:
+						r3   = r * r2
+						r5   = r3 * r2
+						oel += f * qij * ( _a * s - _b * r - _c * r3 - _d * r5 + _el2 )
+						_lj1 = math.pow( sij / self.cut_off, 3.0 )
+						_lj2 = _lj1 * _lj1
+						olj += f * eij * ( k12 * math.pow( s6 - _lj2, 2.0 ) - 2.0 * k6 * math.pow( s3 - _lj1, 2.0 ) )
+						df   = - qij * ( _a / r3 + _b * s + 3.0 * _c * r + 5.0 * _d * r3 ) 
+						df  -= 12.0 * eij * ( k12 * s6 * ( s6 - _lj2 ) - k6 * s3 * ( s3 - _lj1 ) ) / r2
+					if( gradient ):
+						for j in [0, 1, 2]:
+							mol.grad[ai+j] += f * df * dr[j]
+							mol.grad[aj+j] -= f * df * dr[j]
+			else:
+				for i,j,f in self.nbnd:
+					ai  = i * 3
+					aj  = j * 3
+					dr  = [ ii-jj for ii,jj in zip( mol.coor[ai:ai+3], mol.coor[aj:aj+3] ) ]
+					dr = [ dr[k] - mol.boxl[k] * round( dr[k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2] ]
+					r2  = sum( [ ii*ii for ii in dr ] )
+					eij = mol.epsi[i] * mol.epsi[j]
+					sij = mol.rmin[i] + mol.rmin[j]
+					qij = mol.chrg[i] * mol.chrg[j] * epsf
+					r   = 1.0 / math.sqrt( r2 )
+					s6  = math.pow( sij * r, 6.0 )
+					tmp = qij * r
+					oel += f * tmp
+					olj += f * eij * s6 * ( s6 - 2.0 )
+					if( gradient ):
+						df = f * ( 12.0 * eij * s6 * ( 1.0 - s6 ) - tmp ) / r2;
+						for j in [0, 1, 2]:
+							mol.grad[ai+j] += df * dr[j]
+							mol.grad[aj+j] -= df * dr[j]
 		return( oel, olj )
 
 
+
 	def get_func( self, mol, qprint = False ):
-		e_bond = self.energy_bond( mol, gradient = False )
-		e_angl = self.energy_angle( mol, gradient = False )
-		e_dihe = self.energy_dihedral( mol, gradient = False )
-		e_impr = self.energy_improper( mol, gradient = False )
-		e_elec, e_vdwl = self.energy_non_bonded( mol, gradient = False )
+		e_bond = self.__ebond( mol, gradient = False )
+		e_angl = self.__eangle( mol, gradient = False )
+		e_dihe = self.__edihedral( mol, gradient = False )
+		e_impr = self.__eimproper( mol, gradient = False )
+		e_elec, e_vdwl = self.__enonbonded( mol, gradient = False )
 		mol.func += e_bond + e_angl + e_dihe + e_impr + e_elec + e_vdwl
 		if( qprint ):
 			print( "ETot:", e_bond + e_angl + e_dihe + e_impr + e_elec + e_vdwl, "_kJ/mol" )
@@ -617,164 +545,13 @@ class simple_force_field( object ):
 
 
 	def get_grad( self, mol, qprint = False ):
-		e_bond = self.energy_bond( mol, gradient = True )
-		e_angl = self.energy_angle( mol, gradient = True )
-		e_dihe = self.energy_dihedral( mol, gradient = True )
-		e_impr = self.energy_improper( mol, gradient = True )
-		e_elec, e_vdwl = self.energy_non_bonded( mol, gradient = True )
+		e_bond = self.__ebond( mol, gradient = True )
+		e_angl = self.__eangle( mol, gradient = True )
+		e_dihe = self.__edihedral( mol, gradient = True )
+		e_impr = self.__eimproper( mol, gradient = True )
+		e_elec, e_vdwl = self.__enonbonded( mol, gradient = True )
 		mol.func += e_bond + e_angl + e_dihe + e_impr + e_elec + e_vdwl
 		if( qprint ):
 			print( "ETot:", e_bond + e_angl + e_dihe + e_impr + e_elec + e_vdwl, "_kJ/mol" )
 			print( "   Bond:%18.4lf   Angl:%18.4lf   Dihe:%18.4lf"%( e_bond, e_angl, e_dihe ) )
 			print( "   Impr:%18.4lf   Elec:%18.4lf   VdWl:%18.4lf"%( e_impr, e_elec, e_vdwl ) )
-
-
-
-	###################################################################################################
-	# QSAR topological stuff
-	#
-	def remove_non_polar_H( self, mol ):
-		if( mol.anum and self.conn ):
-			out = qm3.mol.molecule()
-			rem = []
-			chg = []
-			for i in range( mol.natm ):
-				if( mol.anum[i] != 1 or mol.anum[self.conn[i][0]] != 6 ):
-					out.labl.append( mol.labl[i] )
-					out.resi.append( mol.resi[i] )
-					out.resn.append( mol.resn[i] )
-					out.segn.append( mol.segn[i] )
-					out.coor += mol.coor[3*i:3*i+3]
-					out.anum.append( mol.anum[i] )
-					if( mol.type ):
-						out.type.append( mol.type[i] )
-					if( mol.mass ):
-						out.mass.append( mol.mass[i] )
-					if( mol.chrg ):
-						out.chrg.append( mol.chrg[i] )
-					if( mol.epsi ):
-						out.epsi.append( mol.epsi[i] )
-					if( mol.rmin ):
-						out.rmin.append( mol.rmin[i] )
-					out.natm += 1
-					rem.append( i )
-				else:
-					chg.append( ( self.conn[i][0], mol.chrg[i] ) )
-			for w,q in chg:
-				out.chrg[rem.index( w )] += q
-			out.settle()
-			self.initialize()
-			self.guess_bonds( out )
-			self.calc_connectivity()
-			return( out )
-
-	def topind_Randic( self ):
-		t = [ 1.0 / math.sqrt( float( len( self.conn[i] ) ) ) for i in range( self.natm ) ]
-		return( sum( [ t[i] * t[j] for i,j in self.bond ] ) )
-
-
-	@staticmethod
-	def __hosoya( bnd, hal = []  ):
-		if( hal == [] ):
-			hal = bnd[:]
-		lst = []
-		k = 2 + len( hal[0] )
-		for i in range( len( hal ) ):
-			for j in range( len( bnd ) ):
-				t = hal[i] + bnd[j]
-				if( len( { m:None for m in t } ) == k ):
-					t.sort()
-					lst.append( t[:] )
-		if( len( lst ) > 0 ):
-			out = [ lst[0] ]
-			for i in range( 1, len( lst ) ):
-				if( not lst[i] in out ):
-					out.append( lst[i][:] )
-		else:
-			out = []
-		return( out )
-	
-	def topind_Hosoya( self ):
-		t = self.__hosoya( self.bond )
-		s = 1 + len( self.bond ) + len( t )
-		while( t != [] ):
-			t = self.__hosoya( self.bond, t )
-			s += len( t )
-		return( s )
-
-
-	@staticmethod
-	def __shortest_path( con, ii, jj ):
-		tmp = [ [ ii ] ]
-		siz = len( tmp )
-		cur = 0
-		while( cur < siz ):
-			tt = [ i for i in con[tmp[cur][-1]] if not i in tmp[cur] ]
-			if( len( tt ) == 0 ):
-				cur += 1
-			elif( jj in tt ):
-				for i in range( len( tt ) ):
-					if( tt[i] != jj ):
-						tmp.append( tmp[cur][:] + [ tt[i] ] )
-						siz += 1
-				tmp[cur].append( jj )
-				cur += 1
-			else:
-				for i in range( 1, len( tt ) ):
-					tmp.append( tmp[cur][:] + [ tt[i] ] )
-					siz += 1
-				tmp[cur].append( tt[0] )
-		s = -1
-		for i in range( len( tmp ) ):
-			if( ( tmp[i][0] == ii and tmp[i][-1] == jj ) and ( s < 0 or len( tmp[i] ) < s ) ):
-				s = len( tmp[i] )
-		return( s - 1 )
-
-	def topind_Wiener( self ):
-		o = []
-		for i in range( self.natm - 1 ):
-			for j in range( i+1, self.natm ):
-				o.append( self.__shortest_path( self.conn, i, j ) )
-		return( sum( o ) )
-
-
-	# Chebyshev polynomials Tuv / Filimonov et al [10.1080/10629360903438370]
-	def __calc_QNA( self, mol ):
-		con = []
-		for i in range( mol.natm ):
-			for j in range( mol.natm ):
-				if( i == j ):
-					con.append( 0.0 )
-				elif( j in self.conn[i] ):
-					con.append( 1.0 )
-				else:
-					con.append( 0.0 )
-		val, vec = qm3.maths.matrix.diag( con, mol.natm )
-		val = qm3.maths.matrix.from_diagonal( [ math.exp( -0.5 * val[i] ) for i in range( mol.natm ) ], mol.natm )
-		exp = qm3.maths.matrix.mult( qm3.maths.matrix.mult( vec, mol.natm, mol.natm, val, mol.natm, mol.natm ), mol.natm, mol.natm, qm3.maths.matrix.T( vec, mol.natm, mol.natm ), mol.natm, mol.natm )
-		A = []
-		B = []
-		for i in range( mol.natm ):
-			A.append( 0.5 * ( qm3.elements.ionpot[mol.anum[i]] + qm3.elements.eafin[mol.anum[i]] ) )
-			B.append( 1.0 / math.sqrt( qm3.elements.ionpot[mol.anum[i]] - qm3.elements.eafin[mol.anum[i]] ) )
-		P = []
-		Q = []
-		for i in range( mol.natm ):
-			P.append( B[i] * sum( [ B[j] * exp[i*mol.natm+j] for j in range( mol.natm ) ] ) )
-			Q.append( B[i] * sum( [ A[j] * B[j] * exp[i*mol.natm+j] for j in range( mol.natm ) ] ) )
-		mP = sum( P ) / float( mol.natm )
-		sP = math.sqrt( sum( [ math.pow( P[i] - mP, 2.0 ) for i in range( mol.natm ) ] ) / float( mol.natm - 1 ) )
-		mQ = sum( Q ) / float( mol.natm )
-		sQ = math.sqrt( sum( [ math.pow( Q[i] - mQ, 2.0 ) for i in range( mol.natm ) ] ) / float( mol.natm - 1 ) )
-		PQ = sum( [ ( P[i] - mP ) * ( Q[i] - mQ ) for i in range( mol.natm ) ] ) / ( float( mol.natm - 1 ) * sP * sQ )
-		P  = [ ( P[i] - mP ) / sP for i in range( mol.natm ) ]
-		Q  = [ ( Q[i] - mQ ) / sQ for i in range( mol.natm ) ]
-		tp = 1.0 / math.sqrt( 2.0 * ( 1.0 + PQ ) )
-		tm = 1.0 / math.sqrt( 2.0 * ( 1.0 - PQ ) )
-		self.QNA_U  = [ ( P[i] + Q[i] ) * tp for i in range( mol.natm ) ]
-		self.QNA_V  = [ ( P[i] - Q[i] ) * tm for i in range( mol.natm ) ]
-
-	def topind_QNA( self, mol, u, v ):
-		if( not self.QNA_U or not self.QNA_V ):
-			self.__calc_QNA( mol )
-		return( sum( [ math.cos( u * math.acos( math.tanh( self.QNA_U[i] ) ) ) * math.cos( v * math.acos( math.tanh( self.QNA_V[i] ) ) ) for i in range( mol.natm ) ] ) / float( mol.natm ) )

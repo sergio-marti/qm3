@@ -6,9 +6,8 @@ if( sys.version_info[0] == 2 ):
 	range = xrange
 import	os
 import	math
-import	qm3.elements
 import	struct
-import	qm3.utils
+import	qm3.elements
 import	qm3.engines
 
 
@@ -35,7 +34,7 @@ class gamess( qm3.engines.qmbase ):
 			self.vla = []
 			k = len( self.sel )
 			for i,j in self.lnk:
-				c, v = qm3.utils.LA_coordinates( i, j, mol )
+				c, v = qm3.engines.LA_coordinates( i, j, mol )
 				s_qm += "%-4s%6.1lf%20.10lf%20.10lf%20.10lf\n"%( "H", 1., c[0], c[1], c[2] )
 				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
 				k += 1
@@ -87,7 +86,7 @@ class gamess( qm3.engines.qmbase ):
 				g = []
 				for i in range( len( self.sel ) + len( self.lnk ) ):
 					g += [ float( j ) * self._cg for j in f.readline().split()[2:5] ]
-				qm3.utils.LA_gradient( self.vla, g )
+				qm3.engines.LA_gradient( self.vla, g )
 				for i in range( len( self.sel ) ):
 					i3 = i * 3
 					for j in [0, 1, 2]:

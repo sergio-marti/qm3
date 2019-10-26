@@ -610,7 +610,8 @@ class distance( object ):
 
 
 	def get_func( self, molec ):
-		return( mm_bond( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.skpL, self.skpB, self.ffac ) )
+		return( mm_bond( molec, self.kumb, self.xref, self.indx[0], self.indx[1], self.skpL, self.skpB,
+				self.ffac ) )
 
 
 	def get_grad( self, molec ):
@@ -671,7 +672,8 @@ class dihedral( object ):
 
 
 	def get_func( self, molec ):
-		return( mm_dihedral( molec, self.data, self.indx[0], self.indx[1], self.indx[2], self.indx[3], self.ffac ) )
+		return( mm_dihedral( molec, self.data, self.indx[0], self.indx[1], self.indx[2], self.indx[3],
+				self.ffac ) )
 
 
 	def get_grad( self, molec ):

@@ -1,5 +1,5 @@
 \normalsize
-\subsection[restraints]{restraints.py}
+\subsection[mmres]{mmres.py}
 This (in process) module offers basic classes for applying harmonic restraints. The umbrella energy is
 accumulated to "molec.func", and the gradient to "molec.grad". Additionally,
 all methods return the value of the geometrical parameter (distance, ...).\\
@@ -137,9 +137,9 @@ class tether( molec, kumb, indx )
 
 \footnotesize
 \begin{pyglist}[language=python,fvset={frame=single}]
-#SOURCE@../samples/test.restraints
+#SOURCE@../samples/test.mmres
 \end{pyglist}
 
 \begin{pyglist}[fvset={frame=single}]
-#SOURCE@../samples/logs/test.restraints.log
+#SOURCE@../samples/logs/test.mmres.log
 \end{pyglist}

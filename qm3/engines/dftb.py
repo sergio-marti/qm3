@@ -5,7 +5,6 @@ import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
 import	os
-import	qm3.utils
 import	qm3.engines
 
 
@@ -25,7 +24,7 @@ def dftb_input( obj, mol, run ):
 		k = len( obj.sel )
 		w = obj.tbl.index( "H" ) + 1
 		for i,j in obj.lnk:
-			c, v = qm3.utils.LA_coordinates( i, j, mol )
+			c, v = qm3.engines.LA_coordinates( i, j, mol )
 			s_qm += "  %4d%4d%20.10lf%20.10lf%20.10lf\n"%( k + 1, w, c[0], c[1], c[2] )
 			obj.vla.append( ( obj.sel.index( i ), k, [-v[0], -v[1], -v[2]] ) )
 			k += 1
@@ -85,7 +84,7 @@ class dftb( qm3.engines.qmbase ):
 				g = []
 				for i in range( len( self.sel ) + len( self.vla ) ):
 					g += [ - float( j ) * self._cg for j in f.readline().split()[1:] ]
-				qm3.utils.LA_gradient( self.vla, g )
+				qm3.engines.LA_gradient( self.vla, g )
 				for i in range( len( self.sel ) ):
 					i3 = i * 3
 					for j in [0, 1, 2]:
@@ -134,7 +133,7 @@ try:
 			k = len( self.sel )
 			for i in range( len( self.lnk ) ):
 				j3 = k * 3
-				c, v = qm3.utils.LA_coordinates( self.lnk[i][0], self.lnk[i][1], mol )
+				c, v = qm3.engines.LA_coordinates( self.lnk[i][0], self.lnk[i][1], mol )
 				for j in [0, 1, 2]:
 					self.vec[j3+j] = c[j]
 				self.vla.append( ( self.sel.index( self.lnk[i][0] ), k, v[:] ) )
@@ -163,7 +162,7 @@ try:
 			for i in range( len( self.sel ) ):
 				mol.chrg[self.sel[i]] = self.vec[i+1]
 			g = [ j * self._cg for j in self.vec[self.nQM+1:] ]
-			qm3.utils.LA_gradient( self.vla, g )
+			qm3.engines.LA_gradient( self.vla, g )
 			for i in range( len( self.sel ) ):
 				i3 = i * 3
 				for j in [0, 1, 2]:

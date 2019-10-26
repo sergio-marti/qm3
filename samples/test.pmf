@@ -4,8 +4,8 @@ import qm3.utils._mpi
 import qm3.actions.dynamics
 import qm3.engines.namd
 import qm3.engines.dftb
-import qm3.engines._qmmm
-import qm3.engines.restraints
+import qm3.engines._mmint
+import qm3.engines.mmres
 import os
 import time
 try:
@@ -90,7 +90,7 @@ while { [ gets $fd cmd ] >= 0 } {
         self.eqm.prm = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
         self.eqm.exe = "bash ../r.dftb"
 
-        self.fix = qm3.engines._qmmm.Int_QMLJ( self.mol, s_qm, s_mm, [] ) 
+        self.fix = qm3.engines._mmint.QMLJ( self.mol, s_qm, s_mm, [] ) 
 
         self.size = self.mol.natm * 3
         self.coor = self.mol.coor[:]
@@ -105,7 +105,7 @@ while { [ gets $fd cmd ] >= 0 } {
         wei = [ 1., -1. ]
         self.dat = open( "pmf.%03d.dat"%( self.node ), "wt" )
         self.dat.write( "%20.10lf%20.10lf\n"%( kmb, ref ) )
-        self.rst = qm3.engines.restraints.multiple_distance( kmb, ref, idx, wei )
+        self.rst = qm3.engines.mmres.multiple_distance( kmb, ref, idx, wei )
         self.cnt = 0
 
         self.emm.update_chrg( self.mol )

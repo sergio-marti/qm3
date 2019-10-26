@@ -566,7 +566,7 @@ static struct PyMethodDef methods [] = {
 
 static PyTypeObject TQMLJ = {
 	PyVarObject_HEAD_INIT( NULL, 0 )
-	.tp_name = "Int_QMLJ",
+	.tp_name = "QMLJ",
 	.tp_doc = "Truncated Non-Bonded (QM:Lennard-Jones)",
 	.tp_basicsize = sizeof( oQMLJ ),
 	.tp_itemsize = 0,
@@ -580,7 +580,7 @@ static PyTypeObject TQMLJ = {
 
 static PyTypeObject TQMLJ_MMEL = {
 	PyVarObject_HEAD_INIT( NULL, 0 )
-	.tp_name = "Int_QMLJ_MMEL",
+	.tp_name = "QMLJ_MMEL",
 	.tp_doc = "Truncated Non-Bonded (QM:Lennard-Jones + MM:Electrostatics)",
 	.tp_basicsize = sizeof( oQMLJ_MMEL ),
 	.tp_itemsize = 0,
@@ -595,22 +595,22 @@ static PyTypeObject TQMLJ_MMEL = {
 
 static struct PyModuleDef moddef = {
 	PyModuleDef_HEAD_INIT,
-	"_qmmm",
+	"_mmint",
 	NULL,
 	-1,
 	methods
 };
 
-PyMODINIT_FUNC PyInit__qmmm( void ) {
+PyMODINIT_FUNC PyInit__mmint( void ) {
 	PyObject    *my_module;
 
 	my_module = PyModule_Create( &moddef );
 	PyType_Ready( &TQMLJ );
     Py_INCREF( &TQMLJ );
-    PyModule_AddObject( my_module, "Int_QMLJ", (PyObject *) &TQMLJ );
+    PyModule_AddObject( my_module, "QMLJ", (PyObject *) &TQMLJ );
 	PyType_Ready( &TQMLJ_MMEL );
     Py_INCREF( &TQMLJ_MMEL );
-    PyModule_AddObject( my_module, "Int_QMLJ_MMEL", (PyObject *) &TQMLJ_MMEL );
+    PyModule_AddObject( my_module, "QMLJ_MMEL", (PyObject *) &TQMLJ_MMEL );
 	return( my_module );
 }
 
@@ -618,7 +618,7 @@ PyMODINIT_FUNC PyInit__qmmm( void ) {
 
 static PyTypeObject TQMLJ = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "Int_QMLJ",                /* tp_name */
+    "QMLJ",                    /* tp_name */
     sizeof( oQMLJ ),           /* tp_basicsize */
     0,                         /* tp_itemsize */
     (destructor)QMLJ__dealloc, /* tp_dealloc */
@@ -661,7 +661,7 @@ static PyTypeObject TQMLJ = {
 
 static PyTypeObject TQMLJ_MMEL = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "Int_QMLJ_MMEL",                /* tp_name */
+    "QMLJ_MMEL",                    /* tp_name */
     sizeof( oQMLJ_MMEL ),           /* tp_basicsize */
     0,                              /* tp_itemsize */
     (destructor)QMLJ_MMEL__dealloc, /* tp_dealloc */
@@ -702,16 +702,16 @@ static PyTypeObject TQMLJ_MMEL = {
     QMLJ_MMEL__new,                 /* tp_new */
 };
 
-void init_qmmm( void ) {
+void init_mmint( void ) {
 	PyObject    *my_module;
 
-	my_module = Py_InitModule( "_qmmm", methods );
+	my_module = Py_InitModule( "_mmint", methods );
 	PyType_Ready( &TQMLJ );
     Py_INCREF( &TQMLJ );
-    PyModule_AddObject( my_module, "Int_QMLJ", (PyObject *) &TQMLJ );
+    PyModule_AddObject( my_module, "QMLJ", (PyObject *) &TQMLJ );
 	PyType_Ready( &TQMLJ_MMEL );
     Py_INCREF( &TQMLJ_MMEL );
-    PyModule_AddObject( my_module, "Int_QMLJ_MMEL", (PyObject *) &TQMLJ_MMEL );
+    PyModule_AddObject( my_module, "QMLJ_MMEL", (PyObject *) &TQMLJ_MMEL );
 }
 
 #endif

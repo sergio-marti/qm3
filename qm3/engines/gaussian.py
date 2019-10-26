@@ -6,7 +6,6 @@ if( sys.version_info[0] == 2 ):
 	range = xrange
 import	os
 import	qm3.maths.matrix
-import	qm3.utils
 import	qm3.engines
 
 
@@ -37,7 +36,7 @@ class gaussian( qm3.engines.qmbase ):
 			self.vla = []
 			k = len( self.sel )
 			for i,j in self.lnk:
-				c, v = qm3.utils.LA_coordinates( i, j, mol )
+				c, v = qm3.engines.LA_coordinates( i, j, mol )
 				s_qm += "%-2s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] )
 				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
 				k += 1
@@ -93,7 +92,7 @@ class gaussian( qm3.engines.qmbase ):
 						g.append( float( itm ) * self._cg )
 					i += 1
 				# remove LAs from gradient
-				qm3.utils.LA_gradient( self.vla, g )
+				qm3.engines.LA_gradient( self.vla, g )
 				# copy array
 				for i in range( len( self.sel ) ):
 					i3 = i * 3

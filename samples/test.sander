@@ -1,6 +1,6 @@
 import qm3.mol
 import qm3.engines.sander
-import qm3.engines._qmmm
+import qm3.engines._mmint
 import qm3.problem
 import qm3.maths.matrix
 
@@ -177,7 +177,7 @@ class my_eng( qm3.problem.template ):
         self.eng.exe = "export AMBERHOME=/Users/smarti/Devel/amber/18; $AMBERHOME/bin/sander -O"
         self.eng.update_chrg( self.mol )
 
-        self.fix = qm3.engines._qmmm.Int_QMLJ( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )
+        self.fix = qm3.engines._mmint.QMLJ( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )
         
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

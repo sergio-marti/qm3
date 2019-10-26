@@ -39,7 +39,7 @@ typedef struct { long siz, _i0, _if; long n_bnd, n_ang, n_dih; long *bnd, *ang, 
 
 typedef struct { long who, _i0, _if, n_lst, *lst, n_dat, *ind; double *xyz, *grd, ene, *dat; } ene_arg;
 
-typedef struct { long who, _i0, _if, n_lst, *lst, n_dat; double *box, *xyz, *grd, ele, vdw, *dat, scl, con, cof, eps; } int_arg;
+typedef struct { long who, _i0, _if, n_lst, *lst, n_dat; double *box, *xyz, *grd, ele, vdw, *dat, *scl, con, cof, eps; } int_arg;
 
 
 
@@ -155,20 +155,6 @@ for( i = 0; i < cpu; i++ ) {
 	}
 }
 free( nel ); for( i = 0; i < nat; i++ ) free( con[i] ); free( con );
-
-/*
-		siz = 0;
-		for( i = 0; i < cpu; i++ ) { siz += arg[i].ang->i; }
-		out = PyList_New( siz );
-		j = 0;
-		for( i = 0; i < cpu; i++ ) {
-			ptr = arg[i].ang->n;
-			while( ptr != NULL ) {
-				PyList_SetItem( out, j++, Py_BuildValue( "[l,l,l]", ptr->i, ptr->j, ptr->k ) );
-				ptr = ptr->n;
-			}
-		}
-*/
 
 		free( rng ); free( lst ); free( pid );
 		for( i = 0; i < cpu; i++ ) {
@@ -302,20 +288,6 @@ for( i = 0; i < cpu; i++ ) {
 	}
 }
 free( nel ); for( i = 0; i < nat; i++ ) free( con[i] ); free( con );
-
-/*
-		siz = 0;
-		for( i = 0; i < cpu; i++ ) { siz += arg[i].dih->i; }
-		out = PyList_New( siz );
-		j = 0;
-		for( i = 0; i < cpu; i++ ) {
-			ptr = arg[i].dih->n;
-			while( ptr != NULL ) {
-				PyList_SetItem( out, j++, Py_BuildValue( "[l,l,l,l]", ptr->i, ptr->j, ptr->k, ptr->l ) );
-				ptr = ptr->n;
-			}
-		}
-*/
 
 		free( rng ); free( lst ); free( pid );
 		for( i = 0; i < cpu; i++ ) {
@@ -482,7 +454,7 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
 		for( i = 0; i < cpu; i++ ) {
 			ptr = arg[i].nbn->n;
 			while( ptr != NULL ) {
-				PyList_SetItem( out, j++, Py_BuildValue( "[l,l]", ptr->i, ptr->j ) );
+				PyList_SetItem( out, j++, Py_BuildValue( "[l,l,d]", ptr->i, ptr->j, 1.0 ) );
 				ptr = ptr->n;
 			}
 		}
@@ -961,27 +933,26 @@ void* __energy_non_bonded( void *args ) {
 			s6  = s3 * s3;
 			if( r2 <= c2on ) {
 				tmp = qij * s;
-				arg->ele += tmp + qij * _el1;
+				arg->ele += arg->scl[i] * ( tmp + qij * _el1 );
 				s12  = s6 * s6;
 				_lj1 = pow( sij / arg->cof * sij / arg->con, 3.0 );
 				_lj2 = _lj1 * _lj1;
-				arg->vdw += eij * ( ( s12 - _lj2 ) - 2.0 * ( s6 - _lj1 ) );
+				arg->vdw += arg->scl[i] * eij * ( ( s12 - _lj2 ) - 2.0 * ( s6 - _lj1 ) );
 				df   = ( 12.0 * eij * ( s6 - s12 ) - tmp ) / r2;
 			} else {
 				r3   =  r * r2;
 				r5   = r3 * r2;
-				arg->ele += qij * ( _a * s - _b * r - _c * r3 - _d * r5 + _el2 );
+				arg->ele += arg->scl[i] * qij * ( _a * s - _b * r - _c * r3 - _d * r5 + _el2 );
 				_lj1 = pow( sij / arg->cof, 3.0 );
 				_lj2 = _lj1 * _lj1;
-				arg->vdw += eij * ( k12 * pow( s6 - _lj2, 2.0 ) - 2.0 * k6 * pow( s3 - _lj1, 2.0 ) );
+				arg->vdw += arg->scl[i] * eij * ( k12 * pow( s6 - _lj2, 2.0 ) - 2.0 * k6 * pow( s3 - _lj1, 2.0 ) );
 				df   = - qij * ( _a / r3 + _b * s + 3.0 * _c * r + 5.0 * _d * r3 ) ;
 				df  -= 12.0 * eij * ( k12 * s6 * ( s6 - _lj2 ) - k6 * s3 * ( s3 - _lj1 ) ) / r2;
 			}
 			if( arg->grd != NULL ) {
-				df *= arg->scl;
 				for( j = 0; j < 3; j++ ) {
-					arg->grd[arg->who+ai+j] += df * dr[j];
-					arg->grd[arg->who+aj+j] -= df * dr[j];
+					arg->grd[arg->who+ai+j] += arg->scl[i] * df * dr[j];
+					arg->grd[arg->who+aj+j] -= arg->scl[i] * df * dr[j];
 				}
 			}
 		}
@@ -1002,10 +973,10 @@ void* __energy_non_bonded( void *args ) {
 			s   = 1.0 / sqrt( r2 );
 			s6  = pow( sij * s, 6.0 );
 			tmp = qij * s;
-			arg->ele += tmp;
-			arg->vdw += eij * s6 * ( s6 - 2.0 );
+			arg->ele += arg->scl[i] * tmp;
+			arg->vdw += arg->scl[i] * eij * s6 * ( s6 - 2.0 );
 			if( arg->grd != NULL ) {
-				df = arg->scl * ( 12.0 * eij * s6 * ( 1.0 - s6 ) - tmp ) / r2;
+				df = arg->scl[i] * ( 12.0 * eij * s6 * ( 1.0 - s6 ) - tmp ) / r2;
 				for( j = 0; j < 3; j++ ) {
 					arg->grd[arg->who+ai+j] += df * dr[j];
 					arg->grd[arg->who+aj+j] -= df * dr[j];
@@ -1014,24 +985,20 @@ void* __energy_non_bonded( void *args ) {
 		}
 
 	}
-
-	arg->ele *= arg->scl;
-	arg->vdw *= arg->scl;
-
 	return( NULL );
 }
 
 static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
 	PyObject	*gradient, *object, *molecule, *otmp, *ptmp, *qtmp;
-	double		*grd, *xyz, *dat, tmp;
+	double		*grd, *xyz, *dat, *scl, tmp;
 	long		i, j, n3, cpu;
 	long		*lst, n_lst, n_dat;
-	double		oel = 0.0, oel14 = 0.0, olj = 0.0, olj14 = 0.0, con, cof, box[3];
+	double		oel = 0.0, olj = 0.0, con, cof, box[3], epsi;
 	long		*rng, dsp, nit;
 	pthread_t	*pid;
 	int_arg		*arg;
 
-	if( PyArg_ParseTuple( args, "OOO", &object, &molecule, &gradient ) ) {
+	if( PyArg_ParseTuple( args, "OOOd", &object, &molecule, &gradient, &epsi ) ) {
 //		cpu  = PyInt_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
 		cpu  = PyLong_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
 
@@ -1068,12 +1035,16 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
 		cof = PyFloat_AsDouble( otmp );
 		Py_DECREF( otmp );
 	
-		// non_bonded > 1-4
+		// non_bonded
 		otmp  = PyObject_GetAttrString( object, "nbnd" );
 		n_lst = PyList_Size( otmp );
 		lst   = (long*) malloc( 2*n_lst * sizeof( long ) );
-		for( i = 0; i < n_lst; i++ )
-			for( j = 0; j < 2; j++ ) lst[2*i+j] = PyLong_AsLong( PyList_GetItem( PyList_GetItem( otmp, i ), j ) );
+		scl   = (double*) malloc( n_lst * sizeof( double ) );
+		for( i = 0; i < n_lst; i++ ) {
+			lst[2*i]   = PyLong_AsLong( PyList_GetItem( PyList_GetItem( otmp, i ), 0 ) );
+			lst[2*i+1] = PyLong_AsLong( PyList_GetItem( PyList_GetItem( otmp, i ), 1 ) );
+			scl[i]     = PyFloat_AsDouble( PyList_GetItem( PyList_GetItem( otmp, i ), 2 ) );
+		}
 		Py_DECREF( otmp );
 	
 		nit = n_lst;
@@ -1086,10 +1057,9 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
 		for( i = 0; i < cpu; i++ ) {
 			arg[i].ele   = 0.0;
 			arg[i].vdw   = 0.0;
-			arg[i].scl   = 1.0;
 			arg[i].con   = con;
 			arg[i].cof   = cof;
-			arg[i].eps   = 1.0;
+			arg[i].eps   = epsi;
 			arg[i].who   = i * n3;
 			arg[i]._i0   = rng[i];
 			arg[i]._if   = rng[i+1];
@@ -1097,6 +1067,7 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
 			arg[i].xyz   = xyz;
 			arg[i].grd   = grd;
 			arg[i].lst   = lst;
+			arg[i].scl   = scl;
 			arg[i].n_lst = n_lst;
 			arg[i].dat   = dat;
 			arg[i].n_dat = n_dat;
@@ -1104,46 +1075,7 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
 		}
 		for( i = 0; i < cpu; i++ ) pthread_join( pid[i], NULL );
 		for( i = 0; i < cpu; i++ ) { oel += arg[i].ele; olj += arg[i].vdw; }
-		free( rng ); free( pid ); free ( lst ); free( arg );
-	
-		// non_bonded == 1-4
-		otmp  = PyObject_GetAttrString( object, "nb14" );
-		n_lst = PyList_Size( otmp );
-		lst   = (long*) malloc( 2*n_lst * sizeof( long ) );
-		for( i = 0; i < n_lst; i++ )
-			for( j = 0; j < 2; j++ ) lst[2*i+j] = PyLong_AsLong( PyList_GetItem( PyList_GetItem( otmp, i ), j ) );
-		Py_DECREF( otmp );
-	
-		nit = n_lst;
-		dsp = (long) ((float)nit / (float)cpu);
-		rng = (long*) malloc( (cpu+1) * sizeof( long ) );
-		if( dsp == 0 ) { for( i = 0; i < cpu+1; i++ ) rng[i] = 0;  for( i = 0; i < nit + 1; i++ ) rng[i] = i; }
-		else { for( i = 0; i < cpu; i++ ) rng[i] = i * dsp; rng[cpu] = nit; }
-		pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
-		arg = (int_arg*) malloc( cpu * sizeof( int_arg ) );
-		for( i = 0; i < cpu; i++ ) {
-			arg[i].ele   = 0.0;
-			arg[i].vdw   = 0.0;
-			arg[i].scl   = 0.5;
-			arg[i].con   = con;
-			arg[i].cof   = cof;
-			arg[i].eps   = 1.0;
-			arg[i].who   = i * n3;
-			arg[i]._i0   = rng[i];
-			arg[i]._if   = rng[i+1];
-			arg[i].box   = box;
-			arg[i].xyz   = xyz;
-			arg[i].grd   = grd;
-			arg[i].lst   = lst;
-			arg[i].n_lst = n_lst;
-			arg[i].dat   = dat;
-			arg[i].n_dat = n_dat;
-			pthread_create( &pid[i], NULL, __energy_non_bonded, (void*) &arg[i] );
-		}
-		for( i = 0; i < cpu; i++ ) pthread_join( pid[i], NULL );
-		for( i = 0; i < cpu; i++ ) { oel14 += arg[i].ele; olj14 += arg[i].vdw; }
-		free( rng ); free( pid ); free ( lst ); free( arg );
-		free( xyz ); free( dat );
+		free( rng ); free( pid ); free ( lst ); free( scl ); free( arg );
 	
 		if( grd != NULL ) {
 			otmp = PyObject_GetAttrString( molecule, "grad" );
@@ -1156,7 +1088,7 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
 		}
 
 		free( grd );
-		return( Py_BuildValue( "(d,d)", oel + oel14, olj + olj14 ) );
+		return( Py_BuildValue( "(d,d)", oel, olj ) );
 	} else { Py_INCREF( Py_None ); return( Py_None ); }
 }
 
@@ -1164,56 +1096,16 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
 // ####################################################################################################################
 
 
-/*
-static PyObject* w_energy( PyObject *self, PyObject *args ) {
-	PyObject	*gradient, *object, *otmp;
-	double		*xyz, out = 0.0, *grd, tmp;
-	long		i, j, n3, cpu;
-
-	if( PyArg_ParseTuple( args, "OO", &object, &gradient ) ) {
-//		cpu  = PyInt_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
-		cpu  = PyLong_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
-
-		otmp = PyObject_GetAttrString( object, "coor" );
-		n3   = PyList_Size( otmp );
-		xyz  = (double*) malloc( n3 * sizeof( double ) );
-		for( i = 0; i < n3; i++ ) xyz[i] = PyFloat_AsDouble( PyList_GetItem( otmp, i ) );
-		Py_DECREF( otmp );
-
-		if( gradient == Py_None ) { grd = NULL; }
-		else { grd = (double*) malloc( cpu*n3 * sizeof( double ) ); for( i = 0; i < cpu*n3; i++ ) grd[i] = 0.0; }
-
-		out += energy_bond( object, cpu, n3, xyz, grd );
-		out += energy_angle( object, cpu, n3, xyz, grd );
-		out += energy_dihedral( object, cpu, n3, xyz, grd );
-		out += energy_non_bonded( object, cpu, n3, xyz, grd );
-
-		if( grd != NULL ) {
-			for( i = 0; i < n3; i++ ) {
-				tmp = 0.0; for( j = 0; j < cpu; j++ ) tmp += grd[i+j*n3];
-				PyList_SetItem( gradient, i, PyFloat_FromDouble( tmp ) );
-			}
-		}
-
-		free( xyz ); free( grd );
-		return( Py_BuildValue( "d", out ) );
-	} else { Py_INCREF( Py_None ); return( Py_None ); }
-}
-*/
-
-
-
 static struct PyMethodDef methods [] = {
 	{ "guess_angles",      (PyCFunction)w_guess_angles,      METH_VARARGS },
 	{ "guess_dihedrals",   (PyCFunction)w_guess_dihedrals,   METH_VARARGS },
 	{ "update_non_bonded", (PyCFunction)w_update_non_bonded, METH_VARARGS },
-	{ "energy_bond",       (PyCFunction)w_energy_bond,       METH_VARARGS },
-	{ "energy_angle",      (PyCFunction)w_energy_angle,      METH_VARARGS },
-	{ "energy_dihedral",   (PyCFunction)w_energy_dihedral,   METH_VARARGS },
-	{ "energy_non_bonded", (PyCFunction)w_energy_non_bonded, METH_VARARGS },
+	{ "ebond",             (PyCFunction)w_energy_bond,       METH_VARARGS },
+	{ "eangle",            (PyCFunction)w_energy_angle,      METH_VARARGS },
+	{ "edihedral",         (PyCFunction)w_energy_dihedral,   METH_VARARGS },
+	{ "enonbonded",        (PyCFunction)w_energy_non_bonded, METH_VARARGS },
     { 0, 0, 0 }
 };
-
 
 
 #if PY_MAJOR_VERSION >= 3

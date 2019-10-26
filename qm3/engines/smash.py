@@ -5,7 +5,6 @@ import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
 import	os
-import	qm3.utils
 import	qm3.engines
 
 
@@ -31,7 +30,7 @@ class smash( qm3.engines.qmbase ):
 			self.vla = []
 			k = len( self.sel )
 			for i,j in self.lnk:
-				c, v = qm3.utils.LA_coordinates( i, j, mol )
+				c, v = qm3.engines.LA_coordinates( i, j, mol )
 				s_qm += "%-2s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] )
 				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
 				k += 1
@@ -74,7 +73,7 @@ class smash( qm3.engines.qmbase ):
 #			self.vla = []
 #			k = len( self.sel )
 #			for i,j in self.lnk:
-#				c, v = qm3.utils.LA_coordinates( i, j, mol )
+#				c, v = qm3.engines.LA_coordinates( i, j, mol )
 #				f.write( "%-2s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] ) )
 #				self.vla.append( ( self.sel.index( i ), k, v[:] ) )
 #				k += 1
@@ -116,7 +115,7 @@ class smash( qm3.engines.qmbase ):
 		f.close()
 		mol.func += e
 		if( run == "grad" ):
-			qm3.utils.LA_gradient( self.vla, g_qm )
+			qm3.engines.LA_gradient( self.vla, g_qm )
 			for i in range( len( self.sel ) ):
 				i3 = i * 3
 				for j in [0, 1, 2]:

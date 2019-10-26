@@ -45,28 +45,18 @@ print( "Binary version available:", qm3.engines.mol_mech.mol_mech_so )
 
 #qm3.engines.mol_mech.mol_mech_so = False
 
-o = qm3.engines.mol_mech.simple_force_field()
+o = qm3.engines.mol_mech.simple_force_field( m, impr = [ [ 8-1, 14-1, 15-1, 4-1, 150.0, 0.0 ] ] )
 o.cut_on   = -1
 o.cut_off  = -1
 o.cut_list = -1
-o.parse_molecule( m )
-o.guess_partial_charges( m, "eem" )
-
-_g = m.chrg[:]
-m.chrg = [ .0 for i in range( m.natm ) ]
-o.guess_partial_charges( m, "gasteiger" )
-t = m.chrg[:]
-m.chrg = _g[:]
 
 print( 80*"=" )
-print( "%-4s%-4s%8s%8s%10s "%( "", "Atm", "Gast", "EEM", "Typ" ), "Con" )
+print( "%-4s%-4s%8s%10s "%( "", "Atm", "Chrg", "Typ" ), "Con" )
 for i in range( m.natm ):
-    print( "%-4d%-4s%8.3lf%8.3lf%10s "%( i, m.labl[i], t[i], m.chrg[i], m.type[i] ), o.conn[i] )
+    print( "%-4d%-4s%8.3lf%10s "%( i, m.labl[i], m.chrg[i], m.type[i] ), o.conn[i] )
 print( 80*"-" )
 print( "Charge: %8.3lf"%( sum( m.chrg ) ) )
 
-print( "Available parameters:", o.load_parameters( m ) )
-o.impr = [ [ 8-1, 14-1, 15-1, 4-1, 150.0, 0.0 ] ]
 m.func = 0.0
 m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
 o.get_grad( m, qprint = True )
@@ -76,18 +66,9 @@ qm3.maths.matrix.mprint( m.grad, m.natm, 3 )
 import qm3.actions.minimize
 import qm3.problem
 class my_obj( qm3.problem.template ):
-    def __init__( self, mol ):
-        self.mol = qm3.mol.molecule()
-        self.mol.append( mol )
-        self.eng = qm3.engines.mol_mech.simple_force_field()
-        self.eng.cut_on   = -1
-        self.eng.cut_off  = -1
-        self.eng.cut_list = -1
-        self.eng.parse_molecule( self.mol )
-        self.mol.type[13] = "O.co2"
-        self.mol.type[14] = "O.co2"
-        self.eng.load_parameters( self.mol )
-        self.eng.impr = [ [ 8-1, 14-1, 15-1, 4-1, 150.0, 0.0 ] ]
+    def __init__( self, mol, eng ):
+        self.mol = mol
+        self.eng = eng
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor
         self.func = 0.0
@@ -105,26 +86,7 @@ class my_obj( qm3.problem.template ):
         self.func = self.mol.func
         self.grad = self.mol.grad
     
-x = my_obj( m )
+x = my_obj( m, o )
 qm3.actions.minimize.fire( x, step_number = 1000, print_frequency = 100, gradient_tolerance = 1.0 )
 x.mol.xyz_write( "xyz" )
 x.get_func()
-#################################################################################
-
-m = o.remove_non_polar_H( m )
-
-print( 80*"=" )
-print( "%-4s%-4s%8s%10s "%( "", "Atm", "Chrg", "Typ" ), "Con" )
-for i in range( m.natm ):
-    print( "%-4d%-4s%8.3lf%10s "%( i, m.labl[i], m.chrg[i], m.type[i] ), o.conn[i] )
-print( 80*"-" )
-print( "Charge: %8.3lf"%( sum( m.chrg ) ) )
-
-print( 80*"=" )
-print( "Top_index[Randic]:", o.topind_Randic() )
-print( "Top_index[Hosoya]:", o.topind_Hosoya() )
-if( len( o.bond ) <= 20 ):
-    print( "Top_index[Wiener]:", o.topind_Wiener() )
-print( "Top_index[QNA(1,0)]:", o.topind_QNA( m, 1, 0 ) )
-print( "Top_index[QNA(0,1)]:", o.topind_QNA( m, 0, 1 ) )
-print( "Top_index[QNA(1,1)]:", o.topind_QNA( m, 1, 1 ) )

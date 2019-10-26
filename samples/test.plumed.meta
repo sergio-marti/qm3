@@ -1,8 +1,8 @@
 import sys
 import qm3.actions.dynamics
-import qm3.engines.restraints
+import qm3.engines.mmres
 import qm3.engines._plumed
-import qm3.engines._qmmm
+import qm3.engines._mmint
 import qm3.problem
 import qm3.mol
 import qm3.io.dcd
@@ -43,15 +43,15 @@ class my_problem( qm3.problem.template ):
 		self.eqm.prm = "/home/gpuser/plumed/3ob-3-1/"
 		self.eqm.exe = "bash r.dftb"
 
-		self.fix = qm3.engines._qmmm.Int_QMLJ( self.mol, s_qm, s_mm, [] )
+		self.fix = qm3.engines._mmint.QMLJ( self.mol, s_qm, s_mm, [] )
 
 		self.rst = qm3.engines._plumed.Plumed( self.mol, 0.001, False )
 
 		# -- walls
-		self.ld1 = qm3.engines.restraints.distance( 10000., 1.4, [ 1, 2 ], skip_BE = 1.4 )
-		self.ud1 = qm3.engines.restraints.distance( 10000., 4.2, [ 1, 2 ], skip_LE = 4.2 )
-		self.ld2 = qm3.engines.restraints.distance( 10000., 1.4, [ 4, 5 ], skip_BE = 1.4 )
-		self.ud2 = qm3.engines.restraints.distance( 10000., 4.2, [ 4, 5 ], skip_LE = 4.2 )
+		self.ld1 = qm3.engines.mmres.distance( 10000., 1.4, [ 1, 2 ], skip_BE = 1.4 )
+		self.ud1 = qm3.engines.mmres.distance( 10000., 4.2, [ 1, 2 ], skip_LE = 4.2 )
+		self.ld2 = qm3.engines.mmres.distance( 10000., 1.4, [ 4, 5 ], skip_BE = 1.4 )
+		self.ud2 = qm3.engines.mmres.distance( 10000., 4.2, [ 4, 5 ], skip_LE = 4.2 )
 
 		self.size = self.mol.natm * 3
 		self.coor = self.mol.coor[:]

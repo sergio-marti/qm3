@@ -1,7 +1,7 @@
 include config
 
 
-all: matrix minimize cions volume colvar_v qmmm mol_mech ode fitpack grids dynamo shm conn
+all: matrix minimize cions volume colvar_v mmint mol_mech ode fitpack grids dynamo shm conn
 
 
 cions:
@@ -48,8 +48,8 @@ long_elec:
 	$(PYX) setup.long_elec build_ext --build-lib qm3/engines
 
 
-qmmm:
-	$(PYX) setup.qmmm build_ext --build-lib qm3/engines
+mmint:
+	$(PYX) setup.mmint build_ext --build-lib qm3/engines
 
 
 mol_mech:
