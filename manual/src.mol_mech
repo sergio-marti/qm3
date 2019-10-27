@@ -2,47 +2,22 @@
 \subsection[mol\_mech]{mol\_mech.py}
 This module provides a basic (and inefficient) force-field implementation to perform basic molecular mechanics analysis.
 Some of the methods can take profit of the binary threaded version (\_mol\_mech.so) to improve performance.
-We can find three family of methods:
-1) methods for guessing molecular data (such as the internal connectivity and atoms types: \func{parse\_molecule}, 
-or Electronegativity Equalization Method partial charges: \func{guess\_partial\_charges}, which uses "mol.chrg" as a starting
-point for those molecules with formal charges).
-2) methods for calculating the internal energy of the molecule (\func{get\_func}, \func{get\_grad}).
-3) methods providing topological indexes (QSAR: \func{topind\_*}), once non-polar hydrogens have been removed.
+For agiven molecule object, if the list of bonds (\parm{bond}: i,j), angles (\parm{angl}: i,j,k), dihedrals (\parm{dihe}: i,j,k,l), or impropers (\parm{impr}: central\_i, j, k, l, kumb\_kJ/mol.rad\^{}2, ref\_deg) are not provided, then they are guessed/calculated. The atom types (\parm{qtyp} / mol.type) and the Electronegativity Equalization Method partial charges (\parm{qchg} / mol.chrg) are also able to be determined. The default path (\parm{ppath}) for the parameters ("mol\_mech.prm" and "mol\_mech.eem") can also be modified.
+Finally, both methods for calculating the internal energy of the molecule (\func{get\_func}, \func{get\_grad}) are also provided, to be used in a problem object.
 \\
 Example of the parameters used can be found in the "mol\_mech.prm" file.
 \begin{pyglist}[language=python,fvset={frame=single}]
-class simple_force_field
+class simple_force_field( mol, bond = [], angl = [], dihe = [], impr = [],
+                          qtyp = True, qchg = True, ppath = None )
     ncpu     = C:{os.sysconf( 'SC_NPROCESSORS_ONLN' )} // Python:{1}
     cut_on   = 10.0
     cut_off  = 12.0
     cut_list = 14.0
 
-    def guess_bonds( mol, quick = False )
-    def calc_connectivity()
-    def guess_types( mol )
-    def guess_angles()
-    def guess_dihedrals()
-    def parse_molecule( mol )
-    def guess_partial_charges( mol )
-    
-    def load_parameters( mol, ffield = None )
-
-    def energy_bond( mol, gradient = False )
-    def energy_angle( mol, gradient = False )
-    def energy_dihedral( mol, gradient = False )
-    def energy_improper( mol, gradient = False )
-
+    def qm_atoms( sele )
     def update_non_bonded( mol )
-    def energy_non_bonded( mol, gradient = False, epsilon = 1.0 )
-
     def get_func( mol, qprint = False )
     def get_grad( mol, qprint = False )
-    
-    def remove_non_polar_H( mol )
-    def topind_Randic()
-    def topind_Hosoya()
-    def topind_Wiener()
-    def topind_QNA( mol, u, v )
 \end{pyglist}
 
 \footnotesize
@@ -51,4 +26,10 @@ class simple_force_field
 \end{pyglist}
 \begin{pyglist}[fvset={frame=single}]
 #SOURCE@../samples/logs/test.mol_mech.log
+\end{pyglist}
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.qmmm
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.qmmm.log
 \end{pyglist}
