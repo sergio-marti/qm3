@@ -8,6 +8,11 @@ import	os
 import	math
 import	qm3.constants
 import	qm3.io
+import	qm3.utils
+try:
+	import	cPickle as pickle
+except:
+	import 	pickle
 
 
 
@@ -94,7 +99,7 @@ def exclussions( sele_QM, molec, bonds = None ):
 			natm = max( natm, max( i, j ) )
 		natm += 1
 	else:
-		bond = connectivity( molec )
+		bond = qm3.utils.connectivity( molec )
 		natm = molec.natm
 	atmm = []
 	conn = []

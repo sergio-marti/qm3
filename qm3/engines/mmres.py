@@ -722,7 +722,7 @@ class multiple_distance( object ):
 	force_constant [kJ/mol.A^2]
 	reference [A]
 		"""
-		if( len( weigh ) * 2 != len( indx ) ):
+		if( len( weigth ) * 2 != len( indx ) ):
 			print( "- restraints.multiple_distance: Number of ATOMS should be TWICE the number of WEIGHTS!" )
 			return( None )
 		self.kumb = kumb

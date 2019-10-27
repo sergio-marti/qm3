@@ -153,9 +153,9 @@ class simple_force_field( object ):
 					mol.type[i] = "S.x"
 				else:
 					mol.type[i] = "S.2"
-			elif( mol.type[i] == "S_3" and _any( [ "O_1", "O.2" ], [ mol.type[j] for j in self.conn[i] ] ) ):
+			elif( mol.type[i] == "S_3" and __any( [ "O_1", "O.2" ], [ mol.type[j] for j in self.conn[i] ] ) ):
 				mol.type[i] = "S.o"
-			elif( mol.type[i] == "S_4" and _any( [ "O_1", "O.2" ], [ mol.type[j] for j in self.conn[i] ] ) ):
+			elif( mol.type[i] == "S_4" and __any( [ "O_1", "O.2" ], [ mol.type[j] for j in self.conn[i] ] ) ):
 				mol.type[i] = "S.o2"
 
 
