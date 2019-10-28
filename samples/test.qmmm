@@ -98,8 +98,9 @@ O.2     -0.5100
 			bnd.append( [ tmp[2*i], tmp[2*i+1] ] )
 		f.close()
 
-		self.eMM = qm3.engines.mol_mech.simple_force_field( self.mol,
-						bond = bnd, qtyp = False, qchg = False )
+		self.eMM = qm3.engines.mol_mech.simple_force_field( self.mol )
+		self.eMM.topology( self.mol, bond = bnd, qtyp = False, qchg = False )
+		self.eMM.parameters( self.mol )
 		self.eMM.update_non_bonded( self.mol )
 
 		sqm = [ 11-1, 12-1, 13-1, 14-1, 15-1, 16-1, 17-1, 18-1, 19-1, 20-1 ]

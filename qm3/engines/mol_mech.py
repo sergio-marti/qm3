@@ -26,25 +26,23 @@ except:
 # SFF: Simple Force Field
 #
 class simple_force_field( object ):
-	def __init__( self, mol, bond = [], angl = [], dihe = [], impr = [], qtyp = True, qchg = True, ppath = None ):
-		"""
-		impr = [ [ central_i, j, k, l, kmb (kal/mol.rad^2), ref (deg) ], ... ]
-		"""
+	def __init__( self, mol ):
+		self.ncpu = 1
 		if( mol_mech_so ):
 			self.ncpu = os.sysconf( 'SC_NPROCESSORS_ONLN' )
-		else:
-			self.ncpu = 1
 		self.cut_on   = 10.0
 		self.cut_off  = 12.0
 		self.cut_list = 14.0
-		# local vars
 		self.natm     = mol.natm
 		self.nbnd     = []
 		self.qmat     = [ False for i in range( self.natm ) ]
-		if( ppath ):
-			self.path = ppath + os.sep
-		else:
-			self.path = os.path.abspath( os.path.dirname( inspect.getfile( self.__class__ ) ) ) + os.sep
+		self.path     = os.path.abspath( os.path.dirname( inspect.getfile( self.__class__ ) ) ) + os.sep
+
+
+	def topology( self, mol, bond = [], angl = [], dihe = [], impr = [], qtyp = True, qchg = True ):
+		"""
+		impr = [ [ central_i, j, k, l, kmb (kal/mol.rad^2), ref (deg) ], ... ]
+		"""
 		# guess (or not) bonds
 		if( bond != [] ):
 			self.bond = bond[:]
@@ -79,10 +77,6 @@ class simple_force_field( object ):
 		# guess (or not) partial charges
 		if( qchg and mol.chrg != [] ):
 			self.__charges( mol )
-		# load parameters
-		self.__parameters( mol )
-
-
 
 	
 	# SYBYL atom types (kinda)
@@ -224,7 +218,9 @@ class simple_force_field( object ):
 		mol.chrg = qm3.maths.matrix.solve( mat, vec )[0:mol.natm]
 
 
-	def __parameters( self, mol ):
+	def parameters( self, mol, path = None ):
+		if( path ):
+			self.path = path + os.sep
 		out = True
 		self.bond_data = []
 		self.bond_indx = []
