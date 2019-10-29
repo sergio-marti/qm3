@@ -1,16 +1,23 @@
 \normalsize
 \subsection[mmres]{mmres.py}
-This (in process) module offers basic classes for applying harmonic restraints. The umbrella energy is
+This module offers basic classes for applying harmonic restraints: \func{distance}, \func{angle},
+\func{dihedral}, \func{improper}, \func{multiple\_distance} and \func{tether}. The umbrella energy is
 accumulated to "molec.func", and the gradient to "molec.grad". Additionally,
 all methods return the value of the geometrical parameter (distance, ...).\\
-For the \func{distance} class, \parm{indx} is a two-elements-list containing the indexes of the atoms. Also,
-the restraint won't be applied if the distance value is lower (or equal) than \parm{skip\_LE}, 
-or bigger (or equal) than \parm{skip\_BE}.\\
-The \func{angle} defines an angle constraint based on the three-elements-list \parm{indx} and the reference
- value \parm{xref} expressed in \textbf{degrees}.\\
-In the \func{multiple\_distance}, the parameter \parm{indx} is a list containing as much indexes as twice the number of distances
-involved in the combination; and \parm{weigh} is a list with the coefficients for the linear combination (sized half 
-of \parm{indx}).
+Moreover, the basic harmonic constraints functions (\textbf{mm\_*}) are also provided (for patching QM-MM partitions,...): The arguments
+\parm{ffac} and \parm{gfac} allow to recover the gradient on the QM atoms without modifying the energy,
+or the gradient in the MM counterpart. These constraints also offer hessian terms (analytical for bonds, and
+auto-numerical for the rest). When used (\parm{hess} = True), the parameter \parm{hind} must be
+supplied (as an argument in functions or property in objects), and should point each atom in the restraint to its place in the hessian matrix, or \textbf{-1}
+whenever it does not participate (MM atom in a LA boundary).
+%For the \func{distance} class, \parm{indx} is a two-elements-list containing the indexes of the atoms. Also,
+%the restraint won't be applied if the distance value is lower (or equal) than \parm{skip\_LE}, 
+%or bigger (or equal) than \parm{skip\_BE}.\\
+%The \func{angle} defines an angle constraint based on the three-elements-list \parm{indx} and the reference
+% value \parm{xref} expressed in \textbf{degrees}.\\
+%In the \func{multiple\_distance}, the parameter \parm{indx} is a list containing as much indexes as twice the number of distances
+%involved in the combination; and \parm{weigh} is a list with the coefficients for the linear combination (sized half 
+%of \parm{indx}).
 \begin{pyglist}[language=python,fvset={frame=single}]
 def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
              ffac = 1.0, grad = False, gfac = [ 1.0, 1.0 ],

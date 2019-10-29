@@ -3,6 +3,11 @@ import  sys
 import  re
 
 
+#
+# This script builds a "personalized" mol_mech.prm from a psf and a parameters files
+#
+
+
 if( len( sys.argv ) == 1 ):
     print( "%s psf par"%( sys.argv[0] ) )
     sys.exit( 1 )
