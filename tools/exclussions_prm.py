@@ -8,7 +8,7 @@ if( sys.version_info[0] == 2 ):
 import  re
 
 if( len( sys.argv ) == 1 ):
-	print( "%s prm          [>> works on exclussions.src]" )
+	print( "%s prm          [>> works on exclussions.src]"%( sys.argv[0] ) )
 	sys.exit(1)
 
 f = open( "exclussions.src", "rt" )
