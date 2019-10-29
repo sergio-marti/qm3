@@ -393,7 +393,7 @@ class simple_force_field( object ):
 				del self.dihe_indx[i]
 		# delete QM-QM-QM-MM impropers
 		for i in range( len( self.impr ) -1, -1, -1 ):
-			if( sum( [ self.qmat[j] for j in self.impr[i] ] ) >= 3 ):
+			if( sum( [ self.qmat[j] for j in self.impr[i][0:4] ] ) >= 3 ):
 				del self.impr[i]
 		# delete QM-QM non_bonded
 		for i in range( len( self.nbnd ) -1, -1, -1 ):
@@ -516,7 +516,7 @@ class simple_force_field( object ):
 							if( not f ):
 								self.nbnd.append( [ i, j, 1.0 ] )
 		for i,j,k,l in self.dihe:
-			if( not ( self.qmat[l] and self.qmat[l] ) ):
+			if( not ( self.qmat[i] and self.qmat[l] ) ):
 				self.nbnd.append( [ i, l, 0.5 ] )
 						
 
@@ -542,61 +542,63 @@ class simple_force_field( object ):
 				k6   = ( self.cut_off * c2of ) / ( self.cut_off * c2of - self.cut_on * c2on )
 				k12  = math.pow( c2of, 3.0 ) / ( math.pow( c2of, 3.0 ) - math.pow( c2on, 3.0 ) )
 				for i,j,f in self.nbnd:
-					ai = i * 3
-					aj = j * 3
-					dr = [ ii-jj for ii,jj in zip( mol.coor[ai:ai+3], mol.coor[aj:aj+3] ) ]
-					dr = [ dr[k] - mol.boxl[k] * round( dr[k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2] ]
-					r2 = sum( [ ii*ii for ii in dr ] )
-					if( r2 > c2of ):
-						continue
-					eij = mol.epsi[i] * mol.epsi[j]
-					sij = mol.rmin[i] + mol.rmin[j]
-					qij = mol.chrg[i] * mol.chrg[j] * epsf
-					r   = math.sqrt( r2 )
-					s   = 1.0 / r
-					s3  = math.pow( sij * s, 3.0 )
-					s6  = s3 * s3
-					if( r2 <= c2on ):
-						tmp = qij * s
-						oel += f * ( tmp + qij * _el1 )
-						s12  = s6 * s6
-						_lj1 = math.pow( sij / self.cut_off * sij / self.cut_on, 3.0 )
-						_lj2 = _lj1 * _lj1
-						olj += f * eij * ( ( s12 - _lj2 ) - 2.0 * ( s6 - _lj1 ) )
-						df   = ( 12.0 * eij * ( s6 - s12 ) - tmp ) / r2
-					else:
-						r3   = r * r2
-						r5   = r3 * r2
-						oel += f * qij * ( _a * s - _b * r - _c * r3 - _d * r5 + _el2 )
-						_lj1 = math.pow( sij / self.cut_off, 3.0 )
-						_lj2 = _lj1 * _lj1
-						olj += f * eij * ( k12 * math.pow( s6 - _lj2, 2.0 ) - 2.0 * k6 * math.pow( s3 - _lj1, 2.0 ) )
-						df   = - qij * ( _a / r3 + _b * s + 3.0 * _c * r + 5.0 * _d * r3 ) 
-						df  -= 12.0 * eij * ( k12 * s6 * ( s6 - _lj2 ) - k6 * s3 * ( s3 - _lj1 ) ) / r2
-					if( gradient ):
-						for j in [0, 1, 2]:
-							mol.grad[ai+j] += f * df * dr[j]
-							mol.grad[aj+j] -= f * df * dr[j]
+					if( self.free[i] or self.free[j] ):
+						ai = i * 3
+						aj = j * 3
+						dr = [ ii-jj for ii,jj in zip( mol.coor[ai:ai+3], mol.coor[aj:aj+3] ) ]
+						dr = [ dr[k] - mol.boxl[k] * round( dr[k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2] ]
+						r2 = sum( [ ii*ii for ii in dr ] )
+						if( r2 > c2of ):
+							continue
+						eij = mol.epsi[i] * mol.epsi[j]
+						sij = mol.rmin[i] + mol.rmin[j]
+						qij = mol.chrg[i] * mol.chrg[j] * epsf * ( not self.qmat[i] ) * ( not self.qmat[j] )
+						r   = math.sqrt( r2 )
+						s   = 1.0 / r
+						s3  = math.pow( sij * s, 3.0 )
+						s6  = s3 * s3
+						if( r2 <= c2on ):
+							tmp = qij * s
+							oel += f * ( tmp + qij * _el1 )
+							s12  = s6 * s6
+							_lj1 = math.pow( sij / self.cut_off * sij / self.cut_on, 3.0 )
+							_lj2 = _lj1 * _lj1
+							olj += f * eij * ( ( s12 - _lj2 ) - 2.0 * ( s6 - _lj1 ) )
+							df   = ( 12.0 * eij * ( s6 - s12 ) - tmp ) / r2
+						else:
+							r3   = r * r2
+							r5   = r3 * r2
+							oel += f * qij * ( _a * s - _b * r - _c * r3 - _d * r5 + _el2 )
+							_lj1 = math.pow( sij / self.cut_off, 3.0 )
+							_lj2 = _lj1 * _lj1
+							olj += f * eij * ( k12 * math.pow( s6 - _lj2, 2.0 ) - 2.0 * k6 * math.pow( s3 - _lj1, 2.0 ) )
+							df   = - qij * ( _a / r3 + _b * s + 3.0 * _c * r + 5.0 * _d * r3 ) 
+							df  -= 12.0 * eij * ( k12 * s6 * ( s6 - _lj2 ) - k6 * s3 * ( s3 - _lj1 ) ) / r2
+						if( gradient ):
+							for j in [0, 1, 2]:
+								mol.grad[ai+j] += f * df * dr[j]
+								mol.grad[aj+j] -= f * df * dr[j]
 			else:
 				for i,j,f in self.nbnd:
-					ai  = i * 3
-					aj  = j * 3
-					dr  = [ ii-jj for ii,jj in zip( mol.coor[ai:ai+3], mol.coor[aj:aj+3] ) ]
-					dr = [ dr[k] - mol.boxl[k] * round( dr[k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2] ]
-					r2  = sum( [ ii*ii for ii in dr ] )
-					eij = mol.epsi[i] * mol.epsi[j]
-					sij = mol.rmin[i] + mol.rmin[j]
-					qij = mol.chrg[i] * mol.chrg[j] * epsf
-					r   = 1.0 / math.sqrt( r2 )
-					s6  = math.pow( sij * r, 6.0 )
-					tmp = qij * r
-					oel += f * tmp
-					olj += f * eij * s6 * ( s6 - 2.0 )
-					if( gradient ):
-						df = f * ( 12.0 * eij * s6 * ( 1.0 - s6 ) - tmp ) / r2;
-						for j in [0, 1, 2]:
-							mol.grad[ai+j] += df * dr[j]
-							mol.grad[aj+j] -= df * dr[j]
+					if( self.free[i] or self.free[j] ):
+						ai  = i * 3
+						aj  = j * 3
+						dr  = [ ii-jj for ii,jj in zip( mol.coor[ai:ai+3], mol.coor[aj:aj+3] ) ]
+						dr = [ dr[k] - mol.boxl[k] * round( dr[k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2] ]
+						r2  = sum( [ ii*ii for ii in dr ] )
+						eij = mol.epsi[i] * mol.epsi[j]
+						sij = mol.rmin[i] + mol.rmin[j]
+						qij = mol.chrg[i] * mol.chrg[j] * epsf * ( not self.qmat[i] ) * ( not self.qmat[j] )
+						r   = 1.0 / math.sqrt( r2 )
+						s6  = math.pow( sij * r, 6.0 )
+						tmp = qij * r
+						oel += f * tmp
+						olj += f * eij * s6 * ( s6 - 2.0 )
+						if( gradient ):
+							df = f * ( 12.0 * eij * s6 * ( 1.0 - s6 ) - tmp ) / r2;
+							for j in [0, 1, 2]:
+								mol.grad[ai+j] += df * dr[j]
+								mol.grad[aj+j] -= df * dr[j]
 		return( oel, olj )
 
 
