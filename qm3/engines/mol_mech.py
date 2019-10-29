@@ -7,18 +7,22 @@ if( sys.version_info[0] == 2 ):
 import	math
 import	os
 import	inspect
+import	multiprocessing
 import	qm3.elements
 import	qm3.maths.matrix
 import	qm3.mol
 import	qm3.utils
 import	qm3.constants
 import	qm3.engines.mmres
+import	qm3.io
 
 try:
 	import qm3.engines._mol_mech
 	mol_mech_so = True
+	print( ">> mol_mech: C version" )
 except:
 	mol_mech_so = False
+	print( ">> mol_mech: PYTHON version" )
 
 
 
@@ -33,10 +37,11 @@ class simple_force_field( object ):
 		self.cut_on   = 10.0
 		self.cut_off  = 12.0
 		self.cut_list = 14.0
-		self.natm     = mol.natm
-		self.nbnd     = []
-		self.qmat     = [ False for i in range( self.natm ) ]
-		self.path     = os.path.abspath( os.path.dirname( inspect.getfile( self.__class__ ) ) ) + os.sep
+		self.natm	 = mol.natm
+		self.nbnd	 = []
+		self.qmat	 = [ False for i in range( self.natm ) ]
+		self.free	 = [ True  for i in range( self.natm ) ]
+		self.path	 = os.path.abspath( os.path.dirname( inspect.getfile( self.__class__ ) ) ) + os.sep
 
 
 	def topology( self, mol, bond = [], angl = [], dihe = [], impr = [], qtyp = True, qchg = True ):
@@ -48,8 +53,6 @@ class simple_force_field( object ):
 			self.bond = bond[:]
 		else:
 			self.bond = qm3.utils.connectivity( mol )
-		self.bond_data = []
-		self.bond_indx = []
 		# build connectivity
 		self.conn = [ [] for i in range( self.natm ) ]
 		for i,j in self.bond:
@@ -60,15 +63,11 @@ class simple_force_field( object ):
 			self.angl = angl[:]
 		else:
 			self.__angles()
-		self.angl_data = []
-		self.angl_indx = []
 		# guess (or not) dihedrals
 		if( dihe != [] ):
 			self.dihe = dihe[:]
 		else:
 			self.__dihedrals()
-		self.dihe_data = []
-		self.dihe_indx = []
 		# copy impropers (if any...)
 		self.impr = impr[:]
 		# guess (or not) atom types
@@ -218,6 +217,60 @@ class simple_force_field( object ):
 		mol.chrg = qm3.maths.matrix.solve( mat, vec )[0:mol.natm]
 
 
+	def psf_read( self, mol, fname ):
+		self.impr = []
+		impr = []
+		fd = qm3.io.open_r( fname )
+		fd.readline()
+		fd.readline()
+		for i in range( int( fd.readline().strip().split()[0] ) + 1 ):
+			fd.readline()
+		if( mol.natm == int( fd.readline().split()[0] ) ):
+			mol.type = []
+			mol.chrg = []
+			mol.mass = []
+			for i in range( mol.natm ):
+				t = fd.readline().strip().split()
+				mol.type.append( t[5] )
+				mol.chrg.append( float( t[6] ) )
+				mol.mass.append( float( t[7] ) )
+			fd.readline()
+			self.bond = []
+			n = int( fd.readline().strip().split()[0] )
+			while( len( self.bond ) < n ):
+				t = [ int( i ) - 1 for i in fd.readline().strip().split() ]
+				for i in range( len( t ) // 2 ):
+					self.bond.append( [ t[2*i], t[2*i+1] ] )
+			self.conn = [ [] for i in range( self.natm ) ]
+			for i,j in self.bond:
+				self.conn[i].append( j )
+				self.conn[j].append( i )
+			fd.readline()
+			self.angl = []
+			n = int( fd.readline().strip().split()[0] )
+			while( len( self.angl ) < n ):
+				t = [ int( i ) - 1 for i in fd.readline().strip().split() ]
+				for i in range( len( t ) // 3 ):
+					self.angl.append( [ t[3*i], t[3*i+1], t[3*i+2] ] )
+			fd.readline()
+			self.dihe = []
+			n = int( fd.readline().strip().split()[0] )
+			while( len( self.dihe ) < n ):
+				t = [ int( i ) - 1 for i in fd.readline().strip().split() ]
+				for i in range( len( t ) // 4 ):
+					self.dihe.append( [ t[4*i], t[4*i+1], t[4*i+2], t[4*i+3] ] )
+			fd.readline()
+			n = int( fd.readline().strip().split()[0] )
+			while( len( impr ) < n ):
+				t = [ int( i ) - 1 for i in fd.readline().strip().split() ]
+				for i in range( len( t ) // 4 ):
+					impr.append( [ t[4*i], t[4*i+1], t[4*i+2], t[4*i+3] ] )
+		else:
+			print( "- Invalid number of atoms in PSF!" )
+		qm3.io.close( fd, fname )
+		return( impr )
+
+
 	def parameters( self, mol, path = None ):
 		if( path ):
 			self.path = path + os.sep
@@ -228,6 +281,8 @@ class simple_force_field( object ):
 		self.angl_indx = []
 		self.dihe_data = []
 		self.dihe_indx = []
+		self.impr_data = []
+		self.impr_indx = []
 		f = open( self.path + "mol_mech.prm", "rt" )
 		tmp_typ = {}
 		cnt_bnd = 0
@@ -236,6 +291,8 @@ class simple_force_field( object ):
 		tmp_ang = {}
 		cnt_dih = 0
 		tmp_dih = {}
+		cnt_imp = 0
+		tmp_imp = {}
 		for l in f:
 			t = l.strip().split()
 			if( len( t ) > 0 and t[0][0] != "#" ):
@@ -344,7 +401,6 @@ class simple_force_field( object ):
 				del self.nbnd[i]
 		
 
-
 	def __ebond( self, mol, gradient = False ):
 		if( self.bond == [] ):
 			return( 0.0 )
@@ -354,12 +410,13 @@ class simple_force_field( object ):
 			bak = mol.func
 			out = 0.0
 			for i in range( len( self.bond ) ):
-				mol.func = 0.0
-				qm3.engines.mmres.mm_bond( mol, self.bond_data[self.bond_indx[i]][0],
-					self.bond_data[self.bond_indx[i]][1],
-					self.bond[i][0], self.bond[i][1],
-					ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0 ] )
-				out += mol.func
+				if( self.free[self.bond[i][0]] or self.free[self.bond[i][1]] ):
+					mol.func = 0.0
+					qm3.engines.mmres.mm_bond( mol, self.bond_data[self.bond_indx[i]][0],
+						self.bond_data[self.bond_indx[i]][1],
+						self.bond[i][0], self.bond[i][1],
+						ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0 ] )
+					out += mol.func
 			mol.func = bak
 		return( out )
 
@@ -373,12 +430,13 @@ class simple_force_field( object ):
 			bak = mol.func
 			out = 0.0
 			for i in range( len( self.angl ) ):
-				mol.func = 0.0
-				qm3.engines.mmres.mm_angle( mol, self.angl_data[self.angl_indx[i]][0],
-					self.angl_data[self.angl_indx[i]][1],
-					self.angl[i][0], self.angl[i][1], self.angl[i][2],
-					ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0, 1.0 ] )
-				out += mol.func
+				if( self.free[self.angl[i][0]] or self.free[self.angl[i][1]] or self.free[self.angl[i][2]] ):
+					mol.func = 0.0
+					qm3.engines.mmres.mm_angle( mol, self.angl_data[self.angl_indx[i]][0],
+						self.angl_data[self.angl_indx[i]][1],
+						self.angl[i][0], self.angl[i][1], self.angl[i][2],
+						ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0, 1.0 ] )
+					out += mol.func
 			mol.func = bak
 		return( out )
 
@@ -392,11 +450,13 @@ class simple_force_field( object ):
 			out = 0.0
 			bak = mol.func
 			for i in range( len( self.dihe ) ):
-				mol.func = 0.0
-				qm3.engines.mmres.mm_dihedral( mol, self.dihe_data[self.dihe_indx[i]],
-					self.dihe[i][0], self.dihe[i][1], self.dihe[i][2], self.dihe[i][3],
-					ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0, 1.0, 1.0 ] )
-				out += mol.func
+				if( self.free[self.dihe[i][0]] or self.free[self.dihe[i][1]] or self.free[self.dihe[i][2]]
+										or self.free[self.dihe[i][3]] ):
+					mol.func = 0.0
+					qm3.engines.mmres.mm_dihedral( mol, self.dihe_data[self.dihe_indx[i]],
+						self.dihe[i][0], self.dihe[i][1], self.dihe[i][2], self.dihe[i][3],
+						ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0, 1.0, 1.0 ] )
+					out += mol.func
 			mol.func = bak
 		return( out )
 
@@ -407,11 +467,13 @@ class simple_force_field( object ):
 		out = 0.0
 		bak = mol.func
 		for i in range( len( self.impr ) ):
-			mol.func = 0.0
-			qm3.engines.mmres.mm_improper( mol, self.impr[i][4] * qm3.constants.K2J, self.impr[i][5],
-				self.impr[i][0], self.impr[i][1], self.impr[i][2], self.impr[i][3],
-				ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0, 1.0, 1.0 ] )
-			out += mol.func
+			if( self.free[self.impr[i][0]] or self.free[self.impr[i][1]] or self.free[self.impr[i][2]]
+									or self.free[self.impr[i][3]] ):
+				mol.func = 0.0
+				qm3.engines.mmres.mm_improper( mol, self.impr[i][4] * qm3.constants.K2J, self.impr[i][5],
+					self.impr[i][0], self.impr[i][1], self.impr[i][2], self.impr[i][3],
+					ffac = 1.0, grad = gradient, gfac = [ 1.0, 1.0, 1.0, 1.0 ] )
+				out += mol.func
 		mol.func = bak
 		return( out )
 

@@ -552,7 +552,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 						self.type.append( None )
 						self.chrg.append( None )
 						self.mass.append( None )
-						print( "- Wrong data (%d): %s/%s %d/%s %s/%s %s/%s"%( i+1, self.segn[i], t[1], self.resi[i], t[2], self.resn[i], t[3], self.labl[i], t[4] ) )
+						print( "- Wrong PSF data (%d): %s/%s %d/%s %s/%s %s/%s"%( i+1, self.segn[i], t[1], self.resi[i], t[2], self.resn[i], t[3], self.labl[i], t[4] ) )
 						out = False
 			else:
 				print( "- Invalid number of atoms in PSF!" )

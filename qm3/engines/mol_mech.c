@@ -38,7 +38,7 @@ typedef struct { long siz, _i0, _if; long *lst; con_dih *dih; } dih_arg;
 typedef struct { long siz, _i0, _if; long n_bnd, n_ang, n_dih; long *qms, *bnd, *ang, *dih;
 				double cut, *xyz, *box; con_bnd *nbn; } nbn_arg;
 
-typedef struct { long who, _i0, _if, n_lst, *lst, n_dat, *ind; double *xyz, *grd, ene, *dat; } ene_arg;
+typedef struct { long who, _i0, _if, n_lst, *lst, n_dat, *ind, *fre; double *xyz, *grd, ene, *dat; } ene_arg;
 
 typedef struct { long who, _i0, _if, n_lst, *lst, n_dat; double *box, *xyz, *grd, ele, vdw,
 				*dat, *scl, con, cof, eps; } int_arg;
@@ -492,18 +492,20 @@ void* __energy_bond( void *args ) {
 	double		vec[3], val, dif, tmp;
 
 	for( i = arg->_i0; i < arg->_if; i++ ) {
-		ai = 3 * arg->lst[2*i];
-		aj = 3 * arg->lst[2*i+1];
-		for( j = 0; j < 3; j++ ) vec[j] = arg->xyz[ai+j] - arg->xyz[aj+j];
-		val = sqrt( vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2] );
-		dif = val - arg->dat[arg->ind[i]*2+1];
-		tmp = dif * arg->dat[arg->ind[i]*2];
-		arg->ene += tmp * dif;
-		if( arg->grd != NULL ) {
-			tmp *= 2.0 / val;
-			for( j = 0; j < 3; j++ ) {
-				arg->grd[arg->who+ai+j] += tmp * vec[j];
-				arg->grd[arg->who+aj+j] -= tmp * vec[j];
+		if( arg->fre[arg->lst[2*i]] || arg->fre[arg->lst[2*i+1]] ) {
+			ai = 3 * arg->lst[2*i];
+			aj = 3 * arg->lst[2*i+1];
+			for( j = 0; j < 3; j++ ) vec[j] = arg->xyz[ai+j] - arg->xyz[aj+j];
+			val = sqrt( vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2] );
+			dif = val - arg->dat[arg->ind[i]*2+1];
+			tmp = dif * arg->dat[arg->ind[i]*2];
+			arg->ene += tmp * dif;
+			if( arg->grd != NULL ) {
+				tmp *= 2.0 / val;
+				for( j = 0; j < 3; j++ ) {
+					arg->grd[arg->who+ai+j] += tmp * vec[j];
+					arg->grd[arg->who+aj+j] -= tmp * vec[j];
+				}
 			}
 		}
 	}
@@ -516,7 +518,7 @@ static PyObject* w_energy_bond( PyObject *self, PyObject *args ) {
 	long		i, j, n3, cpu;
 	long		*lst, n_lst, n_dat, *ind;
 	double		*dat, out = 0.0;
-	long		*rng, dsp, nit;
+	long		*rng, *fre, dsp, nit;
 	pthread_t	*pid;
 	ene_arg		*arg;
 
@@ -528,6 +530,11 @@ static PyObject* w_energy_bond( PyObject *self, PyObject *args ) {
 		n3   = PyList_Size( otmp );
 		xyz  = (double*) malloc( n3 * sizeof( double ) );
 		for( i = 0; i < n3; i++ ) xyz[i] = PyFloat_AsDouble( PyList_GetItem( otmp, i ) );
+		Py_DECREF( otmp );
+
+		otmp = PyObject_GetAttrString( object, "free" );
+		fre  = (long*) malloc( n3 / 3 * sizeof( long ) );
+		for( i = 0; i < n3 / 3; i++ ) fre[i] = ( Py_True == PyList_GetItem( otmp, i ) );
 		Py_DECREF( otmp );
 
 		if( gradient != Py_True ) { grd = NULL; }
@@ -568,11 +575,12 @@ static PyObject* w_energy_bond( PyObject *self, PyObject *args ) {
 			arg[i].dat   = dat;
 			arg[i].n_dat = n_dat;
 			arg[i].ind   = ind;
+			arg[i].fre   = fre;
 			pthread_create( &pid[i], NULL, __energy_bond, (void*) &arg[i] );
 		}
 		for( i = 0; i < cpu; i++ ) pthread_join( pid[i], NULL );
 		for( i = 0; i < cpu; i++ ) out += arg[i].ene;
-		free( xyz ); free( rng ); free( pid ); free ( lst ); free( dat ); free( ind ); free( arg );
+		free( xyz ); free( rng ); free( pid ); free ( lst ); free( dat ); free( ind ); free( fre ); free( arg );
 
 		if( grd != NULL ) {
 			otmp = PyObject_GetAttrString( molecule, "grad" );
@@ -599,32 +607,34 @@ void* __energy_angle( void *args ) {
 	double		dij[3], rij, dkj[3], rkj, val, dif, tmp, fac, dti[3], dtj[3], dtk[3];
 
 	for( i = arg->_i0; i < arg->_if; i++ ) {
-		ai = 3 * arg->lst[3*i];
-		aj = 3 * arg->lst[3*i+1];
-		ak = 3 * arg->lst[3*i+2];
-		for( j = 0; j < 3; j++ ) dij[j] = arg->xyz[ai+j] - arg->xyz[aj+j];
-		rij = sqrt( dij[0]*dij[0] + dij[1]*dij[1] + dij[2]*dij[2] );
-		for( j = 0; j < 3; j++ ) dij[j] /= rij;
-		for( j = 0; j < 3; j++ ) dkj[j] = arg->xyz[ak+j] - arg->xyz[aj+j];
-		rkj = sqrt( dkj[0]*dkj[0] + dkj[1]*dkj[1] + dkj[2]*dkj[2] );
-		for( j = 0; j < 3; j++ ) dkj[j] /= rkj;
-		for( fac = 0.0, j = 0; j < 3; j++ ) fac += dij[j] * dkj[j];
-		fac = min( fabs( fac ), 1.0 - 1.0e-6 ) * fac / fabs( fac );
-		val = acos( fac );
-		dif = val - arg->dat[arg->ind[i]*2+1];
-		tmp = dif * arg->dat[arg->ind[i]*2];
-		arg->ene += tmp * dif;
-		if( arg->grd != NULL ) {
-			tmp *= -2.0 / sqrt( 1.0 - fac * fac );
-			for( j = 0; j < 3; j++ ) {
-				dti[j] = ( dkj[j] - fac * dij[j] ) / rij;
-				dtk[j] = ( dij[j] - fac * dkj[j] ) / rkj;
-				dtj[j] = - ( dti[j] + dtk[j] );
-			}
-			for( j = 0; j < 3; j++ ) {
-				arg->grd[arg->who+ai+j] += tmp * dti[j];
-				arg->grd[arg->who+aj+j] += tmp * dtj[j];
-				arg->grd[arg->who+ak+j] += tmp * dtk[j];
+		if( arg->fre[arg->lst[3*i]] || arg->fre[arg->lst[3*i+1]] || arg->fre[arg->lst[3*i+2]] ) {
+			ai = 3 * arg->lst[3*i];
+			aj = 3 * arg->lst[3*i+1];
+			ak = 3 * arg->lst[3*i+2];
+			for( j = 0; j < 3; j++ ) dij[j] = arg->xyz[ai+j] - arg->xyz[aj+j];
+			rij = sqrt( dij[0]*dij[0] + dij[1]*dij[1] + dij[2]*dij[2] );
+			for( j = 0; j < 3; j++ ) dij[j] /= rij;
+			for( j = 0; j < 3; j++ ) dkj[j] = arg->xyz[ak+j] - arg->xyz[aj+j];
+			rkj = sqrt( dkj[0]*dkj[0] + dkj[1]*dkj[1] + dkj[2]*dkj[2] );
+			for( j = 0; j < 3; j++ ) dkj[j] /= rkj;
+			for( fac = 0.0, j = 0; j < 3; j++ ) fac += dij[j] * dkj[j];
+			fac = min( fabs( fac ), 1.0 - 1.0e-6 ) * fac / fabs( fac );
+			val = acos( fac );
+			dif = val - arg->dat[arg->ind[i]*2+1];
+			tmp = dif * arg->dat[arg->ind[i]*2];
+			arg->ene += tmp * dif;
+			if( arg->grd != NULL ) {
+				tmp *= -2.0 / sqrt( 1.0 - fac * fac );
+				for( j = 0; j < 3; j++ ) {
+					dti[j] = ( dkj[j] - fac * dij[j] ) / rij;
+					dtk[j] = ( dij[j] - fac * dkj[j] ) / rkj;
+					dtj[j] = - ( dti[j] + dtk[j] );
+				}
+				for( j = 0; j < 3; j++ ) {
+					arg->grd[arg->who+ai+j] += tmp * dti[j];
+					arg->grd[arg->who+aj+j] += tmp * dtj[j];
+					arg->grd[arg->who+ak+j] += tmp * dtk[j];
+				}
 			}
 		}
 	}
@@ -637,7 +647,7 @@ static PyObject* w_energy_angle( PyObject *self, PyObject *args ) {
 	long		i, j, n3, cpu;
 	long		*lst, n_lst, n_dat, *ind;
 	double		*dat, out = 0.0;
-	long		*rng, dsp, nit;
+	long		*rng, *fre, dsp, nit;
 	pthread_t	*pid;
 	ene_arg		*arg;
 
@@ -649,6 +659,11 @@ static PyObject* w_energy_angle( PyObject *self, PyObject *args ) {
 		n3   = PyList_Size( otmp );
 		xyz  = (double*) malloc( n3 * sizeof( double ) );
 		for( i = 0; i < n3; i++ ) xyz[i] = PyFloat_AsDouble( PyList_GetItem( otmp, i ) );
+		Py_DECREF( otmp );
+
+		otmp = PyObject_GetAttrString( object, "free" );
+		fre  = (long*) malloc( n3 / 3 * sizeof( long ) );
+		for( i = 0; i < n3 / 3; i++ ) fre[i] = ( Py_True == PyList_GetItem( otmp, i ) );
 		Py_DECREF( otmp );
 
 		if( gradient != Py_True ) { grd = NULL; }
@@ -689,11 +704,12 @@ static PyObject* w_energy_angle( PyObject *self, PyObject *args ) {
 			arg[i].dat   = dat;
 			arg[i].n_dat = n_dat;
 			arg[i].ind   = ind;
+			arg[i].fre   = fre;
 			pthread_create( &pid[i], NULL, __energy_angle, (void*) &arg[i] );
 		}
 		for( i = 0; i < cpu; i++ ) pthread_join( pid[i], NULL );
 		for( i = 0; i < cpu; i++ ) out += arg[i].ene;
-		free( xyz ); free( rng ); free( pid ); free ( lst ); free( dat ); free( ind ); free( arg );
+		free( xyz ); free( rng ); free( pid ); free ( lst ); free( dat ); free( ind ); free( fre ); free( arg );
 
 		if( grd != NULL ) {
 			otmp = PyObject_GetAttrString( molecule, "grad" );
@@ -723,97 +739,99 @@ void* __energy_dihedral( void *args ) {
 	double		sn1, sn2, sn3, sn4, sn5, sn6;
 
 	for( i = arg->_i0; i < arg->_if; i++ ) {
-		ai = 3 * arg->lst[4*i];
-		aj = 3 * arg->lst[4*i+1];
-		ak = 3 * arg->lst[4*i+2];
-		al = 3 * arg->lst[4*i+3];
-		for( j = 0; j < 3; j++ ) dji[j] = arg->xyz[aj+j] - arg->xyz[ai+j];
-		for( j = 0; j < 3; j++ ) dkj[j] = arg->xyz[ak+j] - arg->xyz[aj+j];
-		rkj = sqrt( dkj[0]*dkj[0] + dkj[1]*dkj[1] + dkj[2]*dkj[2] );
-		for( j = 0; j < 3; j++ ) dlk[j] = arg->xyz[al+j] - arg->xyz[ak+j];
-		vt[0] = dji[1] * dkj[2] - dkj[1] * dji[2];
-		vt[1] = dji[2] * dkj[0] - dkj[2] * dji[0];
-		vt[2] = dji[0] * dkj[1] - dkj[0] * dji[1];
-		rt2 = vt[0]*vt[0] + vt[1]*vt[1] + vt[2]*vt[2];
-		vu[0] = dkj[1] * dlk[2] - dlk[1] * dkj[2];
-		vu[1] = dkj[2] * dlk[0] - dlk[2] * dkj[0];
-		vu[2] = dkj[0] * dlk[1] - dlk[0] * dkj[1];
-		ru2 = vu[0]*vu[0] + vu[1]*vu[1] + vu[2]*vu[2];
-		vtu[0] = vt[1] * vu[2] - vu[1] * vt[2];
-		vtu[1] = vt[2] * vu[0] - vu[2] * vt[0];
-		vtu[2] = vt[0] * vu[1] - vu[0] * vt[1];
-		rtu = sqrt( rt2 * ru2 );
-		if( rtu == 0.0 ) { continue; }
-		for( cs1 = 0.0, j = 0; j < 3; j++ ) cs1 += vt[j] * vu[j]; cs1 /= rtu;
-		for( sn1 = 0.0, j = 0; j < 3; j++ ) sn1 += dkj[j] * vtu[j]; sn1 /= ( rtu * rkj );
-		cs2 = cs1 * cs1 - sn1 * sn1;
-		sn2 = 2.0 * cs1 * sn1;
-		cs3 = cs1 * cs2 - sn1 * sn2;
-		sn3 = cs1 * sn2 + sn1 * cs2;
-		cs4 = cs1 * cs3 - sn1 * sn3;
-		sn4 = cs1 * sn3 + sn1 * cs3;
-		cs5 = cs1 * cs4 - sn1 * sn4;
-		sn5 = cs1 * sn4 + sn1 * cs4;
-		cs6 = cs1 * cs5 - sn1 * sn5;
-		sn6 = cs1 * sn5 + sn1 * cs5;
-		dph = 0.0;
-		if( arg->dat[12*arg->ind[i]] != 0.0 ) { 
-			cd        = cos( arg->dat[12*arg->ind[i]+1] );
-			sd        = sin( arg->dat[12*arg->ind[i]+1] );
-			dph      += arg->dat[12*arg->ind[i]] * ( cs1 * sd - sn1 * cd );
-			arg->ene += arg->dat[12*arg->ind[i]] * ( 1.0 + cs1 * cd + sn1 * sd );
-		}
-		if( arg->dat[12*arg->ind[i]+2] != 0.0 ) { 
-			cd        = cos( arg->dat[12*arg->ind[i]+3] );
-			sd        = sin( arg->dat[12*arg->ind[i]+3] );
-			dph      += arg->dat[12*arg->ind[i]+2] * 2.0 * ( cs2 * sd - sn2 * cd );
-			arg->ene += arg->dat[12*arg->ind[i]+2] * ( 1.0 + cs2 * cd + sn2 * sd );
-		}
-		if( arg->dat[12*arg->ind[i]+4] != 0.0 ) { 
-			cd        = cos( arg->dat[12*arg->ind[i]+5] );
-			sd        = sin( arg->dat[12*arg->ind[i]+5] );
-			dph      += arg->dat[12*arg->ind[i]+4] * 3.0 * ( cs3 * sd - sn3 * cd );
-			arg->ene += arg->dat[12*arg->ind[i]+4] * ( 1.0 + cs3 * cd + sn3 * sd );
-		}
-		if( arg->dat[12*arg->ind[i]+6] != 0.0) { 
-			cd        = cos( arg->dat[12*arg->ind[i]+7] );
-			sd        = sin( arg->dat[12*arg->ind[i]+7] );
-			dph      += arg->dat[12*arg->ind[i]+6] * 4.0 * ( cs4 * sd - sn4 * cd );
-			arg->ene += arg->dat[12*arg->ind[i]+6] * ( 1.0 + cs4 * cd + sn4 * sd );
-		}
-		if( arg->dat[12*arg->ind[i]+8] != 0.0 ) { 
-			cd        = cos( arg->dat[12*arg->ind[i]+9] );
-			sd        = sin( arg->dat[12*arg->ind[i]+9] );
-			dph      += arg->dat[12*arg->ind[i]+8] * 5.0 * ( cs5 * sd - sn5 * cd );
-			arg->ene += arg->dat[12*arg->ind[i]+8] * ( 1.0 + cs5 * cd + sn5 * sd );
-		}
-		if( arg->dat[12*arg->ind[i]+10] != 0.0 ) { 
-			cd        = cos( arg->dat[12*arg->ind[i]+11] );
-			sd        = sin( arg->dat[12*arg->ind[i]+11] );
-			dph      += arg->dat[12*arg->ind[i]+10] * 6.0 * ( cs6 * sd - sn6 * cd );
-			arg->ene += arg->dat[12*arg->ind[i]+10] * ( 1.0 + cs6 * cd + sn6 * sd );
-		}
-		if( arg->grd != NULL ) {
-			for( j = 0; j < 3; j++ ) dki[j] = arg->xyz[ak+j] - arg->xyz[ai+j];
-			for( j = 0; j < 3; j++ ) dlj[j] = arg->xyz[al+j] - arg->xyz[aj+j];
-			dvt[0] = ( vt[1] * dkj[2] - dkj[1] * vt[2] ) / ( rt2 * rkj );
-			dvt[1] = ( vt[2] * dkj[0] - dkj[2] * vt[0] ) / ( rt2 * rkj );
-			dvt[2] = ( vt[0] * dkj[1] - dkj[0] * vt[1] ) / ( rt2 * rkj );
-			dvu[0] = ( vu[1] * dkj[2] - dkj[1] * vu[2] ) / ( ru2 * rkj );
-			dvu[1] = ( vu[2] * dkj[0] - dkj[2] * vu[0] ) / ( ru2 * rkj );
-			dvu[2] = ( vu[0] * dkj[1] - dkj[0] * vu[1] ) / ( ru2 * rkj );
-			arg->grd[arg->who+ai]   += ( dkj[2] * dvt[1] - dkj[1] * dvt[2] ) * dph;
-			arg->grd[arg->who+ai+1] += ( dkj[0] * dvt[2] - dkj[2] * dvt[0] ) * dph;
-			arg->grd[arg->who+ai+2] += ( dkj[1] * dvt[0] - dkj[0] * dvt[1] ) * dph;
-			arg->grd[arg->who+aj]   += ( dki[1] * dvt[2] - dki[2] * dvt[1] - dlk[2] * dvu[1] + dlk[1] * dvu[2] ) * dph;
-			arg->grd[arg->who+aj+1] += ( dki[2] * dvt[0] - dki[0] * dvt[2] - dlk[0] * dvu[2] + dlk[2] * dvu[0] ) * dph;
-			arg->grd[arg->who+aj+2] += ( dki[0] * dvt[1] - dki[1] * dvt[0] - dlk[1] * dvu[0] + dlk[0] * dvu[1] ) * dph;
-			arg->grd[arg->who+ak]   += ( dji[2] * dvt[1] - dji[1] * dvt[2] - dlj[1] * dvu[2] + dlj[2] * dvu[1] ) * dph;
-			arg->grd[arg->who+ak+1] += ( dji[0] * dvt[2] - dji[2] * dvt[0] - dlj[2] * dvu[0] + dlj[0] * dvu[2] ) * dph;
-			arg->grd[arg->who+ak+2] += ( dji[1] * dvt[0] - dji[0] * dvt[1] - dlj[0] * dvu[1] + dlj[1] * dvu[0] ) * dph;
-			arg->grd[arg->who+al]   += ( - dkj[2] * dvu[1] + dkj[1] * dvu[2] ) * dph;
-			arg->grd[arg->who+al+1] += ( - dkj[0] * dvu[2] + dkj[2] * dvu[0] ) * dph;
-			arg->grd[arg->who+al+2] += ( - dkj[1] * dvu[0] + dkj[0] * dvu[1] ) * dph;
+		if( arg->fre[arg->lst[4*i]] || arg->fre[arg->lst[4*i+1]] || arg->fre[arg->lst[4*i+2]] || arg->fre[arg->lst[4*i+3]] ) {
+			ai = 3 * arg->lst[4*i];
+			aj = 3 * arg->lst[4*i+1];
+			ak = 3 * arg->lst[4*i+2];
+			al = 3 * arg->lst[4*i+3];
+			for( j = 0; j < 3; j++ ) dji[j] = arg->xyz[aj+j] - arg->xyz[ai+j];
+			for( j = 0; j < 3; j++ ) dkj[j] = arg->xyz[ak+j] - arg->xyz[aj+j];
+			rkj = sqrt( dkj[0]*dkj[0] + dkj[1]*dkj[1] + dkj[2]*dkj[2] );
+			for( j = 0; j < 3; j++ ) dlk[j] = arg->xyz[al+j] - arg->xyz[ak+j];
+			vt[0] = dji[1] * dkj[2] - dkj[1] * dji[2];
+			vt[1] = dji[2] * dkj[0] - dkj[2] * dji[0];
+			vt[2] = dji[0] * dkj[1] - dkj[0] * dji[1];
+			rt2 = vt[0]*vt[0] + vt[1]*vt[1] + vt[2]*vt[2];
+			vu[0] = dkj[1] * dlk[2] - dlk[1] * dkj[2];
+			vu[1] = dkj[2] * dlk[0] - dlk[2] * dkj[0];
+			vu[2] = dkj[0] * dlk[1] - dlk[0] * dkj[1];
+			ru2 = vu[0]*vu[0] + vu[1]*vu[1] + vu[2]*vu[2];
+			vtu[0] = vt[1] * vu[2] - vu[1] * vt[2];
+			vtu[1] = vt[2] * vu[0] - vu[2] * vt[0];
+			vtu[2] = vt[0] * vu[1] - vu[0] * vt[1];
+			rtu = sqrt( rt2 * ru2 );
+			if( rtu == 0.0 ) { continue; }
+			for( cs1 = 0.0, j = 0; j < 3; j++ ) cs1 += vt[j] * vu[j]; cs1 /= rtu;
+			for( sn1 = 0.0, j = 0; j < 3; j++ ) sn1 += dkj[j] * vtu[j]; sn1 /= ( rtu * rkj );
+			cs2 = cs1 * cs1 - sn1 * sn1;
+			sn2 = 2.0 * cs1 * sn1;
+			cs3 = cs1 * cs2 - sn1 * sn2;
+			sn3 = cs1 * sn2 + sn1 * cs2;
+			cs4 = cs1 * cs3 - sn1 * sn3;
+			sn4 = cs1 * sn3 + sn1 * cs3;
+			cs5 = cs1 * cs4 - sn1 * sn4;
+			sn5 = cs1 * sn4 + sn1 * cs4;
+			cs6 = cs1 * cs5 - sn1 * sn5;
+			sn6 = cs1 * sn5 + sn1 * cs5;
+			dph = 0.0;
+			if( arg->dat[12*arg->ind[i]] != 0.0 ) { 
+				cd        = cos( arg->dat[12*arg->ind[i]+1] );
+				sd        = sin( arg->dat[12*arg->ind[i]+1] );
+				dph      += arg->dat[12*arg->ind[i]] * ( cs1 * sd - sn1 * cd );
+				arg->ene += arg->dat[12*arg->ind[i]] * ( 1.0 + cs1 * cd + sn1 * sd );
+			}
+			if( arg->dat[12*arg->ind[i]+2] != 0.0 ) { 
+				cd        = cos( arg->dat[12*arg->ind[i]+3] );
+				sd        = sin( arg->dat[12*arg->ind[i]+3] );
+				dph      += arg->dat[12*arg->ind[i]+2] * 2.0 * ( cs2 * sd - sn2 * cd );
+				arg->ene += arg->dat[12*arg->ind[i]+2] * ( 1.0 + cs2 * cd + sn2 * sd );
+			}
+			if( arg->dat[12*arg->ind[i]+4] != 0.0 ) { 
+				cd        = cos( arg->dat[12*arg->ind[i]+5] );
+				sd        = sin( arg->dat[12*arg->ind[i]+5] );
+				dph      += arg->dat[12*arg->ind[i]+4] * 3.0 * ( cs3 * sd - sn3 * cd );
+				arg->ene += arg->dat[12*arg->ind[i]+4] * ( 1.0 + cs3 * cd + sn3 * sd );
+			}
+			if( arg->dat[12*arg->ind[i]+6] != 0.0) { 
+				cd        = cos( arg->dat[12*arg->ind[i]+7] );
+				sd        = sin( arg->dat[12*arg->ind[i]+7] );
+				dph      += arg->dat[12*arg->ind[i]+6] * 4.0 * ( cs4 * sd - sn4 * cd );
+				arg->ene += arg->dat[12*arg->ind[i]+6] * ( 1.0 + cs4 * cd + sn4 * sd );
+			}
+			if( arg->dat[12*arg->ind[i]+8] != 0.0 ) { 
+				cd        = cos( arg->dat[12*arg->ind[i]+9] );
+				sd        = sin( arg->dat[12*arg->ind[i]+9] );
+				dph      += arg->dat[12*arg->ind[i]+8] * 5.0 * ( cs5 * sd - sn5 * cd );
+				arg->ene += arg->dat[12*arg->ind[i]+8] * ( 1.0 + cs5 * cd + sn5 * sd );
+			}
+			if( arg->dat[12*arg->ind[i]+10] != 0.0 ) { 
+				cd        = cos( arg->dat[12*arg->ind[i]+11] );
+				sd        = sin( arg->dat[12*arg->ind[i]+11] );
+				dph      += arg->dat[12*arg->ind[i]+10] * 6.0 * ( cs6 * sd - sn6 * cd );
+				arg->ene += arg->dat[12*arg->ind[i]+10] * ( 1.0 + cs6 * cd + sn6 * sd );
+			}
+			if( arg->grd != NULL ) {
+				for( j = 0; j < 3; j++ ) dki[j] = arg->xyz[ak+j] - arg->xyz[ai+j];
+				for( j = 0; j < 3; j++ ) dlj[j] = arg->xyz[al+j] - arg->xyz[aj+j];
+				dvt[0] = ( vt[1] * dkj[2] - dkj[1] * vt[2] ) / ( rt2 * rkj );
+				dvt[1] = ( vt[2] * dkj[0] - dkj[2] * vt[0] ) / ( rt2 * rkj );
+				dvt[2] = ( vt[0] * dkj[1] - dkj[0] * vt[1] ) / ( rt2 * rkj );
+				dvu[0] = ( vu[1] * dkj[2] - dkj[1] * vu[2] ) / ( ru2 * rkj );
+				dvu[1] = ( vu[2] * dkj[0] - dkj[2] * vu[0] ) / ( ru2 * rkj );
+				dvu[2] = ( vu[0] * dkj[1] - dkj[0] * vu[1] ) / ( ru2 * rkj );
+				arg->grd[arg->who+ai]   += ( dkj[2] * dvt[1] - dkj[1] * dvt[2] ) * dph;
+				arg->grd[arg->who+ai+1] += ( dkj[0] * dvt[2] - dkj[2] * dvt[0] ) * dph;
+				arg->grd[arg->who+ai+2] += ( dkj[1] * dvt[0] - dkj[0] * dvt[1] ) * dph;
+				arg->grd[arg->who+aj]   += ( dki[1] * dvt[2] - dki[2] * dvt[1] - dlk[2] * dvu[1] + dlk[1] * dvu[2] ) * dph;
+				arg->grd[arg->who+aj+1] += ( dki[2] * dvt[0] - dki[0] * dvt[2] - dlk[0] * dvu[2] + dlk[2] * dvu[0] ) * dph;
+				arg->grd[arg->who+aj+2] += ( dki[0] * dvt[1] - dki[1] * dvt[0] - dlk[1] * dvu[0] + dlk[0] * dvu[1] ) * dph;
+				arg->grd[arg->who+ak]   += ( dji[2] * dvt[1] - dji[1] * dvt[2] - dlj[1] * dvu[2] + dlj[2] * dvu[1] ) * dph;
+				arg->grd[arg->who+ak+1] += ( dji[0] * dvt[2] - dji[2] * dvt[0] - dlj[2] * dvu[0] + dlj[0] * dvu[2] ) * dph;
+				arg->grd[arg->who+ak+2] += ( dji[1] * dvt[0] - dji[0] * dvt[1] - dlj[0] * dvu[1] + dlj[1] * dvu[0] ) * dph;
+				arg->grd[arg->who+al]   += ( - dkj[2] * dvu[1] + dkj[1] * dvu[2] ) * dph;
+				arg->grd[arg->who+al+1] += ( - dkj[0] * dvu[2] + dkj[2] * dvu[0] ) * dph;
+				arg->grd[arg->who+al+2] += ( - dkj[1] * dvu[0] + dkj[0] * dvu[1] ) * dph;
+			}
 		}
 	}
 	return( NULL );
@@ -825,7 +843,7 @@ static PyObject* w_energy_dihedral( PyObject *self, PyObject *args ) {
 	long		i, j, n3, cpu;
 	long		*lst, n_lst, n_dat, *ind;
 	double		*dat, out = 0.0;
-	long		*rng, dsp, nit;
+	long		*rng, *fre, dsp, nit;
 	pthread_t	*pid;
 	ene_arg		*arg;
 
@@ -837,6 +855,11 @@ static PyObject* w_energy_dihedral( PyObject *self, PyObject *args ) {
 		n3   = PyList_Size( otmp );
 		xyz  = (double*) malloc( n3 * sizeof( double ) );
 		for( i = 0; i < n3; i++ ) xyz[i] = PyFloat_AsDouble( PyList_GetItem( otmp, i ) );
+		Py_DECREF( otmp );
+
+		otmp = PyObject_GetAttrString( object, "free" );
+		fre  = (long*) malloc( n3 / 3 * sizeof( long ) );
+		for( i = 0; i < n3 / 3; i++ ) fre[i] = ( Py_True == PyList_GetItem( otmp, i ) );
 		Py_DECREF( otmp );
 
 		if( gradient != Py_True ) { grd = NULL; }
@@ -879,11 +902,12 @@ static PyObject* w_energy_dihedral( PyObject *self, PyObject *args ) {
 			arg[i].dat   = dat;
 			arg[i].n_dat = n_dat;
 			arg[i].ind   = ind;
+			arg[i].fre   = fre;
 			pthread_create( &pid[i], NULL, __energy_dihedral, (void*) &arg[i] );
 		}
 		for( i = 0; i < cpu; i++ ) pthread_join( pid[i], NULL );
 		for( i = 0; i < cpu; i++ ) out += arg[i].ene;
-		free( xyz ); free( rng ); free( pid ); free ( lst ); free( dat ); free( ind ); free( arg );
+		free( xyz ); free( rng ); free( pid ); free ( lst ); free( dat ); free( ind ); free( fre ); free( arg );
 	
 		if( grd != NULL ) {
 			otmp = PyObject_GetAttrString( molecule, "grad" );
