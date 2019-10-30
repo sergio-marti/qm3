@@ -10,7 +10,7 @@
 #include <signal.h>
 
 
-/* compile mpich2-1.4.1p1 with the follogin flags:
+/* compile mpich2-1.4.1p1 with the following flags:
 
 ./configure --prefix=@@@@ --enable-fc  --enable-shared  --with-namepublisher=file
 

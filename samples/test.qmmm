@@ -122,8 +122,6 @@ qm3_charges
 		f.close()
 
 		self.eMM.qm_atoms( sqm )
-		for i in sqm:
-			self.mol.chrg[i] = 0.0
 
 		self.sel = list( range( self.mol.natm ) )
 
