@@ -11,8 +11,8 @@ import	qm3.engines
 
 
 #
-# detects whether return the electrostatic charges gradient (_qmmm.QMLJ) searching for "prop=(field,read)" 
-# or it will be calcualted after classically (_qmmm.QMLJ_MMEL)
+# detects whether return the electrostatic charges gradient (_mmint.QMLJ) searching for "prop=(field,read)" 
+# or it will be calcualted after classically (_mmint.QMLJ_MMEL)
 #
 class gaussian( qm3.engines.qmbase ):
 
