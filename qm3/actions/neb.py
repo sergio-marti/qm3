@@ -34,7 +34,7 @@ class serial_neb( qm3.problem.template ):
 	as well as information about the current node as a REMARK within the PDB  (geometry, energy, ...):
 
 	the value of the 'kumb' should be approx the same of the potential energy barrier
-	when optimizing the whole band, set the 'gradient_tolerance' equal to 0.5 * nodes (_kJ/mol.A)
+	when optimizing the whole band, set the 'gradient_tolerance' equal to [0.5:0.1] * nodes (_kJ/mol.A)
 		"""
 		qm3.problem.template.__init__( self )
 
@@ -200,7 +200,7 @@ try:
 	as well as information about the current node as a REMARK within the PDB  (geometry, energy, ...):
 
 	the value of the 'kumb' should be approx the same of the potential energy barrier
-	when optimizing the whole band, set the 'gradient_tolerance' equal to 0.5 * nodes (_kJ/mol.A)
+	when optimizing the whole band, set the 'gradient_tolerance' equal to [0.5:0.1] * nodes (_kJ/mol.A)
 			"""
 			qm3.problem.template.__init__( self )
 	
