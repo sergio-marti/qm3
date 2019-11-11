@@ -13,13 +13,14 @@ try:
 except:
 	import	io as cStringIO
 try:
-	import	cPickle as pickle
+	import	cPickle
 except:
-	import	pickle
+	import	pickle as cPickle
 
 import	qm3.mol
 import	qm3.elements
 import	qm3.utils
+import	qm3.engines
 if( "NAMD" in config.MM_engines ):
 	import	qm3.engines.namd
 
@@ -187,16 +188,16 @@ def __mkinput():
 			if( len( sel ) == mol.natm ):
 				sel = []
 	f = open( "sele.pk", "wb" )
-	pickle.dump( sel, f )
+	cPickle.dump( sel, f )
 	f.close()
 	# -- (pickle) selections: QMsel
 	eqm = bottle.request.forms.get( "QMeng" ).strip()
-	f = open( "sele_LA.pk", "wb" )
-	pickle.dump( [], f )
-	f.close()
-	f = open( "sele_EX.pk", "wb" )
-	pickle.dump( [], f )
-	f.close()
+##	f = open( "sele_LA.pk", "wb" )
+##	pickle.dump( [], f )
+##	f.close()
+##	f = open( "sele_EX.pk", "wb" )
+##	pickle.dump( [], f )
+##	f.close()
 	sqm = []
 	_sqm = bottle.request.forms.get( "QMsel" ).strip()
 	if( _sqm != "" and eqm != "" ):
@@ -204,9 +205,9 @@ def __mkinput():
 			sqm = __selection( mol, _sqm )
 			# -- LAs and exclussions
 			if( sqm != [] ):
-				qm3.utils.exclussions( sqm, molec = mol )
+				qm3.engines.exclussions( sqm, mol )
 	f = open( "sele_QM.pk", "wb" )
-	pickle.dump( sqm, f )
+	cPickle.dump( sqm, f )
 	f.close()
 	# -- (pickle) selections: QMenv
 	smm = []
@@ -217,19 +218,19 @@ def __mkinput():
 	if( smm != [] and sqm != [] ):
 		_tmp = []
 		f = open( "sele_LA.pk", "rb" )
-		for i,j in pickle.load( f ):
+		for i,j in cPickle.load( f ):
 			_tmp.append( j )
 		f.close()
 		smm = list( set( smm ).difference( set( sqm + _tmp ) ) )
 	f = open( "sele_MM.pk", "wb" )
-	pickle.dump( smm, f )
+	cPickle.dump( smm, f )
 	f.close()
 	if( mol != None and sel != [] ):
 		tmp = set( list( range( mol.natm ) ) ).difference( set( sel ) )
 		if( sqm != [] ):
 			tmp = tmp.union( set( sqm ) )
 		f = open( "fixed.pk", "wb" )
-		pickle.dump( list( tmp ), f )
+		cPickle.dump( list( tmp ), f )
 		f.close()
 	# -- let's go!
 	f = open( job, "wt" )
@@ -241,9 +242,9 @@ import	math
 import	os
 import	time
 try:
-	import cPickle as pickle
+	import cPickle
 except:
-	import pickle
+	import pickle as cPickle
 try:
 	import cStringIO
 except:
@@ -261,11 +262,11 @@ import	qm3.io.dcd
 	if( emm != "--" ):
 		f.write( "import	%s\n"%( ".".join( config.MM_engines[emm].split( "." )[0:-1] ) ) )
 	if( eqm != "--" and emm != "--" ):
-		f.write( "import	qm3.engines._qmmm\n" )
+		f.write( "import	qm3.engines._mmint\n" )
 	# -- RR_[0-9]+_[t/{i,j,k,l}/r/u]
 	umb = re.compile( "RR_[0-9]+_t" ).findall( " ".join( list( bottle.request.forms.keys() ) ) )
 	if( len( umb ) > 0 ):
-		f.write( "import	qm3.engines.restraints\n" )
+		f.write( "import	qm3.engines.mmres\n" )
 	# -- actions
 	if( act in [ "min_fire", "pes_scan", "min_quad" ] ):
 		f.write( "import	qm3.actions.minimize\n" )
@@ -330,7 +331,7 @@ class my_problem( qm3.problem.template ):
 	else:
 		f.write( """
 		f = open( "sele.pk", "rb" )
-		self.sele = pickle.load( f )
+		self.sele = cPickle.load( f )
 		f.close()
 		self.size = 3 * len( self.sele )
 		self.coor = []
@@ -381,13 +382,13 @@ class my_problem( qm3.problem.template ):
 # ----------------
 		f.write( """
 		f = open( "sele_QM.pk", "rb" )
-		sqm = pickle.load( f )
+		sqm = cPickle.load( f )
 		f.close()
 		f = open( "sele_LA.pk", "rb" )
-		sla = pickle.load( f )
+		sla = cPickle.load( f )
 		f.close()
 		f = open( "sele_MM.pk", "rb" )
-		smm = pickle.load( f )
+		smm = cPickle.load( f )
 		f.close()
 """ )
 		if( config.QM_engines[eqm] == "qm3.engines.gaussian.gaussian" ):
@@ -412,15 +413,23 @@ class my_problem( qm3.problem.template ):
 	if( sqm != [] and smm != [] ):
 		f.write( """
 		f = open( "sele_EX.pk", "rb" )
-		exc = pickle.load( f )
+		exc = cPickle.load( f )
 		f.close()
-		self.fix = qm3.engines._qmmm.Int_QMLJ( self.mole, sqm, smm, exc )
+		self.fix = qm3.engines._mmint.QMLJ( self.mole, sqm, smm, exc )
 """ )
 	# -- engines: QM/MM MM-exclussion terms: self.exc (ala self.umb, and only gradient)
 	# >> read excussions.log <<
-	# -- engines: restraints
+	try:
+		g = open( "exclussions.src", "rt" )
+		f.write( "		# = Update exclussions QM/MM parameters ===========================\n" )
+		f.write( g.read() )
+		f.write( "		# =================================================================\n" )
+		g.close()
+	except:
+		f.write( "\n		self.exc = []\n" )
+	# -- engines: mmres
+	f.write( "\n		self.umb = []\n" )
 	if( len( umb ) > 0 ):
-		f.write( "\n		self.umb = []\n" )
 		for itm in umb:
 			try:
 				_t = bottle.request.forms.get( itm ).strip()
@@ -431,18 +440,18 @@ class my_problem( qm3.problem.template ):
 			except:
 				_t = "__WRONG__"
 			if( _t == "dst" ):
-				f.write( "		self.umb.append( qm3.engines.restraints.distance( %.1lf, %.3lf, [ %d, %d ] ) )\n"%( _u, _r, _i, _j ) )
+				f.write( "		self.umb.append( qm3.engines.mmres.distance( %.1lf, %.3lf, [ %d, %d ] ) )\n"%( _u, _r, _i, _j ) )
 			elif( _t == "ang" ):
 				try:
 					_k = int( bottle.request.forms.get( itm[0:-1] + "k" ).strip() ) - 1
-					f.write( "		self.umb.append( qm3.engines.restraints.angle( %.1lf, %.2lf, [ %d, %d, %d ] ) )\n"%( _u, _r, _i, _j, _k ) )
+					f.write( "		self.umb.append( qm3.engines.mmres.angle( %.1lf, %.2lf, [ %d, %d, %d ] ) )\n"%( _u, _r, _i, _j, _k ) )
 				except:
 					pass
 			elif( _t == "mul" ):
 				try:
 					_k = int( bottle.request.forms.get( itm[0:-1] + "k" ).strip() ) - 1
 					_l = int( bottle.request.forms.get( itm[0:-1] + "l" ).strip() ) - 1
-					f.write( "		self.umb.append( qm3.engines.restraints.multiple_distance( %.1lf, %.3lf, [ %d, %d, %d, %d ], [ 1.0, -1.0 ] ) )\n"%( _u, _r, _i, _j, _k, _l ) )
+					f.write( "		self.umb.append( qm3.engines.mmres.multiple_distance( %.1lf, %.3lf, [ %d, %d, %d, %d ], [ 1.0, -1.0 ] ) )\n"%( _u, _r, _i, _j, _k, _l ) )
 				except:
 					pass
 	# -- zero QM charges on the MM engine (if any...)
@@ -487,10 +496,7 @@ class my_problem( qm3.problem.template ):
 		f.write( "		self.emm.get_func( self.mole )\n" )
 	if( sqm != [] ):
 		f.write( "		self.eqm.get_func( self.mole )\n" )
-#	if( sqm != [] and smm != [] ):
-#		f.write( "		self.fix.get_func( self.mole )\n" )
-	if( len( umb ) > 0 ):
-		f.write( "		for umb in self.umb:\n			umb.get_func( self.mole )\n" )
+	f.write( "		for itm in self.umb:\n			itm.get_func( self.mole )\n" )
 	f.write( "		self.func = self.mole.func\n" )
 	# -- get_grad method
 	f.write( """
@@ -506,8 +512,8 @@ class my_problem( qm3.problem.template ):
 		f.write( "		self.eqm.get_grad( self.mole )\n" )
 	if( sqm != [] and smm != [] ):
 		f.write( "		self.fix.get_grad( self.mole )\n" )
-	if( len( umb ) > 0 ):
-		f.write( "		for umb in self.umb:\n			umb.get_grad( self.mole )\n" )
+	f.write( "		for itm in self.umb:\n			itm.get_grad( self.mole )\n" )
+	f.write( "		for itm in self.exc:\n			itm.get_grad( self.mole )\n" )
 	f.write( "		self.func = self.mole.func\n" )
 	if( sel == [] ):
 		f.write( "		self.grad = self.mole.grad\n" )

@@ -61,7 +61,6 @@ function __toggle_RR() {
 function __toggle_Todo() {
 	var itm = new Array();
 	itm.push( document.getElementById( "d_fire" ) );
-	itm.push( document.getElementById( "d_scan" ) );
 	itm.push( document.getElementById( "d_quad" ) );
 	itm.push( document.getElementById( "d_mode" ) );
 	itm.push( document.getElementById( "d_path" ) );
@@ -70,9 +69,6 @@ function __toggle_Todo() {
 	switch( document.FORM.Todo.value ) {
 		case "min_fire":
 			itm[0].style.display = "block";
-			break;
-		case "pes_scan":
-			itm[1].style.display = "block";
 			break;
 		case "min_quad":
 			itm[2].style.display = "block";
@@ -222,7 +218,6 @@ function __del_rest( w ) {
 <table border="0">
 <tr><td class="label">Action:</td><td><select name="Todo" onchange="__toggle_Todo();" class="form">
 <option value="min_fire" selected>Minimize (FIRE)</option>
-<option value="pes_scan">PES Scan</option>
 <option value="min_quad">Minimize (Baker)</option>
 <option value="nor_mode">Normal Modes</option>
 <option value="mep_path">MEP (Page/McIver)</option>
@@ -269,9 +264,6 @@ function __del_rest( w ) {
 <tr><td class="label">Printing:</td><td><input name="path_prt" type="text" value="1" size="10" class="form"></td></tr>
 <tr><td class="label">Gradient:</td><td><input name="path_tol" type="text" value="1" size="10" class="form" placeholder="&nbsp;kJ/mol.&#197;"></td></tr>
 </table>
-</div>
-<div id="d_scan" style="display: none;">
-<span>pes_scan</span>
 </div>
 </form>
 </body>
