@@ -129,7 +129,7 @@ def exclussions( sele_QM, molec, bonds = None ):
 					buf12 += "\t\t# %s - %s || %s - %s\n"%( molec.labl[i], molec.labl[j], molec.type[i], molec.type[j] )
 				else:
 					buf12 += "\t\t# %s - %s\n"%( molec.labl[i], molec.labl[j] )
-				buf12 += "\t\tself.exc.append( qm3.engines.restraints.distance( kumb_kJ/mol.A^2, xref_A, [ %d, %d ] ) )\n"%( i, j )
+				buf12 += "\t\tself.exc.append( qm3.engines.mmres.distance( kumb_kJ/mol.A^2, xref_A, [ %d, %d ] ) )\n"%( i, j )
 				buf12 += "\t\tself.exc[-1].ffac = 0.0\n"
 				buf12 += "\t\tself.exc[-1].gfac = [ 1.0, 0.0 ]\n"
 				buf12 += "\t\tself.exc[-1].hind = [ self.sele.index( %d ), -1 ]\n"%( i )
@@ -143,7 +143,7 @@ def exclussions( sele_QM, molec, bonds = None ):
 								molec.labl[k], molec.type[i], molec.type[j], molec.type[k] )
 						else:
 							buf13 += "\t\t# %s - %s - %s\n"%( molec.labl[i], molec.labl[j], molec.labl[k] )
-						buf13 += "\t\tself.exc.append( qm3.engines.restraints.angle( kumb_kJ/mol.rad^2, xref_deg, [ %d, %d, %d ] ) )\n"%( i, j, k )
+						buf13 += "\t\tself.exc.append( qm3.engines.mmres.angle( kumb_kJ/mol.rad^2, xref_deg, [ %d, %d, %d ] ) )\n"%( i, j, k )
 						buf13 += "\t\tself.exc[-1].ffac = 0.0\n"
 						buf13 += "\t\tself.exc[-1].gfac = [ 1.0, 0.0, 0.0 ]\n"
 						buf13 += "\t\tself.exc[-1].hind = [ self.sele.index( %d ), -1, -1 ]\n"%( i )
@@ -157,7 +157,7 @@ def exclussions( sele_QM, molec, bonds = None ):
 										molec.labl[l], molec.type[i], molec.type[j], molec.type[k], molec.type[l] )
 							else:
 								buf14 += "\t\t# %s - %s - %s - %s\n"%( molec.labl[i], molec.labl[j], molec.labl[k], molec.labl[l] )
-							buf14 += "\t\tself.exc.append( qm3.engines.restraints.dihedral( { 3: [ 0.8159, 0.0 ] }, [ %d, %d, %d, %d ] ) )\n"%( i, j, k, l )
+							buf14 += "\t\tself.exc.append( qm3.engines.mmres.dihedral( { 3: [ 0.8159, 0.0 ] }, [ %d, %d, %d, %d ] ) )\n"%( i, j, k, l )
 							buf14 += "\t\tself.exc[-1].ffac = 0.0\n"
 							if( atmm[j] ):
 								buf14 += "\t\tself.exc[-1].gfac = [ 1.0, 0.0, 0.0, 0.0 ]\n"
