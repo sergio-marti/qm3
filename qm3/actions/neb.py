@@ -12,6 +12,9 @@ import qm3.problem
 
 
 
+#
+# J. Chem. Phys. v113, p9978 (2000) [10.1063/1.1323224]
+#
 
 class serial_neb( qm3.problem.template ):
 	def __init__( self, problem, sele, kumb, nodes, crd_ini, crd_end ):
@@ -52,8 +55,17 @@ class serial_neb( qm3.problem.template ):
 		self.func = 0
 		self.grad = []
 
+		# end-points potential
+		self.prob.coor = self.crd0[:]
+		self.prob.get_func()
+		self.pot0 = self.prob.func
+		self.prob.coor = self.crdf[:]
+		self.prob.get_func()
+		self.potf = self.prob.func
+		print( self.pot0, self.potf )
 
-	def get_grad( self ):
+
+	def get_grad_OWN( self ):
 		self.func = 0.0
 		self.grad = []
 		for who in range( self.node ):
@@ -98,6 +110,70 @@ class serial_neb( qm3.problem.template ):
 			gsp = sum( [ ii * jj for ii,jj in zip( tau, self.prob.grad ) ] )
 			grd = [ ii - gsp * jj + usp * jj for ii,jj in zip( self.prob.grad, tau ) ]
 			qm3.utils.project_RT_modes( self.mass, self.prob.coor, grd, None )
+			self.grad += grd[:]
+
+
+	def get_grad( self ):
+		# ----------------------------------------------------------------------
+		def __calc_tau( potm, poti, potp, crdm, crdi, crdp ):
+			dcM = [ ii-jj for ii,jj in zip( crdp, crdi ) ]
+			dcm = [ ii-jj for ii,jj in zip( crdi, crdm ) ]
+			dpM = max( math.fabs( potp - poti ), math.fabs( potm - poti ) )
+			dpm = min( math.fabs( potp - poti ), math.fabs( potm - poti ) )
+			if( potp > poti and poti > potm ):
+				tau = dcM[:]
+			elif( potp < poti and poti < potm ):
+				tau = dcm[:]
+			else:
+				if( potp > potm ):
+					tau = [ dpM * ii + dpm * jj for ii,jj in zip( dcM, dcm ) ]
+				else:
+					tau = [ dpm * ii + dpM * jj for ii,jj in zip( dcM, dcm ) ]
+			tmp = math.sqrt( sum( [ ii * ii for ii in tau ] ) )
+			tau = [ ii / tmp for ii in tau ]
+			mcM = math.sqrt( sum( [ ii * ii for ii in dcM ] ) )
+			mcm = math.sqrt( sum( [ ii * ii for ii in dcm ] ) )
+			gum = [ - self.kumb * ( mcM - mcm ) * ii for ii in tau ]
+			return( tau, gum )
+		# ----------------------------------------------------------------------
+		vpot = []
+		gpot = []
+		# get potential energy and gradients from the chain elements
+		for who in range( self.node ):
+			self.prob.coor = self.coor[self.dime*who:self.dime*who+self.dime][:]
+			self.prob.get_grad()
+			vpot.append( self.prob.func )
+			gpot += self.prob.grad[:]
+			try:
+				self.prob.neb_data( who )
+			except:
+				pass
+		self.func = sum( vpot )
+		self.grad = []
+		# calculate neb components	
+		for who in range( self.node ):
+			if( who == 0 ):
+				# first node
+				tau, gum = __calc_tau( self.pot0, vpot[who], vpot[who+1],
+							self.crd0,
+							self.coor[self.dime*who:self.dime*who+self.dime],
+							self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime] )
+			elif( who == self.node - 1 ):
+				# last node
+				tau, gum = __calc_tau( vpot[who-1], vpot[who], self.potf,
+							self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime],
+							self.coor[self.dime*who:self.dime*who+self.dime],
+							self.crdf )
+			else:
+				# intermediates
+				tau, gum = __calc_tau( vpot[who-1], vpot[who], vpot[who+1],
+							self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime],
+							self.coor[self.dime*who:self.dime*who+self.dime],
+							self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime] )
+			# common to all nodes
+			gsp = sum( [ ii * jj for ii,jj in zip( tau, gpot[self.dime*who:self.dime*who+self.dime] ) ] )
+			grd = [ ii - gsp * jj + kk for ii,jj,kk in zip( gpot[self.dime*who:self.dime*who+self.dime], tau, gum ) ]
+			qm3.utils.project_RT_modes( self.mass, self.coor[self.dime*who:self.dime*who+self.dime], grd, None )
 			self.grad += grd[:]
 
 
@@ -148,10 +224,20 @@ try:
 			self.mass = [ self.prob.mol.mass[i] for i in self.sele ]
 			self.func = 0
 			self.grad = []
+
+			# end-points potential
+			self.prob.coor = self.crd0[:]
+			self.prob.get_func()
+			self.pot0 = self.prob.func
+			self.prob.coor = self.crdf[:]
+			self.prob.get_func()
+			self.potf = self.prob.func
+			if( self.wami == 0 ):
+				print( self.pot0, self.potf )
 	
 	
 	
-		def get_grad( self ):
+		def get_grad_OWN( self ):
 			# calculate assigned nodes
 			self.func = 0
 			self.grad = []
@@ -215,6 +301,90 @@ try:
 				qm3.utils._mpi.send_r8( 0, self.grad )
 				self.grad = qm3.utils._mpi.recv_r8( 0, self.size )
 
+
+		def get_grad( self ):
+			# ----------------------------------------------------------------------
+			def __calc_tau( potm, poti, potp, crdm, crdi, crdp ):
+				dcM = [ ii-jj for ii,jj in zip( crdp, crdi ) ]
+				dcm = [ ii-jj for ii,jj in zip( crdi, crdm ) ]
+				dpM = max( math.fabs( potp - poti ), math.fabs( potm - poti ) )
+				dpm = min( math.fabs( potp - poti ), math.fabs( potm - poti ) )
+				if( potp > poti and poti > potm ):
+					tau = dcM[:]
+				elif( potp < poti and poti < potm ):
+					tau = dcm[:]
+				else:
+					if( potp > potm ):
+						tau = [ dpM * ii + dpm * jj for ii,jj in zip( dcM, dcm ) ]
+					else:
+						tau = [ dpm * ii + dpM * jj for ii,jj in zip( dcM, dcm ) ]
+				tmp = math.sqrt( sum( [ ii * ii for ii in tau ] ) )
+				tau = [ ii / tmp for ii in tau ]
+				mcM = math.sqrt( sum( [ ii * ii for ii in dcM ] ) )
+				mcm = math.sqrt( sum( [ ii * ii for ii in dcm ] ) )
+				gum = [ - self.kumb * ( mcM - mcm ) * ii for ii in tau ]
+				return( tau, gum )
+			# ----------------------------------------------------------------------
+			vpot = []
+			gpot = []
+			# get potential energy and gradients from the chain elements
+			for who in range( self.wami * self.chnk, ( self.wami + 1 ) * self.chnk ):
+				self.prob.coor = self.coor[self.dime*who:self.dime*who+self.dime][:]
+				self.prob.get_grad()
+				vpot.append( self.prob.func )
+				gpot += self.prob.grad[:]
+				try:
+					self.prob.neb_data( who )
+				except:
+					pass
+			# sync vpot from and to nodes
+			qm3.utils._mpi.barrier()
+			if( self.wami == 0 ):
+				for i in range( 1, self.ncpu ):
+					vpot += qm3.utils._mpi.recv_r8( i, self.chnk )
+				for i in range( 1, self.ncpu ):
+					qm3.utils._mpi.send_r8( i, vpot )
+			else:
+				qm3.utils._mpi.send_r8( 0, vpot )
+				vpot = qm3.utils._mpi.recv_r8( 0, self.node )
+			# sync gpot from and to nodes
+			qm3.utils._mpi.barrier()
+			if( self.wami == 0 ):
+				for i in range( 1, self.ncpu ):
+					gpot += qm3.utils._mpi.recv_r8( i, self.dime * self.chnk )
+				for i in range( 1, self.ncpu ):
+					qm3.utils._mpi.send_r8( i, gpot )
+			else:
+				qm3.utils._mpi.send_r8( 0, gpot )
+				gpot = qm3.utils._mpi.recv_r8( 0, self.size )
+			self.func = sum( vpot )
+			self.grad = []
+			# calculate neb components	
+			for who in range( self.node ):
+				if( who == 0 ):
+					# first node
+					tau, gum = __calc_tau( self.pot0, vpot[who], vpot[who+1],
+								self.crd0,
+								self.coor[self.dime*who:self.dime*who+self.dime],
+								self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime] )
+				elif( who == self.node - 1 ):
+					# last node
+					tau, gum = __calc_tau( vpot[who-1], vpot[who], self.potf,
+								self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime],
+								self.coor[self.dime*who:self.dime*who+self.dime],
+								self.crdf )
+				else:
+					# intermediates
+					tau, gum = __calc_tau( vpot[who-1], vpot[who], vpot[who+1],
+								self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime],
+								self.coor[self.dime*who:self.dime*who+self.dime],
+								self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime] )
+				# common to all nodes
+				gsp = sum( [ ii * jj for ii,jj in zip( tau, gpot[self.dime*who:self.dime*who+self.dime] ) ] )
+				grd = [ ii - gsp * jj + kk for ii,jj,kk in zip( gpot[self.dime*who:self.dime*who+self.dime], tau, gum ) ]
+				qm3.utils.project_RT_modes( self.mass, self.coor[self.dime*who:self.dime*who+self.dime], grd, None )
+				self.grad += grd[:]
+	
 except:
 	pass
 
