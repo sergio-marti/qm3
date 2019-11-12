@@ -23,7 +23,7 @@ except:
 
 
 try:
-	import	qm3.utils._grids
+	import	qm3.maths._grids
 except:
 	pass
 
@@ -156,7 +156,7 @@ class grid( object ):
 		for i in range( points[1] ):
 			self.y.append( min_y + dy * i )
 		try:
-			self.z = qm3.utils._grids.regular( self.x, self.y, dat, gauss )
+			self.z = qm3.maths._grids.regular( self.x, self.y, dat, gauss )
 		except:
 			self.z = []
 			for i in self.x:
