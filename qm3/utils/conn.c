@@ -165,7 +165,7 @@ static struct PyModuleDef moddef = {
 	NULL
 };
 
-PyMODINIT_FUNC PyInit_conn( void ) {
+PyMODINIT_FUNC PyInit__conn( void ) {
 	PyObject    *my_module;
 	my_module = PyModule_Create( &moddef );
 	return( my_module );
