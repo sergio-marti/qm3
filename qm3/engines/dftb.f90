@@ -1,5 +1,5 @@
 !
-! gfortran -shared|-dynamiclib -o dftb.so -I{DFTBPLUS_git}/_build/api/mm dftb.f90 libdftb+.a libxmlf90.a libdftd3.a -framework Accelerate -fopenmp
+! gfortran -shared|-dynamiclib -o libdftb.so -I../_build/prog/dftb+/include dftb.f90 libdftbplus.a libdftd3.a -framework Accelerate -fopenmp
 !
 module qm3
 	use dftbplus
