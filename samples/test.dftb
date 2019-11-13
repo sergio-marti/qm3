@@ -8,7 +8,7 @@ except:
   import io
 import os
 
-os.environ["QM3_LIBDFTB"] = "/Users/smarti/Devel/dftb+/dftbplus/bin/dftb.so"
+os.environ["QM3_LIBDFTB"] = "/Users/smarti/Devel/dftb+/dftbplus/bin/libdftb.so"
 
 
 class my_eng( qm3.problem.template ):
@@ -28,7 +28,6 @@ Hamiltonian = DFTB {
   MaxSCCIterations = 1000
 #  ShellResolvedSCC = Yes
   Mixer = DIIS {}
-  Eigensolver = DivideAndConquer {}
   SlaterKosterFiles = Type2FileNames {
     Prefix = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
     Separator = "-"
