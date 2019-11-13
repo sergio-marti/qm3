@@ -1,5 +1,5 @@
 import qm3.problem
-import qm3.io.dcd
+import qm3.fio.dcd
 import qm3.mol
 import qm3.utils
 import qm3.elements
@@ -88,7 +88,7 @@ class QM_problem( qm3.problem.template ):
 
         self.cnt = 0
 
-        self.dcd = qm3.io.dcd.dcd()
+        self.dcd = qm3.fio.dcd.dcd()
         self.dcd.write( "dcd", self.mol.natm )
 
 

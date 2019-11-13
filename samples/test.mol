@@ -1,5 +1,5 @@
 import qm3.mol
-import qm3.io.dcd
+import qm3.fio.dcd
 try:
     import cStringIO as io
 except:
@@ -84,7 +84,7 @@ g.close()
 f = io.StringIO()
 m.zmat_write( c, f )
 
-d = qm3.io.dcd.dcd()
+d = qm3.fio.dcd.dcd()
 d.write( "tmp.dcd", m.natm )
 f.seek( 0 )
 print( f.read() )

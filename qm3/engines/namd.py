@@ -8,7 +8,7 @@ import	re
 import	struct
 import	math
 import	qm3.constants
-import	qm3.io
+import	qm3.fio
 import	os, stat
 import	multiprocessing
 import	time
@@ -47,7 +47,7 @@ def coordinates_write( mol, fname ):
 
 
 def pdb_write( mol, fname = None, fixed = [] ):
-	f = qm3.io.open_w( fname )
+	f = qm3.fio.open_w( fname )
 	s = [ 0 for i in range( mol.natm ) ]
 	for i in fixed:
 		s[i] = 1
@@ -58,7 +58,7 @@ def pdb_write( mol, fname = None, fixed = [] ):
 			mol.resn[i], mol.resi[i], mol.coor[i3], mol.coor[i3+1], mol.coor[i3+2], 
 			s[i], 0.0, mol.segn[i] ) )
 	f.write( "END\n" )
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 
 
 def topology_read( mol, fname = None ):
@@ -67,7 +67,7 @@ def topology_read( mol, fname = None ):
 	mol.type = []
 	mol.chrg = []
 	mol.mass = []
-	fd = qm3.io.open_r( fname )
+	fd = qm3.fio.open_r( fname )
 	if( fd.readline().split()[0] == "PSF" ):
 		fd.readline()
 		for i in range( int( fd.readline().split()[0] ) + 1 ):
@@ -84,17 +84,17 @@ def topology_read( mol, fname = None ):
 			__tail = fd.read()
 		else:
 			print( "- Invalid number of atoms in PSF!" )
-	qm3.io.close( fd, fname )
+	qm3.fio.close( fd, fname )
 
 
 def topology_write( mol, fname = None ):
 	global	__tail
-	fd = qm3.io.open_w( fname )
+	fd = qm3.fio.open_w( fname )
 	fd.write( "PSF\n\n       1 !NTITLE\n REMARKS generated structure x-plor psf file\n\n%8d !NATOM\n"%( mol.natm ) )
 	for i in range( mol.natm ):
 		fd.write( "%8d %-5s%-5d%-5s%-5s%-5s%10.6lf%14.4lf%12d\n"%( i + 1, mol.segn[i], mol.resi[i], mol.resn[i], mol.labl[i], mol.type[i], mol.chrg[i], mol.mass[i], 0 ) )
 	fd.write( __tail )
-	qm3.io.close( fd, fname )
+	qm3.fio.close( fd, fname )
 
 
 

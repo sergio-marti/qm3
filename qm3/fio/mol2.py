@@ -6,7 +6,7 @@ if( sys.version_info[0] == 2 ):
 	range = xrange
 
 import	qm3.mol
-import	qm3.io
+import	qm3.fio
 
 
 ###################################################################################################
@@ -14,7 +14,7 @@ import	qm3.io
 #
 def mol2_read( fname = None ):
 	mol = qm3.mol.molecule()
-	f = qm3.io.open_r( fname )
+	f = qm3.fio.open_r( fname )
 	l = f.readline()
 	while( l ):
 		if( l.strip() == "@<TRIPOS>MOLECULE" ):
@@ -40,6 +40,6 @@ def mol2_read( fname = None ):
 				jj = int( t[2] ) - 1
 				bond.append( [ ii, jj ] )
 		l = f.readline()
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 	mol.settle()
 	return( mol, bond )

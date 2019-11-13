@@ -6,7 +6,7 @@ if( sys.version_info[0] == 2 ):
 	range = xrange
 import	math
 import	qm3.constants
-import	qm3.io
+import	qm3.fio
 import	qm3.mol
 import	os, stat
 import	struct
@@ -21,7 +21,7 @@ def coordinates_read( fname = None ):
 .123456789.123456789.123456789.123456789.123456789.123456789.123456789
 	"""
 	mol = qm3.mol.molecule()
-	f = qm3.io.open_r( fname )
+	f = qm3.fio.open_r( fname )
 	l = f.readline()
 	while( l.strip() != "POSITION" ):
 		l = f.readline()
@@ -39,13 +39,13 @@ def coordinates_read( fname = None ):
 	l = f.readline()
 	if( l.strip() == "BOX" ):
 		mol.boxl = [ float( i ) * 10.0 for i in f.readline().strip().split() ]
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 	mol.settle()
 	return( mol )
 	
 
 def coordinates_write( mol, fname = None ):
-	f = qm3.io.open_w( fname )
+	f = qm3.fio.open_w( fname )
 	f.write( "TITLE\nGenerated with QM3\nEND\nPOSITION\n" )
 	for i in range( len( mol.res_lim ) - 1 ):
 		for j in range( mol.res_lim[i], mol.res_lim[i+1] ):
@@ -56,7 +56,7 @@ def coordinates_write( mol, fname = None ):
 	f.write( "END\n" )
 	if( mol.boxl != [ qm3.mol.MXLAT, qm3.mol.MXLAT, qm3.mol.MXLAT ]  ):
 		f.write( "BOX\n%15.9lf%15.9lf%15.9lf\nEND\n"%( mol.boxl[0] / 10.0, mol.boxl[1] / 10.0, mol.boxl[2] / 10.0 ) )
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 
 
 

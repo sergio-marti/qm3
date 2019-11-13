@@ -7,7 +7,7 @@ if( sys.version_info[0] == 2 ):
 import	os
 import	math
 import	qm3.constants
-import	qm3.io
+import	qm3.fio
 import	qm3.utils
 try:
 	import	cPickle as pickle
@@ -38,9 +38,9 @@ class qmbase( object ):
 		if( not mol.chrg ):
 			mol.chrg = [ 0.0 for i in range( mol.natm ) ]
 
-		f = qm3.io.open_r( inp )
+		f = qm3.fio.open_r( inp )
 		self.inp = f.read()
-		qm3.io.close( f, inp )
+		qm3.fio.close( f, inp )
 
 
 	def mk_input( self, mol, run ):

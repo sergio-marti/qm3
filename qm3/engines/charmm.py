@@ -8,7 +8,7 @@ import	struct
 import	math
 import	qm3.mol
 import	qm3.constants
-import	qm3.io
+import	qm3.fio
 import	os, stat
 import	time
 
@@ -27,7 +27,7 @@ def coordinates_read( fname = None ):
          1         1  COPE      C1             -0.9830000000        1.0550000000        0.1210000000  ACS       1               0.0000000000
 	"""
 	mol = qm3.mol.molecule()
-	f = qm3.io.open_r( fname )
+	f = qm3.fio.open_r( fname )
 	l = f.readline()
 	while( l[0] == "*" ):
 		l = f.readline()
@@ -53,13 +53,13 @@ def coordinates_read( fname = None ):
 			mol.coor.append( float( l[40:50].strip() ) )
 			mol.segn.append( l[51:55].strip() )
 			mol.resi.append( int( l[56:60] .strip() ) )
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 	mol.settle()
 	return( mol )
 	
 
 def coordinates_write( mol, fname = None ):
-	f = qm3.io.open_w( fname )
+	f = qm3.fio.open_w( fname )
 	fmt = "%5d%5d %-4s %-4s%10.5lf%10.5lf%10.5lf %-4s %-4d%10.5lf\n"
 	flg = ( mol.natm >= 100000 )
 	if( not flg ):
@@ -78,11 +78,11 @@ def coordinates_write( mol, fname = None ):
 			f.write( fmt%( k, i+1, mol.resn[j], mol.labl[j],mol.coor[3*j],
 				mol.coor[3*j+1], mol.coor[3*j+2], mol.segn[j], mol.resi[j], 0.0 ) )
 			k += 1
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 
 
 def selection( mol, sele, fname = None ):
-	f = qm3.io.open_w( fname )
+	f = qm3.fio.open_w( fname )
 	t = [ False for i in range( mol.natm ) ]
 	for i in sele:
 		t[i] = True
@@ -111,7 +111,7 @@ def selection( mol, sele, fname = None ):
 					else:
 						f.write( " .or. -\n" )
 	f.write( "end\n" )
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 
 
 

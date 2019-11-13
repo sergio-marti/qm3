@@ -4,7 +4,7 @@ from __future__ import print_function, division
 import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
-import	qm3.io
+import	qm3.fio
 import	re
 import	math
 import	qm3.maths.interpolation
@@ -32,13 +32,13 @@ except:
 def get_ranges( fname ):
 	t_x = {}
 	t_y = {}
-	f = qm3.io.open_r( fname )
+	f = qm3.fio.open_r( fname )
 	for l in f:
 		t = l.split()
 		if( len( t ) == 3 ):
 			t_x[float( t[0] )] = None
 			t_y[float( t[1] )] = None
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 	t_x = sorted( t_x )
 	d_x = 0.0
 	for i in range( 1, len( t_x ) ):
@@ -77,13 +77,13 @@ class grid( object ):
 	# Whatever the ordering ALWAYS returns: fixed_X, changing_Y
 	def parse( self, fname = None, sele = "0:1:2" ):
 		s = [ int( i ) for i in sele.split( ":" ) ]
-		f = qm3.io.open_r( fname )
+		f = qm3.fio.open_r( fname )
 		d = []
 		for l in f:
 			t = l.strip().split()
 			if( len( t ) >= 3 and self.__number.match( t[s[0]] ) and self.__number.match( t[s[1]] ) and self.__number.match( t[s[2]] ) ):
 				d.append( [ float( t[s[0]] ), float( t[s[1]] ), float( t[s[2]] ) ] )
-		qm3.io.close( f, fname )
+		qm3.fio.close( f, fname )
 		d.sort()
 		ny = 0
 		t  = d[ny][0]
@@ -126,7 +126,7 @@ class grid( object ):
 		max_x = None
 		max_y = None
 		s = [ int( i ) for i in sele.split( ":" ) ]
-		f = qm3.io.open_r( fname )
+		f = qm3.fio.open_r( fname )
 		for l in f:
 			t = l.split()
 			if( len( t ) >= 3 ):
@@ -144,7 +144,7 @@ class grid( object ):
 						max_x = rx
 						max_y = ry
 					dat.append( [ rx, ry, float( t[s[2]] ) ] )
-		qm3.io.close( f, fname )
+		qm3.fio.close( f, fname )
 		dx = ( max_x - min_x ) / float( points[0] - 1.0 )
 		print( "[X] delta: %.4lf  points: %3d  range: %8.2lf / %8.2lf"%( dx, points[0], min_x, max_x ) )
 		dy = ( max_y - min_y ) / float( points[1] - 1.0 )
@@ -176,13 +176,13 @@ class grid( object ):
 
 	def save( self, fname = None ):
 		k = 0
-		f = qm3.io.open_w( fname )
+		f = qm3.fio.open_w( fname )
 		for i in self.x:
 			for j in self.y:
 				f.write( "%18.6lf%18.6lf%18.6lf\n"%( i, j, self.z[k] ) )
 				k += 1
 			f.write( "\n" )
-		qm3.io.close( f, fname )
+		qm3.fio.close( f, fname )
 
 
 	def plot( self ):

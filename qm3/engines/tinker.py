@@ -5,7 +5,7 @@ import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
 import	qm3.constants
-import	qm3.io
+import	qm3.fio
 import	re
 import	os
 import	multiprocessing
@@ -16,7 +16,7 @@ import	time
 #	def xyz_read( self, fname = None ):
 #		self.conn = []
 #		self.atyp = []
-#		f = qm3.io.open_r( fname )
+#		f = qm3.fio.open_r( fname )
 #		self.natm = int( f.readline().split()[0] )
 #		for i in range( self.natm ):
 #			t = f.readline().split()
@@ -24,18 +24,18 @@ import	time
 #			self.coor += [ float( t[2] ), float( t[3] ), float( t[4] ) ]
 #			self.atyp.append( int( t[5] ) )
 #			self.conn.append( t[6:][:] )
-#		qm3.io.close( f, fname )
+#		qm3.fio.close( f, fname )
 #	
 #
 #	def xyz_write( self, fname = None ):
-#		f = qm3.io.open_w( fname )
+#		f = qm3.fio.open_w( fname )
 #		f.write( "%8d\n"%( self.natm ) )
 #		for i in range( self.natm ):
 #			i3 = i * 3
 #			f.write( "%8d  %3s%14.6lf%14.6lf%14.6lf%6d%s\n"%( i+1, self.labl[i],
 #				self.coor[i3], self.coor[i3+1], self.coor[i3+2], self.atyp[i], 
 #				"".join( [ "%8s"%( j ) for j in self.conn[i] ] ) ) )
-#		qm3.io.close( f, fname )
+#		qm3.fio.close( f, fname )
 
 
 

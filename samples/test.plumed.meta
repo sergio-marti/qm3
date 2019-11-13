@@ -5,7 +5,7 @@ import qm3.engines._plumed
 import qm3.engines._mmint
 import qm3.problem
 import qm3.mol
-import qm3.io.dcd
+import qm3.fio.dcd
 import qm3.engines.namd
 import qm3.engines.dftb
 import time
@@ -59,7 +59,7 @@ class my_problem( qm3.problem.template ):
 		self.mass = self.mol.mass
 
 		self.time = -1
-		self.dcd = qm3.io.dcd.dcd()
+		self.dcd = qm3.fio.dcd.dcd()
 		self.dcd.write( "dcd", self.mol.natm )
 		self.mol.dcd_write( self.dcd )
 

@@ -8,7 +8,7 @@ import	math
 import	qm3.utils
 import	qm3.constants
 import	qm3.maths.matrix
-import	qm3.io
+import	qm3.fio
 import	qm3.elements
 import	re
 import	collections
@@ -288,7 +288,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 		"""
 		if( not append ):
 			self.initialize()
-		f = qm3.io.open_r( fname )
+		f = qm3.fio.open_r( fname )
 		for l in f:
 			if( l[0:4] == "ATOM" or l[0:4] == "HETA" ):
 				self.labl.append( l[12:17].strip() )
@@ -304,12 +304,12 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 				self.coor.append( float( l[38:46] ) )
 				self.coor.append( float( l[46:54] ) )
 				self.natm += 1
-		qm3.io.close( f, fname )
+		qm3.fio.close( f, fname )
 		self.settle()
 
 
 	def pdb_write( self, fname = None, sele = None ):
-		f = qm3.io.open_w( fname )
+		f = qm3.fio.open_w( fname )
 		if( sele ):
 			t_sel = sele[:]
 		else:
@@ -323,7 +323,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 				0.0, 0.0, self.segn[i] ) )
 			j += 1
 		f.write( "END\n" )
-		qm3.io.close( f, fname )
+		qm3.fio.close( f, fname )
 
 
 ###################################################################################################
@@ -362,7 +362,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 	def xyz_read( self, fname = None, append = False, replace = False ):
 		if( not append and not replace ):
 			self.initialize()
-		f = qm3.io.open_r( fname )
+		f = qm3.fio.open_r( fname )
 		n = int( f.readline().strip() )
 		f.readline()
 		if( replace and self.natm == n ):
@@ -380,13 +380,13 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 				self.segn.append( "X" )
 				self.coor += [ float( j ) for j in t[1:4] ]
 				self.natm += 1
-		qm3.io.close( f, fname )
+		qm3.fio.close( f, fname )
 		self.settle()
 
 
 	def xyz_write( self, fname = None, sele = None, formt = "%20.10lf" ):
 		fmt = "%-4s" + 3 * formt + "\n"
-		f = qm3.io.open_w( fname )
+		f = qm3.fio.open_w( fname )
 		if( sele ):
 			t_sel = sele[:]
 		else:
@@ -396,7 +396,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 		f.write( "%d\n\n"%( siz ) )
 		for i in range( siz ):
 			f.write( fmt%( smb[i], self.coor[3*t_sel[i]], self.coor[3*t_sel[i]+1], self.coor[3*t_sel[i]+2] ) )
-		qm3.io.close( f, fname )
+		qm3.fio.close( f, fname )
 
 
 ###################################################################################################
@@ -404,7 +404,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 #
 	def zmat_read( self, fname = None, orig = [ 0.0, 0.0, 0.0 ], axis = [ 1.0, 0.0, 0.0 ] ):
 		self.initialize()
-		f = qm3.io.open_r( fname )
+		f = qm3.fio.open_r( fname )
 		# 1st atom
 		self.labl.append( f.readline().strip().upper() )
 		self.coor += [ 0.0, 0.0, 0.0 ]
@@ -489,7 +489,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 				self.coor += [ xqd + pa[0], yqd + pa[1], zqd + pa[2] ]
 			# ------------------------------------------------------------------------
 			self.natm += 1
-		qm3.io.close( f, fname )
+		qm3.fio.close( f, fname )
 		# ---------------------------------------------------------------------
 		nax = qm3.maths.matrix.norm( axis )
 		if( qm3.utils.distanceSQ( nax, [1.0, 0.0, 0.0] ) > 0.0 ):
@@ -511,7 +511,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 		rcon = []
 		for i in range( len( conn ) ):
 			rcon.append( [ conn[i][0] ] + [ temp.index( conn[i][j] ) + 1 for j in range( 1, len( conn[i] ) ) ] )
-		f = qm3.io.open_w( fname )
+		f = qm3.fio.open_w( fname )
 		# -------------
 		f.write( "%-2s\n"%( self.labl[conn[0][0]][0] ) )
 		f.write( "%-2s%6d%12.3lf\n"%( self.labl[conn[1][0]][0], 
@@ -525,7 +525,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 				rcon[i][2], qm3.utils.angle( self.coor[3*conn[i][0]:3*conn[i][0]+3], self.coor[3*conn[i][1]:3*conn[i][1]+3], self.coor[3*conn[i][2]:3*conn[i][2]+3] ),
 				rcon[i][3], qm3.utils.dihedral( self.coor[3*conn[i][0]:3*conn[i][0]+3], self.coor[3*conn[i][1]:3*conn[i][1]+3], self.coor[3*conn[i][2]:3*conn[i][2]+3], self.coor[3*conn[i][3]:3*conn[i][3]+3] ) ) )
 		# -------------
-		qm3.io.close( f, fname )
+		qm3.fio.close( f, fname )
 
 
 ###################################################################################################
@@ -536,7 +536,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 		self.type = []
 		self.chrg = []
 		self.mass = []
-		f = qm3.io.open_r( fname )
+		f = qm3.fio.open_r( fname )
 		if( f.readline().split()[0] == "PSF" ):
 			f.readline()
 			for i in range( int( f.readline().split()[0] ) + 1 ):
@@ -557,7 +557,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 			else:
 				print( "- Invalid number of atoms in PSF!" )
 				out = False
-		qm3.io.close( f, fname )
+		qm3.fio.close( f, fname )
 		return( out )
 	
 	
@@ -569,7 +569,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 		self.epsi = []
 		self.rmin = []
 		nbd = {}
-		f = qm3.io.open_r( fname )
+		f = qm3.fio.open_r( fname )
 		for i,j,k in re.compile( "([A-Z0-9]+)[\ ]+([0-9\.]+)[\ ]+([0-9\.]+)" ).findall( f.read() ):
 			nbd[i] = [ math.sqrt( float( j ) * qm3.constants.K2J ), float( k ) ]
 		f.close()
@@ -582,5 +582,5 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 				self.rmin.append( None )
 				print( "- Atom index %d misses Non-Bonded data..."%( i+1 ) )
 				out = False
-		qm3.io.close( f, fname )
+		qm3.fio.close( f, fname )
 		return( out )

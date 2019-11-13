@@ -5,7 +5,7 @@ import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
 import	math
-import	qm3.io
+import	qm3.fio
 import	qm3.maths.matrix
 
 
@@ -29,7 +29,7 @@ dist      atom_i    atom_j
 """
 		self.xref = xref
 		self.kumb = kumb
-		f = qm3.io.open_r( conf )
+		f = qm3.fio.open_r( conf )
 		t = f.readline().strip().split()
 		self.ncrd = int( t[0] )
 		self.nwin = int( t[1] )
@@ -45,7 +45,7 @@ dist      atom_i    atom_j
 				self.atom.append( ( a_i, a_j ) )
 				self.jidx[a_i] = True
 				self.jidx[a_j] = True
-		qm3.io.close( f, conf )
+		qm3.fio.close( f, conf )
 		self.jidx = { jj: ii for ii,jj in zip( range( len( self.jidx ) ), sorted( self.jidx ) ) }
 		self.idxj = { self.jidx[ii]: ii for ii in iter( self.jidx ) }
 		self.jcol = 3 * len( self.jidx )
@@ -56,13 +56,13 @@ dist      atom_i    atom_j
 ##				self.mass.append( 1.0 / molec.mass[self.idxj[i]] )
 ## ------------------------------------------------------------------
 		# load (previous) equi-destributed string
-		f = qm3.io.open_r( str_crd )
+		f = qm3.fio.open_r( str_crd )
 		self.rcrd = [ float( i ) for i in f.read().split() ]
-		qm3.io.close( f, conf )
+		qm3.fio.close( f, conf )
 		# load (previous) string metrics
-		f = qm3.io.open_r( str_met )
+		f = qm3.fio.open_r( str_met )
 		self.rmet = [ float( i ) for i in f.read().split() ]
-		qm3.io.close( f, conf )
+		qm3.fio.close( f, conf )
 		nc2 = self.ncrd * self.ncrd
 		# get the arc length of the current string...
 		arc = []

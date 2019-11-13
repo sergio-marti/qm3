@@ -6,7 +6,7 @@ if( sys.version_info[0] == 2 ):
 	range = xrange
 import	math
 import	qm3.elements
-import	qm3.io
+import	qm3.fio
 
 
 
@@ -51,7 +51,7 @@ const atom_kind atom_kind_data[] = {
 	global	__vina
 	__vina = []
 	conn = []
-	f = qm3.io.open_r( fname )
+	f = qm3.fio.open_r( fname )
 	if( f.readline().split()[0] == "PSF" ):
 		f.readline()
 		for i in range( int( f.readline().split()[0] ) + 1 ):
@@ -81,7 +81,7 @@ const atom_kind atom_kind_data[] = {
 				i += len( t ) // 2
 		else:
 			print( "- Invalid number of atoms in PSF!" )
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 	for i in range( mol.natm ):
 		if( mol.anum[i] == 1 ):
 			if( 6 in [ mol.anum[j] for j in conn[i] ] ):
@@ -102,7 +102,7 @@ const atom_kind atom_kind_data[] = {
 
 def receptor( mol, fname = None, sele = None ):
 	global	__vina
-	f = qm3.io.open_w( fname )
+	f = qm3.fio.open_w( fname )
 	f.write( "REMARK --------------------------------------------------------------------------\n" )
 	f.write( "REMARK                            x       y       z     vdW  Elec       q    Type\n" )
 	f.write( "REMARK                         _______ _______ _______ _____ _____    ______ ____\n" )
@@ -119,12 +119,12 @@ def receptor( mol, fname = None, sele = None ):
 				mol.resn[i][0:min(4,len(mol.resn[i]))], mol.resi[i],
 				mol.coor[i3], mol.coor[i3+1], mol.coor[i3+2], 0.0, 0.0, mol.chrg[i], __vina[i] ) )
 			k += 1
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 
 
 
 def ligand( mol, fname = None, sele = None ):
-	f = qm3.io.open_w( fname )
+	f = qm3.fio.open_w( fname )
 	f.write( "REMARK --------------------------------------------------------------------------\n" )
 	f.write( "REMARK                            x       y       z     vdW  Elec       q    Type\n" )
 	f.write( "REMARK                         _______ _______ _______ _____ _____    ______ ____\n" )
@@ -142,11 +142,11 @@ def ligand( mol, fname = None, sele = None ):
 		k += 1
 	f.write( "ENDROOT\n" )
 	f.write( "TORSDOF 0\n" )
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 
 
 def config( mol, center, fname = "vina.conf" ):
-	f = qm3.io.open_w( fname )
+	f = qm3.fio.open_w( fname )
 	f.write( """receptor = _RECEPTOR_
 ligand = _LIGAND_
 center_x = %8.3lf
@@ -157,13 +157,13 @@ size_y = 30.
 size_z = 30.
 energy_range = 5
 num_modes = 10"""%( center[0], center[1], center[2] ) )
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 	if( type( fname ) == str ):
 		print( "\nedit '%s' and run with:\n\t\tvina --cpu N --config %s\n\n"%( fname, fname ) )
 
 
 def parse_dock( mol, fname, sele, model = 0 ):
-	f = qm3.io.open_r( fname )
+	f = qm3.fio.open_r( fname )
 	l = f.readline()
 	while( l != "" ):
 		t = l.strip().split()
@@ -177,5 +177,5 @@ def parse_dock( mol, fname, sele, model = 0 ):
 					i += 1
 				t = f.readline().strip().split()
 		l = f.readline()
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 

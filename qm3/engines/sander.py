@@ -5,7 +5,7 @@ import	sys
 if( sys.version_info[0] == 2 ):
 	range = xrange
 import	qm3.constants
-import	qm3.io
+import	qm3.fio
 import	os
 import	struct
 import	multiprocessing
@@ -16,7 +16,7 @@ __prmtop = ""
 
 
 def coordinates_read( mol, fname = None ):
-	f = qm3.io.open_r( fname )
+	f = qm3.fio.open_r( fname )
 	f.readline()
 	n = int( f.readline().strip() )
 	if( mol.natm != n ):
@@ -28,11 +28,11 @@ def coordinates_read( mol, fname = None ):
 	while( len( mol.coor ) < n ):
 		mol.coor += [ float( j ) for j in f.readline().split() ]
 	mol.boxl = [ float( j ) for j in f.readline().split()[0:3] ]
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 
 
 def coordinates_write( mol, fname = None ):
-	f = qm3.io.open_w( fname )
+	f = qm3.fio.open_w( fname )
 	f.write( "comment\n%d\n"%( mol.natm ) )
 	n = 3 * mol.natm
 	for i in range( n ):
@@ -42,13 +42,13 @@ def coordinates_write( mol, fname = None ):
 	if( n%6 != 0 ):
 		f.write( "\n" )
 	f.write( "%12.7lf%12.7lf%12.7lf%12.7lf%12.7lf%12.7lf\n"%( mol.boxl[0], mol.boxl[1], mol.boxl[2], 90.0, 90.0, 90.0 ) )
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 
 
 def topology_read( mol, fname = None ):
 	global	__prmtop
 	__prmtop = ""
-	f = qm3.io.open_r( fname )
+	f = qm3.fio.open_r( fname )
 	if( mol.natm > 0 ):
 		l = f.readline()
 		while( l ):
@@ -130,13 +130,13 @@ def topology_read( mol, fname = None ):
 			for j in range( mol.res_lim[i], mol.res_lim[i+1] ):
 				mol.resi.append( i + 1 )
 				mol.resn.append( lres[i] )
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 
 
 def topology_write( mol, fname = None ):
 	global	__prmtop
 	if( __prmtop and mol.chrg ):
-		f = qm3.io.open_w( fname )
+		f = qm3.fio.open_w( fname )
 		f.write( __prmtop )
 		f.write( "%FLAG CHARGE                                                                    \n" )
 		f.write( "%FORMAT(5E16.8)                                                                 \n" )
@@ -144,7 +144,7 @@ def topology_write( mol, fname = None ):
 			f.write( "%16.8lf"%( mol.chrg[i] * 18.2223 ) )
 			if( (i+1)%5 == 0 ):
 				f.write( "\n" )
-		qm3.io.close( f, fname )
+		qm3.fio.close( f, fname )
 
 
 

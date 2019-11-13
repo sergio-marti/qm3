@@ -11,7 +11,7 @@ except:
 	import	urllib.request as ulib
 
 import	qm3.mol
-import	qm3.io
+import	qm3.fio
 
 
 ###################################################################################################
@@ -19,7 +19,7 @@ import	qm3.io
 #
 def sdf_read( fname = None ):
 	mol = qm3.mol.molecule()
-	f = qm3.io.open_r( fname )
+	f = qm3.fio.open_r( fname )
 	for i in range( 4 ):
 		l = f.readline()
 	mol.natm = int( l.strip().split()[0] )
@@ -30,7 +30,7 @@ def sdf_read( fname = None ):
 		mol.resn.append( "XXX" )
 		mol.segn.append( "X" )
 		mol.coor += [ float( j ) for j in t[0:3] ]
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 	mol.settle()
 	return( mol )
 

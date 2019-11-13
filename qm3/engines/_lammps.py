@@ -7,7 +7,7 @@ if( sys.version_info[0] == 2 ):
 import	math
 import	qm3.constants
 import	qm3.elements
-import	qm3.io
+import	qm3.fio
 import	qm3.mol
 import	os, stat
 import	time
@@ -29,7 +29,7 @@ arising from the lennard-jones are calcualted by LAMMPS
 
 def lammps_read( fname = None ):
 	mol = qm3.mol.molecule()
-	f = qm3.io.open_r( fname )
+	f = qm3.fio.open_r( fname )
 	l = f.readline().lower()
 	q = True
 	m = {}
@@ -66,7 +66,7 @@ def lammps_read( fname = None ):
 				mol.natm += 1
 				l = f.readline().strip()
 		l = f.readline().lower()
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 	mol.settle()
 	return( mol )
 

@@ -6,7 +6,7 @@ if( sys.version_info[0] == 2 ):
 	range = xrange
 import	os
 import	sys
-import	qm3.io
+import	qm3.fio
 import	qm3.mol
 import	struct
 import	stat
@@ -28,7 +28,7 @@ Residue     1  SER
      3   CA            6       -6.1260000000     27.5020000000    -13.9140000000
 	"""
 	mol = qm3.mol.molecule()
-	f = qm3.io.open_r( fname )
+	f = qm3.fio.open_r( fname )
 	t = f.readline().strip().split()
 	while( t != [] ):
 		if( t[0].lower() == "subsystem" ):
@@ -57,13 +57,13 @@ Residue     1  SER
 				mol.coor.append( float( t[5] ) )
 				mol.natm += 1
 		t = f.readline().split()
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 	mol.settle()
 	return( mol )
 
 
 def coordinates_write( mol, fname = None ):
-	f = qm3.io.open_w( fname )
+	f = qm3.fio.open_w( fname )
 	f.write( "%d %d %d\n"%( mol.natm, len( mol.res_lim ) - 1, len( mol.seg_lim ) - 1 ) )
 	if( mol.boxl != [ qm3.mol.MXLAT, qm3.mol.MXLAT, qm3.mol.MXLAT ]  ):
 		f.write( "Symmetry  1\n" )
@@ -82,7 +82,7 @@ def coordinates_write( mol, fname = None ):
 				f.write ( "%6d   %-10s%5d%20.10lf%20.10lf%20.10lf\n"%( l, mol.labl[k], int( mol.anum[k] ),
 					mol.coor[3*k], mol.coor[3*k+1], mol.coor[3*k+2] ) )
 				l += 1
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 
 
 def topology_read( mol, fname ):
@@ -115,7 +115,7 @@ def topology_read( mol, fname ):
 
 
 def sequence( mol, fname = None ):
-	f = qm3.io.open_w( fname )
+	f = qm3.fio.open_w( fname )
 	f.write( "Sequence\n%d\n\n"%( len( mol.seg_lim ) - 1 ) )
 	for i in range( len( mol.seg_lim ) - 1 ):
 		f.write ( "Subsystem  %s\n"%( mol.segn[mol.res_lim[mol.seg_lim[i]]] ) )
@@ -132,11 +132,11 @@ def sequence( mol, fname = None ):
 		f.write( "End\n\n" )
 	f.write( "\n! Link TYPE  SEGN_A RESN_A RESI_A   SEGN_B RESN_B RESI_B\n" )
 	f.write( "End" )
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 
 
 def selection( mol, sele, fname = None ):
-	f = qm3.io.open_w( fname )
+	f = qm3.fio.open_w( fname )
 	t = [ False for i in range( mol.natm ) ]
 	for i in sele:
 		t[i] = True
@@ -155,7 +155,7 @@ def selection( mol, sele, fname = None ):
 					f.write( "\t! %s/%d/%s\n"%( mol.segn[j], mol.resi[j], mol.labl[j] ) )
 					f.write( "\tselection(%d) = .true.\n"%( j+1 ) )
 	f.write( "end subroutine" )
-	qm3.io.close( f, fname )
+	qm3.fio.close( f, fname )
 
 
 

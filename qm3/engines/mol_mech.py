@@ -14,7 +14,7 @@ import	qm3.mol
 import	qm3.utils
 import	qm3.constants
 import	qm3.engines.mmres
-import	qm3.io
+import	qm3.fio
 
 try:
 	import qm3.engines._mol_mech
@@ -220,7 +220,7 @@ class simple_force_field( object ):
 	def psf_read( self, mol, fname ):
 		self.impr = []
 		impr = []
-		fd = qm3.io.open_r( fname )
+		fd = qm3.fio.open_r( fname )
 		fd.readline()
 		fd.readline()
 		for i in range( int( fd.readline().strip().split()[0] ) + 1 ):
@@ -267,7 +267,7 @@ class simple_force_field( object ):
 					impr.append( [ t[4*i], t[4*i+1], t[4*i+2], t[4*i+3] ] )
 		else:
 			print( "- Invalid number of atoms in PSF!" )
-		qm3.io.close( fd, fname )
+		qm3.fio.close( fd, fname )
 		return( impr )
 
 
