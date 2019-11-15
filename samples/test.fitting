@@ -36,3 +36,22 @@ print( c )
 print( "[<x1>, ..., <xk>] : " )
 print( mx )
 print( "<y>: ", my )
+
+import random
+random.seed()
+n = 64
+x = [ 0 + 0.1 * i for i in range( n ) ]
+y = [ math.sin( i ) for i in x ]
+p = [ i + random.random() - 0.5 for i in y ]
+f, g = qm3.actions.fitting.savitzky_golay( x, p )
+try:
+    import matplotlib.pyplot as plt
+    plt.clf()
+    plt.grid( True )
+    plt.plot( x, y, '.' )
+    plt.plot( x, p, 'o' )
+    plt.plot( x, f, '-' )
+    plt.show()
+except:
+    for i in range( n ):
+        print( "%20.10lf%20.10lf%20.10lf"%( x[i], y[i], f[i] ) )
