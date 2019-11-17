@@ -12,7 +12,7 @@ import qm3.utils
 try:
     import cPickle as pickle
 except:
-    import  pickle
+    import pickle
 
 
 

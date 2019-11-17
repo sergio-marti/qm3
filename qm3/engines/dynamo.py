@@ -160,7 +160,7 @@ def selection( mol, sele, fname = None ):
 
 
 try:
-    import  qm3.engines._dynamo
+    import qm3.engines._dynamo
     class py_dynamo( qm3.engines._dynamo.dynamo ):
         def __init__( self, path = "./dynamo.so" ):
             qm3.engines._dynamo.dynamo.__init__( self, path )

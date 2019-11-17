@@ -429,7 +429,7 @@ class umbint_2d( object ):
 
 
 try:
-    import  matplotlib.pyplot as plt    
+    import matplotlib.pyplot as plt    
     def plot_data( data, dsigma = 2.0 ):
         __mm = []
         __ss = []
