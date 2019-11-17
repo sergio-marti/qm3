@@ -1,17 +1,17 @@
 # -*- coding: iso-8859-1 -*-
 
 from __future__ import print_function, division
-import    sys
+import sys
 if( sys.version_info[0] == 2 ):
     range = xrange
-import    math
-import    qm3.utils
-import    qm3.constants
-import    qm3.maths.matrix
-import    qm3.fio
-import    qm3.elements
-import    re
-import    collections
+import math
+import qm3.utils
+import qm3.constants
+import qm3.maths.matrix
+import qm3.fio
+import qm3.elements
+import re
+import collections
 
 
 MXLAT = 1.0e300

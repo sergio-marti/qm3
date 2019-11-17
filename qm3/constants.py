@@ -4,10 +4,10 @@
 #
 
 from __future__ import print_function, division
-import    sys
+import sys
 if( sys.version_info[0] == 2 ):
     range = xrange
-import    math
+import math
 
 
 C   = 299792458.0      # m·s-1
