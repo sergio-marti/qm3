@@ -1,14 +1,14 @@
 import qm3.maths.grids
 try:
-    import cStringIO
+    import cStringIO as io
 except:
-    import io as cStringIO
+    import io
 import  random
 
 random.seed()
 nx = 40
 ny = 30
-f = cStringIO.StringIO()
+f = io.StringIO()
 for i in [ random.uniform( -10, 10 ) for k in range( nx ) ]:
     for j in [ random.uniform( -10, 10 ) for k in range( ny ) ]:
         f.write( "%18.6lf%18.6lf%18.6lf\n"%( i, j, i*i+j*j ) )
