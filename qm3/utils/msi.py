@@ -105,7 +105,7 @@ class server:
             self.sckt.bind( unix )
         else:
             if( inet[0] == "" ):
-                inet[0] = socket.gethostbyname( socket.gethostname() )
+                inet = ( socket.gethostbyname( socket.gethostname() ), inet[1] )
             sys.stderr.write( "[server] listening at: %s\n"%( str( inet ) ) )
             sys.stderr.flush()
             self.sckt = socket.socket( socket.AF_INET, socket.SOCK_STREAM )
@@ -150,7 +150,7 @@ class client:
             self.addr = unix
         else:
             if( inet[0] == "" ):
-                inet[0] = socket.gethostbyname( socket.gethostname() )
+                inet = ( socket.gethostbyname( socket.gethostname() ), inet[1] )
             self.kind = socket.AF_INET
             self.addr = inet
 
