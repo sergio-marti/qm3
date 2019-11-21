@@ -228,7 +228,7 @@
  #if CMK_HAS_PARTITION
    replica_barrier();
  #endif
-@@ -1680,6 +1686,52 @@
+@@ -1680,6 +1686,51 @@
      vcoords = new Vector[3*numatoms];
      iout << iINFO << "Coordinate file " << argv[3] << " opened for reading.\n"
           << endi;
@@ -277,7 +277,6 @@
 +            Tcl_AppendResult( interp, "coorfile binread: Error, no file for reading...", NULL );
 +            return( TCL_ERROR );
 +        }
-+    }
    } else if (argc == 2 && !strcmp(argv[1], "read")) {
      if (filehandle == NULL) {
        Tcl_AppendResult(interp, "coorfile read: Error, no file open for reading",
