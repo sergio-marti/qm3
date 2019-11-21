@@ -226,7 +226,7 @@
  #if CMK_HAS_PARTITION
    replica_barrier();
  #endif
-@@ -1680,6 +1687,51 @@
+@@ -1680,6 +1687,52 @@
      vcoords = new Vector[3*numatoms];
      iout << iINFO << "Coordinate file " << argv[3] << " opened for reading.\n"
           << endi;
@@ -243,7 +243,7 @@
 +			}
 +			shmdt( mem );
 +			Node::Object()->pdb->set_all_positions( vcoords );
-+            delete [] vcoords;
++			delete [] vcoords;
 +			script->reinitAtoms();
 +			Tcl_SetObjResult( interp, Tcl_NewIntObj( 0 ) );
 +			iout << iINFO << "SHM coordinates just read.\n" << endi;
@@ -266,6 +266,7 @@
 +			}
 +			fclose( fd );
 +			Node::Object()->pdb->set_all_positions( vcoords );
++			delete [] vcoords;
 +			script->reinitAtoms();
 +			Tcl_SetObjResult( interp, Tcl_NewIntObj( 0 ) );
 +			iout << iINFO << "Binary coordinate file " << argv[2] << " just read.\n" << endi;

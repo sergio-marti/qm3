@@ -1,0 +1,283 @@
+--- Controller.C	2018-11-09 21:14:46.000000000 +0100
++++ Controller.C.new	2019-11-21 15:28:25.000000000 +0100
+@@ -43,6 +43,10 @@
+ 
+ #include "ComputeNonbondedMICKernel.h"
+ 
++// xexo
++#include <sys/ipc.h>
++#include <sys/shm.h>
++
+ #if(CMK_CCS_AVAILABLE && CMK_WEB_MODE)
+ extern "C" void CApplicationDepositNode0Data(char *);
+ #endif
+@@ -392,6 +396,8 @@
+       case SCRIPT_ATOMSENDRECV:
+       case SCRIPT_ATOMSEND:
+       case SCRIPT_ATOMRECV:
++//xexo
++      case SCRIPT_RELOADCHARGES: 
+         break;
+       case SCRIPT_MINIMIZE:
+         minimize();
+@@ -456,6 +462,23 @@
+     printFepMessage(step);
+     printTiMessage(step);
+     printDynamicsEnergies(step);
++// xexo
++    if( step == 0 && numberOfSteps == 0 ) {
++        if( Node::Object()->shmid > 0 ) {
++            double	*mem = (double*) shmat( Node::Object()->shmid, 0, 0 );
++            mem[1] = totalEnergy - kineticEnergy;
++            mem[0] = 1.0;
++            shmdt( mem );
++        } else {
++            char	pot[8];
++            double	ene = totalEnergy - kineticEnergy;
++            memcpy( &pot[0], &ene, 8 );
++            FILE	*fd = fopen( "namd.ener", "wb" );
++            fwrite( pot, 8, 1, fd );
++            fclose( fd );
++        }
++    }
++
+     outputFepEnergy(step);
+     outputTiEnergy(step);
+     if(traceIsOn()){
+--- Node.C	2018-11-09 21:14:46.000000000 +0100
++++ Node.C.new	2019-11-21 15:33:40.000000000 +0100
+@@ -19,6 +19,11 @@
+ #include <pvm3.h>
+ #endif
+ 
++// xexo
++#include <sys/ipc.h>
++#include <sys/shm.h>
++#include <stdlib.h>
++
+ #include "ProcessorPrivate.h"
+ 
+ #define MIN_DEBUG_LEVEL 3
+@@ -923,6 +928,17 @@
+ 
+   }
+ 
++// xexo
++    if( shmid == -1 && getenv( "NAMD_SHM" ) != NULL ) {
++        shmid = shmget( IPC_PRIVATE, 8 * ( 3 * pdb->num_atoms() + 2 ), IPC_CREAT | 0600 );
++        if( shmid > 0 ) {
++            FILE *fd = fopen( "namd.shmid", "wt" );
++            fprintf( fd, "%d", shmid );
++            fflush( fd );
++            fclose( fd );
++        }
++    }
++
+   startupPhase++;
+   if (!CkMyPe()) {
+     if (!gotoRun) {
+@@ -1164,24 +1180,26 @@
+ }
+ 
+ void Node::reloadCharges(const char *filename) {
+-  FILE *file = fopen(filename,"r");
+-  if ( ! file ) NAMD_die("node::reloadCharges():Error opening charge file.");
+-
+-  int n = molecule->numAtoms;
+-  float *charge = new float[n];
+-
+-  for ( int i = 0; i < n; ++i ) {
+-    if ( ! fscanf(file,"%f",&charge[i]) )
+-      NAMD_die("Node::reloadCharges():Not enough numbers in charge file.");
+-  }
+-
+-  fclose(file);
+-  CProxy_Node(thisgroup).reloadCharges(charge,n);
+-  delete [] charge;
+-}
+-
+-void Node::reloadCharges(float charge[], int n) {
+-  molecule->reloadCharges(charge,n);
++// xexo
++    int     i, n = molecule->numAtoms;
++    float   *charge = new float[n];
++    double  *mem;
++
++    if( shmid > 0 && strncmp( filename, "shm", 3 ) == 0 ) {
++        mem = (double*) shmat( shmid, 0, 0 );
++        for( i = 0; i < n; i++ ) charge[i] = (float) mem[1+i];
++        shmdt( mem );
++    } else {
++        FILE *file = fopen( filename, "r" );
++        if( ! file ) NAMD_die( "node::reloadCharges():Error opening charge file." );
++        for( i = 0; i < n; ++i ) {
++            if( ! fscanf( file, "%f", &charge[i] ) )
++                NAMD_die( "Node::reloadCharges():Not enough numbers in charge file." );
++        }
++        fclose( file );
++    }
++    CProxy_Node( thisgroup ).reloadCharges( charge, n );
++    delete [] charge;
+ }
+ 
+ 
+--- Node.h	2018-11-09 21:14:46.000000000 +0100
++++ Node.h.new	2019-11-21 15:34:20.000000000 +0100
+@@ -132,6 +132,9 @@
+   ParallelIOMgr *ioMgr;
+ #endif
+ 
++//xexo
++  int   shmid = -1; 
++
+   float initVM, initRSS;
+   float measureMemory();
+ 
+--- Output.C	2018-11-09 21:14:46.000000000 +0100
++++ Output.C.new	2019-11-21 15:37:27.000000000 +0100
+@@ -39,6 +39,10 @@
+ #define access(PATH,MODE) _access(PATH,00)
+ #endif
+ 
++//xexo
++#include <sys/ipc.h>
++#include <sys/shm.h>
++
+ #if defined(WIN32) && !defined(__CYGWIN__)
+ #define PATHSEPSTR "\\"
+ #define MKDIR(X) mkdir(X)
+@@ -1137,30 +1141,37 @@
+ void Output::output_forces(int timestep, int n, Vector *frc)
+ 
+ {
+-  char output_name[140];  //  Output filename
+-  char comment[128];    //  Comment for PDB header
+-
+-  //  Build the output filename
+-  strcpy(output_name, namdMyNode->simParams->outputFilename);
+-  strcat(output_name, ".force");
+-
+-  NAMD_backup_file(output_name);
+-
+-  //  Check to see if we should write a PDB or binary file
+-  if (!(namdMyNode->simParams->binaryOutput))
+-  {
+-    //  Write the forces to a PDB file
+-    sprintf(comment, "FORCES WRITTEN BY NAMD AT TIMESTEP %d", timestep);
++//xexo
++    char    output_name[140];    //  Output filename
++    char    comment[128];        //  Comment for PDB header
++    double  *mem;
+ 
+-    namdMyNode->pdbData->set_all_positions(frc);
+-    namdMyNode->pdbData->write(output_name, comment);
+-  }
+-  else
+-  {
+-    //  Write the coordinates to a binary file
+-    write_binary_file(output_name, n, frc);
+-  }
++    //  Build the output filename
++    strcpy( output_name, namdMyNode->simParams->outputFilename );
+ 
++    if( timestep == 0 && namdMyNode->shmid > 0 && strncmp( output_name, "shm", 3 ) == 0 ) {
++        mem = (double*) shmat( namdMyNode->shmid, 0, 0 );
++        for( int i = 0; i < n; i++ ) {
++            mem[2+i*3]   = frc[i].x;
++            mem[2+i*3+1] = frc[i].y;
++            mem[2+i*3+2] = frc[i].z;
++        }
++        mem[0] = 2.0;
++        shmdt( mem );
++    } else {
++        strcat( output_name, ".force" );
++        NAMD_backup_file( output_name );
++        //  Check to see if we should write a PDB or binary file
++        if( ! ( namdMyNode->simParams->binaryOutput ) ) {
++            //  Write the forces to a PDB file
++            sprintf( comment, "FORCES WRITTEN BY NAMD AT TIMESTEP %d", timestep );
++            namdMyNode->pdbData->set_all_positions( frc );
++            namdMyNode->pdbData->write( output_name, comment );
++        } else {
++            //  Write the coordinates to a binary file
++            write_binary_file( output_name, n, frc );
++        }
++    }
+ }
+ /*      END OF FUNCTION output_forces */
+ 
+--- ScriptTcl.C	2018-11-09 21:14:46.000000000 +0100
++++ ScriptTcl.C.new	2019-11-21 15:44:38.000000000 +0100
+@@ -45,6 +45,10 @@
+ #include "ProcessorPrivate.h"
+ #include "DataExchanger.h"
+ 
++//xexo
++#include <sys/ipc.h>
++#include <sys/shm.h>
++
+ //#define DEBUGM
+ #define MIN_DEBUG_LEVEL 4
+ #include "Debug.h"
+@@ -377,6 +381,8 @@
+     script->initcheck();
+   }
+   CkPrintf("TCL: Exiting due to exit command.\n");
++//xexo
++    if( Node::Object()->shmid > 0 ) shmctl( Node::Object()->shmid, IPC_RMID, 0 );
+ #if CMK_HAS_PARTITION
+   replica_barrier();
+ #endif
+@@ -1680,6 +1686,52 @@
+     vcoords = new Vector[3*numatoms];
+     iout << iINFO << "Coordinate file " << argv[3] << " opened for reading.\n"
+          << endi;
++//xexo
++    } else if( argc == 2 && !strcmp( argv[1], "shmread" ) ) {
++        if( Node::Object()->shmid > 0 ) {
++            numatoms = Node::Object()->pdb->num_atoms();
++            vcoords = new Vector[numatoms];
++            double *mem = (double*) shmat( Node::Object()->shmid, 0, 0 );
++            for( int i = 0; i < numatoms; i++ ) {
++                vcoords[i].x = mem[1+i*3];
++                vcoords[i].y = mem[1+i*3+1];
++                vcoords[i].z = mem[1+i*3+2];
++            }
++            shmdt( mem );
++            Node::Object()->pdb->set_all_positions( vcoords );
++            delete [] vcoords;
++            script->reinitAtoms();
++            Tcl_SetObjResult( interp, Tcl_NewIntObj( 0 ) );
++            iout << iINFO << "SHM coordinates just read.\n" << endi;
++            return( TCL_OK );
++        } else {
++            Tcl_AppendResult( interp, "coorfile shmread: Error, no SHM info for reading...", NULL );
++            return( TCL_ERROR );
++        }
++    } else if( argc == 3 && !strcmp( argv[1], "binread" ) ) {
++        float   tmp;
++        char    buf[4];
++        FILE    *fd = fopen( argv[2], "rb" );
++        if( fd != NULL ) {
++            fread( buf, 1, 4, fd ); memcpy( &numatoms, &buf[0], 4 );
++            vcoords = new Vector[numatoms];
++            for( int i = 0; i < numatoms; i++ ) {
++                fread( buf, 1, 4, fd ); memcpy( &tmp, &buf[0], 4 ); vcoords[i].x = tmp;
++                fread( buf, 1, 4, fd ); memcpy( &tmp, &buf[0], 4 ); vcoords[i].y = tmp;
++                fread( buf, 1, 4, fd ); memcpy( &tmp, &buf[0], 4 ); vcoords[i].z = tmp;
++            }
++            fclose( fd );
++            Node::Object()->pdb->set_all_positions( vcoords );
++            delete [] vcoords;
++            script->reinitAtoms();
++            Tcl_SetObjResult( interp, Tcl_NewIntObj( 0 ) );
++            iout << iINFO << "Binary coordinate file " << argv[2] << " just read.\n" << endi;
++            return( TCL_OK );
++        } else {
++            Tcl_AppendResult( interp, "coorfile binread: Error, no file for reading...", NULL );
++            return( TCL_ERROR );
++        }
++    }
+   } else if (argc == 2 && !strcmp(argv[1], "read")) {
+     if (filehandle == NULL) {
+       Tcl_AppendResult(interp, "coorfile read: Error, no file open for reading",
