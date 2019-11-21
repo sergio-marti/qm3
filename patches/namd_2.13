@@ -1,5 +1,5 @@
---- Controller.C	2018-11-09 21:14:46.000000000 +0100
-+++ Controller.C.new	2019-11-21 15:28:25.000000000 +0100
+--- Controller.C.orig	2018-11-09 21:14:46.000000000 +0100
++++ Controller.C	2019-11-21 15:47:32.000000000 +0100
 @@ -43,6 +43,10 @@
  
  #include "ComputeNonbondedMICKernel.h"
@@ -44,8 +44,8 @@
      outputFepEnergy(step);
      outputTiEnergy(step);
      if(traceIsOn()){
---- Node.C	2018-11-09 21:14:46.000000000 +0100
-+++ Node.C.new	2019-11-21 15:33:40.000000000 +0100
+--- Node.C.orig	2018-11-09 21:14:46.000000000 +0100
++++ Node.C	2019-11-21 16:00:57.000000000 +0100
 @@ -19,6 +19,11 @@
  #include <pvm3.h>
  #endif
@@ -76,7 +76,7 @@
    startupPhase++;
    if (!CkMyPe()) {
      if (!gotoRun) {
-@@ -1164,24 +1180,26 @@
+@@ -1164,20 +1180,26 @@
  }
  
  void Node::reloadCharges(const char *filename) {
@@ -94,10 +94,6 @@
 -  fclose(file);
 -  CProxy_Node(thisgroup).reloadCharges(charge,n);
 -  delete [] charge;
--}
--
--void Node::reloadCharges(float charge[], int n) {
--  molecule->reloadCharges(charge,n);
 +// xexo
 +    int     i, n = molecule->numAtoms;
 +    float   *charge = new float[n];
@@ -120,9 +116,9 @@
 +    delete [] charge;
  }
  
- 
---- Node.h	2018-11-09 21:14:46.000000000 +0100
-+++ Node.h.new	2019-11-21 15:34:20.000000000 +0100
+ void Node::reloadCharges(float charge[], int n) {
+--- Node.h.orig	2018-11-09 21:14:46.000000000 +0100
++++ Node.h	2019-11-21 15:47:32.000000000 +0100
 @@ -132,6 +132,9 @@
    ParallelIOMgr *ioMgr;
  #endif
@@ -133,8 +129,8 @@
    float initVM, initRSS;
    float measureMemory();
  
---- Output.C	2018-11-09 21:14:46.000000000 +0100
-+++ Output.C.new	2019-11-21 15:37:27.000000000 +0100
+--- Output.C.orig	2018-11-09 21:14:46.000000000 +0100
++++ Output.C	2019-11-21 15:47:32.000000000 +0100
 @@ -39,6 +39,10 @@
  #define access(PATH,MODE) _access(PATH,00)
  #endif
@@ -206,8 +202,8 @@
  }
  /*      END OF FUNCTION output_forces */
  
---- ScriptTcl.C	2018-11-09 21:14:46.000000000 +0100
-+++ ScriptTcl.C.new	2019-11-21 15:44:38.000000000 +0100
+--- ScriptTcl.C.orig	2018-11-09 21:14:46.000000000 +0100
++++ ScriptTcl.C	2019-11-21 15:54:53.000000000 +0100
 @@ -45,6 +45,10 @@
  #include "ProcessorPrivate.h"
  #include "DataExchanger.h"
