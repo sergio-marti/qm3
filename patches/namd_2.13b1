@@ -1,5 +1,5 @@
---- Controller.C	2019-01-09 11:25:02.000000000 +0100
-+++ Controller.C.new	2019-01-09 11:19:10.000000000 +0100
+--- Controller.C	2018-09-07 23:05:06.000000000 +0200
++++ Controller.C.new	2019-11-21 12:50:07.000000000 +0100
 @@ -43,6 +43,10 @@
  
  #include "ComputeNonbondedMICKernel.h"
@@ -44,9 +44,8 @@
      outputFepEnergy(step);
      outputTiEnergy(step);
      if(traceIsOn()){
-
 --- Node.C	2018-09-07 23:05:06.000000000 +0200
-+++ Node.C.new	2019-01-09 16:04:04.000000000 +0100
++++ Node.C.new	2019-11-21 12:52:47.000000000 +0100
 @@ -19,6 +19,10 @@
  #include <pvm3.h>
  #endif
@@ -58,23 +57,25 @@
  #include "ProcessorPrivate.h"
  
  #define MIN_DEBUG_LEVEL 3
-@@ -923,6 +927,15 @@
+@@ -923,6 +927,17 @@
  
    }
  
 +// xexo
-+	shmid = shmget( IPC_PRIVATE, 8 * ( 3 * pdb->num_atoms() + 2 ), IPC_CREAT | 0600 );
-+	if( shmid > 0 ) {
-+		FILE *fd = fopen( "namd.shmid", "wt" );
-+		fprintf( fd, "%d", shmid );
-+		fflush( fd );
-+		fclose( fd );
-+	}
++    if( shmid == -1 ) {
++    	shmid = shmget( IPC_PRIVATE, 8 * ( 3 * pdb->num_atoms() + 2 ), IPC_CREAT | 0600 );
++    	if( shmid > 0 ) {
++    		FILE *fd = fopen( "namd.shmid", "wt" );
++    		fprintf( fd, "%d", shmid );
++    		fflush( fd );
++    		fclose( fd );
++    	}
++    }
 +
    startupPhase++;
    if (!CkMyPe()) {
      if (!gotoRun) {
-@@ -1163,21 +1176,28 @@
+@@ -1163,21 +1178,28 @@
    delete msg;
  }
  
@@ -116,9 +117,20 @@
  }
  
  void Node::reloadCharges(float charge[], int n) {
-
---- Output.C	2019-01-09 11:25:02.000000000 +0100
-+++ Output.C.new	2019-01-09 11:02:20.000000000 +0100
+--- Node.h	2018-09-07 23:05:06.000000000 +0200
++++ Node.h.new	2019-11-21 12:50:07.000000000 +0100
+@@ -132,6 +132,9 @@
+   ParallelIOMgr *ioMgr;
+ #endif
+ 
++// xexo
++int shmid = -1;
++
+   float initVM, initRSS;
+   float measureMemory();
+ 
+--- Output.C	2018-09-07 23:05:06.000000000 +0200
++++ Output.C.new	2019-11-21 12:50:07.000000000 +0100
 @@ -39,6 +39,10 @@
  #define access(PATH,MODE) _access(PATH,00)
  #endif
@@ -191,9 +203,8 @@
  
  }
  /*      END OF FUNCTION output_forces */
-
---- ScriptTcl.C	2019-01-09 11:25:02.000000000 +0100
-+++ ScriptTcl.C.new	2019-01-09 11:02:20.000000000 +0100
+--- ScriptTcl.C	2018-09-07 23:05:06.000000000 +0200
++++ ScriptTcl.C.new	2019-11-21 12:51:56.000000000 +0100
 @@ -45,6 +45,10 @@
  #include "ProcessorPrivate.h"
  #include "DataExchanger.h"
@@ -215,7 +226,7 @@
  #if CMK_HAS_PARTITION
    replica_barrier();
  #endif
-@@ -1680,6 +1687,50 @@
+@@ -1680,6 +1687,51 @@
      vcoords = new Vector[3*numatoms];
      iout << iINFO << "Coordinate file " << argv[3] << " opened for reading.\n"
           << endi;
@@ -232,6 +243,7 @@
 +			}
 +			shmdt( mem );
 +			Node::Object()->pdb->set_all_positions( vcoords );
++            delete [] vcoords;
 +			script->reinitAtoms();
 +			Tcl_SetObjResult( interp, Tcl_NewIntObj( 0 ) );
 +			iout << iINFO << "SHM coordinates just read.\n" << endi;
@@ -266,16 +278,3 @@
    } else if (argc == 2 && !strcmp(argv[1], "read")) {
      if (filehandle == NULL) {
        Tcl_AppendResult(interp, "coorfile read: Error, no file open for reading",
-
---- Node.h	2018-09-07 23:05:06.000000000 +0200
-+++ Node.h.new	2019-01-09 16:04:08.000000000 +0100
-@@ -132,6 +132,9 @@
-   ParallelIOMgr *ioMgr;
- #endif
- 
-+// xexo
-+int shmid = -1;
-+
-   float initVM, initRSS;
-   float measureMemory();
- 
