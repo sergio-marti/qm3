@@ -40,7 +40,7 @@ for ai, aj in BND:
 	    elif( pji.match( l ) ):
 	        t = l.strip().split()
 	    if( t ):
-	        print( ai, aj, float( t[2] ) * 4.184, float( t[3] ) )
+	        print( ai, aj, float( t[2] ) * 4.184 * 2.0, float( t[3] ) )
 
 for ai, aj, ak in ANG:
 	pijk = re.compile( "^%s[\ ]+%s[\ ]+%s[\ ]+([0-9\.]+)[\ ]+([0-9\.]+)"%( ai, aj, ak ) )
@@ -52,7 +52,7 @@ for ai, aj, ak in ANG:
 	    elif( pkji.match( l ) ):
 	        t = l.strip().split()
 	    if( t ):
-	        print( ai, aj, ak, float( t[3] ) * 4.184, float( t[4] ) )
+	        print( ai, aj, ak, float( t[3] ) * 4.184 * 2.0, float( t[4] ) )
 
 for ai, aj, ak, al in DIE:
 	pijkl = re.compile( "^%s[\ ]+%s[\ ]+%s[\ ]+%s[\ ]+([0-9\-\.]+)[\ ]+([1-6])[\ ]+([0-9\.]+)"%( ai, aj, ak, al ) )
@@ -71,6 +71,6 @@ for ai, aj, ak, al in DIE:
 	        t = l.strip().split()
 	    if( t ):
 	        if( float( t[4] ) != 0.0 ):
-	            print( ai, aj, ak, al, float( t[4] ) * 4.184, int( t[5] ), float( t[6] ) )
+	            print( ai, aj, ak, al, float( t[4] ) * 4.184 * 2.0, int( t[5] ), float( t[6] ) )
 
 

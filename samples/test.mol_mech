@@ -41,12 +41,11 @@ m.chrg[13] = -0.5
 m.chrg[14] = -0.5
 print( m.boxl )
 
+#qm3.engines.mol_mech.mol_mech_so = False
 print( "Binary version available:", qm3.engines.mol_mech.mol_mech_so )
 
-#qm3.engines.mol_mech.mol_mech_so = False
-
 o = qm3.engines.mol_mech.simple_force_field( m )
-o.topology( m, impr = [ [ 8-1, 14-1, 15-1, 4-1, 150.0, 0.0 ] ] )
+o.topology( m, impr = [ [ 8-1, 14-1, 15-1, 4-1, 300.0, 0.0 ] ] )
 o.parameters( m )
 o.cut_on   = -1
 o.cut_off  = -1

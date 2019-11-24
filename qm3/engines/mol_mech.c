@@ -499,9 +499,9 @@ void* __energy_bond( void *args ) {
 			val = sqrt( vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2] );
 			dif = val - arg->dat[arg->ind[i]*2+1];
 			tmp = dif * arg->dat[arg->ind[i]*2];
-			arg->ene += tmp * dif;
+			arg->ene += 0.5 * tmp * dif;
 			if( arg->grd != NULL ) {
-				tmp *= 2.0 / val;
+				tmp *= 1.0 / val;
 				for( j = 0; j < 3; j++ ) {
 					arg->grd[arg->who+ai+j] += tmp * vec[j];
 					arg->grd[arg->who+aj+j] -= tmp * vec[j];
@@ -622,9 +622,9 @@ void* __energy_angle( void *args ) {
 			val = acos( fac );
 			dif = val - arg->dat[arg->ind[i]*2+1];
 			tmp = dif * arg->dat[arg->ind[i]*2];
-			arg->ene += tmp * dif;
+			arg->ene += 0.5 * tmp * dif;
 			if( arg->grd != NULL ) {
-				tmp *= -2.0 / sqrt( 1.0 - fac * fac );
+				tmp *= -1.0 / sqrt( 1.0 - fac * fac );
 				for( j = 0; j < 3; j++ ) {
 					dti[j] = ( dkj[j] - fac * dij[j] ) / rij;
 					dtk[j] = ( dij[j] - fac * dkj[j] ) / rkj;

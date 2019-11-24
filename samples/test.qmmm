@@ -19,7 +19,7 @@ except:
 	import	io
 
 
-qm3.engines.mol_mech.mol_mech_so = False
+#qm3.engines.mol_mech.mol_mech_so = False
 os.environ["AMBERHOME"] = "/Users/smarti/Devel/amber/18"
 os.environ["QM3_LIBSQM"] = "/Users/smarti/Devel/amber/18/qm3/libsqm.so"
 

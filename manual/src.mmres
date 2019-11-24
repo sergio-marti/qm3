@@ -23,7 +23,7 @@ def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
              ffac = 1.0, grad = False, gfac = [ 1.0, 1.0 ],
              hess = False, hind = [ -1, -1 ] )
         """
-        bond = kumb * ( distance - xref )^2
+        bond = kumb / 2 * ( distance - xref )^2
         
         kumb [kJ/mol.A^2]
         xref [A]
@@ -33,7 +33,7 @@ def mm_angle( molec, kumb, xref, a_i, a_j, a_k,
               ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0 ],
               hess = False, hind = [ -1, -1, -1 ] )
         """
-        angle = kumb * ( angle - xref )^2
+        angle = kumb / 2 * ( angle - xref )^2
         
         kumb [kJ/mol.rad^2]
         xref [rad]
@@ -55,7 +55,7 @@ def mm_improper( molec, kumb, xref, a_i, a_j, a_k, a_l,
                  ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ],
                  hess = False, hind = [ -1, -1, -1, -1 ] )
         """
-        improper = kumb * ( angle - xref )^2
+        improper = kumb / 2 * ( angle - xref )^2
         
         kumb [kJ/mol.rad^2]
         xref [deg]
@@ -120,7 +120,7 @@ class improper( kumb, xref, indx )
 
 class multiple_distance( kumb, xref, indx, weigh )
     """
-    multiple_distance = force_constant * ( value - reference )^2
+    multiple_distance = force_constant / 2 * ( value - reference )^2
 
     value = SUM weigth_i * distance_i
 
@@ -133,7 +133,7 @@ class multiple_distance( kumb, xref, indx, weigh )
 
 class tether( molec, kumb, indx )
     """
-    thether = force_constant * SUM ( cartesian - reference )^2
+    thether = force_constant / 2 * SUM ( cartesian - reference )^2
 
     force_constant [kJ/mol.A^2]
     reference [A]

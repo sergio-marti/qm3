@@ -189,7 +189,7 @@ def __maphes4( molec, hess, hind ):
 def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
             ffac = 1.0, grad = False, gfac = [ 1.0, 1.0 ], hess = False, hind = [ -1, -1 ] ):
     """
-    bond = force_constant * ( distance - reference )^2
+    bond = force_constant / 2 * ( distance - reference )^2
 
     force_constant [kJ/mol.A^2]
     reference [A]
@@ -201,14 +201,14 @@ def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
     vv = math.sqrt( r2 )
     df = kumb * ( vv - xref )
     if( vv >= skip_LE and vv <= skip_BE ):
-        molec.func += df * ( vv - xref ) * ffac
+        molec.func += 0.5 * df * ( vv - xref ) * ffac
         if( grad ):
-            df *= 2.0 / vv
+            df *= 1.0 / vv
             for i in [0, 1, 2]:
                 molec.grad[ai+i] += df * dr[i] * gfac[0]
                 molec.grad[aj+i] -= df * dr[i] * gfac[1]
         if( hess ):
-            tt  = ( 2.0 * kumb - df ) / r2
+            tt  = ( kumb - df ) / r2
             hxx = ( tt * dr[0] * dr[0] + df )
             hxy =   tt * dr[0] * dr[1]
             hxz =   tt * dr[0] * dr[2]
@@ -249,7 +249,7 @@ def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
 def mm_angle( molec, kumb, xref, a_i, a_j, a_k,
             ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0 ], hess = False, hind = [ -1, -1, -1 ] ):
     """
-    angle = force_constant * ( angle - reference )^2
+    angle = force_constant / 2 * ( angle - reference )^2
 
     force_constant [kJ/mol.rad^2]
     reference [rad]
@@ -269,10 +269,10 @@ def mm_angle( molec, kumb, xref, a_i, a_j, a_k,
     vv  = math.acos( dot )
     dv  = ( vv - xref )
     df  = kumb * dv
-    molec.func += df * dv * ffac
+    molec.func += 0.5 * df * dv * ffac
     if( grad ):
         dx  = - 1.0 / math.sqrt( 1.0 - dot * dot )
-        df *= 2.0 * dx
+        df *= dx
         dti = [ ( dkj[i] - dot * dij[i] ) / rij for i in [ 0, 1, 2 ] ]
         dtk = [ ( dij[i] - dot * dkj[i] ) / rkj for i in [ 0, 1, 2 ] ]
         dtj = [ - ( dti[i] + dtk[i] ) for i in [ 0, 1, 2 ] ]
@@ -516,7 +516,7 @@ def mm_dihedral( molec, data, a_i, a_j, a_k, a_l,
 def mm_improper( molec, kumb, xref, a_i, a_j, a_k, a_l,
                 ffac = 1.0, grad = False, gfac = [ 1.0, 1.0, 1.0, 1.0 ], hess = False, hind = [ -1, -1, -1, -1 ] ):
     """
-    improper = force_constant * ( angle - reference )^2
+    improper = force_constant / 2 * ( angle - reference )^2
 
     force_constant [kJ/mol.rad^2]
     reference [deg]
@@ -550,9 +550,9 @@ def mm_improper( molec, kumb, xref, a_i, a_j, a_k, a_l,
     while( dt < -180.0 ):
         dt += 360.0
     dt /= qm3.constants.R2D
-    molec.func += kumb * dt * dt * ffac
+    molec.func += 0.5 * kumb * dt * dt * ffac
     if( grad ):
-        dph = 2.0 * kumb * dt
+        dph = kumb * dt
         dki = [ ii-jj for ii,jj in zip( molec.coor[ak:ak+3], molec.coor[ai:ai+3] ) ]
         dlj = [ ii-jj for ii,jj in zip( molec.coor[al:al+3], molec.coor[aj:aj+3] ) ]
         dvt = [ ( vt[1] * dkj[2] - dkj[1] * vt[2] ) / ( rt2 * rkj ), 
@@ -715,7 +715,7 @@ class improper( object ):
 class multiple_distance( object ):
     def __init__( self, kumb, xref, indx, weigth ):
         """
-    multiple_distance = force_constant * ( value - reference )^2
+    multiple_distance = force_constant / 2 * ( value - reference )^2
 
     value = SUM weigth_i * distance_i
 
@@ -743,7 +743,7 @@ class multiple_distance( object ):
             r.append( math.sqrt( sum( [ j * j for j in dr[i3:i3+3] ] ) ) )
         vv = sum( [ i * j for i,j in zip( r, self.weig ) ] )
         df = self.kumb * ( vv - self.xref )
-        molec.func += df * ( vv - self.xref )
+        molec.func += 0.5 * df * ( vv - self.xref )
         return( vv )
 
 
@@ -758,12 +758,12 @@ class multiple_distance( object ):
             r.append( math.sqrt( sum( [ j * j for j in dr[i3:i3+3] ] ) ) )
         vv = sum( [ i * j for i,j in zip( r, self.weig ) ] )
         df = self.kumb * ( vv - self.xref )
-        molec.func += df * ( vv - self.xref )
+        molec.func += 0.5 * df * ( vv - self.xref )
         for i in range( self.size ):
             i3 = i * 3
             ii = 3 * self.indx[2*i]
             jj = 3 * self.indx[2*i+1]
-            tt = 2.0 * self.weig[i] * df / r[i]
+            tt = self.weig[i] * df / r[i]
             for j in [0, 1, 2]:
                 molec.grad[ii+j] += tt * dr[i3+j]
                 molec.grad[jj+j] -= tt * dr[i3+j]
@@ -774,7 +774,7 @@ class multiple_distance( object ):
 class tether( object ):
     def __init__( self, molec, kumb, indx ):
         """
-    thether = force_constant * SUM ( cartesian - reference )^2
+    thether = force_constant / 2 * SUM ( cartesian - reference )^2
 
     force_constant [kJ/mol.A^2]
     reference [A]
@@ -789,7 +789,7 @@ class tether( object ):
         for w in self.indx:
             w3 = w * 3
             dr = [ i-j for i,j in zip( molec.coor[w3:w3+3], self.indx[w] ) ]
-            molec.func += self.kumb * sum( [ i * i for i in dr ] )
+            molec.func += 0.5 * self.kumb * sum( [ i * i for i in dr ] )
         return( None )
 
 
@@ -797,8 +797,8 @@ class tether( object ):
         for w in self.indx:
             w3 = w * 3
             dr = [ i-j for i,j in zip( molec.coor[w3:w3+3], self.indx[w] ) ]
-            molec.func += self.kumb * sum( [ i * i for i in dr ] ) 
+            molec.func += 0.5 * self.kumb * sum( [ i * i for i in dr ] ) 
             for i in [0, 1, 2]:
-                molec.grad[w3+i] += 2.0 * self.kumb * dr[i]
+                molec.grad[w3+i] += self.kumb * dr[i]
         return( None )
 
