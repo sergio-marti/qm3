@@ -89,9 +89,9 @@ def LA_gradient( lnk, grd ):
 
 
 # ----------------------------------------------------------------------------------
-# Exclussions
+# Exclusions
 #
-def exclussions( sele_QM, molec, bonds = None ):
+def exclusions( sele_QM, molec, bonds = None ):
     if( bonds != None ):
         bond = bonds
         natm = 0
@@ -165,7 +165,7 @@ def exclussions( sele_QM, molec, bonds = None ):
                             else:
                                 buf14 += "\t\tself.exc[-1].gfac = [ 1.0, 1.0, 0.0, 0.0 ]\n"
                                 buf14 += "\t\tself.exc[-1].hind = [ self.sele.index( %d ), self.sele.index( %d ), -1, -1 ]\n"%( i, j )
-    fd = open( "exclussions.src", "wt" )
+    fd = open( "exclusions.src", "wt" )
     fd.write( "\t\tself.exc = []\n" )
     fd.write( buf12 )
     fd.write( "\t\t#------------------------------------------------------------------\n" )
@@ -181,7 +181,7 @@ def exclussions( sele_QM, molec, bonds = None ):
     f = open( "sele_EX.pk", "wb" )
     pickle.dump( excl, f )
     f.close()
-    print( "\n>> %d exclussions generated (1-2:%d, 1-3:%d, 1-4:%d)"%( nx12 + nx13 + nx14, nx12, nx13, nx14 ) )
+    print( "\n>> %d exclusions generated (1-2:%d, 1-3:%d, 1-4:%d)"%( nx12 + nx13 + nx14, nx12, nx13, nx14 ) )
     return( latm )
 
 
