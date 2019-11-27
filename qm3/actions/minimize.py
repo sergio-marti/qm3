@@ -215,13 +215,14 @@ def fire( obj,
             step_size = 0.1,
             print_frequency = 10,
             gradient_tolerance = 1.5,
-            log_function = default_log, mixing_alpha = 0.1, delay_step = 5 ):
+            log_function = default_log, mixing_alpha = 0.1, delay_step = 5, fire2 = False ):
     log_function( "---------------------------------------- Minimization (FIRE)\n" )
     log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
     log_function( "Step Number:        %20d"%( step_number ) )
     log_function( "Step Size:          %20.10lg"%( step_size ) )
     log_function( "Print Frequency:    %20d"%( print_frequency ) )
-    log_function( "Gradient Tolerance: %20.10lg\n"%( gradient_tolerance ) )
+    log_function( "Gradient Tolerance: %20.10lg"%( gradient_tolerance ) )
+    log_function( "Version 2.0:        %20s\n"%( fire2 ) )
     log_function( "%10s%20s%20s%20s"%( "Step", "Function", "Gradient", "Displacement" ) )
     log_function( "-" * 70 )
     nstp = 0
@@ -234,24 +235,35 @@ def fire( obj,
     log_function( "%10s%20.5lf%20.8lf%20.10lf"%( "", obj.func, grms, ssiz ) )
     i = 0
     while( i < step_number and grms > gradient_tolerance ):
-        vsiz = math.sqrt( sum( [ velo[j] * velo[j] for j in range( obj.size ) ] ) )
-        vfac = sum( [ - velo[j] * obj.grad[j] for j in range( obj.size ) ] )
-        if( vfac > 0.0 ):
-            velo = [ ( 1.0 - alph ) * velo[j] - alph * obj.grad[j] / norm * vsiz for j in range( obj.size ) ]
+        if( - sum( [ velo[j] * obj.grad[j] for j in range( obj.size ) ] ) > 0.0 ):
+            if( not fire2 ):
+                vsiz = math.sqrt( sum( [ velo[j] * velo[j] for j in range( obj.size ) ] ) )
+                velo = [ ( 1.0 - alph ) * velo[j] - alph * obj.grad[j] / norm * vsiz for j in range( obj.size ) ]
             if( nstp > delay_step ):
                 ssiz = min( ssiz * 1.1, step_size )
                 alph *= 0.99
             nstp += 1
         else:
-            velo = [ 0.0 for j in range( obj.size ) ]
             alph = mixing_alpha
             ssiz *= 0.5
             nstp = 0
+            if( fire2 ):
+                step = [ ssiz * velo[j] for j in range( obj.size ) ]
+                tmp  = math.sqrt( sum( [ step[j] * step[j] for j in range( obj.size ) ] ) )
+                if( tmp > ssiz ):
+                    for j in range( obj.size ):
+                        step[j] *= ssiz / tmp
+                for j in range( obj.size ):
+                    obj.coor[j] -= 0.5 * step[j]
+            velo = [ 0.0 for j in range( obj.size ) ]
 
-        for j in range( obj.size ):
-            velo[j] -= ssiz * obj.grad[j]
-            step[j] = ssiz * velo[j]
-        tmp = math.sqrt( sum( [ step[j] * step[j] for j in range( obj.size ) ] ) )
+        velo = [ velo[j] - ssiz * obj.grad[j] for j in range( obj.size ) ]
+        if( fire2 ):
+            if( - sum( [ velo[j] * obj.grad[j] for j in range( obj.size ) ] ) > 0.0 ):
+                vsiz = math.sqrt( sum( [ velo[j] * velo[j] for j in range( obj.size ) ] ) )
+                velo = [ ( 1.0 - alph ) * velo[j] - alph * obj.grad[j] / norm * vsiz for j in range( obj.size ) ]
+        step = [ ssiz * velo[j] for j in range( obj.size ) ]
+        tmp  = math.sqrt( sum( [ step[j] * step[j] for j in range( obj.size ) ] ) )
         if( tmp > ssiz ):
             for j in range( obj.size ):
                 step[j] *= ssiz / tmp
@@ -692,19 +704,18 @@ class stepped_fire( object ):
 
 
     def iterate( self ):
-        vsiz = math.sqrt( sum( [ self.velo[j] * self.velo[j] for j in range( self.obj.size ) ] ) )
-        vfac = sum( [ - self.velo[j] * self.obj.grad[j] for j in range( self.obj.size ) ] )
-        if( vfac > 0.0 ):
+        if( - sum( [ - self.velo[j] * self.obj.grad[j] for j in range( self.obj.size ) ] ) > 0.0 ):
+            vsiz = math.sqrt( sum( [ self.velo[j] * self.velo[j] for j in range( self.obj.size ) ] ) )
             self.velo = [ ( 1.0 - self.alph ) * self.velo[j] - self.alph * self.obj.grad[j] / self.norm * vsiz for j in range( self.obj.size ) ]
             if( self.nstp > 5 ):
                 self.ssiz = min( self.ssiz * 1.1, self.step_size )
                 self.alph *= 0.99
             self.nstp += 1
         else:
-            self.velo = [ 0.0 for j in range( self.obj.size ) ]
             self.alph = 0.1
             self.ssiz *= 0.5
             self.nstp = 0
+            self.velo = [ 0.0 for j in range( self.obj.size ) ]
 
         for j in range( self.obj.size ):
             self.velo[j] -= self.ssiz * self.obj.grad[j]
