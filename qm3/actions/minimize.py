@@ -215,7 +215,7 @@ def fire( obj,
             step_size = 0.1,
             print_frequency = 10,
             gradient_tolerance = 1.5,
-            log_function = default_log ):
+            log_function = default_log, mixing_alpha = 0.1, delay_step = 5 ):
     log_function( "---------------------------------------- Minimization (FIRE)\n" )
     log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
     log_function( "Step Number:        %20d"%( step_number ) )
@@ -226,7 +226,7 @@ def fire( obj,
     log_function( "-" * 70 )
     nstp = 0
     ssiz = step_size
-    alph = 0.1
+    alph = mixing_alpha
     velo = [ 0.0 for i in range( obj.size ) ]
     step = [ 0.0 for i in range( obj.size ) ]
     obj.get_grad()
@@ -238,13 +238,13 @@ def fire( obj,
         vfac = sum( [ - velo[j] * obj.grad[j] for j in range( obj.size ) ] )
         if( vfac > 0.0 ):
             velo = [ ( 1.0 - alph ) * velo[j] - alph * obj.grad[j] / norm * vsiz for j in range( obj.size ) ]
-            if( nstp > 5 ):
+            if( nstp > delay_step ):
                 ssiz = min( ssiz * 1.1, step_size )
                 alph *= 0.99
             nstp += 1
         else:
             velo = [ 0.0 for j in range( obj.size ) ]
-            alph = 0.1
+            alph = mixing_alpha
             ssiz *= 0.5
             nstp = 0
 
