@@ -218,24 +218,6 @@ class umbint( object ):
             print( "%20.10lf%20.10lf"%( self.crd[i], self.pmf[i] ) )
 
 
-    def integrate_simpson( self, temperature = 300.0 ):
-        __rt     = temperature * 1.0e-3 * qm3.constants.R
-        dAdx     = [ self.__dAdx( self.crd[i], __rt ) for i in range( self.__nb ) ]
-        self.pmf = [ 0.0 ]
-        tmp_crd  = [ self.crd[0] ]
-        for i in range( 1, self.__nb - 1, 2 ):
-            tmp_crd.append( self.crd[i+1] )
-            self.pmf.append( self.pmf[-1] + ( self.crd[i+1] - self.crd[i-1] ) / 6.0 * ( dAdx[i-1] + 4.0 * dAdx[i] + dAdx[i+1] ) )
-        if( self.__nb % 2 != 0 ):
-            self.pmf.append( self.pmf[-1] + 0.5 * self.__db * ( dAdx[-1] + dAdx[-2] ) )
-        self.crd = tmp_crd[:]
-        print( "#%19s%20s"%( "Reference", "PMF" ) )
-        x = max( self.pmf )
-        for i in range( self.__nw ):
-            self.pmf[i] -= x
-            print( "%20.10lf%20.10lf"%( self.crd[i], self.pmf[i] ) )
-
-
 
 #
 # wham.F90 fDynamo module

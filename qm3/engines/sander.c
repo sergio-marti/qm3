@@ -68,14 +68,18 @@ static int sander__init( oSander *self, PyObject *args, PyObject *kwds ) {
 			self->qm_opt.qmcut = cut;
 
 			self->qm_opt.itrmax = 1000;
-			self->qm_opt.scfconv = 1.0e-10;
+			self->qm_opt.scfconv = 1.0e-8;
+			self->qm_opt.adjust_q = 0;
+			self->qm_opt.qmmm_int = 1;
 
 			if( strncmp( method, "EXTERN", 6 ) == 0 ) {
-				self->qm_opt.adjust_q = 0;
-				self->qm_opt.qmmm_int = 1;
+//				self->qm_opt.adjust_q = 0;
+//				self->qm_opt.qmmm_int = 1;
+//				self->qm_opt.qm_ewald = 0;
 				self->qm_opt.qm_ewald = 0;
 			} else {
-				self->qm_opt.qmmm_int = 5;
+//				self->qm_opt.qmmm_int = 5;
+//				self->qm_opt.qm_ewald = 1;
 				self->qm_opt.qm_ewald = 1;
 			}
 
