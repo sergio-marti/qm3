@@ -728,9 +728,9 @@ def savitzky_golay( x, y, points = None, gradient = False ):
         dx = sum( [ x[i+1] - x[i] for i in range( n - 1 ) ] ) / float( n - 1 )
         g  = []
         for i in range( m ):
-            f.append( sum( [ ii * jj for ii,jj in zip( cg[i], y[0:points] ) ] ) / ( wg[i] * dx ) )
+            g.append( sum( [ ii * jj for ii,jj in zip( cg[i], y[0:points] ) ] ) / ( wg[i] * dx ) )
         for i in range( m, n - m ):
-            f.append( sum( [ ii * jj for ii,jj in zip( cg[m], y[i-m:i+m+1] ) ] ) / ( wg[m] * dx ) )
+            g.append( sum( [ ii * jj for ii,jj in zip( cg[m], y[i-m:i+m+1] ) ] ) / ( wg[m] * dx ) )
         for i in range( m+1, 2*m+1 ):
-            f.append( sum( [ ii * jj for ii,jj in zip( cg[i], y[-points:] ) ] ) / ( wg[i] * dx ) )
+            g.append( sum( [ ii * jj for ii,jj in zip( cg[i], y[-points:] ) ] ) / ( wg[i] * dx ) )
     return( f, g )
