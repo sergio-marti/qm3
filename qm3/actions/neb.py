@@ -11,12 +11,44 @@ import qm3.problem
 
 
 
+def distribute( nodes, guess ):
+    """
+    guess vector MUST constain at least 2 points: CRD0 and CRDf
+    """
+    size = len( guess[0] )
+    delt = []
+    for i in range( 1, len( guess ) ):
+        delt.append( [ math.fabs( guess[i][j] - guess[i-1][j] ) for j in range( size ) ] )
+    acum = [ 0.0 for i in range( size ) ]
+    for j in range( size ):
+        for i in range( len( guess ) - 1 ):
+            acum[j] += delt[i][j]
+        acum[j] /= ( nodes + 1 )
+    npts = []
+    for i in range( 1, len( guess ) ):
+        npts.append( int( round( sum( [ delt[i-1][j] / acum[j] for j in range( size ) ] ) / size, 0 ) ) )
+# -- do something to force: sum( npts ) = nodes + 1
+    while( sum( npts ) > nodes + 1 ):
+        npts[sorted( [ ( npts[i], i ) for i in range( len( guess ) - 1 ) ], reverse = True)[0][1]] -= 1
+# ---------------------------------------------------------
+    for i in range( 1, len( guess ) ):
+        for j in range( size ):
+            delt[i-1][j] = ( guess[i][j] - guess[i-1][j] ) / npts[i-1]
+    coor = []
+    for i in range( 1, len( guess ) ):
+        k = 1 - ( i == 1 )
+        for n in range( k, npts[i-1] + 1 ):
+            coor.append( [ guess[i-1][j] + n * delt[i-1][j] for j in range( size ) ] )
+    return( coor )
+
+
+
 #
 # J. Chem. Phys. v113, p9978 (2000) [10.1063/1.1323224]
 #
 
 class serial_neb( qm3.problem.template ):
-    def __init__( self, problem, sele, kumb, nodes, crd_ini, crd_end ):
+    def __init__( self, problem, sele, kumb, guess ):
         """
     problem should be a qm3.problem.template working on the 'sele' atoms (see core/envi optimization)
     and should provide the following method:
@@ -37,19 +69,18 @@ class serial_neb( qm3.problem.template ):
         """
         qm3.problem.template.__init__( self )
 
-        self.node = nodes
+        self.node = len( guess ) - 2
         self.kumb = kumb
         self.sele = sele[:]
-        self.crd0 = crd_ini[:]
-        self.crdf = crd_end[:]
+        self.crd0 = guess[ 0][:]
+        self.crdf = guess[-1][:]
         self.prob = problem
 
         self.dime = len( self.crd0 )
         self.size = self.dime * self.node
-        delt      = [ ( jj - ii ) / float( self.node + 1 ) for ii,jj in zip( self.crd0, self.crdf ) ]
         self.coor = []
         for k in range( 1, self.node + 1 ):
-            self.coor += [ ii + jj * k for ii,jj in zip( self.crd0, delt ) ]
+            self.coor += guess[k][:]
         self.mass = [ self.prob.mol.mass[i] for i in self.sele ]
         self.func = 0
         self.grad = []
@@ -61,55 +92,7 @@ class serial_neb( qm3.problem.template ):
         self.prob.coor = self.crdf[:]
         self.prob.get_func()
         self.potf = self.prob.func
-        print( self.pot0, self.potf )
-
-
-    def get_grad_OWN( self ):
-        self.func = 0.0
-        self.grad = []
-        for who in range( self.node ):
-            if( who == 0 ):
-                # first node
-                ref = [ ( ii + jj ) / 2.0 for ii,jj in zip( self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime], self.crd0 ) ]
-                gum = [ self.kumb * ( ii - jj ) for ii,jj in zip( self.coor[self.dime*who:self.dime*who+self.dime], ref ) ]
-                tau = [ ii-jj for ii,jj in zip( self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime], self.crd0 ) ]
-            elif( who == self.node - 1 ):
-                # last node
-                ref = [ ( ii + jj ) / 2.0 for ii,jj in zip( self.crdf, self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ]
-                gum = [ self.kumb * ( ii - jj ) for ii,jj in zip( self.coor[self.dime*who:self.dime*who+self.dime], ref ) ]
-                tau = [ ii-jj for ii,jj in zip( self.crdf, self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ]
-            else:
-                # intermediates
-                ref = [ ( ii + jj ) / 2.0 for ii,jj in zip( self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime],
-                        self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ]
-                gum = [ self.kumb * ( ii - jj ) for ii,jj in zip( self.coor[self.dime*who:self.dime*who+self.dime], ref ) ]
-                if( who >= 2 and who < self.node - 2 ):
-                    tau = []
-                    for j in range( self.dime ):
-                        # interpolated: a0 + a1 x + a2 x^2 + a3 x^3 + a4 x^4
-#                        tau.append( ( -8.0 * self.coor[self.dime*(who-2)+j] + self.coor[self.dime*(who-1)+j]
-#                                    + 8.0 * self.coor[self.dime*(who+1)+j] - self.coor[self.dime*(who+2)+j] ) )
-                        # LS-fitted: a0 + a1 x + a2 x^2
-                        tau.append( ( -2.0 * self.coor[self.dime*(who-2)+j] - self.coor[self.dime*(who-1)+j]
-                                    + self.coor[self.dime*(who+1)+j] + 2.0 *  self.coor[self.dime*(who+2)+j] ) )
-                else:
-                    tau = [ ii-jj for ii,jj in zip( self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime],
-                            self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ]
-            # common to all nodes
-            tmp = math.sqrt( sum( [ ii * ii for ii in tau ] ) )
-            tau = [ ii / tmp for ii in tau ]
-            self.prob.coor = self.coor[self.dime*who:self.dime*who+self.dime][:]
-            self.prob.get_grad()
-            self.func += self.prob.func
-            try:
-                self.prob.neb_data( who )
-            except:
-                pass
-            usp = sum( [ ii * jj for ii,jj in zip( tau, gum ) ] )
-            gsp = sum( [ ii * jj for ii,jj in zip( tau, self.prob.grad ) ] )
-            grd = [ ii - gsp * jj + usp * jj for ii,jj in zip( self.prob.grad, tau ) ]
-            qm3.utils.project_RT_modes( self.mass, self.prob.coor, grd, None )
-            self.grad += grd[:]
+        print( self.kumb, self.pot0, self.potf )
 
 
     def get_grad( self ):
@@ -130,9 +113,15 @@ class serial_neb( qm3.problem.template ):
                     tau = [ dpm * ii + dpM * jj for ii,jj in zip( dcM, dcm ) ]
             tmp = math.sqrt( sum( [ ii * ii for ii in tau ] ) )
             tau = [ ii / tmp for ii in tau ]
-            mcM = math.sqrt( sum( [ ii * ii for ii in dcM ] ) )
-            mcm = math.sqrt( sum( [ ii * ii for ii in dcm ] ) )
-            gum = [ - self.kumb * ( mcM - mcm ) * ii for ii in tau ]
+# ---
+            gum = [ self.kumb * ( ii - jj ) for ii,jj in zip( dcm, dcM ) ]
+            tmp = sum( [ ii * jj for ii,jj in zip( gum, tau ) ] )
+            gum = [ tmp * ii for ii in tau ]
+# ---
+#            mcM = math.sqrt( sum( [ ii * ii for ii in dcM ] ) )
+#            mcm = math.sqrt( sum( [ ii * ii for ii in dcm ] ) )
+#            gum = [ - self.kumb * ( mcM - mcm ) * ii for ii in tau ]
+# ---
             return( tau, gum )
         # ----------------------------------------------------------------------
         vpot = []
@@ -149,6 +138,16 @@ class serial_neb( qm3.problem.template ):
                 pass
         self.func = sum( vpot )
         self.grad = []
+#        # evaluate arc length
+#        arcl = [ 0.0, math.sqrt( sum( [ (ii-jj)*(ii-jj) for ii,jj in zip( self.crd0, self.coor[0:self.dime] ) ] ) ) ]
+#        for who in range( 1, self.node ):
+#            arcl.append( arcl[-1] + math.sqrt( sum( [ (ii-jj)*(ii-jj) for ii,jj in zip(
+#                self.coor[self.dime*who:self.dime*who+self.dime],
+#                self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ] ) ) )
+#        arcl.append( arcl[-1] + math.sqrt( sum( [ (ii-jj)*(ii-jj) for ii,jj in zip( self.crdf, self.coor[-self.dime:] ) ] ) ) )
+#        f = open( "neb.arc", "at" )
+#        f.write( "\n".join( [ "%12.6lf"%( i ) for i in arcl ] ) + "\n\n" )
+#        f.close()
         # calculate neb components    
         for who in range( self.node ):
             if( who == 0 ):
@@ -176,12 +175,10 @@ class serial_neb( qm3.problem.template ):
             self.grad += grd[:]
 
 
-
-
 try:
     import qm3.utils._mpi
     class parall_neb( qm3.problem.template ):
-        def __init__( self, problem, sele, kumb, node, ncpu, chnk, crd_ini, crd_end ):
+        def __init__( self, problem, sele, kumb, node, ncpu, guess ):
             """
     problem should be a qm3.problem.template working on the 'sele' atoms (see core/envi optimization)
     and should provide the following method:
@@ -202,23 +199,22 @@ try:
             """
             qm3.problem.template.__init__( self )
     
-            self.node = ncpu * chnk
+            self.node = len( guess ) - 2
             self.wami = node
             self.ncpu = ncpu
-            self.chnk = chnk
+            self.chnk = self.node // ncpu
 
             self.kumb = kumb
             self.sele = sele[:]
-            self.crd0 = crd_ini[:]
-            self.crdf = crd_end[:]
+            self.crd0 = guess[ 0][:]
+            self.crdf = guess[-1][:]
             self.prob = problem
     
             self.dime = len( self.crd0 )
             self.size = self.dime * self.node
-            delt      = [ ( jj - ii ) / float( self.node + 1 ) for ii,jj in zip( self.crd0, self.crdf ) ]
             self.coor = []
             for k in range( 1, self.node + 1 ):
-                self.coor += [ ii + jj * k for ii,jj in zip( self.crd0, delt ) ]
+                self.coor += guess[k][:]
             self.mass = [ self.prob.mol.mass[i] for i in self.sele ]
             self.func = 0
             self.grad = []
@@ -235,69 +231,69 @@ try:
     
     
     
-        def get_grad_OWN( self ):
-            # calculate assigned nodes
-            self.func = 0
-            self.grad = []
-            for who in range( self.wami * self.chnk, ( self.wami + 1 ) * self.chnk ):
-                if( who == 0 ):
-                    # first node
-                    ref = [ ( ii + jj ) / 2.0 for ii,jj in zip( self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime], self.crd0 ) ]
-                    gum = [ self.kumb * ( ii - jj ) for ii,jj in zip( self.coor[self.dime*who:self.dime*who+self.dime], ref ) ]
-                    tau = [ ii-jj for ii,jj in zip( self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime], self.crd0 ) ]
-                elif( who == self.node - 1 ):
-                    # last node
-                    ref = [ ( ii + jj ) / 2.0 for ii,jj in zip( self.crdf, self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ]
-                    gum = [ self.kumb * ( ii - jj ) for ii,jj in zip( self.coor[self.dime*who:self.dime*who+self.dime], ref ) ]
-                    tau = [ ii-jj for ii,jj in zip( self.crdf, self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ]
-                else:
-                    # intermediates
-                    ref = [ ( ii + jj ) / 2.0 for ii,jj in zip( self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime],
-                            self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ]
-                    gum = [ self.kumb * ( ii - jj ) for ii,jj in zip( self.coor[self.dime*who:self.dime*who+self.dime], ref ) ]
-                    if( who >= 2 and who < self.node - 2 ):
-                        tau = []
-                        for j in range( self.dime ):
-                            tau.append( ( -2.0 * self.coor[self.dime*(who-2)+j] - self.coor[self.dime*(who-1)+j]
-                                        + self.coor[self.dime*(who+1)+j] + 2.0 *  self.coor[self.dime*(who+2)+j] ) )
-                    else:
-                        tau = [ ii-jj for ii,jj in zip( self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime],
-                                self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ]
-                # common to all nodes
-                tmp = math.sqrt( sum( [ ii * ii for ii in tau ] ) )
-                tau = [ ii / tmp for ii in tau ]
-                self.prob.coor = self.coor[self.dime*who:self.dime*who+self.dime][:]
-                self.prob.get_grad()
-                self.func += self.prob.func
-                try:
-                    self.prob.neb_data( who )
-                except:
-                    pass
-                usp = sum( [ ii * jj for ii,jj in zip( tau, gum ) ] )
-                gsp = sum( [ ii * jj for ii,jj in zip( tau, self.prob.grad ) ] )
-                grd = [ ii - gsp * jj + usp * jj for ii,jj in zip( self.prob.grad, tau ) ]
-                qm3.utils.project_RT_modes( self.mass, self.prob.coor, grd, None )
-                self.grad += grd[:]
-            # sync func from and to nodes
-            qm3.utils._mpi.barrier()
-            if( self.wami == 0 ):
-                for i in range( 1, self.ncpu ):
-                    self.func += qm3.utils._mpi.recv_r8( i, 1 )[0]
-                for i in range( 1, self.ncpu ):
-                    qm3.utils._mpi.send_r8( i, [ self.func ] )
-            else:
-                qm3.utils._mpi.send_r8( 0, [ self.func ] )
-                self.func = qm3.utils._mpi.recv_r8( 0, 1 )[0]
-            # sync grad from and to nodes
-            qm3.utils._mpi.barrier()
-            if( self.wami == 0 ):
-                for i in range( 1, self.ncpu ):
-                    self.grad += qm3.utils._mpi.recv_r8( i, self.dime * self.chnk )
-                for i in range( 1, self.ncpu ):
-                    qm3.utils._mpi.send_r8( i, self.grad )
-            else:
-                qm3.utils._mpi.send_r8( 0, self.grad )
-                self.grad = qm3.utils._mpi.recv_r8( 0, self.size )
+#        def get_grad_OWN( self ):
+#            # calculate assigned nodes
+#            self.func = 0
+#            self.grad = []
+#            for who in range( self.wami * self.chnk, ( self.wami + 1 ) * self.chnk ):
+#                if( who == 0 ):
+#                    # first node
+#                    ref = [ ( ii + jj ) / 2.0 for ii,jj in zip( self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime], self.crd0 ) ]
+#                    gum = [ self.kumb * ( ii - jj ) for ii,jj in zip( self.coor[self.dime*who:self.dime*who+self.dime], ref ) ]
+#                    tau = [ ii-jj for ii,jj in zip( self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime], self.crd0 ) ]
+#                elif( who == self.node - 1 ):
+#                    # last node
+#                    ref = [ ( ii + jj ) / 2.0 for ii,jj in zip( self.crdf, self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ]
+#                    gum = [ self.kumb * ( ii - jj ) for ii,jj in zip( self.coor[self.dime*who:self.dime*who+self.dime], ref ) ]
+#                    tau = [ ii-jj for ii,jj in zip( self.crdf, self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ]
+#                else:
+#                    # intermediates
+#                    ref = [ ( ii + jj ) / 2.0 for ii,jj in zip( self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime],
+#                            self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ]
+#                    gum = [ self.kumb * ( ii - jj ) for ii,jj in zip( self.coor[self.dime*who:self.dime*who+self.dime], ref ) ]
+#                    if( who >= 2 and who < self.node - 2 ):
+#                        tau = []
+#                        for j in range( self.dime ):
+#                            tau.append( ( -2.0 * self.coor[self.dime*(who-2)+j] - self.coor[self.dime*(who-1)+j]
+#                                        + self.coor[self.dime*(who+1)+j] + 2.0 *  self.coor[self.dime*(who+2)+j] ) )
+#                    else:
+#                        tau = [ ii-jj for ii,jj in zip( self.coor[self.dime*(who+1):self.dime*(who+1)+self.dime],
+#                                self.coor[self.dime*(who-1):self.dime*(who-1)+self.dime] ) ]
+#                # common to all nodes
+#                tmp = math.sqrt( sum( [ ii * ii for ii in tau ] ) )
+#                tau = [ ii / tmp for ii in tau ]
+#                self.prob.coor = self.coor[self.dime*who:self.dime*who+self.dime][:]
+#                self.prob.get_grad()
+#                self.func += self.prob.func
+#                try:
+#                    self.prob.neb_data( who )
+#                except:
+#                    pass
+#                usp = sum( [ ii * jj for ii,jj in zip( tau, gum ) ] )
+#                gsp = sum( [ ii * jj for ii,jj in zip( tau, self.prob.grad ) ] )
+#                grd = [ ii - gsp * jj + usp * jj for ii,jj in zip( self.prob.grad, tau ) ]
+#                qm3.utils.project_RT_modes( self.mass, self.prob.coor, grd, None )
+#                self.grad += grd[:]
+#            # sync func from and to nodes
+#            qm3.utils._mpi.barrier()
+#            if( self.wami == 0 ):
+#                for i in range( 1, self.ncpu ):
+#                    self.func += qm3.utils._mpi.recv_r8( i, 1 )[0]
+#                for i in range( 1, self.ncpu ):
+#                    qm3.utils._mpi.send_r8( i, [ self.func ] )
+#            else:
+#                qm3.utils._mpi.send_r8( 0, [ self.func ] )
+#                self.func = qm3.utils._mpi.recv_r8( 0, 1 )[0]
+#            # sync grad from and to nodes
+#            qm3.utils._mpi.barrier()
+#            if( self.wami == 0 ):
+#                for i in range( 1, self.ncpu ):
+#                    self.grad += qm3.utils._mpi.recv_r8( i, self.dime * self.chnk )
+#                for i in range( 1, self.ncpu ):
+#                    qm3.utils._mpi.send_r8( i, self.grad )
+#            else:
+#                qm3.utils._mpi.send_r8( 0, self.grad )
+#                self.grad = qm3.utils._mpi.recv_r8( 0, self.size )
 
 
         def get_grad( self ):
@@ -318,9 +314,15 @@ try:
                         tau = [ dpm * ii + dpM * jj for ii,jj in zip( dcM, dcm ) ]
                 tmp = math.sqrt( sum( [ ii * ii for ii in tau ] ) )
                 tau = [ ii / tmp for ii in tau ]
-                mcM = math.sqrt( sum( [ ii * ii for ii in dcM ] ) )
-                mcm = math.sqrt( sum( [ ii * ii for ii in dcm ] ) )
-                gum = [ - self.kumb * ( mcM - mcm ) * ii for ii in tau ]
+# ---
+                gum = [ self.kumb * ( ii - jj ) for ii,jj in zip( dcm, dcM ) ]
+                tmp = sum( [ ii * jj for ii,jj in zip( gum, tau ) ] )
+                gum = [ tmp * ii for ii in tau ]
+# ---
+#                mcM = math.sqrt( sum( [ ii * ii for ii in dcM ] ) )
+#                mcm = math.sqrt( sum( [ ii * ii for ii in dcm ] ) )
+#                gum = [ - self.kumb * ( mcM - mcm ) * ii for ii in tau ]
+# ---
                 return( tau, gum )
             # ----------------------------------------------------------------------
             vpot = []
