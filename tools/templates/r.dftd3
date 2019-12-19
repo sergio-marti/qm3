@@ -1,0 +1,1 @@
+[PATH]/dftd3 dftd3.xyz -func b3-lyp -bjm -grad > dftd3.log
