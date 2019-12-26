@@ -1,1 +1,1 @@
-[PATH]/namd2 +setcpuaffinity +isomalloc_sync +idlepoll +ppn 1 namd.inp > namd.out
+NAMD_SHM=1 [PATH]/namd2 +setcpuaffinity +isomalloc_sync +idlepoll +ppn 1 namd.inp > namd.out
