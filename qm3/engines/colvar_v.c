@@ -587,7 +587,7 @@ static PyTypeObject Tcoulomb = {
 
 static PyTypeObject Tfswitch = {
 	PyVarObject_HEAD_INIT( NULL, 0 )
-	.tp_name = "force_switch",
+	.tp_name = "fswitch",
 	.tp_doc = "Electrostatic potential collective variable (force switch)",
 	.tp_basicsize = sizeof( oVInt ),
 	.tp_itemsize = 0,
