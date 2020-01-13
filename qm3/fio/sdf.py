@@ -47,6 +47,7 @@ def db_download( code ):
         mol = sdf_read( f )
     except:
         print( "No 3D-structure found..." )
+        mol = None
     f.close()
     return( mol )
 
