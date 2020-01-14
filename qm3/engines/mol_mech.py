@@ -52,7 +52,7 @@ class simple_force_field( object ):
         if( bond != [] ):
             self.bond = bond[:]
         else:
-            self.bond = qm3.utils.connectivity( mol )
+            self.bond = qm3.utils.connectivity( mol, self.ncpu )
         # build connectivity
         self.conn = [ [] for i in range( self.natm ) ]
         for i,j in self.bond:
