@@ -94,16 +94,20 @@ function __new_rest() {
 	switch( i ) {
 		case "Distance":
 			b += "<tr><td class=\"label\">I,J:</td><td><input name=\"RR_" + c_RR + "_i\" type=\"text\" size=\"10\" class=\"form\">&nbsp;&nbsp;<input name=\"RR_" + c_RR + "_j\" type=\"text\" size=\"10\" class=\"form\"></td></tr><input name=\"RR_" + c_RR + "_t\" type=\"hidden\" value=\"dst\">";
+	        b += "<tr><td class=\"label\">Ref:</td><td><input name=\"RR_" + c_RR + "_r\" type=\"text\" size=\"10\" class=\"form\" placeholder=\"&nbsp;&#197;\"></td></tr>";
+	        b += "<tr><td class=\"label\">Kumb:</td><td><input name=\"RR_" + c_RR + "_u\" type=\"text\" size=\"10\" class=\"form\" placeholder=\"&nbsp;kJ/mol.&#197;^2\"></td></tr>";
 			break;
 		case "Angle":
 			b += "<tr><td class=\"label\">I,J,K:</td><td><input name=\"RR_" + c_RR + "_i\" type=\"text\" size=\"10\" class=\"form\">&nbsp;&nbsp;<input name=\"RR_" + c_RR + "_j\" type=\"text\" size=\"10\" class=\"form\">&nbsp;&nbsp;<input name=\"RR_" + c_RR + "_k\" type=\"text\" size=\"10\" class=\"form\"></td></tr><input name=\"RR_" + c_RR + "_t\" type=\"hidden\" value=\"ang\">";
+	        b += "<tr><td class=\"label\">Ref:</td><td><input name=\"RR_" + c_RR + "_r\" type=\"text\" size=\"10\" class=\"form\" placeholder=\"&nbsp;deg\"></td></tr>";
+	        b += "<tr><td class=\"label\">Kumb:</td><td><input name=\"RR_" + c_RR + "_u\" type=\"text\" size=\"12\" class=\"form\" placeholder=\"&nbsp;kJ/mol.rad^2\"></td></tr>";
 			break;
 		case "Antisymmetric":
 			b += "<tr><td class=\"label\">I,J - K,L:</td><td><input name=\"RR_" + c_RR + "_i\" type=\"text\" size=\"10\" class=\"form\">&nbsp;&nbsp;<input name=\"RR_" + c_RR + "_j\" type=\"text\" size=\"10\" class=\"form\">&nbsp;&nbsp;<input name=\"RR_" + c_RR + "_k\" type=\"text\" size=\"10\" class=\"form\">&nbsp;&nbsp;<input name=\"RR_" + c_RR + "_l\" type=\"text\" size=\"10\" class=\"form\"></td></tr><input name=\"RR_" + c_RR + "_t\" type=\"hidden\" value=\"mul\">";
+	        b += "<tr><td class=\"label\">Ref:</td><td><input name=\"RR_" + c_RR + "_r\" type=\"text\" size=\"10\" class=\"form\" placeholder=\"&nbsp;&#197;\"></td></tr>";
+	        b += "<tr><td class=\"label\">Kumb:</td><td><input name=\"RR_" + c_RR + "_u\" type=\"text\" size=\"10\" class=\"form\" placeholder=\"&nbsp;kJ/mol.&#197;^2\"></td></tr>";
 			break;
 	}
-	b += "<tr><td class=\"label\">Ref:</td><td><input name=\"RR_" + c_RR + "_r\" type=\"text\" size=\"10\" class=\"form\"></td></tr>";
-	b += "<tr><td class=\"label\">Kumb:</td><td><input name=\"RR_" + c_RR + "_u\" type=\"text\" size=\"10\" class=\"form\"></td></tr>";
 	b += "</table></td></tr></table>";
 	n.innerHTML = b;
 	p.appendChild( n );
@@ -133,12 +137,6 @@ function __del_rest( w ) {
 <div id="d_QM" style="display: none;">
 <table border="0">
 <tr><td class="label">Engine:</td><td><select name="QMeng" class="form"><option value="--">&nbsp;</option>{{!qm_eng}}</select></td></tr>
-<!-- not in use:
-<tr><td class="label">Charge:</td><td><input name="QMchg" type="text" value="0" size="10" class="form"></td></tr>
-<tr><td class="label">Multiplicity:</td><td><input name="QMmul" type="text" value="1" size="10" class="form"></td></tr>
-<tr><td class="label">Method:</td><td><input name="QMmet" type="text" value="hf" size="20" class="form"></td></tr>
-<tr><td class="label">Basis Set:</td><td><input name="QMbas" type="text" value="3-21g" size="20" class="form"></td></tr>
--->
 <tr><td class="label" style="display: {{!qm_chg}};">Selection:</td><td>
 <div class="tooltip">
 <textarea name="QMsel" rows="2" cols="40" class="form" style="display: {{!qm_chg}};">{{!qm_sel}}</textarea>

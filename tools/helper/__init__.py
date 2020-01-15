@@ -203,9 +203,9 @@ def __mkinput():
 	if( _sqm != "" and eqm != "" ):
 		if( mol != None ):
 			sqm = __selection( mol, _sqm )
-			# -- LAs and exclussions
+			# -- LAs and exclusions
 			if( sqm != [] ):
-				qm3.engines.exclussions( sqm, mol )
+				qm3.engines.exclusions( sqm, mol )
 	f = open( "sele_QM.pk", "wb" )
 	cPickle.dump( sqm, f )
 	f.close()
@@ -366,20 +366,6 @@ class my_problem( qm3.problem.template ):
 """%( config.MM_engines[emm] ) )
 	# -- engines: QMeng
 	if( eqm != "--" ):
-# -- not in use --
-#		_ch = bottle.request.forms.get( "QMchg" ).strip()
-#		try:
-#			_ch = int( _ch )
-#		except:
-#			_ch = 0
-#		_sm = bottle.request.forms.get( "QMmul" ).strip()
-#		try:
-#			_sm = int( _sm )
-#		except:
-#			_sm = 1
-#		_me = bottle.request.forms.get( "QMmet" ).strip()
-#		_bs = bottle.request.forms.get( "QMbas" ).strip()
-# ----------------
 		f.write( """
 		f = open( "sele_QM.pk", "rb" )
 		sqm = cPickle.load( f )
@@ -417,11 +403,10 @@ class my_problem( qm3.problem.template ):
 		f.close()
 		self.fix = qm3.engines._mmint.QMLJ( self.mole, sqm, smm, exc )
 """ )
-	# -- engines: QM/MM MM-exclussion terms: self.exc (ala self.umb, and only gradient)
-	# >> read excussions.log <<
+	# -- engines: QM/MM MM-exclusion terms: self.exc (ala self.umb, and only gradient)
 	try:
-		g = open( "exclussions.src", "rt" )
-		f.write( "		# = Update exclussions QM/MM parameters ===========================\n" )
+		g = open( "exclusions.src", "rt" )
+		f.write( "		# = Update exclusions QM/MM parameters ===========================\n" )
 		f.write( g.read() )
 		f.write( "		# =================================================================\n" )
 		g.close()
