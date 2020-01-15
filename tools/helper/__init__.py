@@ -253,7 +253,7 @@ except:
 import	qm3.mol
 import	qm3.problem
 import	qm3.utils
-import	qm3.io.dcd
+import	qm3.fio.dcd
 """ )
 	# -- imports
 	if( eqm != "--" ):
@@ -463,7 +463,7 @@ class my_problem( qm3.problem.template ):
 """ )
 	# -- DCD stuff
 	f.write( """
-		self.dcd = qm3.io.dcd.dcd()
+		self.dcd = qm3.fio.dcd.dcd()
 		if( self.sele != [] ):
 			self.dcd.write( "dcd", self.mole.natm, self.sele )
 		else:
