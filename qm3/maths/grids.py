@@ -133,7 +133,7 @@ class grid( object ):
                 if( self.__number.match( t[s[0]] ) and self.__number.match( t[s[1]] ) and self.__number.match( t[s[2]] ) ):
                     rx = float( t[s[0]] )
                     ry = float( t[s[1]] )
-                    if( min_x and min_y and max_x and max_y ):
+                    if( min_x != None and min_y != None and max_x != None and max_y != None ):
                         min_x = min( min_x, rx )
                         min_y = min( min_y, ry )
                         max_x = max( max_x, rx )
