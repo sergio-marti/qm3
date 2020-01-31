@@ -126,52 +126,52 @@ def exclusions( sele_QM, molec, bonds = None ):
                 excl.append( [ i, j, 0.0 ] )
                 nx12 += 1
                 if( molec.type != [] ):
-                    buf12 += "\t\t# %s - %s || %s - %s\n"%( molec.labl[i], molec.labl[j], molec.type[i], molec.type[j] )
+                    buf12 += "        # %s - %s || %s - %s\n"%( molec.labl[i], molec.labl[j], molec.type[i], molec.type[j] )
                 else:
-                    buf12 += "\t\t# %s - %s\n"%( molec.labl[i], molec.labl[j] )
-                buf12 += "\t\tself.exc.append( qm3.engines.mmres.distance( kumb_kJ/mol.A^2, xref_A, [ %d, %d ] ) )\n"%( i, j )
-                buf12 += "\t\tself.exc[-1].ffac = 0.0\n"
-                buf12 += "\t\tself.exc[-1].gfac = [ 1.0, 0.0 ]\n"
-                buf12 += "\t\tself.exc[-1].hind = [ self.sele.index( %d ), -1 ]\n"%( i )
+                    buf12 += "        # %s - %s\n"%( molec.labl[i], molec.labl[j] )
+                buf12 += "        self.exc.append( qm3.engines.mmres.distance( kumb_kJ/mol.A^2, xref_A, [ %d, %d ] ) )\n"%( i, j )
+                buf12 += "        self.exc[-1].ffac = 0.0\n"
+                buf12 += "        self.exc[-1].gfac = [ 1.0, 0.0 ]\n"
+                buf12 += "        self.exc[-1].hind = [ self.sele.index( %d ), -1 ]\n"%( i )
             for k in conn[j]:
                 if( k != i and atmm[k] ):
                     excl.append( [ i, k, 0.0 ] )
                     nx13 += 1
                     if( atmm[j] and atmm[k] ):
                         if( molec.type != [] ):
-                            buf13 += "\t\t# %s - %s - %s || %s - %s - %s\n"%( molec.labl[i], molec.labl[j],
+                            buf13 += "        # %s - %s - %s || %s - %s - %s\n"%( molec.labl[i], molec.labl[j],
                                 molec.labl[k], molec.type[i], molec.type[j], molec.type[k] )
                         else:
-                            buf13 += "\t\t# %s - %s - %s\n"%( molec.labl[i], molec.labl[j], molec.labl[k] )
-                        buf13 += "\t\tself.exc.append( qm3.engines.mmres.angle( kumb_kJ/mol.rad^2, xref_deg, [ %d, %d, %d ] ) )\n"%( i, j, k )
-                        buf13 += "\t\tself.exc[-1].ffac = 0.0\n"
-                        buf13 += "\t\tself.exc[-1].gfac = [ 1.0, 0.0, 0.0 ]\n"
-                        buf13 += "\t\tself.exc[-1].hind = [ self.sele.index( %d ), -1, -1 ]\n"%( i )
+                            buf13 += "        # %s - %s - %s\n"%( molec.labl[i], molec.labl[j], molec.labl[k] )
+                        buf13 += "        self.exc.append( qm3.engines.mmres.angle( kumb_kJ/mol.rad^2, xref_deg, [ %d, %d, %d ] ) )\n"%( i, j, k )
+                        buf13 += "        self.exc[-1].ffac = 0.0\n"
+                        buf13 += "        self.exc[-1].gfac = [ 1.0, 0.0, 0.0 ]\n"
+                        buf13 += "        self.exc[-1].hind = [ self.sele.index( %d ), -1, -1 ]\n"%( i )
                 for l in conn[k]:
                     if( k != i and l != j and l != i and atmm[l] ):
                         excl.append( [ i, l, 0.5 ] )
                         nx14 += 1
                         if( atmm[k] and atmm[l] ):
                             if( molec.type != [] ):
-                                buf14 += "\t\t# %s - %s - %s - %s || %s - %s - %s - %s\n"%( molec.labl[i], molec.labl[j], molec.labl[k],
+                                buf14 += "        # %s - %s - %s - %s || %s - %s - %s - %s\n"%( molec.labl[i], molec.labl[j], molec.labl[k],
                                         molec.labl[l], molec.type[i], molec.type[j], molec.type[k], molec.type[l] )
                             else:
-                                buf14 += "\t\t# %s - %s - %s - %s\n"%( molec.labl[i], molec.labl[j], molec.labl[k], molec.labl[l] )
-                            buf14 += "\t\tself.exc.append( qm3.engines.mmres.dihedral( { 3: [ 0.8159, 0.0 ] }, [ %d, %d, %d, %d ] ) )\n"%( i, j, k, l )
-                            buf14 += "\t\tself.exc[-1].ffac = 0.0\n"
+                                buf14 += "        # %s - %s - %s - %s\n"%( molec.labl[i], molec.labl[j], molec.labl[k], molec.labl[l] )
+                            buf14 += "        self.exc.append( qm3.engines.mmres.dihedral( { 3: [ 0.8159, 0.0 ] }, [ %d, %d, %d, %d ] ) )\n"%( i, j, k, l )
+                            buf14 += "        self.exc[-1].ffac = 0.0\n"
                             if( atmm[j] ):
-                                buf14 += "\t\tself.exc[-1].gfac = [ 1.0, 0.0, 0.0, 0.0 ]\n"
-                                buf14 += "\t\tself.exc[-1].hind = [ self.sele.index( %d ), -1, -1, -1 ]\n"%( i )
+                                buf14 += "        self.exc[-1].gfac = [ 1.0, 0.0, 0.0, 0.0 ]\n"
+                                buf14 += "        self.exc[-1].hind = [ self.sele.index( %d ), -1, -1, -1 ]\n"%( i )
                             else:
-                                buf14 += "\t\tself.exc[-1].gfac = [ 1.0, 1.0, 0.0, 0.0 ]\n"
-                                buf14 += "\t\tself.exc[-1].hind = [ self.sele.index( %d ), self.sele.index( %d ), -1, -1 ]\n"%( i, j )
+                                buf14 += "        self.exc[-1].gfac = [ 1.0, 1.0, 0.0, 0.0 ]\n"
+                                buf14 += "        self.exc[-1].hind = [ self.sele.index( %d ), self.sele.index( %d ), -1, -1 ]\n"%( i, j )
     fd = open( "exclusions.src", "wt" )
-    fd.write( "\t\tself.exc = []\n" )
+    fd.write( "        self.exc = []\n" )
     fd.write( buf12 )
-    fd.write( "\t\t#------------------------------------------------------------------\n" )
+    fd.write( "        #------------------------------------------------------------------\n" )
     fd.write( buf13 )
-    fd.write( "\t\t#------------------------------------------------------------------\n" )
-    fd.write( "\t\t# { per: [ frc_kJ/mol, dsp_deg ] }             (*, C_sp3, C_sp3, *)\n" )
+    fd.write( "        #------------------------------------------------------------------\n" )
+    fd.write( "        # { per: [ frc_kJ/mol, dsp_deg ] }             (*, C_sp3, C_sp3, *)\n" )
     fd.write( buf14 )
     fd.close()
     f = open( "sele_LA.pk", "wb" )
