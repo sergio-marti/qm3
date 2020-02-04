@@ -24,6 +24,7 @@ def distribute( nodes, guess ):
         for i in range( len( guess ) - 1 ):
             acum[j] += delt[i][j]
         acum[j] /= ( nodes + 1 )
+
     npts = []
     for i in range( 1, len( guess ) ):
         npts.append( int( round( sum( [ delt[i-1][j] / acum[j] for j in range( size ) ] ) / size, 0 ) ) )

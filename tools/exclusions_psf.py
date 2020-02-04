@@ -59,7 +59,7 @@ f.close()
 for i in sqm:
 	smm[i] = False
 
-# link atoms + 1-2 exclussions
+# link atoms + 1-2 exclusions
 ela = []
 exc = []
 for i in sqm:
@@ -73,7 +73,7 @@ f = open( "sele_LA.pk", "wb" )
 pickle.dump( ela, f )
 f.close()
 
-# 1-3 exclussions
+# 1-3 exclusions
 for i in sqm:
 	for j in atm[i]:
 		for k in atm[j]:
@@ -81,7 +81,7 @@ for i in sqm:
 				exc.append( [ i, k, 0.0 ] )
 				print( "%4s %4d %-6s -- %4s %4d %-6s    1-3"%( seg[i], res[i], lbl[i], seg[k], res[k], lbl[k] ) )
 
-# 1-4 exclussions
+# 1-4 exclusions
 for i in sqm:
 	for j in atm[i]:
 		for k in atm[j]:
@@ -94,4 +94,4 @@ exc.sort()
 f = open( "sele_EX.pk", "wb" )
 pickle.dump( exc, f )
 f.close()
-print( ">>", len( exc ), "exclussions generated!" )
+print( ">>", len( exc ), "exclusions generated!" )
