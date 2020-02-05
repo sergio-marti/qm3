@@ -157,7 +157,7 @@ def exclusions( sele_QM, molec, bonds = None ):
                                         molec.labl[l], molec.type[i], molec.type[j], molec.type[k], molec.type[l] )
                             else:
                                 buf14 += "        # %s - %s - %s - %s\n"%( molec.labl[i], molec.labl[j], molec.labl[k], molec.labl[l] )
-                            buf14 += "        self.exc.append( qm3.engines.mmres.dihedral( { 3: [ 0.8159, 0.0 ] }, [ %d, %d, %d, %d ] ) )\n"%( i, j, k, l )
+                            buf14 += "        self.exc.append( qm3.engines.mmres.dihedral( { n: [ frc_kJ/mol, dsp_deg ] }, [ %d, %d, %d, %d ] ) )\n"%( i, j, k, l )
                             buf14 += "        self.exc[-1].ffac = 0.0\n"
                             if( atmm[j] ):
                                 buf14 += "        self.exc[-1].gfac = [ 1.0, 0.0, 0.0, 0.0 ]\n"
@@ -171,7 +171,6 @@ def exclusions( sele_QM, molec, bonds = None ):
     fd.write( "        #------------------------------------------------------------------\n" )
     fd.write( buf13 )
     fd.write( "        #------------------------------------------------------------------\n" )
-    fd.write( "        # { per: [ frc_kJ/mol, dsp_deg ] }             (*, C_sp3, C_sp3, *)\n" )
     fd.write( buf14 )
     fd.close()
     f = open( "sele_LA.pk", "wb" )
