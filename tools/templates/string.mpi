@@ -1,6 +1,6 @@
-import	qm3.utils._mpi
-import	math
-import	os
+import  qm3.utils._mpi
+import  math
+import  os
 
 
 #-- object definition (my_problem): self.cvs should be the name of the string engine --
@@ -18,38 +18,38 @@ obj = my_problem( node )
 qm3.actions.dynamics.assign_velocities( obj, temperature = 300., project_RT = True )
 
 dyn = qm3.actions.dynamics.langevin_verlet( obj, step_size = 0.0005,
-	temperature = 300., gamma_factor = 50., print_frequency = 10,
-	project_RT = True, log_function = obj.log )
+    temperature = 300., gamma_factor = 50., print_frequency = 10,
+    project_RT = True, log_function = obj.log )
 
 
 for _ in range( 10000 ):
-	dyn.integrate()
-	qm3.utils._mpi.barrier()
-	if( node == 0 ):
-		ncrd2 = ncrd * ncrd
-		tmp_c = obj.cvs.rcrd[:]
-		tmp_m = obj.cvs.cmet[:]
-		for i in range( 1, nwin ):
-			tmp_c += qm3.utils._mpi.recv_r8( i, ncrd )
-			tmp_m += qm3.utils._mpi.recv_r8( i, ncrd2 )
-		tmp_c = qm3.actions.string.string_distribute( ncrd, nwin, tmp_c, tmp_m )[0]
-		obj.cvs.rcrd = tmp_c[0:ncrd][:]
-		for i in range( 1, nwin ):
-			qm3.utils._mpi.send_r8( i, tmp_c[i*ncrd:(i+1)*ncrd] )
-		obj.cvs.fstr.write( "".join( [ "%20.10lf"%( tmp_c[j] ) for j in range( ncrd * nwin ) ] ) + "\n" )
-		obj.cvs.fstr.flush()
-		tmp_a = []
-		tmp_b = []
-		for i in range( nwin ):
-			tmp_i = qm3.maths.matrix.inverse( [ tmp_m[i*ncrd2+j] for j in range( ncrd2 ) ], ncrd, ncrd )
-			tmp_a += [ tmp_c[i*ncrd+j] - obj.cvs.icrd[i*ncrd+j] for j in range( ncrd ) ]
-			tmp_b += qm3.maths.matrix.mult( tmp_i, ncrd, ncrd, tmp_a[i*ncrd:(i+1)*ncrd], ncrd, 1 )
-		obj.cvs.fcnv.write( "%20.10lf\n"%( math.sqrt( sum( [ tmp_a[i] * tmp_b[i] for i in range( ncrd * nwin ) ] ) / float( nwin ) ) ) )
-		obj.cvs.fcnv.flush()
-	else:
-		qm3.utils._mpi.send_r8( 0, obj.cvs.rcrd )
-		qm3.utils._mpi.send_r8( 0, obj.cvs.cmet )
-		obj.cvs.rcrd = qm3.utils._mpi.recv_r8( 0, ncrd )
+    dyn.integrate()
+    qm3.utils._mpi.barrier()
+    if( node == 0 ):
+        ncrd2 = ncrd * ncrd
+        tmp_c = obj.cvs.rcrd[:]
+        tmp_m = obj.cvs.cmet[:]
+        for i in range( 1, nwin ):
+            tmp_c += qm3.utils._mpi.recv_r8( i, ncrd )
+            tmp_m += qm3.utils._mpi.recv_r8( i, ncrd2 )
+        tmp_c = qm3.actions.string.string_distribute( ncrd, nwin, tmp_c, tmp_m )[0]
+        obj.cvs.rcrd = tmp_c[0:ncrd][:]
+        for i in range( 1, nwin ):
+            qm3.utils._mpi.send_r8( i, tmp_c[i*ncrd:(i+1)*ncrd] )
+        obj.cvs.fstr.write( "".join( [ "%20.10lf"%( tmp_c[j] ) for j in range( ncrd * nwin ) ] ) + "\n" )
+        obj.cvs.fstr.flush()
+        tmp_a = []
+        tmp_b = []
+        for i in range( nwin ):
+            tmp_i = qm3.maths.matrix.inverse( [ tmp_m[i*ncrd2+j] for j in range( ncrd2 ) ], ncrd, ncrd )
+            tmp_a += [ tmp_c[i*ncrd+j] - obj.cvs.icrd[i*ncrd+j] for j in range( ncrd ) ]
+            tmp_b += qm3.maths.matrix.mult( tmp_i, ncrd, ncrd, tmp_a[i*ncrd:(i+1)*ncrd], ncrd, 1 )
+        obj.cvs.fcnv.write( "%20.10lf\n"%( math.sqrt( sum( [ tmp_a[i] * tmp_b[i] for i in range( ncrd * nwin ) ] ) / float( nwin ) ) ) )
+        obj.cvs.fcnv.flush()
+    else:
+        qm3.utils._mpi.send_r8( 0, obj.cvs.rcrd )
+        qm3.utils._mpi.send_r8( 0, obj.cvs.cmet )
+        obj.cvs.rcrd = qm3.utils._mpi.recv_r8( 0, ncrd )
 
 
 dyn.stats()

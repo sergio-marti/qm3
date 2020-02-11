@@ -26,7 +26,11 @@ def distribute( nodes, guess ):
         acum[j] /= ( nodes + 1 )
     npts = []
     for i in range( 1, len( guess ) ):
-        npts.append( int( round( sum( [ delt[i-1][j] / acum[j] for j in range( size ) ] ) / size, 0 ) ) )
+        tmp = 0.0
+        for j in range( size ):
+            if( acum[j] > 0.0 ):
+                tmp += delt[i-1][j] / acum[j]
+        npts.append( int( round( tmp / size, 0 ) ) )
 # -- do something to force: sum( npts ) = nodes + 1
     while( sum( npts ) > nodes + 1 ):
         npts[sorted( [ ( npts[i], i ) for i in range( len( guess ) - 1 ) ], reverse = True)[0][1]] -= 1

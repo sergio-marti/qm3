@@ -2,64 +2,64 @@
 # -*- coding: iso-8859-1 -*-
 
 from __future__ import print_function, division
-import	sys
+import  sys
 if( sys.version_info[0] == 2 ):
-	range = xrange
-import	os
+    range = xrange
+import  os
 
 os.environ["AMBERHOME"] = "/Users/smarti/Devel/amber/18"
 os.environ["QM3_LIBSQM"] = "/Users/smarti/Devel/amber/18/qm3/libsqm.so"
 
-import	qm3.mol
-import	qm3.engines.namd
-import	qm3.engines.sqm
-import	qm3.engines._qmmm
-import	qm3.io.dcd
-import	qm3.actions.minimize
-import	qm3.problem
-import	pickle
-import	time
+import  qm3.mol
+import  qm3.engines.namd
+import  qm3.engines.sqm
+import  qm3.engines._mmint
+import  qm3.fio.dcd
+import  qm3.actions.minimize
+import  qm3.problem
+import  pickle
+import  time
 
 
 class ENVI_problem( qm3.problem.template ):
 
-	def __init__( self, molec, nbn ):
-		qm3.problem.template.__init__( self )
+    def __init__( self, molec, nbn ):
+        qm3.problem.template.__init__( self )
 
-		self.mol = molec
-		os.system( "bash r.namd &" )
-		while( not os.path.isfile( "namd.shmid" ) ):
-			time.sleep( 1 )
-		time.sleep( 4 )
-		self.emm = qm3.engines.namd.namd_shm()
+        self.mol = molec
+        os.system( "bash r.namd &" )
+        while( not os.path.isfile( "namd.shmid" ) ):
+            time.sleep( 1 )
+        time.sleep( 4 )
+        self.emm = qm3.engines.namd.namd_shm()
 
-		self.sel = nbn
-		self.coor = sum( [ self.mol.coor[3*i:3*i+3] for i in self.sel ], [] )
-		self.size = len( self.coor )
-		self.grad = []
-		self.hess = []
-
-
-	def update_coor( self ):
-		for i in range( len( self.sel ) ):
-			for j in [0, 1, 2]:
-				self.mol.coor[3*self.sel[i]+j] = self.coor[3*i+j]
+        self.sel = nbn
+        self.coor = sum( [ self.mol.coor[3*i:3*i+3] for i in self.sel ], [] )
+        self.size = len( self.coor )
+        self.grad = []
+        self.hess = []
 
 
-	def get_func( self ):
-		self.update_coor()
-		self.mol.func = .0
-		self.emm.get_func( self.mol )
-		self.func = self.mol.func
+    def update_coor( self ):
+        for i in range( len( self.sel ) ):
+            for j in [0, 1, 2]:
+                self.mol.coor[3*self.sel[i]+j] = self.coor[3*i+j]
 
 
-	def get_grad( self ):
-		self.update_coor()
-		self.mol.func = .0
-		self.mol.grad = [ .0 for i in range( 3 * self.mol.natm ) ]
-		self.emm.get_grad( self.mol )
-		self.func = self.mol.func
-		self.grad = sum( [ self.mol.grad[3*i:3*i+3] for i in self.sel ], [] )
+    def get_func( self ):
+        self.update_coor()
+        self.mol.func = .0
+        self.emm.get_func( self.mol )
+        self.func = self.mol.func
+
+
+    def get_grad( self ):
+        self.update_coor()
+        self.mol.func = .0
+        self.mol.grad = [ .0 for i in range( 3 * self.mol.natm ) ]
+        self.emm.get_grad( self.mol )
+        self.func = self.mol.func
+        self.grad = sum( [ self.mol.grad[3*i:3*i+3] for i in self.sel ], [] )
 
 
 
@@ -67,103 +67,103 @@ class ENVI_problem( qm3.problem.template ):
 
 
 class CORE_problem( qm3.problem.template ):
-	def __init__( self ):
-		qm3.problem.template.__init__( self )
+    def __init__( self ):
+        qm3.problem.template.__init__( self )
 
-		self.mol = qm3.mol.molecule( "pdb" )
-		self.mol.boxl = [ 80.30, 69.03, 75.00 ]
-		self.mol.psf_read( "psf" )
-		self.mol.nbnd_read( "non_bonded" )
+        self.mol = qm3.mol.molecule( "pdb" )
+        self.mol.boxl = [ 80.30, 69.03, 75.00 ]
+        self.mol.psf_read( "psf" )
+        self.mol.nbnd_read( "non_bonded" )
 
-		f = open( "sele_QM.pk", "rb" )
-		self.sel = pickle.load( f )
-		f.close()
-		f = open( "sele_LA.pk", "rb" )
-		sla = pickle.load( f )
-		f.close()
-		f = open( "sele_MM.pk", "rb" )
-		smm = pickle.load( f )
-		f.close()
+        f = open( "sele_QM.pk", "rb" )
+        self.sel = pickle.load( f )
+        f.close()
+        f = open( "sele_LA.pk", "rb" )
+        sla = pickle.load( f )
+        f.close()
+        f = open( "sele_MM.pk", "rb" )
+        smm = pickle.load( f )
+        f.close()
 
-		self.eqm = qm3.engines.sqm.dl_sqm( self.mol, """
+        self.eqm = qm3.engines.sqm.dl_sqm( self.mol, """
 qm_theory = "AM1",
 qmcharge = +2,
 """, self.sel, smm, sla )
 
-		f = open( "sele_EX.pk", "rb" )
-		exc = pickle.load( f )
-		f.close()
-		
-		self.fix = qm3.engines._qmmm.Int_QMLJ( self.mol, self.sel, smm, exc )
+        f = open( "sele_EX.pk", "rb" )
+        exc = pickle.load( f )
+        f.close()
+        
+        self.fix = qm3.engines._mmint.QMLJ( self.mol, self.sel, smm, exc )
 
-		self.size = 3 * len( self.sel )
-		self.coor = []
-		self.mass = []
-		for i in self.sel:
-			self.coor += self.mol.coor[3*i:3*i+3]
-			self.mass.append( self.mol.mass[i] )
-		self.func = 0
-		self.grad = []
+        self.size = 3 * len( self.sel )
+        self.coor = []
+        self.mass = []
+        for i in self.sel:
+            self.coor += self.mol.coor[3*i:3*i+3]
+            self.mass.append( self.mol.mass[i] )
+        self.func = 0
+        self.grad = []
 
-		self.envi = ENVI_problem( self.mol, smm )
+        self.envi = ENVI_problem( self.mol, smm )
 
-		self.dcd = qm3.io.dcd.dcd()
-		self.dcd.write( "dcd", self.mol.natm, self.sel )
-
-
-	def current_step( self, istep ):
-		self.mol.dcd_write( self.dcd )
+        self.dcd = qm3.fio.dcd.dcd()
+        self.dcd.write( "dcd", self.mol.natm, self.sel )
 
 
-	def update_coor( self ):
-		for i in range( len( self.sel ) ):
-			i3 = self.sel[i] * 3
-			j3 = i * 3
-			self.mol.coor[i3:i3+3] = self.coor[j3:j3+3]
+    def current_step( self, istep ):
+        self.mol.dcd_write( self.dcd )
 
 
-	def get_func( self ):
-		self.update_coor()
-		self.mol.func = 0
-		self.eqm.get_func( self.mol )
-		self.fix.get_func( self.mol )
-		self.func = self.mol.func
+    def update_coor( self ):
+        for i in range( len( self.sel ) ):
+            i3 = self.sel[i] * 3
+            j3 = i * 3
+            self.mol.coor[i3:i3+3] = self.coor[j3:j3+3]
 
 
-	def get_grad( self ):
-		self.update_coor()
-		self.mol.func = 0
-		self.mol.grad = [ 0 for i in range( 3 * self.mol.natm ) ]
-		self.eqm.get_grad( self.mol )
-		self.fix.get_func( self.mol )
-		self.fix.get_grad( self.mol )
-		self.func = self.mol.func
-		self.grad = sum( [ self.mol.grad[3*i:3*i+3] for i in self.sel ], [] )
+    def get_func( self ):
+        self.update_coor()
+        self.mol.func = 0
+        self.eqm.get_func( self.mol )
+        self.fix.get_func( self.mol )
+        self.func = self.mol.func
 
 
-	def get_hess( self ):
-		self.update_coor()
-		print( 100*"#" )
-		print( [ self.mol.chrg[i] for i in self.sel ] )
-		self.envi.emm.update_chrg( self.mol )
-		qm3.actions.minimize.fire( self.envi, step_number = 1000, print_frequency = 100, gradient_tolerance = 1. )
-		print( 100*"#" )
-		# ---------------------------------------------
-		if( not os.path.isfile( "update.dump" ) ):
-			self.num_hess( central = True )
-			qm3.utils.manage_hessian( self.coor, self.grad, self.hess, should_update = False )
-		else:
-			self.mol.func = .0
-			self.mol.grad = [ .0 for i in range( 3 * self.mol.natm ) ]
-			self.eqm.get_grad( self.mol )
-			self.fix.get_func( self.mol )
-			self.fix.get_grad( self.mol )
-			self.func = self.mol.func
-			self.grad = sum( [ self.mol.grad[3*i:3*i+3] for i in self.sel ], [] )
-			self.hess = [ .0 for i in range( self.size * self.size ) ]
-			qm3.utils.manage_hessian( self.coor, self.grad, self.hess, should_update = True )
-		# ---------------------------------------------
-		qm3.utils.raise_hessian_RT( self.mass, self.coor, self.hess )
+    def get_grad( self ):
+        self.update_coor()
+        self.mol.func = 0
+        self.mol.grad = [ 0 for i in range( 3 * self.mol.natm ) ]
+        self.eqm.get_grad( self.mol )
+        self.fix.get_func( self.mol )
+        self.fix.get_grad( self.mol )
+        self.func = self.mol.func
+        self.grad = sum( [ self.mol.grad[3*i:3*i+3] for i in self.sel ], [] )
+
+
+    def get_hess( self ):
+        self.update_coor()
+        print( 100*"#" )
+        print( [ self.mol.chrg[i] for i in self.sel ] )
+        self.envi.emm.update_chrg( self.mol )
+        qm3.actions.minimize.fire( self.envi, step_number = 1000, print_frequency = 100, gradient_tolerance = 1. )
+        print( 100*"#" )
+        # ---------------------------------------------
+        if( not os.path.isfile( "update.dump" ) ):
+            self.num_hess( central = True )
+            qm3.utils.manage_hessian( self.coor, self.grad, self.hess, should_update = False )
+        else:
+            self.mol.func = .0
+            self.mol.grad = [ .0 for i in range( 3 * self.mol.natm ) ]
+            self.eqm.get_grad( self.mol )
+            self.fix.get_func( self.mol )
+            self.fix.get_grad( self.mol )
+            self.func = self.mol.func
+            self.grad = sum( [ self.mol.grad[3*i:3*i+3] for i in self.sel ], [] )
+            self.hess = [ .0 for i in range( self.size * self.size ) ]
+            qm3.utils.manage_hessian( self.coor, self.grad, self.hess, should_update = True )
+        # ---------------------------------------------
+        qm3.utils.raise_hessian_RT( self.mass, self.coor, self.hess )
 
 
 
@@ -180,9 +180,9 @@ obj.dcd.close()
 val, vec = qm3.utils.hessian_frequencies( obj.mass, obj.coor, obj.hess )
 print( val )
 for i in range( min( 10, obj.size ) ):
-	if( val[i] < .0 ):
-		qm3.utils.normal_mode_view( obj.coor, val, vec, obj.eqm.smb, i, afac = 4 )
-	else:
-		qm3.utils.normal_mode_view( obj.coor, val, vec, obj.eqm.smb, i )
+    if( val[i] < .0 ):
+        qm3.utils.normal_mode_view( obj.coor, val, vec, obj.eqm.smb, i, afac = 4 )
+    else:
+        qm3.utils.normal_mode_view( obj.coor, val, vec, obj.eqm.smb, i )
 
 obj.envi.emm.stop()
