@@ -11,7 +11,7 @@ nwin = 18
 ncpu = 6
 size = nwin // ncpu
 
-com = qm3.utils.msi.client( sys.argv[1] )
+com = qm3.utils.msi.client( int( sys.argv[1] ) )
 
 cwd = os.getcwd()
 obj = []

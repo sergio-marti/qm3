@@ -9,7 +9,7 @@ import  os
 ncrd = 2
 nwin = 18
 
-com = qm3.utils.msi.client( sys.argv[1] )
+com = qm3.utils.msi.client( int( sys.argv[1] ) )
 
 os.mkdir( str( com.node ) )
 os.chdir( str( com.node ) )
