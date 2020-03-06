@@ -14,7 +14,7 @@
 #set hidden3d trianglepattern 7
 #splot morse(10,1,x) + morse(10,1,y) + cross(20,1,1,1,x,y)
 # ----------------------------------------------------------------------------
-# mpirun -n 4 python s.string
+# mpirun -n 4 python test.string
 # ----------------------------------------------------------------------------
 import qm3.problem
 import qm3.engines.mmres

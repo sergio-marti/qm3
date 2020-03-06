@@ -2,21 +2,29 @@
 \subsection[mol\_mech]{mol\_mech.py}
 This module provides a basic (and inefficient) force-field implementation to perform basic molecular mechanics analysis.
 Some of the methods can take profit of the binary threaded version (\_mol\_mech.so) to improve performance.
-For agiven molecule object, if the list of bonds (\parm{bond}: i,j), angles (\parm{angl}: i,j,k), dihedrals (\parm{dihe}: i,j,k,l), or impropers (\parm{impr}: central\_i, j, k, l, kumb\_kJ/mol.rad\^{}2, ref\_deg) are not provided, then they are guessed/calculated. The atom types (\parm{qtyp} / mol.type) and the Electronegativity Equalization Method partial charges (\parm{qchg} / mol.chrg) are also able to be determined. The default path (\parm{ppath}) for the parameters ("mol\_mech.prm" and "mol\_mech.eem") can also be modified.
+For a given molecule object, if the list of bonds (\parm{bond}: i,j), angles (\parm{angl}: i,j,k), dihedrals (\parm{dihe}: i,j,k,l), or impropers (\parm{impr}: central\_i, j, k, l, kumb\_kJ/mol.rad\^{}2, ref\_deg) are not provided using the \func{topology}, then they are guessed/calculated. The atom types (\parm{qtyp} / mol.type) and the Electronegativity Equalization Method partial charges\footnote{https://jcheminf.biomedcentral.com/track/pdf/10.1186/s13321-015-0107-1} (\parm{qchg} / mol.chrg) are also able to be determined. Alternatively, a X-PLOR PSF file can be processed (\func{psf\_read}). The default path (\parm{ppath} / object.path) for the parameters ("mol\_mech.prm" and "mol\_mech.eem") can also be modified.
 Finally, both methods for calculating the internal energy of the molecule (\func{get\_func}, \func{get\_grad}) are also provided, to be used in a problem object.
 \\
 Example of the parameters used can be found in the "mol\_mech.prm" file.
 \begin{pyglist}[language=python,fvset={frame=single}]
-class simple_force_field( mol, bond = [], angl = [], dihe = [], impr = [],
-                          qtyp = True, qchg = True, ppath = None )
+class simple_force_field( mol )
     ncpu     = C:{os.sysconf( 'SC_NPROCESSORS_ONLN' )} // Python:{1}
     cut_on   = 10.0
     cut_off  = 12.0
     cut_list = 14.0
 
+    def topology( mol, bond = [], angl = [], dihe = [], impr = [], qtyp = True, qchg = True )
+
+    def psf_read( mol, fname )
+
+    def parameters( mol, path = None )
+
     def qm_atoms( sele )
+
     def update_non_bonded( mol )
+
     def get_func( mol, qprint = False )
+
     def get_grad( mol, qprint = False )
 \end{pyglist}
 

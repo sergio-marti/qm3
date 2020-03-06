@@ -1,0 +1,30 @@
+\normalsize
+\subsection[neb]{neb.py}
+This module allows to calculate a Nudged-Elastic-Band\footnote{https://www.worldscientific.com/doi/pdf/10.1142/9789812839664\_0016}\footnote{http://aip.scitation.org/doi/pdf/10.1063/1.1323224}\footnote{https://pubs.acs.org/doi/pdf/10.1021/acs.jctc.7b00360}.
+The argument \parm{guess} of \func{distribute} should be a list of coordinates containing at least the initial ($\text{crd}_0$) and the last point ($\text{crd}_f$) to perform cartesian interpolation of as much \parm{nodes}.
+This module is closer to a engine, in the sense that provides a new problem which contains all the nodes for being optimized. The \parm{problem} argument should be a derived class of "problem.template", containing a \func{neb\_data} func for storing results. This method should account of the current coordinates and energy of the system:
+\begin{pyglist}[language=python,fvset={frame=single}]
+    def neb_data( self, node )
+        f = open( "node.%02d"%( node ), "wt" )
+        f.write( "REMARK %20.3lf\n"%( self.func ) )
+        self.mol.pdb_write( f )
+        f.close()
+\end{pyglist}
+The value of the \parm{kumb} should be approximatelly the same of the potential energy barrier when optimizing the whole band.
+The \parm{gradient\_tolerance} parameter used in the minimizer should be equal to [0.1:0.5] * nodes (in kJ/mol.A)
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+def distribute( nodes, guess )
+
+def serial_neb( problem, sele, kumb, guess )
+
+def parall_neb( problem, sele, kumb, node, ncpu, guess )
+
+\end{pyglist}
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.sneb
+\end{pyglist}
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.pneb
+\end{pyglist}
