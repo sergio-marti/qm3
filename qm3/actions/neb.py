@@ -61,7 +61,7 @@ class serial_neb( qm3.problem.template ):
 
     ideally it should store current coordinates of the node:
             
-                f = open( "node.%02d"%( node ) )
+                f = open( "node.%02d"%( node ), "wt" )
                 f.write( "REMARK %12.6lf%12.6lf%20.3lf\n"%( distance_1, distance_2, self.func ) )
                 self.mol.pdb_write( f )
                 f.close()
@@ -191,7 +191,7 @@ try:
 
     ideally it should store current coordinates of the node:
             
-                f = open( "node.%02d"%( node ) )
+                f = open( "node.%02d"%( node ), "wt" )
                 f.write( "REMARK %12.6lf%12.6lf%20.3lf\n"%( distance_1, distance_2, self.func ) )
                 self.mol.pdb_write( f )
                 f.close()
