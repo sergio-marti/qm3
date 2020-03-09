@@ -139,6 +139,7 @@ def fep_integrate( dene, temperature = 300.0, clusters = 1, tries = 10 ):
 
 #
 # J. Chem. Phys. v123, p144104 (2005) [10.1063/1.2052648]
+# J. Chem. Phys. v124, p234106 (2006) [10.1063/1.2206775]
 #
 class umbint( object ):
 
@@ -203,12 +204,12 @@ class umbint( object ):
 
 
     def integrate( self, temperature = 300.0 ):
-        __rt     = temperature * 1.0e-3 * qm3.constants.R
-        self.pmf = [ 0.0 ]
+        self.__rt = temperature * 1.0e-3 * qm3.constants.R
+        self.pmf  = [ 0.0 ]
         e = 0.0
-        l = self.__dAdx( self.crd[0], __rt )
+        l = self.__dAdx( self.crd[0], self.__rt )
         for i in range( 1, self.__nb ):
-            e = self.__dAdx( self.crd[i], __rt )
+            e = self.__dAdx( self.crd[i], self.__rt )
             self.pmf.append( self.pmf[-1] + 0.5 * self.__db * ( l + e ) )
             l = e
         print( "#%19s%20s"%( "Reference", "PMF" ) )
@@ -216,6 +217,34 @@ class umbint( object ):
         for i in range( self.__nb ):
             self.pmf[i] -= x
             print( "%20.10lf%20.10lf"%( self.crd[i], self.pmf[i] ) )
+
+
+    def __vdAdx( self, x, RT ):
+        pt = 0.0
+        px = 0.0
+        for j in range( self.__nw ):
+            p   = self.__ff[j] * self.__prob( x, self.__mm[j], self.__ss[j] )
+            s2  = self.__ss[j] * self.__ss[j]
+            pt += p
+            px += p * p * RT * RT * ( 2.0 * math.pow( x - self.__mm[j], 2.0 ) + s2 ) / ( self.__ff[j] * s2 * s2 ) 
+        return( px / ( pt * pt ) )
+
+
+    def diff( self, bin_a, bin_b = None ):
+        if( bin_b == None ):
+            bin_b = self.pmf.index( 0.0 )
+        t_a = min( bin_a, bin_b )
+        t_b = max( bin_a, bin_b )
+        bin_a = t_a
+        bin_b = t_b
+        pmf = self.pmf[bin_b] - self.pmf[bin_a]
+        # references are not sorted... (average all dispersions)
+        ssm = sum( self.__ss ) / self.__nw
+        err = 0.0
+        for j in range( bin_a, bin_b + 1 ):
+            err += self.__vdAdx( self.crd[j], self.__rt )
+        err *= ( ( self.crd[bin_b] - self.crd[bin_a] ) * ssm / self.__gs - 2.0 * ssm * ssm )
+        return( pmf, err )
 
 
 
