@@ -230,7 +230,7 @@ class umbint( object ):
         return( px / ( pt * pt ) )
 
 
-    def diff( self, bin_a, bin_b = None ):
+    def error( self, bin_a, bin_b = None ):
         if( bin_b == None ):
             bin_b = self.pmf.index( 0.0 )
         t_a = min( bin_a, bin_b )
