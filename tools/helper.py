@@ -276,7 +276,7 @@ class my_problem( qm3.problem.template ):
 """ )
     # -- molecule definition
     if( pdb != None and psf != None ):
-        f.write( """        self.mol = qm3.mol.molecule( "%s" )
+        fd.write( """        self.mol = qm3.mol.molecule( "%s" )
         self.mol.psf_read( "%s" )
         self.mol.nbnd_read( "_NONBONDED_" )
 """%( pdb, psf ) )
@@ -457,9 +457,9 @@ class my_problem( qm3.problem.template ):
         fd.write( "        self.grad = self.mol.grad\n" )
     else:
         fd.write( """        self.grad = []
-            for i in self.sel:
-                i3 = i * 3
-                self.grad += self.mol.grad[i3:i3+3][:]
+        for i in self.sel:
+            i3 = i * 3
+            self.grad += self.mol.grad[i3:i3+3][:]
         """ )
     # -- get_hess method (numerical)
     fd.write( """
@@ -483,10 +483,10 @@ class my_problem( qm3.problem.template ):
             w = "i.namd"
         if( w != "" ):
             fd.write( """\n\n\n\n
-        f = open( "%s", "wt" )
-        f.write( \"\"\"%s
+f = open( "%s", "wt" )
+f.write( \"\"\"%s
 \"\"\" )
-        f.close()
+f.close()
 """%( w, imm ) )
     # -- instance object
     fd.write( """\n\n\n\n
