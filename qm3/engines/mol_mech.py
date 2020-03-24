@@ -62,26 +62,26 @@ class simple_force_field( object ):
         if( angl != [] ):
             self.angl = angl[:]
         else:
-            self.__angles()
+            self.x__angles()
         # guess (or not) dihedrals
         if( dihe != [] ):
             self.dihe = dihe[:]
         else:
-            self.__dihedrals()
+            self.x__dihedrals()
         # copy impropers (if any...)
         self.impr = impr[:]
         # guess (or not) atom types
         if( qtyp ):
-            self.__types( mol )
+            self.x__types( mol )
         # guess (or not) partial charges
         if( qchg and mol.chrg != [] ):
-            self.__charges( mol )
+            self.x__charges( mol )
 
     
     # SYBYL atom types (kinda)
     # http://www.sdsc.edu/CCMS/Packages/cambridge/pluto/atom_types.html
     # uses FORMAL CHARGES present in MOL.CHRG
-    def __types( self, mol ):
+    def x__types( self, mol ):
         def __any( lst_a, lst_b ):
             return( len( set( lst_a ).intersection( set( lst_b ) ) ) > 0 )
         mol.type = []
@@ -152,7 +152,7 @@ class simple_force_field( object ):
                 mol.type[i] = "S.o2"
 
 
-    def __angles( self ):
+    def x__angles( self ):
         if( mol_mech_so ):
             self.angl = qm3.engines._mol_mech.guess_angles( self )
         else:
@@ -172,7 +172,7 @@ class simple_force_field( object ):
                     del self.angl[i]
 
 
-    def __dihedrals( self ):
+    def x__dihedrals( self ):
         if( mol_mech_so ):
             self.dihe = qm3.engines._mol_mech.guess_dihedrals( self )
         else:
@@ -193,7 +193,7 @@ class simple_force_field( object ):
 
 
     # uses FORMAL CHARGES present in MOL.CHRG
-    def __charges( self, mol ):
+    def x__charges( self, mol ):
         # Electronegativity Equalization Method (B3LYP_6-311G_NPA.par) [10.1186/s13321-015-0107-1]
         f = open( self.path + "mol_mech.eem", "rt" )
         kap = float( f.readline().strip() )
@@ -401,7 +401,7 @@ class simple_force_field( object ):
                 del self.nbnd[i]
         
 
-    def __ebond( self, mol, gradient = False ):
+    def x__ebond( self, mol, gradient = False ):
         if( self.bond == [] ):
             return( 0.0 )
         if( mol_mech_so ):
@@ -421,7 +421,7 @@ class simple_force_field( object ):
         return( out )
 
 
-    def __eangle( self, mol, gradient = False ):
+    def x__eangle( self, mol, gradient = False ):
         if( self.angl == [] ):
             return( 0.0 )
         if( mol_mech_so ):
@@ -441,7 +441,7 @@ class simple_force_field( object ):
         return( out )
 
 
-    def __edihedral( self, mol, gradient = False ):
+    def x__edihedral( self, mol, gradient = False ):
         if( self.dihe == [] ):
             return( 0.0 )
         if( mol_mech_so ):
@@ -461,7 +461,7 @@ class simple_force_field( object ):
         return( out )
 
 
-    def __eimproper( self, mol, gradient = False ):
+    def x__eimproper( self, mol, gradient = False ):
         if( self.impr == [] ):
             return( 0.0 )
         out = 0.0
@@ -520,7 +520,7 @@ class simple_force_field( object ):
                 self.nbnd.append( [ i, l, 0.5 ] )
                         
 
-    def __enonbonded( self, mol, gradient = False, epsilon = 1.0 ):
+    def x__enonbonded( self, mol, gradient = False, epsilon = 1.0 ):
         if( not self.nbnd ):
             self.update_non_bonded( mol )
         if( mol_mech_so ):
@@ -604,11 +604,11 @@ class simple_force_field( object ):
 
 
     def get_func( self, mol, qprint = False ):
-        e_bond = self.__ebond( mol, gradient = False )
-        e_angl = self.__eangle( mol, gradient = False )
-        e_dihe = self.__edihedral( mol, gradient = False )
-        e_impr = self.__eimproper( mol, gradient = False )
-        e_elec, e_vdwl = self.__enonbonded( mol, gradient = False )
+        e_bond = self.x__ebond( mol, gradient = False )
+        e_angl = self.x__eangle( mol, gradient = False )
+        e_dihe = self.x__edihedral( mol, gradient = False )
+        e_impr = self.x__eimproper( mol, gradient = False )
+        e_elec, e_vdwl = self.x__enonbonded( mol, gradient = False )
         mol.func += e_bond + e_angl + e_dihe + e_impr + e_elec + e_vdwl
         if( qprint ):
             print( "ETot:", e_bond + e_angl + e_dihe + e_impr + e_elec + e_vdwl, "_kJ/mol" )
@@ -617,11 +617,11 @@ class simple_force_field( object ):
 
 
     def get_grad( self, mol, qprint = False ):
-        e_bond = self.__ebond( mol, gradient = True )
-        e_angl = self.__eangle( mol, gradient = True )
-        e_dihe = self.__edihedral( mol, gradient = True )
-        e_impr = self.__eimproper( mol, gradient = True )
-        e_elec, e_vdwl = self.__enonbonded( mol, gradient = True )
+        e_bond = self.x__ebond( mol, gradient = True )
+        e_angl = self.x__eangle( mol, gradient = True )
+        e_dihe = self.x__edihedral( mol, gradient = True )
+        e_impr = self.x__eimproper( mol, gradient = True )
+        e_elec, e_vdwl = self.x__enonbonded( mol, gradient = True )
         mol.func += e_bond + e_angl + e_dihe + e_impr + e_elec + e_vdwl
         if( qprint ):
             print( "ETot:", e_bond + e_angl + e_dihe + e_impr + e_elec + e_vdwl, "_kJ/mol" )
