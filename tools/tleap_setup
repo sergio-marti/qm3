@@ -59,6 +59,8 @@ for i in xrange( len( m.seg_lim ) - 1 ):
 f.write( t + " }\n" )
 
 f.write( """
+#mol = loadpdb pdb
+
 solvatebox mol TIP3PBOX 14
 #addions mol Cl- 0
 #addions mol Na+ 0
