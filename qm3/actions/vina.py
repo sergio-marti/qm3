@@ -124,6 +124,37 @@ def receptor( mol, fname = None, sele = None ):
 
 
 def ligand( mol, fname = None, sele = None ):
+    """
+    Ligands can be treated as flexible in AutoDock, and we use the idea of a "torsion tree" to represent the
+    rigid and rotatable pieces. There is always one "root", and zero or more "branches". Branches can be nested.
+    Every branch defines one rotatable bond. The torsion tree is represented in the PDBQT with the following
+    records, and the placement of these records is important, and usually means reordering the ATOM/HETATM records:
+
+    The ROOT record precedes the rigid part of the molecule, from which zero or more rotatable bonds may emanate,
+    and the ENDROOT record follows the last atom in the rigid "root".
+    The ROOT/ENDROOT block of atoms should be given first in the PDBQT file.
+
+    Sets of atoms that are moved by rotatable bonds are enclosed by BRANCH and ENDBRANCH records.
+    Both BRANCH records and ENDBRANCH records should give two integers separated by spaces, which are the serial numbers
+    of the first and second atoms involved in the rotatable bond.
+    It is possible to nest BRANCH/ENDBRANCH blocks.
+
+    The last line of the PDBQT file contains a TORSDOF record, which is followed by an integer. This is the number of
+    torsional degrees of freedom in the ligand (the number of rotatable bonds in the ligand).
+
+REMARK                            x       y       z     vdW  Elec       q    Type
+REMARK                         _______ _______ _______ _____ _____    ______ ____
+ROOT
+ATOM      1  C   UNL     1       0.000   0.000   0.000  0.00  0.00    +0.000 C 
+ATOM      2  C   UNL     1       0.866   0.866   0.866  0.00  0.00    +0.000 C 
+ENDROOT
+BRANCH   2   3
+ATOM      3  C   UNL     1       1.732   0.000   1.732  0.00  0.00    +0.000 C 
+ATOM      4  C   UNL     1       2.598   0.866   2.598  0.00  0.00    +0.000 C 
+ENDBRANCH   2   3
+TORSDOF 1
+
+    """
     f = qm3.fio.open_w( fname )
     f.write( "REMARK --------------------------------------------------------------------------\n" )
     f.write( "REMARK                            x       y       z     vdW  Elec       q    Type\n" )
