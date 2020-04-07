@@ -440,7 +440,7 @@ class umbint_2d( object ):
 
 
 try:
-    import matplotlib.pyplot as plt    
+    import matplotlib.pyplot
     def plot_data( data, dsigma = 2.0 ):
         __mm = []
         __ss = []
@@ -467,16 +467,16 @@ try:
         t = sorted( __mm )
         __mw = __mm.index( t[0]  )
         __Mw = __mm.index( t[-1] )
-        plt.grid( True )
-        plt.xlim( 0.0, __Mx )
-        plt.ylim( __mm[__mw] - 2.0 * __ss[__mw], __mm[__Mw] + 2.0 * __ss[__Mw] )
+        matplotlib.pyplot.grid( True )
+        matplotlib.pyplot.xlim( 0.0, __Mx )
+        matplotlib.pyplot.ylim( __mm[__mw] - 2.0 * __ss[__mw], __mm[__Mw] + 2.0 * __ss[__Mw] )
         for i in range( len( __mm ) ):
             x = [ float( j ) for j in range( len( __dd[i] ) ) ]
-            plt.plot( x, __dd[i] )
-        plt.tight_layout()
-        plt.savefig( "overlap_coor.pdf" )
-        plt.clf()
-        plt.xlim( __mm[__mw] - 2.0 * __ss[__mw], __mm[__Mw] + 2.0 * __ss[__Mw] )
+            matplotlib.pyplot.plot( x, __dd[i] )
+        matplotlib.pyplot.tight_layout()
+        matplotlib.pyplot.savefig( "overlap_coor.pdf" )
+        matplotlib.pyplot.clf()
+        matplotlib.pyplot.xlim( __mm[__mw] - 2.0 * __ss[__mw], __mm[__Mw] + 2.0 * __ss[__Mw] )
         f = 1.0 / math.sqrt( 2.0 * math.pi )
         for i in range( len( __mm ) ):
             nx = 100
@@ -484,9 +484,9 @@ try:
             dx = 2.0 * ( dsigma * __ss[i] ) / float( nx )
             x = [ mx + float( j ) * dx for j in range( nx + 1 ) ]
             y = [ f / __ss[i] * math.exp( - 0.5 * math.pow( ( x[j] - __mm[i] ) / __ss[i], 2.0 ) ) for j in range( nx + 1 ) ]
-            plt.plot( x, y )
-        plt.tight_layout()
-        plt.savefig( "overlap_gaus.pdf" )
+            matplotlib.pyplot.plot( x, y )
+        matplotlib.pyplot.tight_layout()
+        matplotlib.pyplot.savefig( "overlap_gaus.pdf" )
 except:
         pass
 
