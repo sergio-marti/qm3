@@ -282,7 +282,7 @@ def poly_fit( vec_x, vec_y, order ):
 
 
 
-
+# Anal. Chem. v36, p1627 (1964) [10.1021/ac60214a047]
 def savitzky_golay( x, y, points = None, gradient = False ):
     """
     Savitzky-Golay cubic smoothing
