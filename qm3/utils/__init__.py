@@ -425,7 +425,7 @@ try:
     # https://en.wikipedia.org/wiki/Spectral_line_shape
     # Lorentzian: L = 1 over { 1 + x^2 } ~~~~~~ x = { p^0 - p } over { s / 2 }
     # -----------------------------------------------
-    def plot_spectrum( freq, inte, sigm = 100., minf = 100., maxf = 4000., scal = 1.0 ):
+    def spectrum( freq, inte, sigm = 100., minf = 100., maxf = 4000., scal = 1.0 ):
         nn = len( freq )
         hs = 0.5 * sigm
         sx = []
