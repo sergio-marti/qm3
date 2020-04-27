@@ -154,12 +154,9 @@ class dcd( object ):
                 dsp = 4 + self._Q * 56 + 3 * 4 * self.N + 20
             self._C = num
             self._F.seek( self._H + dsp * ( num - 1 ) )
-            return( self.next() )
         elif( num == 0 ):
             self._C = 0
             self._F.seek( self._H )
-            return( self.next() )
-        return( False )
 
 
     def close( self ):
