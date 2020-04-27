@@ -355,6 +355,7 @@ static struct PyMemberDef __members [] = {
         { "X", T_OBJECT, offsetof( oDCD, x ), 0 },
         { "Y", T_OBJECT, offsetof( oDCD, y ), 0 },
         { "Z", T_OBJECT, offsetof( oDCD, z ), 0 },
+        { "N", T_LONG, offsetof( oDCD, natm ), 0 },
         { 0, 0, 0, 0 }
 };
 
