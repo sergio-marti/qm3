@@ -8,8 +8,8 @@ cions:
 	$(PYX) setup/cions build_ext --build-lib qm3/utils
 
 
-dcd:
-	$(PYX) setup/dcd build_ext --build-lib qm3/fio
+#dcd:
+#	$(PYX) setup/dcd build_ext --build-lib qm3/fio
 
 
 mpi:
