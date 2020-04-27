@@ -5,13 +5,8 @@ import sys
 if( sys.version_info[0] == 2 ):
     range = xrange
 
-
-#try:
-#    import qm3.fio._dcd
-#    dcd = qm3.fio._dcd.dcd
-#except:
-
 import struct
+
 
 class dcd( object ):
 
