@@ -1,0 +1,17 @@
+\normalsize
+\subsection[xtb]{xtb.py}
+This module allows to use xTB\footnote{https://github.com/grimme-lab/xtb} as a QM engine.
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+class xtb( mol, ini, sele, nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.xtb
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.xtb.log
+\end{pyglist}
