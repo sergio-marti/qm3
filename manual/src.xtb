@@ -6,6 +6,10 @@ This module allows to use xTB\footnote{https://github.com/grimme-lab/xtb} as a Q
 class xtb( mol, ini, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
+
+class dl_xtb( mol, chrg, sele, nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
 \end{pyglist}
 
 \footnotesize
