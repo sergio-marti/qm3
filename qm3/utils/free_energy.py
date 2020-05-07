@@ -219,6 +219,7 @@ class umbint( object ):
             print( "%20.10lf%20.10lf"%( self.crd[i], self.pmf[i] ) )
 
 
+    # Eq 6: using all (correlated) data
     def __vdAdx( self, x, RT ):
         pt = 0.0
         px = 0.0

@@ -1,0 +1,35 @@
+$chrg 0
+$spin 0
+$gfn
+    method=2
+$scc
+    maxiterations=1000
+$hess
+   sccacc=.3000000000000000
+   step=.5000000000000000E-02
+$embedding
+    input=xtb_mm
+    interface=orca
+$write
+   geosum=false
+   esp=false
+   mos=false
+   gbw=false
+   tm mos=false
+   tm basis=false
+   lmo=false
+   density=false
+   spin population=false
+   spin density=true
+   fod=false
+   wiberg=false
+   dipole=false
+   charges=true
+   mulliken=true
+   orbital energies=false
+   geosum=false
+   distances=false
+   angles=false
+   torsions=false
+   modef=false
+$end
