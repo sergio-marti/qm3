@@ -304,19 +304,12 @@ def get_RT_modes( mass, coor ):
     rt = []
     for i in range( 6 ):
         rt.append( [] )
-    # use center of geometry instead
-    if( mass == None ):
-        mass = []
-        for i in range( size // 3 ):
-            mass.append( 1. )
-        mt = float( size ) / 3.
-    # use center of mass
-    else:
-        mt = sum( mass )
+    mt = 0.0
     mc = [ 0.0, 0.0, 0.0 ]
     for i in range( size // 3 ):
         for j in [ 0, 1, 2 ]:
             mc[j] += coor[i*3+j] * mass[i]
+        mt += mass[i]
     mc[0] /= mt; mc[1] /= mt; mc[2] /= mt
     for i in range( size // 3 ):
         j = 3 * i
