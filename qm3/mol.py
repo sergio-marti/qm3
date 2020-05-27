@@ -406,18 +406,18 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
         self.initialize()
         f = qm3.fio.open_r( fname )
         # 1st atom
-        self.labl.append( f.readline().strip().upper() )
+        self.labl.append( f.readline().strip().title() )
         self.coor += [ 0.0, 0.0, 0.0 ]
         self.natm += 1
         # 2nd atom
         t = f.readline().strip().split()
-        self.labl.append( t[0].upper() )
+        self.labl.append( t[0].title() )
         t_d = float( t[2] )
         self.coor += [ float( t[2] ), 0.0, 0.0 ]
         self.natm += 1
         # 3rd atom
         t = f.readline().strip().split()
-        self.labl.append( t[0].upper() )
+        self.labl.append( t[0].title() )
         t_d = float( t[2] )
         t_a = float( t[4] ) / qm3.constants.R2D
         if( t[1] == "1" ):
@@ -428,7 +428,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
         # 4th and so on...
         for l in f:
             t = l.strip().split()
-            self.labl.append( t[0].upper() )
+            self.labl.append( t[0].title() )
             n_a = int( t[1] ) - 1
             t_d = float( t[2] )
             n_b = int( t[3] ) - 1
