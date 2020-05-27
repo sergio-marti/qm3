@@ -45,9 +45,9 @@ def db_download( code ):
     try:
         f = ulib.urlopen( r )
         mol = sdf_read( f )
+        f.close()
     except:
         print( "No 3D-structure found..." )
         mol = None
-    f.close()
     return( mol )
 

@@ -195,6 +195,7 @@ def diag( mat, row ):
         except:
             try:
                 val, vec = numpy.linalg.eigh( numpy.array( mat, dtype = float ).reshape( ( row, row ) ) )
+                idx = numpy.argsort( val ); val = val[idx]; vec = vec[:,idx]
                 return( val.flatten().tolist(), vec.flatten().tolist() )
             except:
                 raise Exception( "matrix.diag: neither qm3.maths._matrix.so nor numpy available..." )
