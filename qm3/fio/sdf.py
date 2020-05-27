@@ -42,8 +42,8 @@ def db_download( code ):
     elif( svr == "chemspider" ):
         r = ulib.Request( "http://www.chemspider.com/FilesHandler.ashx?type=str&3d=yes&id=" + mid )
 #    r = ulib.Request( "https://cactus.nci.nih.gov/chemical/structure/%s/file?format=sdf&get3d=True"%( mol_id ) )
-    f = ulib.urlopen( r )
     try:
+        f = ulib.urlopen( r )
         mol = sdf_read( f )
     except:
         print( "No 3D-structure found..." )
