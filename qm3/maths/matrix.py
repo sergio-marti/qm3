@@ -255,6 +255,57 @@ def solve( mat, vec, eps = 1.e-14 ):
 
 
 
+try:
+    def np_jacobi( mat: numpy.ndarray, maxit = 10000, epsi = 1.e-10 ):
+        siz = len( mat ) 
+        val = mat.copy()
+        vec = numpy.identity( siz )
+        it = 0
+        ff = 1. + epsi
+        while( it < maxit and ff >= epsi ):
+            # -- find off-diagonal max
+            d = 0.0
+            for i in range( siz ):
+                for j in range( siz ):
+                    if( i != j and math.fabs( val[i,j] ) > d ):
+                        d = math.fabs( val[i,j] )
+                        p = i
+                        q = j
+            # -- sin & cos
+            d = val[q,q] - val[p,p]
+            if( d == 0.0 ):
+                t = 1.0
+            else:
+                x = d / val[p,q] * 0.50
+                t = ( x / math.fabs( x ) ) / ( math.fabs( x ) + math.sqrt( x * x + 1.0 ) )
+            co = 1.0 / math.sqrt( t * t + 1.0 )
+            si = t * co;
+            # -- fast rotation
+            for i in range( siz ):
+                ap = val[i,p]
+                aq = val[i,q]
+                val[i,p] = co * ap - si * aq
+                val[i,q] = si * ap + co * aq
+            for i in range( siz ):
+                ap = val[p,i]
+                aq = val[q,i]
+                val[p,i] = co * ap - si * aq
+                val[q,i] = si * ap + co * aq
+            # -- update eigenvectors
+            rr = numpy.identity( siz )
+            rr[p,p] = co
+            rr[p,q] = si
+            rr[q,p] = - si
+            rr[q,q] = co
+            vec = numpy.dot( vec, rr )
+            # -- check for convergence
+            ff = 0.0
+            for i in range( siz ):
+                ff += numpy.sum( numpy.fabs( val[i,i+1:] ) )
+            it += 1
+        return( numpy.diagonal( val ), vec, it < maxit )
+except:
+    pass
 
 # TODO ============================================================================================
 #

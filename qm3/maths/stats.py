@@ -179,7 +179,7 @@ class PCA( object ):
 
 try:
     import numpy
-    def npk_means( data, K ):
+    def np_kmeans( data, K ):
         M = [ data[numpy.random.randint(data.shape[0])] ]
         while( len( M ) < K ):
             d2 = numpy.array( [ min( [ numpy.power( numpy.linalg.norm( x - c ), 2.0 ) for c in M ] ) for x in data ] )
@@ -210,23 +210,23 @@ try:
         return( C, I )
     
 
-    class npPCA( object ):
+    class np_PCA( object ):
         def __init__( self, data ):
             self.var = data.shape[0]
             self.dim = data.shape[1]
             self.med = data.mean( axis = 1 )
             self.dat = numpy.array( [ data[i,:] - self.med[i] for i in range( self.var ) ] )
             cov = numpy.dot( self.dat, self.dat.T ) / self.dim
-            self.val, self.vec = numpy.linalg.eigh( cov )
+            self.val, self.vec, conv = qm3.maths.matrix.np_jacobi( cov )
     
         def select( self, sel, reduced = True ):
             ind = sorted( list( set( [ i for i in sel if i >= 0 and i < self.var ] ) ) )
             if( reduced ):
-                red = self.vec[:,ind].T
-                out = red.dot( self.dat )
+                out = numpy.dot( self.vec[:,ind].T ,self.dat )
+                for i in range( len( ind ) ):
+                    out[i,:] += self.med[ind[i]]
             else:
-                red = self.vec[:,ind].dot( self.vec[:,ind].T )
-                out = red.dot( self.dat )
+                out = numpy.dot( numpy.dot( self.vec[:,ind], self.vec[:,ind].T ), self.dat )
                 for i in range( self.var ):
                     out[i,:] += self.med[i]
             return( out )
