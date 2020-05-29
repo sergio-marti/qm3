@@ -112,6 +112,7 @@ class dcd( object ):
                     self.X[self._S[i]] = cx[i]
                     self.Y[self._S[i]] = cy[i]
                     self.Z[self._S[i]] = cz[i]
+                del cx, cy, cz
 # ------------------------------------------------------------------------------------
             else:
 # ------------------------------------------------------------------------------------
@@ -131,16 +132,11 @@ class dcd( object ):
                 if( len( bb ) != jj ):
                     return( False )
                 kk = 0
-                cx = struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] )
+                self.X = struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] )
                 kk += ( 8 + ii )
-                cy = struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] )
+                self.Y = struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] )
                 kk += ( 8 + ii )
-                cz = struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] )
-                for i in range( self.N ):
-                    self.X[i] = cx[i]
-                    self.Y[i] = cy[i]
-                    self.Z[i] = cz[i]
-            del cx, cy, cz
+                self.Z = struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] )
 # ------------------------------------------------------------------------------------
             self._C += 1
             return( True )

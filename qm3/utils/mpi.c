@@ -6,102 +6,102 @@
 
 
 static PyObject* __init( PyObject *self ){
-	int			cpu, pid;
+    int			cpu, pid;
 
-	MPI_Init( NULL, NULL );
-	MPI_Comm_rank( MPI_COMM_WORLD, &pid );
-	MPI_Comm_size( MPI_COMM_WORLD, &cpu );
-	return( Py_BuildValue( "(i,i)", pid, cpu ) );
+    MPI_Init( NULL, NULL );
+    MPI_Comm_rank( MPI_COMM_WORLD, &pid );
+    MPI_Comm_size( MPI_COMM_WORLD, &cpu );
+    return( Py_BuildValue( "(i,i)", pid, cpu ) );
 }
 
 
 static PyObject* __stop( PyObject *self ) {
-	MPI_Finalize();
-	Py_INCREF( Py_None );
-	return( Py_None );
+    MPI_Finalize();
+    Py_INCREF( Py_None );
+    return( Py_None );
 }
 
 
 static PyObject* __barrier( PyObject *self ) {
-	MPI_Barrier( MPI_COMM_WORLD );
-	Py_INCREF( Py_None );
-	return( Py_None );
+    MPI_Barrier( MPI_COMM_WORLD );
+    Py_INCREF( Py_None );
+    return( Py_None );
 }
 
 
 static PyObject* __send_r8( PyObject *self, PyObject *args ) {
-	PyObject	*o_dat;
-	double		*r_dat;
-	int			i, who, siz;
+    PyObject	*o_dat;
+    double		*r_dat;
+    int			i, who, siz;
 
-	if( PyArg_ParseTuple( args, "iO", &who, &o_dat ) ) {
-		siz = (int) PyList_Size( o_dat );
-		r_dat = (double*) malloc( siz * sizeof( double ) );
-		for( i = 0; i < siz; i++ ) r_dat[i] = PyFloat_AsDouble( PyList_GetItem( o_dat, i ) );
-		MPI_Send( r_dat, siz, MPI_DOUBLE_PRECISION, who, 0, MPI_COMM_WORLD );
-		free( r_dat );
-	}
-	Py_INCREF( Py_None );
-	return( Py_None );
+    if( PyArg_ParseTuple( args, "iO", &who, &o_dat ) ) {
+    	siz = (int) PyList_Size( o_dat );
+    	r_dat = (double*) malloc( siz * sizeof( double ) );
+    	for( i = 0; i < siz; i++ ) r_dat[i] = PyFloat_AsDouble( PyList_GetItem( o_dat, i ) );
+    	MPI_Send( r_dat, siz, MPI_DOUBLE_PRECISION, who, 0, MPI_COMM_WORLD );
+    	free( r_dat );
+    }
+    Py_INCREF( Py_None );
+    return( Py_None );
 }
 
 
 static PyObject* __recv_r8( PyObject *self, PyObject *args ) {
-	int			i, siz, who;
-	double		*r_dat;
-	PyObject	*o_dat;
-	MPI_Status  sts;
+    int			i, siz, who;
+    double		*r_dat;
+    PyObject	*o_dat;
+    MPI_Status  sts;
 
-	if( PyArg_ParseTuple( args, "ii", &who, &siz ) ) {
-		r_dat = (double*) malloc( siz * sizeof( double ) );
-		MPI_Recv( r_dat, siz, MPI_DOUBLE_PRECISION, who, MPI_ANY_TAG, MPI_COMM_WORLD, &sts );
-		o_dat = PyList_New( siz );
-		for( i = 0; i < siz; i++ ) PyList_SetItem( o_dat, i, PyFloat_FromDouble( r_dat[i] ) );
-		free( r_dat );
-		return( o_dat );
-	} else { Py_INCREF( Py_None ); return( Py_None ); }
+    if( PyArg_ParseTuple( args, "ii", &who, &siz ) ) {
+    	r_dat = (double*) malloc( siz * sizeof( double ) );
+    	MPI_Recv( r_dat, siz, MPI_DOUBLE_PRECISION, who, MPI_ANY_TAG, MPI_COMM_WORLD, &sts );
+    	o_dat = PyList_New( siz );
+    	for( i = 0; i < siz; i++ ) PyList_SetItem( o_dat, i, PyFloat_FromDouble( r_dat[i] ) );
+    	free( r_dat );
+    	return( o_dat );
+    } else { Py_INCREF( Py_None ); return( Py_None ); }
 }
 
 
 static PyObject* __send_i4( PyObject *self, PyObject *args ) {
-	PyObject	*o_dat;
-	int			*r_dat;
-	int			i, who, siz;
+    PyObject	*o_dat;
+    int			*r_dat;
+    int			i, who, siz;
 
-	if( PyArg_ParseTuple( args, "iO", &who, &o_dat ) ) {
-		siz = (int) PyList_Size( o_dat );
-		r_dat = (int*) malloc( siz * sizeof( int ) );
+    if( PyArg_ParseTuple( args, "iO", &who, &o_dat ) ) {
+    	siz = (int) PyList_Size( o_dat );
+    	r_dat = (int*) malloc( siz * sizeof( int ) );
 #if PY_MAJOR_VERSION >= 3
-		for( i = 0; i < siz; i++ ) r_dat[i] = (int) PyLong_AsSize_t( PyList_GetItem( o_dat, i ) );
+    	for( i = 0; i < siz; i++ ) r_dat[i] = (int) PyLong_AsSize_t( PyList_GetItem( o_dat, i ) );
 #else
-		for( i = 0; i < siz; i++ ) r_dat[i] = (int) PyInt_AsSsize_t( PyList_GetItem( o_dat, i ) );
+    	for( i = 0; i < siz; i++ ) r_dat[i] = (int) PyInt_AsSsize_t( PyList_GetItem( o_dat, i ) );
 #endif
-		MPI_Send( r_dat, siz, MPI_INTEGER, who, 0, MPI_COMM_WORLD );
-		free( r_dat );
-	}
-	Py_INCREF( Py_None );
-	return( Py_None );
+    	MPI_Send( r_dat, siz, MPI_INTEGER, who, 0, MPI_COMM_WORLD );
+    	free( r_dat );
+    }
+    Py_INCREF( Py_None );
+    return( Py_None );
 }
 
 
 static PyObject* __recv_i4( PyObject *self, PyObject *args ) {
-	int			i, siz, who;
-	int			*r_dat;
-	PyObject	*o_dat;
-	MPI_Status  sts;
+    int			i, siz, who;
+    int			*r_dat;
+    PyObject	*o_dat;
+    MPI_Status  sts;
 
-	if( PyArg_ParseTuple( args, "ii", &who, &siz ) ) {
-		r_dat = (int*) malloc( siz * sizeof( int ) );
-		MPI_Recv( r_dat, siz, MPI_INTEGER, who, MPI_ANY_TAG, MPI_COMM_WORLD, &sts );
-		o_dat = PyList_New( siz );
+    if( PyArg_ParseTuple( args, "ii", &who, &siz ) ) {
+    	r_dat = (int*) malloc( siz * sizeof( int ) );
+    	MPI_Recv( r_dat, siz, MPI_INTEGER, who, MPI_ANY_TAG, MPI_COMM_WORLD, &sts );
+    	o_dat = PyList_New( siz );
 #if PY_MAJOR_VERSION >= 3
-		for( i = 0; i < siz; i++ ) PyList_SetItem( o_dat, i, PyLong_FromSize_t( r_dat[i] ) );
+    	for( i = 0; i < siz; i++ ) PyList_SetItem( o_dat, i, PyLong_FromSize_t( r_dat[i] ) );
 #else
-		for( i = 0; i < siz; i++ ) PyList_SetItem( o_dat, i, PyInt_FromSsize_t( r_dat[i] ) );
+    	for( i = 0; i < siz; i++ ) PyList_SetItem( o_dat, i, PyInt_FromSsize_t( r_dat[i] ) );
 #endif
-		free( r_dat );
-		return( o_dat );
-	} else { Py_INCREF( Py_None ); return( Py_None ); }
+    	free( r_dat );
+    	return( o_dat );
+    } else { Py_INCREF( Py_None ); return( Py_None ); }
 }
 
 
@@ -119,25 +119,21 @@ static struct PyMethodDef methods [] = {
 
 #if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef moddef = {
-	PyModuleDef_HEAD_INIT,
-	"_mpi",
-	NULL,
-	-1,
-	methods,
-	NULL,
-	NULL,
-	NULL,
-	NULL
+    PyModuleDef_HEAD_INIT,
+    "_mpi",
+    NULL,
+    -1,
+    methods
 };
 
 PyMODINIT_FUNC PyInit__mpi( void ) {
-	PyObject    *my_module;
-	my_module = PyModule_Create( &moddef );
-	return( my_module );
+    PyObject    *my_module;
+    my_module = PyModule_Create( &moddef );
+    return( my_module );
 }
 #else
 void init_mpi( void ) {
-	PyObject    *my_module;
-	my_module = Py_InitModule( "_mpi", methods );
+    PyObject    *my_module;
+    my_module = Py_InitModule( "_mpi", methods );
 }
 #endif

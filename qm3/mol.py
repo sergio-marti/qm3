@@ -181,12 +181,30 @@ class molecule( object ):
         self.resi += molec.resi[:]
         self.labl += molec.labl[:]
         self.coor += molec.coor[:]
-        self.type += molec.type[:]
-        self.anum += molec.anum[:]
-        self.mass += molec.mass[:]
-        self.chrg += molec.chrg[:]
-        self.epsi += molec.epsi[:]
-        self.rmin += molec.rmin[:]
+        if( len( self.type ) > 0 and len( molec.type ) > 0 ):
+            self.type += molec.type[:]
+        else:
+            self.type = []
+        if( len( self.anum ) > 0 and len( molec.anum ) > 0 ):
+            self.anum += molec.anum[:]
+        else:
+            self.type = []
+        if( len( self.mass ) > 0 and len( molec.mass ) > 0 ):
+            self.mass += molec.mass[:]
+        else:
+            self.mass = []
+        if( len( self.chrg ) > 0 and len( molec.chrg ) > 0 ):
+            self.chrg += molec.chrg[:]
+        else:
+            self.chrg = []
+        if( len( self.epsi ) > 0 and len( molec.epsi ) > 0 ):
+            self.epsi += molec.epsi[:]
+        else:
+            self.epsi = []
+        if( len( self.rmin ) > 0 and len( molec.rmin ) > 0 ):
+            self.rmin += molec.rmin[:]
+        else:
+            self.rmin = []
         self.settle()
 
 
@@ -252,8 +270,8 @@ class molecule( object ):
             self.guess_atomic_numbers()
 
 
-    def guess_symbols( self, sele = None ):
-        if( sele ):
+    def guess_symbols( self, sele = [] ):
+        if( len( sele ) > 0 ):
             t_sel = sele[:]
         else:
             t_sel = range( self.natm )
@@ -308,9 +326,9 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
         self.settle()
 
 
-    def pdb_write( self, fname = None, sele = None ):
+    def pdb_write( self, fname = None, sele = [] ):
         f = qm3.fio.open_w( fname )
-        if( sele ):
+        if( len( sele ) > 0 ):
             t_sel = sele[:]
         else:
             t_sel = range( self.natm )
@@ -384,10 +402,10 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
         self.settle()
 
 
-    def xyz_write( self, fname = None, sele = None, formt = "%20.10lf" ):
+    def xyz_write( self, fname = None, sele = [], formt = "%20.10lf" ):
         fmt = "%-4s" + 3 * formt + "\n"
         f = qm3.fio.open_w( fname )
-        if( sele ):
+        if( len( sele ) > 0 ):
             t_sel = sele[:]
         else:
             t_sel = list( range( self.natm ) )
