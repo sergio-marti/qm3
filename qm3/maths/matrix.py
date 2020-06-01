@@ -256,7 +256,7 @@ def solve( mat, vec, eps = 1.e-14 ):
 
 
 try:
-    def np_jacobi( mat: numpy.ndarray, maxit = 10000, epsi = 1.e-10 ):
+    def np_jacobi( mat, maxit = 10000, epsi = 1.e-10 ):
         siz = len( mat ) 
         val = mat.copy()
         vec = numpy.identity( siz )
