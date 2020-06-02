@@ -6,9 +6,17 @@ if( sys.version_info[0] == 2 ):
     range = xrange
 
 import  os
-import  cStringIO
 import  time
-import  cPickle
+
+try:
+    import cPickle as pickle
+except:
+    import pickle
+try:
+    import cStringIO as io
+except:
+    import io
+
 import  qm3.mol
 import  qm3.problem
 import  qm3.engines.sqm
@@ -34,7 +42,7 @@ class my_problem( qm3.problem.template ):
             sys.exit( 1 )
 
         self.mol = qm3.mol.molecule()
-        f = cStringIO.StringIO( """27
+        f = io.StringIO( """27
 
 Si         10.6199068403        7.9323943986        8.7879816551
 O           9.0734254523        7.3970643400        9.1540684162
@@ -68,7 +76,7 @@ H           8.9274672451       12.3062547556       10.6221200055
         f.close()
         self.mol.guess_atomic_numbers()
 
-        f = cStringIO.StringIO( """
+        f = io.StringIO( """
 _slave_
 &qmmm 
 maxcyc    = 0,
@@ -134,8 +142,8 @@ if( node == 0 ):
     print( time.time() - t )
     val, vec = qm3.utils.hessian_frequencies( obj.mass, obj.coor, hes )
     print( val )
-    f = open( "parall.dump", "wb" )
-    cPickle.dump( hes, f )
+    f = open( "../parall.dump", "wb" )
+    pickle.dump( hes, f )
     f.close()
 else:
     for itm in obj.hess:
