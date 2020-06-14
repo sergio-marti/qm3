@@ -1,5 +1,5 @@
 !
-! gfortran -shared|-dynamiclib -o libxtb.so -I../xtb-mod xtb.f90 libxtb.a -framework Accelerate
+! gfortran -shared|-dynamiclib -o libxtb.so -Ixtb-mod xtb.f90 libxtb.a -framework Accelerate
 !
 subroutine xtb_calc( nQM, nMM, siz, dat )
     use xtb_type_environment
