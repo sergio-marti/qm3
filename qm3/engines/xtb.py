@@ -93,29 +93,6 @@ class xtb( qm3.engines.qmbase ):
 
 try:
     import ctypes
-# -- xtb.h -----------------------------
-#typedef struct SCC_options {
-#   int prlevel;
-#   int parallel;
-#   double acc;
-#   double etemp;
-#   bool grad;
-#   bool restart;
-#   bool ccm;
-#   int maxiter;
-#   char solvent[20];
-#} SCC_options;
-# --------------------------------------
-    class xtb__sccopt( ctypes.Structure ):
-        _fields_ = [ ( 'print_level', ctypes.c_int ),
-            ( 'parallel', ctypes.c_int ),
-            ( 'accuracy', ctypes.c_double ),
-            ( 'electronic_temperature', ctypes.c_double ),
-            ( 'gradient', ctypes.c_bool ),
-            ( 'restart', ctypes.c_bool ),
-            ( 'ccm', ctypes.c_bool ),
-            ( 'max_iterations', ctypes.c_int ),
-            ( 'solvent', ctypes.c_char*20 ) ]
 
     class dl_xtb:
     
@@ -129,163 +106,92 @@ try:
             self.lnk = link[:]
             self.nbn = sorted( set( nbnd ).difference( set( sele + sum( link, [] ) ) ) )
             self.vla = []
-            self.smb = mol.guess_symbols( self.sel )
-            self.chg = chrg
 
             if( not mol.chrg ):
                 mol.chrg = [ 0.0 for i in range( mol.natm ) ]
 
             self.nQM = len( self.sel ) + len( self.lnk )
             self.nMM = len( self.nbn )
+            # 2 + nQM [QM_chg] + 3 * nQM [QM_crd/grd] + nQM [QM_mul] + nMM [MM_chg] + 3 * nMM [MM_crd/grd]
+            self.siz = 2 + 5 * self.nQM + 4 * self.nMM
+            self.vec = ( ctypes.c_double * self.siz )()
 
-            self.qm_atn = ( ctypes.c_int * self.nQM )()
-            j = 0
-            for i in range( len( self.sel ) ):
-                self.qm_atn[j] = qm3.elements.rsymbol[self.smb[i]]
+            self.vec[1] = chrg
+            j = 2
+            for i in self.sel:
+                self.vec[j] = mol.anum[i]
                 j += 1
             for i in range( len( self.lnk ) ):
-                self.qm_atn[j] = 1
+                self.vec[j] = 1
                 j += 1
-
-            self.qm_crd = ( ctypes.c_double * ( 3 * self.nQM ) )()
-            self.qm_grd = ( ctypes.c_double * ( 3 * self.nQM ) )()
-            self.mm_chg = ( ctypes.c_double * self.nMM )()
-            self.mm_atn = ( ctypes.c_int * self.nMM )()
-            self.mm_gam = ( ctypes.c_double * self.nMM )()
-            for i in range( len( self.nbn ) ):
-                self.mm_chg[i] = mol.chrg[self.nbn[i]]
-                self.mm_atn[i] = 0
-                self.mm_gam[i] = 99.0
-            self.mm_crd = ( ctypes.c_double * ( 3 * self.nMM ) )()
-            self.mm_grd = ( ctypes.c_double * ( 3 * self.nMM ) )()
-
+            j  = 2 + 5 * self.nQM
+            for i in range( self.nMM ):
+                self.vec[j+i] = mol.chrg[self.nbn[i]]
+            
             self.lib = ctypes.CDLL( os.getenv( "QM3_LIBXTB" ) )
-# -- xtb.h -----------------------------
-#extern int
-#GFN2_QMMM_calculation(
-#      const int* natoms,
-#      const int* attyp,
-#      const double* charge,
-#      const int* uhf,
-#      const double* coord,
-#      const SCC_options* opt,
-#      const char* output,
-#      const int* npc,
-#      const double* pc_q,
-#      const int* pc_at,
-#      const double* pc_gam,
-#      const double* pc_coord,
-#      double* energy,
-#      double* grad,
-#      double* pc_grad);
-# --------------------------------------
-            self.lib.GFN2_QMMM_calculation.argtypes = [ 
-                ctypes.POINTER( ctypes.c_int ),     # number of atoms
-                ctypes.POINTER( ctypes.c_int ),     # atomic numbers
-                ctypes.POINTER( ctypes.c_double ),  # molecular charge
-                ctypes.POINTER( ctypes.c_int ),     # number of unpaired electrons
-                ctypes.POINTER( ctypes.c_double ),  # coordinates
-                ctypes.POINTER( xtb__sccopt ),      # SCC Options
-                ctypes.c_char_p,                    # output file name
-                ctypes.POINTER( ctypes.c_int ),     # number of MM point charges
-                ctypes.POINTER( ctypes.c_double ),  # MM charges
-                ctypes.POINTER( ctypes.c_int ),     # NULL
-                ctypes.POINTER( ctypes.c_double ),  # NULL
-                ctypes.POINTER( ctypes.c_double ),  # MM coordinates
-                ctypes.POINTER( ctypes.c_double ),  # energy
-                ctypes.POINTER( ctypes.c_double ),  # gradient
-                ctypes.POINTER( ctypes.c_double ) ] # MM gradient
-            self.lib.GFN2_QMMM_calculation.restype = ctypes.c_int
+            self.lib.xtb_calc_.argtypes = [ 
+                ctypes.POINTER( ctypes.c_int ),
+                ctypes.POINTER( ctypes.c_int ),
+                ctypes.POINTER( ctypes.c_int ),
+                ctypes.POINTER( ctypes.c_double ) ]
+            self.lib.xtb_calc_.restype = None
 
     
         def update_coor( self, mol ):
+            j3 = 2 + self.nQM
             for i in range( len( self.sel ) ):
                 i3 = self.sel[i] * 3
-                j3 = i * 3
                 for j in [0, 1, 2]:
-                    self.qm_crd[j3+j] = ( mol.coor[i3+j] - mol.boxl[j] * round( mol.coor[i3+j] / mol.boxl[j], 0 ) ) / self._cx
+                    self.vec[j3] = mol.coor[i3+j] - mol.boxl[j] * round( mol.coor[i3+j] / mol.boxl[j], 0 )
+                    j3 += 1
             self.vla = []
             k = len( self.sel )
             for i in range( len( self.lnk ) ):
-                j3 = k * 3
                 c, v = qm3.engines.LA_coordinates( self.lnk[i][0], self.lnk[i][1], mol )
                 for j in [0, 1, 2]:
-                    self.qm_crd[j3+j] = c[j] / self._cx
+                    self.vec[j3] = c[j]
+                    j3 += 1
                 self.vla.append( ( self.sel.index( self.lnk[i][0] ), k, v[:] ) )
                 k += 1
-            for i in range( len( self.nbn ) ):
+            j3 = 2 + 5 * self.nQM + self.nMM
+            for i in range( self.nMM ):
                 i3 = self.nbn[i] * 3
-                j3 = i * 3
                 for j in [0, 1, 2]:
-                    self.mm_crd[j3+j] = ( mol.coor[i3+j] - mol.boxl[j] * round( mol.coor[i3+j] / mol.boxl[j], 0 ) ) / self._cx
+                    self.vec[j3] = mol.coor[i3+j] - mol.boxl[j] * round( mol.coor[i3+j] / mol.boxl[j], 0 )
+                    j3 += 1
 
 
         def get_func( self, mol ):
             self.update_coor( mol )
-            chg = ctypes.c_double( self.chg )
-            mul = ctypes.c_int( 0 )
-            opt = xtb__sccopt( 0, 0, 1.0, 300.0, False, False, False, 1000, "none".encode( "utf-8" ) )
-            ene = ctypes.c_double( 0.0 )
-            ret = self.lib.GFN2_QMMM_calculation(
-                ctypes.c_int( self.nQM ),
-                self.qm_atn,
-                chg,
-                mul,
-                self.qm_crd,
-                opt,
-                "-".encode( "utf-8" ),
-                ctypes.c_int( self.nMM ),
-                self.mm_chg,
-                self.mm_atn,
-                self.mm_gam,
-                self.mm_crd,
-                ene,
-                self.qm_grd,
-                self.mm_grd )
-            if( ret == 0 ):
-                mol.func += ene.value * self._ce
-            else:
-                sys.exit( -1 )
+            self.lib.xtb_calc_( ctypes.c_int( self.nQM ), ctypes.c_int( self.nMM ), ctypes.c_int( self.siz ), self.vec )
+            mol.func += self.vec[0] * self._ce
+            k = 2 + 4 * self.nQM
+            for i in range( len( self.sel ) ):
+                mol.chrg[self.sel[i]] = self.vec[k+i]
     
     
         def get_grad( self, mol ):
             self.update_coor( mol )
-            chg = ctypes.c_double( self.chg )
-            mul = ctypes.c_int( 0 )
-            opt = xtb__sccopt( 0, 0, 1.0, 300.0, True, False, False, 1000, "none".encode( "utf-8" ) )
-            ene = ctypes.c_double( 0.0 )
-            ret = self.lib.GFN2_QMMM_calculation(
-                ctypes.c_int( self.nQM ),
-                self.qm_atn,
-                chg,
-                mul,
-                self.qm_crd,
-                opt,
-                "-".encode( "utf-8" ),
-                ctypes.c_int( self.nMM ),
-                self.mm_chg,
-                self.mm_atn,
-                self.mm_gam,
-                self.mm_crd,
-                ene,
-                self.qm_grd,
-                self.mm_grd )
-            if( ret == 0 ):
-                mol.func += ene.value * self._ce
-                g = [ j * self._cg for j in self.qm_grd ]
-                qm3.engines.LA_gradient( self.vla, g )
-                for i in range( len( self.sel ) ):
-                    i3 = self.sel[i] * 3
-                    j3 = i * 3
-                    for j in [0, 1, 2]:
-                        mol.grad[i3+j] += g[j3+j]
-                for i in range( len( self.nbn ) ):
-                    i3 = self.nbn[i] * 3
-                    j3 = i * 3
-                    for j in [0, 1, 2]:
-                        mol.grad[i3+j] += self.mm_grd[j3+j] * self._cg
-            else:
-                sys.exit( -1 )
+            self.lib.xtb_calc_( ctypes.c_int( self.nQM ), ctypes.c_int( self.nMM ), ctypes.c_int( self.siz ), self.vec )
+            mol.func += self.vec[0] * self._ce
+            k = 2 + 4 * self.nQM
+            for i in range( len( self.sel ) ):
+                mol.chrg[self.sel[i]] = self.vec[k+i]
+            k = 2 + self.nQM
+            g = [ self.vec[k+j] * self._cg for j in range( 3 * self.nQM ) ]
+            qm3.engines.LA_gradient( self.vla, g )
+            j3 = 0
+            for i in range( len( self.sel ) ):
+                i3 = 3 * self.sel[i]
+                for j in [0, 1, 2]:
+                    mol.grad[i3+j] += g[j3]
+                    j3 += 1
+            j3 = 2 + 5 * self.nQM + self.nMM
+            for i in range( self.nMM ):
+                i3 = 3 * self.nbn[i]
+                for j in [0, 1, 2]:
+                    mol.grad[i3+j] += self.vec[j3] * self._cg
+                    j3 += 1
 
 except:
     pass

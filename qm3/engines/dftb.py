@@ -138,13 +138,14 @@ try:
                     self.vec[j3+j] = c[j]
                 self.vla.append( ( self.sel.index( self.lnk[i][0] ), k, v[:] ) )
                 k += 1
+            k = 3 * ( self.nQM + self.nMM )
             for i in range( self.nMM ):
                 i3 = self.nbn[i] * 3
                 j3 = ( self.nQM + i ) * 3
                 for j in [0, 1, 2]:
                     self.vec[j3+j] = mol.coor[i3+j] - mol.boxl[j] * round( mol.coor[i3+j] / mol.boxl[j], 0 ) 
-            for i in range( self.nMM ):
-                self.vec[3*(self.nQM+self.nMM)+i] = mol.chrg[self.nbn[i]]
+#            for i in range( self.nMM ):
+                self.vec[k+i] = mol.chrg[self.nbn[i]]
 
 
         def get_func( self, mol ):
