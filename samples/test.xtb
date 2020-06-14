@@ -9,7 +9,7 @@ except:
   import io
 
 
-os.environ["QM3_LIBXTB"] = "/Users/smarti/Devel/xtb/dist/libxtb.dylib"
+os.environ["QM3_LIBXTB"] = "/Users/smarti/Devel/xtb/dist/qm3_xtb.so"
 
 
 class my_eng( qm3.problem.template ):
