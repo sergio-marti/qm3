@@ -50,7 +50,7 @@ class xtb( qm3.engines.qmbase ):
                 f.write( "%12.4lf%20.10lf%20.10lf%20.10lf%12d\n"%( mol.chrg[i],
                     mol.coor[i3]   - mol.boxl[0] * round( mol.coor[i3] / mol.boxl[0], 0 ), 
                     mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
-                    mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ), 99 ) )
+                    mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ), 999 ) )
             f.close()
 
 
