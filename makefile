@@ -101,3 +101,18 @@ ilaenv_fix.o:
 
 lapack_deps.o:
 	gfortran -c -w -O2 -fPIC qm3/maths/lapack_deps.f
+
+
+dftb.so:
+	gfortran $(SHD) -o dftb.so qm3/engines/dftb.f90 \
+		-I/Users/smarti/Devel/dftb+/dftbplus/_build/prog/dftb+/include \
+		/Users/smarti/Devel/dftb+/dftbplus/bin/libdftbplus.a \
+		/Users/smarti/Devel/dftb+/dftbplus/bin/libdftd3.a \
+		-framework Accelerate -fopenmp
+
+
+xtb.so:
+	gfortran $(SHD) -o xtb.so qm3/engines/xtb.f90 \
+		-I/Users/smarti/Devel/xtb/dist/xtb-mod \
+		/Users/smarti/Devel/xtb/dist/libxtb.a \
+		-framework Accelerate

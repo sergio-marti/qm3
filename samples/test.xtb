@@ -9,7 +9,7 @@ except:
   import io
 
 
-os.environ["QM3_LIBXTB"] = "/Users/smarti/Devel/xtb/dist/qm3_xtb.so"
+os.environ["QM3_LIBXTB"] = "/Users/smarti/Devel/qm3/xtb.so"
 
 
 class my_eng( qm3.problem.template ):
@@ -59,7 +59,7 @@ $end
         f.seek( 0 )
         self.eng = qm3.engines.xtb.xtb( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
         self.eng.exe = "bash r.xtb"
-#        self.eng = qm3.engines.xtb.dl_xtb( self.mol, 0, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.xtb.dl_xtb( self.mol, 0, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor
