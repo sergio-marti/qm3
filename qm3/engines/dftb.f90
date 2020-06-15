@@ -22,7 +22,6 @@ subroutine qm3_dftb_init
 	call TDftbPlus_init( dftbp, outputUnit = devnull )
 	call dftbp%getInputFromFile( "dftb_in.hsd", input )
 	call dftbp%setupCalculator( input )
-
 end subroutine qm3_dftb_init
 
 
@@ -78,16 +77,13 @@ subroutine qm3_dftb_calc( nQM, nMM, siz, dat )
 		dat(j+1) = mm_grd(2,i)
 		dat(j+2) = mm_grd(3,i)
 	end do
-
 end subroutine qm3_dftb_calc
 
 
 
-subroutine qm3_dftb_stop
+subroutine qm3_dftb_clean
 	use qm3
 	implicit none
-
 	call TDftbPlus_destruct( dftbp )
 	close( devnull )
-
-end subroutine qm3_dftb_stop
+end subroutine qm3_dftb_clean

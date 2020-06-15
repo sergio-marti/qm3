@@ -129,12 +129,12 @@ try:
                 self.vec[j+i] = mol.chrg[self.nbn[i]]
             
             self.lib = ctypes.CDLL( os.getenv( "QM3_LIBXTB" ) )
-            self.lib.xtb_calc_.argtypes = [ 
+            self.lib.qm3_xtb_calc_.argtypes = [ 
                 ctypes.POINTER( ctypes.c_int ),
                 ctypes.POINTER( ctypes.c_int ),
                 ctypes.POINTER( ctypes.c_int ),
                 ctypes.POINTER( ctypes.c_double ) ]
-            self.lib.xtb_calc_.restype = None
+            self.lib.qm3_xtb_calc_.restype = None
 
     
         def update_coor( self, mol ):
@@ -163,7 +163,7 @@ try:
 
         def get_func( self, mol ):
             self.update_coor( mol )
-            self.lib.xtb_calc_( ctypes.c_int( self.nQM ), ctypes.c_int( self.nMM ), ctypes.c_int( self.siz ), self.vec )
+            self.lib.qm3_xtb_calc_( ctypes.c_int( self.nQM ), ctypes.c_int( self.nMM ), ctypes.c_int( self.siz ), self.vec )
             mol.func += self.vec[0] * self._ce
             k = 2 + 4 * self.nQM
             for i in range( len( self.sel ) ):
@@ -172,7 +172,7 @@ try:
     
         def get_grad( self, mol ):
             self.update_coor( mol )
-            self.lib.xtb_calc_( ctypes.c_int( self.nQM ), ctypes.c_int( self.nMM ), ctypes.c_int( self.siz ), self.vec )
+            self.lib.qm3_xtb_calc_( ctypes.c_int( self.nQM ), ctypes.c_int( self.nMM ), ctypes.c_int( self.siz ), self.vec )
             mol.func += self.vec[0] * self._ce
             k = 2 + 4 * self.nQM
             for i in range( len( self.sel ) ):

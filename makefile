@@ -104,7 +104,7 @@ lapack_deps.o:
 
 
 dftb.so:
-	gfortran $(SHD) -o dftb.so qm3/engines/dftb.f90 \
+	gfortran $(SHD) -o dftb.so qm3/engines/dftb.f90 -Jbuild \
 		-I/Users/smarti/Devel/dftb+/dftbplus/_build/prog/dftb+/include \
 		/Users/smarti/Devel/dftb+/dftbplus/_build/prog/dftb+/libdftbplus.a \
 		/Users/smarti/Devel/dftb+/dftbplus/_build/external/dftd3/origin/lib/libdftd3.a \
@@ -112,14 +112,14 @@ dftb.so:
 
 
 xtb.so:
-	gfortran $(SHD) -o xtb.so qm3/engines/xtb.f90 \
+	gfortran $(SHD) -o xtb.so qm3/engines/xtb.f90 -Jbuild \
 		-I/Users/smarti/Devel/xtb/dist/xtb-mod \
 		/Users/smarti/Devel/xtb/dist/libxtb.a \
 		-framework Accelerate
 
 
 dftd3.so:
-	gfortran $(SHD) -o dftd3.so qm3/engines/dftd3.f90 \
+	gfortran $(SHD) -o dftd3.so qm3/engines/dftd3.f90 -Jbuild \
 		-I/Users/smarti/Devel/dftd3/3.2r0/dftd3-lib-0.9/lib \
 		/Users/smarti/Devel/dftd3/3.2r0/dftd3-lib-0.9/lib/libdftd3.a
 

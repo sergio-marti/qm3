@@ -1,7 +1,7 @@
 !
 ! gfortran -shared|-dynamiclib -o libxtb.so -Ixtb-mod xtb.f90 libxtb.a -framework Accelerate
 !
-subroutine xtb_calc( nQM, nMM, siz, dat )
+module qm3
     use xtb_type_environment
     use xtb_type_molecule
     use xtb_type_wavefunction
@@ -17,22 +17,17 @@ subroutine xtb_calc( nQM, nMM, siz, dat )
     use xtb_paramset
     use xtb_xtb_data
     use xtb_xtb_gfn2
-   
-!    use xtb_eeq
-!    use xtb_chargemodel
-!    use xtb_disp_ncoord, only: ncoord_erf
 
-    implicit none
-    integer, intent( in ) :: nQM, nMM, siz
-    real*8, dimension(0:siz-1), intent( inout ) :: dat
-   
-    integer, dimension(nQM)  :: atn
-    real*8, dimension(3,nQM) :: xyz, grd
+    use xtb_eeq
+    use xtb_chargemodel
+    use xtb_disp_ncoord, only: ncoord_erf
 
+	implicit none
+	public
     integer, parameter  :: maxiter = 1000
     integer, parameter  :: prlevel = 0
     logical, parameter  :: lgrad = .true.
-    logical             :: restart
+    logical             :: restart = .false.
     real*8, parameter   :: et = 300.0d0
     real*8, parameter   :: acc = 1.0d0
     type(TEnvironment)  :: env
@@ -45,11 +40,21 @@ subroutine xtb_calc( nQM, nMM, siz, dat )
     real*8              :: ene, gap
     type(TxTBParameter) :: globpar
     logical             :: okpar, okbas, okrun
-    integer             :: i, i3, j
     real*8, parameter   :: AA__Bohr = 1.0d0 / 0.52917726d0
+end module qm3
 
-!    real*8, allocatable :: cn(:)
-!    type(chrg_parameter):: chrgeq
+
+subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
+    use qm3
+    implicit none
+    integer, intent( in ) :: nQM, nMM, siz
+    real*8, dimension(0:siz-1), intent( inout ) :: dat
+   
+    integer, dimension(nQM)  :: atn
+    real*8, dimension(3,nQM) :: xyz, grd
+    integer                  :: i, i3, j
+    real*8, allocatable      :: cn(:)
+    type(chrg_parameter)     :: chrgeq
 
     ! 2 + nQM [QM_chg] + 3 * nQM [QM_crd/grd] + nQM [QM_mul] + nMM [MM_chg] + 3 * nMM [MM_crd/grd]
     do i = 1, nQM
@@ -60,7 +65,7 @@ subroutine xtb_calc( nQM, nMM, siz, dat )
         xyz(3,i) = dat(j+2) * AA__Bohr
     end do
     if( nMM > 0 ) then
-        call pcem%allocate( nMM )
+        if( .not. restart ) call pcem%allocate( nMM )
         pcem%gam = 999.0d0
         do i = 1, nMM
             pcem%q(i) = dat(1+5*nQM+i)
@@ -71,47 +76,32 @@ subroutine xtb_calc( nQM, nMM, siz, dat )
         end do
     end if
 
-    gfn_method = 2
-    call init( env )
-    call init( mol, atn, xyz )
+    if( .not. restart ) then
+        gfn_method = 2
+        call init( env )
+        call init( mol, atn, xyz )
+        wfn%nel = dint( sum( mol%z ) -  dat(1) )
+        wfn%nopen = 0
+        call use_parameterset( ".param_gfn2.xtb", globpar, xtbData, okpar )
+        call newBasisset( xtbData, mol%n, mol%at, basis, okbas )
+        call wfn%allocate( mol%n, basis%nshell, basis%nao )
+        !wfn%q = mol%chrg / real( mol%n, kind=8 )
 
-    wfn%nel = dint( sum( mol%z ) -  dat(1) )
-    wfn%nopen = 0
+        ! EEQ guess
+        allocate( cn(mol%n), source = 0.0_wp )
+        call new_charge_model_2019( chrgeq, mol%n, mol%at )
+        call ncoord_erf( mol%n, mol%at, mol%xyz, cn )
+        call eeq_chrgeq( mol, env, chrgeq, cn, wfn%q )
+        deallocate( cn )
 
-    call use_parameterset( ".param_gfn2.xtb", globpar, xtbData, okpar )
-    call newBasisset( xtbData, mol%n, mol%at, basis, okbas )
-    call wfn%allocate( mol%n, basis%nshell, basis%nao )
-
-    wfn%q = mol%chrg / real( mol%n, kind=8 )
-
-    ! EEQ guess
-    !allocate( cn(mol%n), source = 0.0_wp )
-    !call new_charge_model_2019( chrgeq, mol%n, mol%at )
-    !call ncoord_erf( mol%n, mol%at, mol%xyz, cn )
-    !call eeq_chrgeq( mol, env, chrgeq, cn, wfn%q )
-    !deallocate( cn )
-
-    call iniqshell( xtbData, mol%n, mol%at, mol%z, basis%nshell, wfn%q, wfn%qsh, gfn_method )
-    grd = 0.0d0
-
-    restart = .false.
-    inquire( file = "xtb.chk", exist = restart )
-    if( restart ) then
-        open( unit = 999, file = "xtb.chk", form = "unformatted", action = "read" )
-        read( 999 ) wfn%qsh
-        read( 999 ) wfn%dipm
-        read( 999 ) wfn%qp
-        close( 999 )
+        call iniqshell( xtbData, mol%n, mol%at, mol%z, basis%nshell, wfn%q, wfn%qsh, gfn_method )
+    else
+        mol%xyz = xyz
     end if
 
+    grd = 0.0d0
     call scf( env, mol, wfn, basis, pcem, xtbData, gap, et, maxiter, prlevel, restart, lgrad, acc, ene, grd, res )
     call env%check( okrun )
-
-    open( unit = 999, file = "xtb.chk", form = "unformatted", action = "write" )
-    write( 999 ) wfn%qsh
-    write( 999 ) wfn%dipm
-    write( 999 ) wfn%qp
-    close( 999 )
 
     dat(0) = ene
     do i = 1, nQM
@@ -129,10 +119,17 @@ subroutine xtb_calc( nQM, nMM, siz, dat )
             dat(j+1) = pcem%grd(2,i)
             dat(j+2) = pcem%grd(3,i)
         end do
-        call pcem%deallocate
     end if
+    if( .not. restart ) restart = .true.
 
+end subroutine qm3_xtb_calc
+
+
+subroutine qm3_xtb_clean
+    use qm3
+    implicit none
     call mol%deallocate
     call wfn%deallocate
     call basis%deallocate
-end subroutine xtb_calc
+    call pcem%deallocate
+end subroutine qm3_xtb_clean
