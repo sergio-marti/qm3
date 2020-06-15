@@ -30,7 +30,7 @@ qm3_charges
 """ )
         f.seek( 0 )
         self.eng = qm3.engines.sqm.sqm( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
-        self.eng.exe = "export AMBERHOME=/Users/smarti/Devel/amber/18; $AMBERHOME/bin/sqm.fix"
+        self.eng.exe = "export AMBERHOME=/Users/smarti/Devel/amber/18/amber18; $AMBERHOME/bin/sqm"
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor
