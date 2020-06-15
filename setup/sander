@@ -1,6 +1,6 @@
 from distutils.core import setup, Extension
 
-amber = "/Users/smarti/Devel/amber/18" 
+amber = "/Users/smarti/Devel/amber/amber20_src" 
 
 setup( 
 	name = "Sander hooks", 

@@ -11,7 +11,7 @@ module qm3
    character(len=80) arg
    integer ntpr
    character(len=MAX_FN_LEN) mdin, mdout 
-   real*8 excharge(30000)
+   real*8 excharge(40000)
    integer chgatnum(10000)
    character(len=8) chgnam(10000)
    integer ncharge

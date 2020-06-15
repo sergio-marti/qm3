@@ -7,7 +7,7 @@
 -   _REAL_ excharge(4000)
 -   integer chgatnum(1000)
 -   character(len=8) chgnam(1000)
-+   _REAL_ excharge(30000)
++   _REAL_ excharge(40000)
 +   integer chgatnum(10000)
 +   character(len=8) chgnam(10000)
     integer ncharge

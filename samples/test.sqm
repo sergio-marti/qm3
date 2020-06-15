@@ -1,3 +1,4 @@
+import os
 import qm3.mol
 import qm3.problem
 import qm3.engines.sqm
@@ -7,6 +8,9 @@ try:
 except:
   import io
 
+
+os.environ["AMBERHOME"] = "/Users/smarti/Devel/amber/amber20_src"
+os.environ["QM3_LIBSQM"] = "/Users/smarti/Devel/qm3/sqm.so"
 
 
 class my_eng( qm3.problem.template ):
@@ -29,8 +33,9 @@ qm3_atoms
 qm3_charges
 """ )
         f.seek( 0 )
-        self.eng = qm3.engines.sqm.sqm( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
-        self.eng.exe = "export AMBERHOME=/Users/smarti/Devel/amber/18/amber18; $AMBERHOME/bin/sqm"
+#        self.eng = qm3.engines.sqm.sqm( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+#        self.eng.exe = "export AMBERHOME=/Users/smarti/Devel/amber/amber20_src; $AMBERHOME/bin/sqm"
+        self.eng = qm3.engines.sqm.dl_sqm( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor
