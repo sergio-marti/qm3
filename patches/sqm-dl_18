@@ -1,6 +1,6 @@
---- sqm.F90	2019-01-15 09:11:57.000000000 +0100
-+++ sqm.F90.dll	2019-01-15 15:57:09.000000000 +0100
-@@ -5,55 +5,44 @@
+--- sqm.F90.orig	2017-08-01 04:27:51.000000000 +0200
++++ sqm.F90	2020-06-15 10:45:41.000000000 +0200
+@@ -5,54 +5,43 @@
  !        SQM  stand-alone quantum program
  !
  
@@ -26,7 +26,6 @@
     _REAL_ born_radii(1000), one_born_radii(1000)
     _REAL_ intdiel, extdiel, Arad
     integer natom, ier, atnum(1000), xmin_iter
-    integer skip_mmint(1000)
 -   character(len=80) arg ! temp for each of the command line arguments
 -   integer iarg !         index of the current argument
 -   integer last_arg_index !   index of the last argument
@@ -37,9 +36,12 @@
     character owrite
     character(len=MAX_FN_LEN) mdin, mdout 
 -   ! external charge
-    _REAL_ excharge(40000)
-    integer chgatnum(40000)
-    character(len=8) chgnam(40000)
+-   _REAL_ excharge(4000)
+-   integer chgatnum(1000)
+-   character(len=8) chgnam(1000)
++   _REAL_ excharge(30000)
++   integer chgatnum(10000)
++   character(len=8) chgnam(10000)
     integer ncharge
 -
     integer :: igb, maxcyc
@@ -72,10 +74,11 @@
  
     ! ==== Initialise first_call flags for QMMM ====
     qmmm_struct%qm_mm_first_call = .true.
-@@ -74,49 +63,9 @@
+@@ -71,50 +60,10 @@
+    mdin   = 'mdin'
+    mdout  = 'mdout'
     iarg = 0
-    owrite = 'N'  ! output status: New
-    owrite = 'R'  ! output status: Replace
+-   owrite = 'N'  ! output status: New
 -   last_arg_index = command_argument_count()
 -   do while (iarg < last_arg_index)
 -
@@ -104,6 +107,7 @@
 -         call mexit(6, 1)
 -      end if 
 -   end do  !  while (iarg < last_arg_index)
++   owrite = 'R'
  
     igb = 0
     call amopen(5,mdin,'O','F','R')
@@ -120,9 +124,9 @@
 -   write(6,*) '           --------------------------------------------------------'
 -   write(6,*) ''                  
  
-    skip_mmint = 0
-    call getsqmx( natom, x, atnam, atnum, ncharge, excharge, chgnam, chgatnum, skip_mmint )
-@@ -142,19 +91,50 @@
+    call getsqmx( natom, x, atnam, atnum, ncharge, excharge, chgnam, chgatnum )
+    call read_qmmm_nm_and_alloc(natom,igb,atnum,maxcyc,grms_tol,ntpr, &
+@@ -139,19 +88,50 @@
     allocate ( qm2_struct%scf_mchg(qmmm_struct%nquant_nlink), stat = ier )
     REQUIRE(ier == 0)
  
@@ -185,17 +189,14 @@
  
     ! --------------------
     ! print MO eigenvalues
-@@ -213,24 +193,44 @@
+@@ -210,21 +190,44 @@
        call qm2_print_bondorders()
     end if
  
--!   if (qmmm_nml%verbosity > 3) then
--       open(unit=999,file="mm_output",action="write",form="unformatted")
--       write(999) escf
+-   if (qmmm_nml%verbosity > 3) then
 -      ! Calculate and print also forces in final step
--      call sqm_forces(natom, f, qm2_struct%scf_mchg)
--      close(999)
--!   end if
+-      call sqm_forces(natom, f)
+-   end if
 +   call sqm_forces(natom, f, qm2_struct%scf_mchg)
  
     write(6,*)
@@ -224,9 +225,9 @@
 +   end do
 +
 +end subroutine qm3_sqm_calc
-+
-+
  
++
++
 +subroutine qm3_sqm_clean
 +   use qmmm_module, only : qmmm_nml, qmmm_struct, qmmm_vsolv, qm2_params, deallocate_qmmm
 +   implicit none
@@ -239,28 +240,71 @@
  
  subroutine sqm_energy(natom,coords,escf, &
                   born_radii,one_born_radii, &
-@@ -437,8 +437,6 @@
-      forces(m+3) = qmmm_struct%dxyzqm(3,i)
-    enddo
+@@ -389,7 +392,7 @@
  
--   write( 999 ) (qmmm_struct%dxyzqm(1,j), qmmm_struct%dxyzqm(2,j), qmmm_struct%dxyzqm(3,j), j=1,qmmm_struct%nquant_nlink)
--   write( 999 ) (qmmm_struct%dxyzcl(1,j), qmmm_struct%dxyzcl(2,j), qmmm_struct%dxyzcl(3,j), j=1,qmmm_struct%qm_mm_pairs)
-    if (qmmm_mpi%commqmmm_master .AND. qmmm_nml%verbosity > 3) then
-       
-       !If verbosity level is greater than 3 we also print the force array on the QM atoms
-@@ -625,15 +623,6 @@
+ end subroutine sqm_energy
+ 
+-subroutine sqm_forces(natom, forces)
++subroutine sqm_forces(natom, forces, scf_mchg)
+ 
+    !=============================
+    ! Calculation of QM Forces
+@@ -402,15 +405,24 @@
+ 
+   integer, intent(in) :: natom
+   _REAL_ , intent(out) :: forces(natom*3)
++  _REAL_ , intent(inout) :: scf_mchg(qmmm_struct%nquant_nlink)
++  _REAL_ , dimension(:), allocatable :: vectmp1, vectmp2, vectmp3, vectmp4
+ 
+   integer :: i, j, m
+ 
+   qmmm_struct%dxyzqm=zero
+    if (qmmm_nml%qmtheory%DFTB) then
+      call qm2_dftb_get_qm_forces(qmmm_struct%dxyzqm)
++     qmmm_struct%dxyzcl = zero
++     allocate( vectmp1(qmmm_struct%qm_mm_pairs), vectmp2(qmmm_struct%qm_mm_pairs), &
++               vectmp3(qmmm_struct%qm_mm_pairs), vectmp4(qmmm_struct%qm_mm_pairs) )
++     call qm2_dftb_get_qmmm_forces(qmmm_struct%dxyzcl,qmmm_struct%dxyzqm, vectmp1,vectmp2,vectmp3,vectmp4)
++     deallocate( vectmp1, vectmp2, vectmp3, vectmp4 )
+    else
+      !standard semi-empirical
+      call qm2_get_qm_forces(qmmm_struct%dxyzqm)
++     qmmm_struct%dxyzcl = zero
++     call qm2_get_qmmm_forces(qmmm_struct%dxyzqm,qmmm_struct%qm_xcrd,qmmm_struct%dxyzcl,scf_mchg)
+    end if
+ 
+    !NOW PUT THE CALCULATED gradient (not force!) INTO THE SANDER FORCE ARRAY
+@@ -536,7 +548,7 @@
+    ! check header names
+    ihead=0
+    iend=0
+-   do i=1,999
++   do i=1,11999
+       read(lun,'(a)',end=10) line
+       if (line(1:1) == "#") then
+          if (line(1:80) == "#EXCHARGES") then
+@@ -591,7 +603,7 @@
+    if (mdin_external_charge) then
+       i3=0
+       ic=0
+-      do i=1,999
++      do i=1,9999
+          read(lun,'(a)',end=14) line
+          if (line(1:80) /= "") then
+             if (line(1:80) /= "#END") then
+@@ -605,15 +617,6 @@
        end do
     13 ncharge = ic
  
 -      write(6,'(/80(1H-)/''  EXTERNAL CHARGES FOUND IN INPUT'',/80(1H-))')
--!      write(6,'(2x,"QMMM: External Charge Info")')
--!      write(6,'(2x,"QMMM:",1x,"ATOMIC",3x,"NAME",8x,"X",9x,"Y",9X,"Z",8X,"CHARGE")')
--!
--!      i3=0
--!      do i=1,ncharge
--!         write(6,'(2x,"QMMM:",3x,i2,6x,a6,4f10.4)') chgatnum(i), chgnam(i), excharge(i3+1:i3+4)
--!         i3=i3+4
--!      end do
+-      write(6,'(2x,"QMMM: External Charge Info")')
+-      write(6,'(2x,"QMMM:",1x,"ATOMIC",3x,"NAME",8x,"X",9x,"Y",9X,"Z",8X,"CHARGE")')
+-
+-      i3=0
+-      do i=1,ncharge
+-         write(6,'(2x,"QMMM:",3x,i2,6x,a6,4f10.4)') chgatnum(i), chgnam(i), excharge(i3+1:i3+4)
+-         i3=i3+4
+-      end do
     end if
  
     return

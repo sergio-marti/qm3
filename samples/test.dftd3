@@ -8,7 +8,7 @@ except:
   import io
 import os
 
-os.environ["QM3_LIBDFTD3"] = "/Users/smarti/Devel/dftd3/3.2r0/libdftd3.so"
+os.environ["QM3_LIBDFTD3"] = "/Users/smarti/Devel/qm3/dftd3.so"
 
 
 class my_eng( qm3.problem.template ):
@@ -31,7 +31,7 @@ H       0.05804      1.92714      2.01036
         self.eng = qm3.engines.dftd3.dftd3( self.mol, [ 0, 1, 2 ] )
         self.eng.exe = "bash r.dftd3"
         prm = { "version": 6, "s6": 1.00, "alp": 14.00, "rs6": 0.278672, "s18": 1.466677, "rs18": 4.606311 }
-#        self.eng = qm3.engines.dftd3.dl_dftd3( self.mol, prm, [ 0, 1, 2 ] )
+        self.eng = qm3.engines.dftd3.dl_dftd3( self.mol, prm, [ 0, 1, 2 ] )
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

@@ -106,8 +106,8 @@ lapack_deps.o:
 dftb.so:
 	gfortran $(SHD) -o dftb.so qm3/engines/dftb.f90 \
 		-I/Users/smarti/Devel/dftb+/dftbplus/_build/prog/dftb+/include \
-		/Users/smarti/Devel/dftb+/dftbplus/bin/libdftbplus.a \
-		/Users/smarti/Devel/dftb+/dftbplus/bin/libdftd3.a \
+		/Users/smarti/Devel/dftb+/dftbplus/_build/prog/dftb+/libdftbplus.a \
+		/Users/smarti/Devel/dftb+/dftbplus/_build/external/dftd3/origin/lib/libdftd3.a \
 		-framework Accelerate -fopenmp
 
 
@@ -115,4 +115,19 @@ xtb.so:
 	gfortran $(SHD) -o xtb.so qm3/engines/xtb.f90 \
 		-I/Users/smarti/Devel/xtb/dist/xtb-mod \
 		/Users/smarti/Devel/xtb/dist/libxtb.a \
+		-framework Accelerate
+
+
+dftd3.so:
+	gfortran $(SHD) -o dftd3.so qm3/engines/dftd3.f90 \
+		-I/Users/smarti/Devel/dftd3/3.2r0/dftd3-lib-0.9/lib \
+		/Users/smarti/Devel/dftd3/3.2r0/dftd3-lib-0.9/lib/libdftd3.a
+
+
+sqm.so:
+	gfortran $(SHD) -o sqm.so qm3/engines/sqm_18.f90 \
+		-I/Users/smarti/Devel/amber/18/amber18/AmberTools/src/sqm \
+		/Users/smarti/Devel/amber/18/amber18/AmberTools/src/sqm/*.o \
+		-L/Users/smarti/Devel/amber/18/amber18/lib -larpack -lxblas-amb \
+		/Users/smarti/Devel/amber/18/amber18/AmberTools/src/lib/sys.a \
 		-framework Accelerate
