@@ -22,7 +22,7 @@ def default_log( txt ):
 
 
 
-def current_temperature( obj, project_RT = True ):
+def current_temperature( obj, project_RT = False ):
     KEf = 0.0
     for i in range( obj.size // 3 ):
         i3  = i * 3
@@ -31,13 +31,13 @@ def current_temperature( obj, project_RT = True ):
     if( project_RT ):
         T = KEf * _Tfac / float( obj.size - 6.0 )
     else:
-        T = KEf * _Tfac / float( obj.size )
+        T = KEf * _Tfac / float( obj.size - 3.0 )
     Kin = KEf * 0.005
     return( T, Kin )
 
 
 
-def assign_velocities( obj, temperature = 300.0, project_RT = True ):
+def assign_velocities( obj, temperature = 300.0, project_RT = False ):
     obj.velo = []
     KT = qm3.constants.KB * temperature * _Gfac
     for i in range( obj.size // 3 ):
@@ -45,6 +45,19 @@ def assign_velocities( obj, temperature = 300.0, project_RT = True ):
         obj.velo += [ qm3.maths.rand.gauss( 0.0, SD ) * 1.0e-2 for ii in [0, 1, 2] ]     # ang/ps
     if( project_RT ):
         qm3.utils.project_RT_modes( obj.mass, obj.coor, obj.velo, None )
+    else:
+        obj.prjT = [ [], [], [] ]
+        for i in range( obj.size // 3 ):
+            sm = math.sqrt( obj.mass[i] )
+            obj.prjT[0] += [ sm, 0.0, 0.0 ]
+            obj.prjT[1] += [ 0.0, sm, 0.0 ]
+            obj.prjT[2] += [ 0.0, 0.0, sm ]
+        for i in [0, 1, 2]:
+            t = 0.0
+            for k in range( obj.size ):
+                t += obj.prjT[i][k] * obj.prjT[i][k]
+            for k in range( obj.size ):
+                obj.prjT[i][k] /= t
     T, Kin = current_temperature( obj, project_RT )
     scf = math.sqrt( temperature / T )
     for i in range( obj.size ):
@@ -57,7 +70,7 @@ class velocity_verlet( object ):
                             temperature = 300.0,
                             scale_frequency = 100, 
                             print_frequency = 100,
-                            project_RT = True,
+                            project_RT = False,
                             step_number = -1,
                             temperature_coupling = 0.1,
                             log_function = default_log ):
@@ -105,6 +118,13 @@ class velocity_verlet( object ):
                 self.oacc.append( 0.0 )
         if( self.project_RT ):
             qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, None )
+        else:
+            for i in [0, 1, 2]:
+                t = 0.0
+                for j in range( self.obj.size ):
+                    t += self.obj.prjT[i][j] * self.cacc[j]
+                for j in range( self.obj.size ):
+                    self.cacc[j] -= t * self.obj.prjT[i][j]
         self.T, self.Kin = current_temperature( self.obj, self.project_RT )
         log_function( "%20.5lf%20.5lf%20.5lf%20.5lf%20.5lf"%( 0.0, self.obj.func, self.Kin, self.obj.func + self.Kin, self.T ) )
         self.xavr[0] += self.obj.func
@@ -134,6 +154,13 @@ class velocity_verlet( object ):
                 self.cacc[i3+j] = - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0
         if( self.project_RT ):
             qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, None )
+        else:
+            for i in [0, 1, 2]:
+                t = 0.0
+                for j in range( self.obj.size ):
+                    t += self.obj.prjT[i][j] * self.cacc[j]
+                for j in range( self.obj.size ):
+                    self.cacc[j] -= t * self.obj.prjT[i][j]
         for i in range( self.obj.size ):
             self.obj.velo[i] += self.fv * ( self.oacc[i] + self.cacc[i] )
         self.T, self.Kin = current_temperature( self.obj, self.project_RT )
@@ -163,6 +190,13 @@ class velocity_verlet( object ):
                 self.cacc[i3+j] = - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0
         if( self.project_RT ):
             qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, None )
+        else:
+            for i in [0, 1, 2]:
+                t = 0.0
+                for j in range( self.obj.size ):
+                    t += self.obj.prjT[i][j] * self.cacc[j]
+                for j in range( self.obj.size ):
+                    self.cacc[j] -= t * self.obj.prjT[i][j]
         for i in range( self.obj.size ):
             self.obj.velo[i] += self.fv * ( self.oacc[i] + self.cacc[i] )
         self.T, self.Kin = current_temperature( self.obj, self.project_RT )
@@ -197,6 +231,13 @@ class velocity_verlet( object ):
                 self.cacc[i3+j] = - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0
         if( self.project_RT ):
             qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, None )
+        else:
+            for i in [0, 1, 2]:
+                t = 0.0
+                for j in range( self.obj.size ):
+                    t += self.obj.prjT[i][j] * self.cacc[j]
+                for j in range( self.obj.size ):
+                    self.cacc[j] -= t * self.obj.prjT[i][j]
         for i in range( self.obj.size ):
             self.obj.velo[i] += self.fv * ( self.oacc[i] + self.cacc[i] )
         self.T, self.Kin = current_temperature( self.obj, self.project_RT )
@@ -287,6 +328,13 @@ class langevin_verlet( object ):
                 self.oacc.append( 0.0 )
         if( self.project_RT ):
             qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, None )
+        else:
+            for i in [0, 1, 2]:
+                t = 0.0
+                for j in range( self.obj.size ):
+                    t += self.obj.prjT[i][j] * self.cacc[j]
+                for j in range( self.obj.size ):
+                    self.cacc[j] -= t * self.obj.prjT[i][j]
         self.T, self.Kin = current_temperature( self.obj, self.project_RT )
         log_function( "%20.5lf%20.5lf%20.5lf%20.5lf%20.5lf"%( 0.0, self.obj.func, self.Kin, self.obj.func + self.Kin, self.T ) )
         self.xavr[0] += self.obj.func
@@ -324,6 +372,13 @@ class langevin_verlet( object ):
                 t = sum( [ ii * jj  for ii,jj in zip( self.cacc, RT[i] ) ] )
                 for j in range( self.obj.size ):
                     self.cacc[j] -= t * RT[i][j]
+        else:
+            for i in [0, 1, 2]:
+                t = 0.0
+                for j in range( self.obj.size ):
+                    t += self.obj.prjT[i][j] * self.cacc[j]
+                for j in range( self.obj.size ):
+                    self.cacc[j] -= t * self.obj.prjT[i][j]
         for i in range( self.obj.size ):
             self.obj.velo[i] = self.oacc[i] + self.fv2 * self.cacc[i]
         if( self.project_RT ):
@@ -331,6 +386,13 @@ class langevin_verlet( object ):
                 t = sum( [ ii * jj  for ii,jj in zip( self.obj.velo, RT[i] ) ] )
                 for j in range( self.obj.size ):
                     self.obj.velo[j] -= t * RT[i][j]
+        else:
+            for i in [0, 1, 2]:
+                t = 0.0
+                for j in range( self.obj.size ):
+                    t += self.obj.prjT[i][j] * self.obj.velo[j]
+                for j in range( self.obj.size ):
+                    self.obj.velo[j] -= t * self.obj.prjT[i][j]
         self.T, self.Kin = current_temperature( self.obj, self.project_RT )
         self.xavr[0] += self.obj.func
         self.xavr[1] += self.Kin
