@@ -100,6 +100,7 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
     end if
 
     grd = 0.0d0
+    if( nMM > 0 ) pcem%grd = 0.0d0
     call scf( env, mol, wfn, basis, pcem, xtbData, gap, et, maxiter, prlevel, restart, lgrad, acc, ene, grd, res )
     call env%check( okrun )
 

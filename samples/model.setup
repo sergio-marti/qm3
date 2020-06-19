@@ -33,7 +33,7 @@ ATOM     16  H16 COP     1      -1.169   0.554  -2.106  0.00  0.00      A
 ATOM     17  H17 COP     1      -2.766   0.759  -1.193  0.00  0.00      A
 """ )
 f.close()
-cmd  = "export AMBERHOME=/Users/smarti/Devel/amber/18; "
+cmd  = "export AMBERHOME=/Users/smarti/Devel/amber/amber20_src; "
 cmd += "$AMBERHOME/bin/antechamber -fi pdb -fo charmm -i acs -o acs -rn COP -c bcc -pf y -nc 0"
 os.system( cmd )
 
