@@ -53,6 +53,8 @@ class md_template:
         self.grad = []
         self.velo = []
 
+        self.get_grad = self.get_grad_aver
+
 
 
     def current_step( self, istep ):
@@ -65,14 +67,7 @@ class md_template:
         self.__kt = 1000.0 * qm3.constants.NA * qm3.constants.KB * self.temp
         self.__cc = 10.0 / ( qm3.constants.KB * qm3.constants.NA )
         # -- translational modes ----------------------
-#        self.prjT = [ [ 0.0 for i in range( self.size ) ],
-#            [ 0.0 for i in range( self.size ) ],
-#            [ 0.0 for i in range( self.size ) ] ]
-#        for i in range( len( self.sele ) ):
-#            i3 = 3 * i
-#            for k in [0, 1, 2]:
-#                self.prjT[k][i3+k] = math.sqrt( self.mass[i] )
-        sef.prjT = [ [], [], [] ]
+        self.prjT = [ [], [], [] ]
         for i in range( len( self.sele ) ):
             sm = math.sqrt( self.mass[i] )
             self.prjT[0] += [ sm, 0.0, 0.0 ]
@@ -101,8 +96,7 @@ class md_template:
         # -- ring polymer -----------------------------
         self.rp_bead = num_beads
         self.rp_dime = len( pi_atoms )
-        self.rp_scal = 1.0
-#        self.rp_scal = 1. / ( self.rp_bead * self.rp_dime )
+        self.rp_scal = 1. / ( self.rp_bead * self.rp_dime )
         self.rp_atom = pi_atoms[:]
         self.rp_mota = [ self.sele.index( i ) for i in self.rp_atom ]
         cons = 2.0 * self.rp_bead * math.pow( self.temp * qm3.constants.KB * math.pi / qm3.constants.H, 2.0 ) * 1.0e-26
@@ -139,7 +133,7 @@ class md_template:
 
 
 
-    def get_grad( self ):
+    def get_grad_aver( self ):
         # ---------------------------------------------
         for i in range( len( self.sele ) ):
             i3 = 3 * i
@@ -181,44 +175,44 @@ class md_template:
 
 
 
-#    def xget_grad( self ):
-#        # ---------------------------------------------
-#        for i in range( len( self.sele ) ):
-#            i3 = 3 * i
-#            j3 = 3 * self.sele[i]
-#            for j in [0, 1, 2]:
-#                self.mole.coor[i3+j] = self.coor[j3+j]
-#        # ---------------------------------------------
-#        zero = [ 0.0 for i in range( 3 * self.mole.natm ) ]
-#        self.mole.func = 0.0
-#        self.mole.grad = zero[:]
-#        self.engn.get_grad( self.mole )
-#        self.func = self.mole.func
-#        self.grad = []
-#        for i in self.sele:
-#            i3 = 3 * i
-#            self.grad += self.mole.grad[i3:i3+3]
-#        # ---------------------------------------------
-#        for i in self.rp_atom:
-#            i3 = 3 * i
-#            for j in range( self.rp_bead ):
-#                j3 = 3 * j
-#                self.mole.grad = zero[:]
-#                self.mole.coor[i3:i3+3] = self.rp_coor[i][j3:j3+3]
-#                self.engn.get_grad( self.mole )
-#                if( j == 0 ):
-#                    mm = 3 * ( self.rp_bead - 1 )
-#                    pp = 3
-#                elif( j == self.rp_bead - 1 ):
-#                    mm = 3 * ( j - 1 )
-#                    pp = 0
-#                else:
-#                    mm = 3 * ( j - 1 )
-#                    pp = 3 * ( j + 1 )
-#                for k in [0, 1, 2]:
-#                    self.func += self.rp_kumb[i] * ( self.rp_coor[i][j3+k] - self.rp_coor[i][mm+k] )
-#                    self.rp_grad[i][j3+k] = self.mole.grad[i3+k] / self.rp_bead + 2.0 * self.rp_kumb[i] * (
-#                        2.0 * self.rp_coor[i][j3+k] - self.rp_coor[i][mm+k] - self.rp_coor[i][pp+k] )
+    def get_grad_splt( self ):
+        # ---------------------------------------------
+        for i in range( len( self.sele ) ):
+            i3 = 3 * i
+            j3 = 3 * self.sele[i]
+            for j in [0, 1, 2]:
+                self.mole.coor[i3+j] = self.coor[j3+j]
+        # ---------------------------------------------
+        zero = [ 0.0 for i in range( 3 * self.mole.natm ) ]
+        self.mole.func = 0.0
+        self.mole.grad = zero[:]
+        self.engn.get_grad( self.mole )
+        self.func = self.mole.func
+        self.grad = []
+        for i in self.sele:
+            i3 = 3 * i
+            self.grad += self.mole.grad[i3:i3+3]
+        # ---------------------------------------------
+        for i in self.rp_atom:
+            i3 = 3 * i
+            for j in range( self.rp_bead ):
+                j3 = 3 * j
+                self.mole.grad = zero[:]
+                self.mole.coor[i3:i3+3] = self.rp_coor[i][j3:j3+3]
+                self.engn.get_grad( self.mole )
+                if( j == 0 ):
+                    mm = 3 * ( self.rp_bead - 1 )
+                    pp = 3
+                elif( j == self.rp_bead - 1 ):
+                    mm = 3 * ( j - 1 )
+                    pp = 0
+                else:
+                    mm = 3 * ( j - 1 )
+                    pp = 3 * ( j + 1 )
+                for k in [0, 1, 2]:
+                    self.func += self.rp_kumb[i] * ( self.rp_coor[i][j3+k] - self.rp_coor[i][mm+k] )
+                    self.rp_grad[i][j3+k] = self.mole.grad[i3+k] / self.rp_bead + 2.0 * self.rp_kumb[i] * (
+                        2.0 * self.rp_coor[i][j3+k] - self.rp_coor[i][mm+k] - self.rp_coor[i][pp+k] )
 
 
 
