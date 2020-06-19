@@ -151,7 +151,7 @@ while { [ gets $fd cmd ] >= 0 } {
 obj = my_problem()
 qm3.actions.dynamics.assign_velocities( obj, 300. )
 qm3.actions.dynamics.langevin_verlet( obj, temperature = 300., gamma_factor = 50.,
-    print_frequency = 10, log_function = obj.log, step_number = 4000 )
+    print_frequency = 10, project = True, log_function = obj.log, step_number = 4000 )
 obj.dat.close()
 obj.emm.stop()
 obj.flg.close()

@@ -137,13 +137,13 @@ for j in range( size ):
 
 for j in range( size ):
 #    os.chdir( cwd + os.sep + str( size*node+j ) )
-    qm3.actions.dynamics.assign_velocities( obj_list[j], temperature = 10., project_RT = True )
+    qm3.actions.dynamics.assign_velocities( obj_list[j], temperature = 10., project = True )
 
 dyn_list = []
 for j in range( size ):
 #    os.chdir( cwd + os.sep + str( size*node+j ) )
     dyn_list.append( qm3.actions.dynamics.langevin_verlet( obj_list[j], step_size = 0.001,
-        temperature = 10., gamma_factor = 50., print_frequency = 100, project_RT = True,
+        temperature = 10., gamma_factor = 50., print_frequency = 100, project = True,
         log_function = obj_list[j].log ) )
 
 for i in range( 20000 ):

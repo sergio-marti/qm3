@@ -30,24 +30,24 @@ class sample( qm3.problem.template ):
 obj = sample()
 
 obj.coor = [ 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 ]
-qm3.actions.dynamics.assign_velocities( obj, 10.0, project_RT = False )
+qm3.actions.dynamics.assign_velocities( obj, 10.0, project = False )
 job = qm3.actions.dynamics.langevin_verlet( obj, step_size = 0.001, temperature = 10.0, gamma_factor = 100.0,
-    print_frequency = 100, project_RT = False, step_number = 1000 )
+    print_frequency = 100, project = False, step_number = 1000 )
 
 obj.coor = [ 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 ]
-qm3.actions.dynamics.assign_velocities( obj, 10.0, project_RT = False )
+qm3.actions.dynamics.assign_velocities( obj, 10.0, project = False )
 job = qm3.actions.dynamics.velocity_verlet( obj, step_size = 0.001, temperature = 10.0, scale_frequency = 100,
-    print_frequency = 50, project_RT = False )
+    print_frequency = 50, project = False )
 for i in range( 1000 ):
 	job.integrate()
 job.stats()
 
 obj.coor = [ 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 ]
-qm3.actions.dynamics.assign_velocities( obj, 10.0, project_RT = False )
+qm3.actions.dynamics.assign_velocities( obj, 10.0, project = False )
 job = qm3.actions.dynamics.velocity_verlet( obj, step_size = 0.001, temperature = 10.0, scale_frequency = 0,
-    temperature_coupling = 0.1, print_frequency = 50, project_RT = False, step_number = 1000 )
+    temperature_coupling = 0.1, print_frequency = 50, project = False, step_number = 1000 )
 
 obj.coor = [ 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 ]
-qm3.actions.dynamics.assign_velocities( obj, 10.0, project_RT = False )
+qm3.actions.dynamics.assign_velocities( obj, 10.0, project = False )
 qm3.actions.dynamics.velocity_verlet( obj, step_size = 0.001, temperature = 10.0, scale_frequency = 0,
-    temperature_coupling = 0.0, print_frequency = 100, project_RT = False, step_number = 1000 )
+    temperature_coupling = 0.0, print_frequency = 100, project = False, step_number = 1000 )

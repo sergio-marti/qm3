@@ -176,8 +176,9 @@ f.close()
 
 t0 = time.time()
 obj = my_problem()
-qm3.actions.dynamics.assign_velocities( obj, 300.0 )
-dyn = qm3.actions.dynamics.langevin_verlet( obj, step_size = 0.001, print_frequency = 10, step_number = 100000 )
+qm3.actions.dynamics.assign_velocities( obj, 300.0, project = True )
+dyn = qm3.actions.dynamics.langevin_verlet( obj, step_size = 0.001, print_frequency = 10,
+    step_number = 100000, project = True )
 obj.dcd.close()
 obj.emm.stop()
 print( time.time() - t0 )

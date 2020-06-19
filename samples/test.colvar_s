@@ -108,14 +108,14 @@ tran = [ -1.4294229501, -1.3751538183, -1.3866947262,
           1.3610977165,  1.3502627200,  1.4284399852 ]
 
 obj = my_pes( int( sys.argv[1] ), tran )
-qm3.actions.dynamics.assign_velocities( obj, temperature = 10., project_RT = True )
+qm3.actions.dynamics.assign_velocities( obj, temperature = 10., project = True )
 obj.isok = False
 qm3.actions.dynamics.langevin_verlet( obj, step_size = 0.001,
-    temperature = 10., gamma_factor = 50., print_frequency = 100, project_RT = True,
+    temperature = 10., gamma_factor = 50., print_frequency = 100, project = True,
     log_function = obj.log, step_number = 1000 )
 obj.isok = True
 qm3.actions.dynamics.langevin_verlet( obj, step_size = 0.001,
-    temperature = 10., gamma_factor = 50., print_frequency = 100, project_RT = True,
+    temperature = 10., gamma_factor = 50., print_frequency = 100, project = True,
     log_function = obj.log, step_number = 5000 )
 obj.dat.close()
 obj.flg.close()

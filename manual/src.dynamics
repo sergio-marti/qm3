@@ -9,16 +9,16 @@ or the Berendsen thermostat (\parm{scale\_frequency $\leqslant 0$, temperature\_
 and the \func{langevin\_verlet} (NVT) which provides a langevin thermostat in addition to the verlet integrator.\\
 If the parameter \parm{step\_number} is bigger than 0 then it will perform this number of integrations and then reports the statistics.\\
 \begin{pyglist}[language=python,fvset={frame=single}]
-def assign_velocities( obj, temperature = 300.0, project_RT = True )
+def assign_velocities( obj, temperature = 300.0, project = True )
 
 class velocity_verlet( obj, step_size = 0.001, temperature = 300.0,
          scale_frequency = 100, temperature_coupling = 0.1,
-         print_frequency = 100, project_RT = True, step_number = -1, log_function = default_log )
+         print_frequency = 100, project = True, step_number = -1, log_function = default_log )
     def integrate()
     def stats()
 
 class langevin_verlet( obj, step_size = 0.001, temperature = 300.0, gamma_factor = 50.0, 
-         print_frequency = 100, project_RT = True, step_number = -1, log_function = default_log )
+         print_frequency = 100, project = True, step_number = -1, log_function = default_log )
     def integrate()
     def stats()
 \end{pyglist}
