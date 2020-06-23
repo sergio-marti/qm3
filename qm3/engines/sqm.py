@@ -131,8 +131,8 @@ try:
             mol.func += self.vec[0] * qm3.constants.K2J
             for i in range( len( self.sel ) ):
                 mol.chrg[self.sel[i]] = self.vec[i+1]
-    
-    
+
+
         def get_grad( self, mol ):
             self.update_coor( mol )
             self.lib.qm3_sqm_calc_( ctypes.c_int( self.siz ), self.vec )
