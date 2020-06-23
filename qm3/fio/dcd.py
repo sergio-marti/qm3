@@ -132,11 +132,11 @@ class dcd( object ):
                 if( len( bb ) != jj ):
                     return( False )
                 kk = 0
-                self.X = struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] )
+                self.X = list( struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] ) )
                 kk += ( 8 + ii )
-                self.Y = struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] )
+                self.Y = list( struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] ) )
                 kk += ( 8 + ii )
-                self.Z = struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] )
+                self.Z = list( struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] ) )
 # ------------------------------------------------------------------------------------
             self._C += 1
             return( True )
