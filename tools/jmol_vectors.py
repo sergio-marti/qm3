@@ -40,7 +40,7 @@ for w in sys.argv[1:]:
     who = int( w )
     f = open( "jmol.%d"%( who ), "wt" )
 #    f.write( "load \"nmode.%03d\"\n"%( who ) )
-    f.write( "load \"../qm_opt.xyz\"\n" )
+    f.write( "load \"xyz\"\n" )
     f.write( "cpk 10%\nwireframe 15%\ncolor background white\n" )
     for i in range( m.natm ):
         i3 = 3 * i
