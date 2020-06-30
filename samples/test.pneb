@@ -38,7 +38,7 @@ class my_pes( qm3.problem.template ):
 
 
     def neb_data( self, node ):
-        f = open( "node.%02d"%( node ), "wt" )
+        f = open( "../node.%02d"%( node ), "wt" )
         f.write( "3\n" )
         d1, d2 = self.distances()
         f.write( "@%12.6lf%12.6lf%12.6lf\n"%( d1, d2, self.func ) )
@@ -107,6 +107,9 @@ if( node == 0 ):
 else:
     def std_log( txt ):
         pass
+
+os.mkdir( "%02d"%( node ) )
+os.chdir( "%02d"%( node ) )
 
 oneb = qm3.actions.neb.parall_neb( my_pes( reac ), [0, 1, 2], 1., node, ncpu,
     qm3.actions.neb.distribute( nwin, [ reac, prod ] ) )
