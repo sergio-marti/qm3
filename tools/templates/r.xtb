@@ -1,0 +1,1 @@
+[PATH]/xtb --input xtb.inp --grad xtb_qm.xyz >& xtb.log
