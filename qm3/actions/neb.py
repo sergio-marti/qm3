@@ -16,33 +16,23 @@ def distribute( nodes, guess ):
     guess vector MUST constain at least 2 points: CRD0 and CRDf
     """
     size = len( guess[0] )
-    delt = []
-    for i in range( 1, len( guess ) ):
-        delt.append( [ math.fabs( guess[i][j] - guess[i-1][j] ) for j in range( size ) ] )
-    acum = [ 0.0 for i in range( size ) ]
-    for j in range( size ):
-        for i in range( len( guess ) - 1 ):
-            acum[j] += delt[i][j]
-        acum[j] /= ( nodes + 1 )
-    npts = []
+    acum = []
     for i in range( 1, len( guess ) ):
         tmp = 0.0
         for j in range( size ):
-            if( acum[j] > 0.0 ):
-                tmp += delt[i-1][j] / acum[j]
-        npts.append( int( round( tmp / size, 0 ) ) )
-# -- do something to force: sum( npts ) = nodes + 1
-    while( sum( npts ) > nodes + 1 ):
-        npts[sorted( [ ( npts[i], i ) for i in range( len( guess ) - 1 ) ], reverse = True)[0][1]] -= 1
-# ---------------------------------------------------------
+            tmp += ( guess[i][j] - guess[i-1][j] ) * ( guess[i][j] - guess[i-1][j] )
+        acum.append( math.sqrt( tmp ) )
+    atot = sum( acum )
+    npts = [ int( round( acum[i] / atot * nodes, 0 ) ) for i in range( len( acum ) ) ]
+    delt = []
     for i in range( 1, len( guess ) ):
+        delt.append( [] )
         for j in range( size ):
-            delt[i-1][j] = ( guess[i][j] - guess[i-1][j] ) / npts[i-1]
+            delt[-1].append( ( guess[i][j] - guess[i-1][j] ) / npts[i-1] )
     coor = []
-    for i in range( 1, len( guess ) ):
-        k = 1 - ( i == 1 )
-        for n in range( k, npts[i-1] + 1 ):
-            coor.append( [ guess[i-1][j] + n * delt[i-1][j] for j in range( size ) ] )
+    for i in range( len( guess ) - 1 ):
+        for n in range( npts[i] ):
+            coor.append( [ guess[i][j] + n * delt[i][j] for j in range( size ) ] )
     return( coor )
 
 

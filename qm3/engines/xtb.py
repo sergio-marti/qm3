@@ -58,6 +58,10 @@ class xtb( qm3.engines.qmbase ):
         f = open( "energy", "rt" )
         mol.func += float( re.compile( "[0-9\.\-]+" ).findall( f.read() )[1] ) * self._ce
         f.close()
+        f = open( "charges", "rt" )
+        for i in self.sel:
+            mol.chrg[i] = float( f.readline().strip() )
+        f.close()
         if( run == "grad" ):
             f = open( "gradient", "rt" )
             g = [ float( i ) * self._cg for i in re.compile( "[0-9\.\-]+E[0-9\.\-]+" ).findall( f.read() ) ]
