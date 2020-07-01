@@ -21,6 +21,7 @@ module qm3
     use xtb_eeq
     use xtb_chargemodel
     use xtb_disp_ncoord, only: ncoord_erf
+    use xtb_type_solvation, only : TSolvation
 
 	implicit none
 	public
@@ -37,6 +38,7 @@ module qm3
     type(TWavefunction) :: wfn
     type(tb_pcem)       :: pcem
     type(TxTBData)      :: xtbData
+    class(TSolvation), allocatable :: solvation
     real*8              :: ene, gap
     type(TxTBParameter) :: globpar
     logical             :: okpar, okbas, okrun
@@ -56,10 +58,10 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
     real*8, allocatable      :: cn(:)
     type(chrg_parameter)     :: chrgeq
 
-    ! 2 + nQM [QM_chg] + 3 * nQM [QM_crd/grd] + nQM [QM_mul] + nMM [MM_chg] + 3 * nMM [MM_crd/grd]
+    ! 3 + nQM [QM_chg] + 3 * nQM [QM_crd/grd] + nQM [QM_mul] + nMM [MM_chg] + 3 * nMM [MM_crd/grd]
     do i = 1, nQM
         atn(i) = dint( dat(1+i) )
-        j = 2 + nQM + 3 * ( i - 1 )
+        j = 3 + nQM + 3 * ( i - 1 )
         xyz(1,i) = dat(j)   * AA__Bohr
         xyz(2,i) = dat(j+1) * AA__Bohr
         xyz(3,i) = dat(j+2) * AA__Bohr
@@ -69,7 +71,7 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
         pcem%gam = 999.0d0
         do i = 1, nMM
             pcem%q(i) = dat(1+5*nQM+i)
-            j = 2 + 5 * nQM + nMM + 3 * ( i - 1 )
+            j = 3 + 5 * nQM + nMM + 3 * ( i - 1 )
             pcem%xyz(1,i) = dat(j)   * AA__Bohr 
             pcem%xyz(2,i) = dat(j+1) * AA__Bohr
             pcem%xyz(3,i) = dat(j+2) * AA__Bohr
@@ -81,8 +83,9 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
         call init( env )
         call init( mol, atn, xyz )
         wfn%nel = dint( sum( mol%z ) -  dat(1) )
-        wfn%nopen = 0
-        call use_parameterset( ".param_gfn2.xtb", globpar, xtbData, okpar )
+        wfn%nopen = dat(2)
+!        call use_parameterset( ".param_gfn2.xtb", globpar, xtbData, okpar )
+        call use_parameterset( "param_gfn2-xtb.txt", globpar, xtbData, okpar )
         call newBasisset( xtbData, mol%n, mol%at, basis, okbas )
         call wfn%allocate( mol%n, basis%nshell, basis%nao )
         !wfn%q = mol%chrg / real( mol%n, kind=8 )
@@ -101,21 +104,22 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
 
     grd = 0.0d0
     if( nMM > 0 ) pcem%grd = 0.0d0
-    call scf( env, mol, wfn, basis, pcem, xtbData, gap, et, maxiter, prlevel, restart, lgrad, acc, ene, grd, res )
+    call scf( env, mol, wfn, basis, pcem, xtbData, solvation, &
+        gap, et, maxiter, prlevel, restart, lgrad, acc, ene, grd, res )
     call env%check( okrun )
 
     dat(0) = ene
     do i = 1, nQM
-        j = 2 + nQM + 3 * ( i - 1 )
+        j = 3 + nQM + 3 * ( i - 1 )
         dat(j)   = grd(1,i)
         dat(j+1) = grd(2,i)
         dat(j+2) = grd(3,i)
-        j = 2 + nQM + 3 * ( i - 1 )
+        j = 3 + nQM + 3 * ( i - 1 )
         dat(2+4*nQM+i-1) = wfn%q(i)
     end do
     if( nMM > 0 ) then
         do i = 1, nMM
-            j = 2 + 5 * nQM + nMM + 3 * ( i - 1 )
+            j = 3 + 5 * nQM + nMM + 3 * ( i - 1 )
             dat(j)   = pcem%grd(1,i)
             dat(j+1) = pcem%grd(2,i)
             dat(j+2) = pcem%grd(3,i)

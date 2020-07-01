@@ -100,7 +100,7 @@ try:
 
     class dl_xtb:
     
-        def __init__( self, mol, chrg, sele, nbnd = [], link = [] ):
+        def __init__( self, mol, chrg, nope, sele, nbnd = [], link = [] ):
             self._cx = qm3.constants.A0
             self._ce = qm3.constants.H2J
             self._cg = self._ce / qm3.constants.A0
@@ -117,18 +117,19 @@ try:
             self.nQM = len( self.sel ) + len( self.lnk )
             self.nMM = len( self.nbn )
             # 2 + nQM [QM_chg] + 3 * nQM [QM_crd/grd] + nQM [QM_mul] + nMM [MM_chg] + 3 * nMM [MM_crd/grd]
-            self.siz = 2 + 5 * self.nQM + 4 * self.nMM
+            self.siz = 3 + 5 * self.nQM + 4 * self.nMM
             self.vec = ( ctypes.c_double * self.siz )()
 
             self.vec[1] = chrg
-            j = 2
+            self.vec[2] = nope
+            j = 3
             for i in self.sel:
                 self.vec[j] = mol.anum[i]
                 j += 1
             for i in range( len( self.lnk ) ):
                 self.vec[j] = 1
                 j += 1
-            j  = 2 + 5 * self.nQM
+            j  = 3 + 5 * self.nQM
             for i in range( self.nMM ):
                 self.vec[j+i] = mol.chrg[self.nbn[i]]
             
@@ -142,7 +143,7 @@ try:
 
     
         def update_coor( self, mol ):
-            j3 = 2 + self.nQM
+            j3 = 3 + self.nQM
             for i in range( len( self.sel ) ):
                 i3 = self.sel[i] * 3
                 for j in [0, 1, 2]:
@@ -157,7 +158,7 @@ try:
                     j3 += 1
                 self.vla.append( ( self.sel.index( self.lnk[i][0] ), k, v[:] ) )
                 k += 1
-            j3 = 2 + 5 * self.nQM + self.nMM
+            j3 = 3 + 5 * self.nQM + self.nMM
             for i in range( self.nMM ):
                 i3 = self.nbn[i] * 3
                 for j in [0, 1, 2]:
@@ -169,7 +170,7 @@ try:
             self.update_coor( mol )
             self.lib.qm3_xtb_calc_( ctypes.c_int( self.nQM ), ctypes.c_int( self.nMM ), ctypes.c_int( self.siz ), self.vec )
             mol.func += self.vec[0] * self._ce
-            k = 2 + 4 * self.nQM
+            k = 3 + 4 * self.nQM
             for i in range( len( self.sel ) ):
                 mol.chrg[self.sel[i]] = self.vec[k+i]
     
@@ -178,10 +179,10 @@ try:
             self.update_coor( mol )
             self.lib.qm3_xtb_calc_( ctypes.c_int( self.nQM ), ctypes.c_int( self.nMM ), ctypes.c_int( self.siz ), self.vec )
             mol.func += self.vec[0] * self._ce
-            k = 2 + 4 * self.nQM
+            k = 3 + 4 * self.nQM
             for i in range( len( self.sel ) ):
                 mol.chrg[self.sel[i]] = self.vec[k+i]
-            k = 2 + self.nQM
+            k = 3 + self.nQM
             g = [ self.vec[k+j] * self._cg for j in range( 3 * self.nQM ) ]
             qm3.engines.LA_gradient( self.vla, g )
             j3 = 0
@@ -190,7 +191,7 @@ try:
                 for j in [0, 1, 2]:
                     mol.grad[i3+j] += g[j3]
                     j3 += 1
-            j3 = 2 + 5 * self.nQM + self.nMM
+            j3 = 3 + 5 * self.nQM + self.nMM
             for i in range( self.nMM ):
                 i3 = 3 * self.nbn[i]
                 for j in [0, 1, 2]:

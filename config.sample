@@ -41,3 +41,11 @@ MPI = CC=mpicc
 
 # Linux
 #MPI = CC=mpicc LDSHARED="mpicc -shared"
+
+
+# ------------------------------------------------------------------
+# External programs
+DFTB = /Users/smarti/Devel/dftb+/dftbplus/_build/
+XTB = /Users/smarti/Devel/xtb/dist
+DFTD3 = /Users/smarti/Devel/dftd3/3.2r0/dftd3-lib-0.9/lib
+AMBER = /Users/smarti/Devel/amber/amber20_src
