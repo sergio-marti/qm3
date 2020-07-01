@@ -24,14 +24,16 @@ def distribute( nodes, guess ):
         acum.append( math.sqrt( tmp ) )
     atot = sum( acum )
     npts = [ int( round( acum[i] / atot * nodes, 0 ) ) for i in range( len( acum ) ) ]
+    npts[-1] += 1
     delt = []
     for i in range( 1, len( guess ) ):
         delt.append( [] )
         for j in range( size ):
             delt[-1].append( ( guess[i][j] - guess[i-1][j] ) / npts[i-1] )
+    npts[-1] -= 1
     coor = []
     for i in range( len( guess ) - 1 ):
-        for n in range( npts[i] ):
+        for n in range( 1, npts[i] + 1 ):
             coor.append( [ guess[i][j] + n * delt[i][j] for j in range( size ) ] )
     return( coor )
 
