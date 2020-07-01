@@ -60,7 +60,7 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
 
     ! 3 + nQM [QM_chg] + 3 * nQM [QM_crd/grd] + nQM [QM_mul] + nMM [MM_chg] + 3 * nMM [MM_crd/grd]
     do i = 1, nQM
-        atn(i) = dint( dat(1+i) )
+        atn(i) = dint( dat(2+i) )
         j = 3 + nQM + 3 * ( i - 1 )
         xyz(1,i) = dat(j)   * AA__Bohr
         xyz(2,i) = dat(j+1) * AA__Bohr
@@ -70,7 +70,7 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
         if( .not. restart ) call pcem%allocate( nMM )
         pcem%gam = 999.0d0
         do i = 1, nMM
-            pcem%q(i) = dat(1+5*nQM+i)
+            pcem%q(i) = dat(2+5*nQM+i)
             j = 3 + 5 * nQM + nMM + 3 * ( i - 1 )
             pcem%xyz(1,i) = dat(j)   * AA__Bohr 
             pcem%xyz(2,i) = dat(j+1) * AA__Bohr
@@ -83,8 +83,7 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
         call init( env )
         call init( mol, atn, xyz )
         wfn%nel = dint( sum( mol%z ) -  dat(1) )
-        wfn%nopen = dat(2)
-!        call use_parameterset( ".param_gfn2.xtb", globpar, xtbData, okpar )
+        wfn%nopen = dint( dat(2) )
         call use_parameterset( "param_gfn2-xtb.txt", globpar, xtbData, okpar )
         call newBasisset( xtbData, mol%n, mol%at, basis, okbas )
         call wfn%allocate( mol%n, basis%nshell, basis%nao )
@@ -114,8 +113,7 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
         dat(j)   = grd(1,i)
         dat(j+1) = grd(2,i)
         dat(j+2) = grd(3,i)
-        j = 3 + nQM + 3 * ( i - 1 )
-        dat(2+4*nQM+i-1) = wfn%q(i)
+        dat(3+4*nQM+i-1) = wfn%q(i)
     end do
     if( nMM > 0 ) then
         do i = 1, nMM
