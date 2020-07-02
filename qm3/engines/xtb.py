@@ -166,15 +166,15 @@ try:
                     j3 += 1
 
 
-        def get_func( self, mol ):
+        def get_func( self, mol, density = False ):
             self.update_coor( mol )
             self.lib.qm3_xtb_calc_( ctypes.c_int( self.nQM ), ctypes.c_int( self.nMM ), ctypes.c_int( self.siz ), self.vec )
             mol.func += self.vec[0] * self._ce
             k = 3 + 4 * self.nQM
             for i in range( len( self.sel ) ):
                 mol.chrg[self.sel[i]] = self.vec[k+i]
-    
-    
+
+
         def get_grad( self, mol ):
             self.update_coor( mol )
             self.lib.qm3_xtb_calc_( ctypes.c_int( self.nQM ), ctypes.c_int( self.nMM ), ctypes.c_int( self.siz ), self.vec )
