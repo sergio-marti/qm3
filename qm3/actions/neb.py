@@ -120,6 +120,8 @@ class serial_neb( qm3.problem.template ):
         # ----------------------------------------------------------------------
         vpot = []
         gpot = []
+        upd0 = None
+        updf = None
         # get potential energy and gradients from the chain elements
         for who in range( self.node ):
             self.prob.coor = self.coor[self.dime*who:self.dime*who+self.dime][:]
@@ -130,6 +132,13 @@ class serial_neb( qm3.problem.template ):
                 self.prob.neb_data( who )
             except:
                 pass
+            # check for a possible update in the fixed points...
+            if( who == 0 ):
+                if( self.prob.func < self.pot0 ):
+                    upd0 = self.prob.func
+            if( who == self.node - 1 ):
+                if( self.prob.func < self.potf ):
+                    updf = self.prob.func
         self.func = sum( vpot )
         self.grad = []
 #        # evaluate arc length
@@ -167,6 +176,13 @@ class serial_neb( qm3.problem.template ):
             grd = [ ii - gsp * jj + kk for ii,jj,kk in zip( gpot[self.dime*who:self.dime*who+self.dime], tau, gum ) ]
             qm3.utils.project_RT_modes( self.prob.mass, self.coor[self.dime*who:self.dime*who+self.dime], grd, None )
             self.grad += grd[:]
+            # check for a possible update in the fixed points...
+            if( upd0 != None ):
+                self.pot0 = upd0
+                self.crd0 = self.coor[0:self.dime]
+            if( updf != None ):
+                self.potf = updf
+                self.crdf = self.coor[-self.dime:]
 
 
 try:
@@ -340,6 +356,13 @@ try:
             else:
                 qm3.utils._mpi.send_r8( 0, vpot )
                 vpot = qm3.utils._mpi.recv_r8( 0, self.node )
+            # check for a possible update in the fixed points...
+            upd0 = None
+            updf = None
+            if(  vpot[0] < self.pot0 ):
+                upd0 = self.prob.func
+            if( vpot[-1] < self.potf ):
+                updf = self.prob.func
             # sync gpot from and to nodes
             qm3.utils._mpi.barrier()
             if( self.wami == 0 ):
@@ -377,6 +400,13 @@ try:
                 grd = [ ii - gsp * jj + kk for ii,jj,kk in zip( gpot[self.dime*who:self.dime*who+self.dime], tau, gum ) ]
                 qm3.utils.project_RT_modes( self.prob.mass, self.coor[self.dime*who:self.dime*who+self.dime], grd, None )
                 self.grad += grd[:]
+            # check for a possible update in the fixed points...
+            if( upd0 != None ):
+                self.pot0 = upd0
+                self.crd0 = self.coor[0:self.dime]
+            if( updf != None ):
+                self.potf = updf
+                self.crdf = self.coor[-self.dime:]
     
 except:
     pass
