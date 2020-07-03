@@ -119,6 +119,11 @@ dftd3.so:
 		-I$(DFTD3) $(DFTD3)/libdftd3.a
 
 
+dftd4.so:
+	gfortran $(SHD) -o dftd4.so qm3/engines/dftd4.f90 -Jbuild -Ibuild \
+		-I$(DFTD4)/dftd4@sta $(DFTD4)/libdftd4.a -fopenmp -framework Accelerate
+
+
 sqm.so:
 	@gfortran $(SHD) -o sqm.so qm3/engines/sqm.f90 -Jbuild -Ibuild \
 		-I$(AMBER)/AmberTools/src/sqm \

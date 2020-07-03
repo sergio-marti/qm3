@@ -1,0 +1,1 @@
+[PATH]/dftd4 dftd4.xyz --chrg 0 --func b3-lyp --grad >& dftd4.log

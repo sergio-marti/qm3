@@ -20,7 +20,6 @@ subroutine qm3_dftd3_init( prm )
     integer :: xver
 
     call dftd3_init( calc, input )
-!    call dftd3_set_functional( calc, func = trim( fun ), version = ver, tz = ( qtz == 1 ) )
     xver = dint( prm(0) )
     xprm(1:5) = prm(1:5)
     call dftd3_set_params( calc, xprm, xver )
