@@ -121,7 +121,7 @@ dftd3.so:
 
 dftd4.so:
 	gfortran $(SHD) -o dftd4.so qm3/engines/dftd4.f90 -Jbuild -Ibuild \
-		-I$(DFTD4)/dftd4@sta $(DFTD4)/libdftd4.a -fopenmp -framework Accelerate
+		-I$(DFTD4_INC) $(DFTD4)/libdftd4.a -fopenmp $(MLB)
 
 
 sqm.so:

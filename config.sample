@@ -49,4 +49,5 @@ DFTB = /Users/smarti/Devel/dftb+/dftbplus/_build/
 XTB = /Users/smarti/Devel/xtb/dist
 DFTD3 = /Users/smarti/Devel/dftd3/3.2r0/dftd3-lib-0.9/lib
 DFTD4 = /Users/smarti/Devel/dftd4/build
+DFTD4_INC = /Users/smarti/Devel/dftd4/build/dftd4@sta
 AMBER = /Users/smarti/Devel/amber/amber20_src
