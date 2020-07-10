@@ -4,7 +4,8 @@
 #PYX = python
 #PYL = -lpython
 
-PYX = python3
+PYX = python3.8
+PYL = -L/usr/local/Cellar/python@3.8/3.8.3_2/Frameworks/Python.framework/Versions/3.8/lib -lpython3.8
 
 #PYL = -L/opt/local/Cellar/python/3.7.1/Frameworks/Python.framework/Versions/3.7/lib -lpython3.7
 #PYL = -lpython3.5m
@@ -46,7 +47,7 @@ MPI = CC=mpicc
 
 # ------------------------------------------------------------------
 # External programs
-DFTB = /Users/smarti/Devel/dftb+/dftbplus/_build/
+DFTB = /Users/smarti/Devel/dftbplus/_build/
 XTB = /Users/smarti/Devel/xtb/dist
 DFTD3 = /Users/smarti/Devel/dftd3/3.2r0/dftd3-lib-0.9/lib
 DFTD4 = /Users/smarti/Devel/dftd4/build
