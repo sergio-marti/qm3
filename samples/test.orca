@@ -73,7 +73,7 @@ f.write( """
 #export LD_LIBRARY_PATH=$cwd:$LD_LIBRARY_PATH
 #$cwd/orca orca.inp > orca.out
 
-cwd=/Users/smarti/Devel/orca/orca_4_0_1_2_macosx_openmpi202
+cwd=/Users/smarti/Devel/orca/orca_4_2_1_macosx_openmpi314
 $cwd/orca orca.inp > orca.out
 """ )
 f.close()

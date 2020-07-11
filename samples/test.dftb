@@ -29,7 +29,7 @@ Hamiltonian = DFTB {
 #  ShellResolvedSCC = Yes
   Mixer = DIIS {}
   SlaterKosterFiles = Type2FileNames {
-    Prefix = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
+    Prefix = "/Users/smarti/Devel/dftbplus/params/3ob-3-1/"
     Separator = "-"
     Suffix = ".skf"
   }

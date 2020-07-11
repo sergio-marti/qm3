@@ -6,10 +6,11 @@ export QM3_OPENMM=/Users/smarti/Devel/openmm/dist_gnu/python
 export QM3_LAMMPS=/Users/smarti/Devel/lammps
 export QM3_PSI4=/Users/smarti/Devel/psi4/dist_gnu.py2/lib
 
-export QM3_LIBSQM=/Users/smarti/Devel/amber/18/qm3/libsqm.so
-export QM3_LIBDFTD3=/Users/smarti/Devel/qm3/dftd3.so
-export QM3_LIBDFTB=/Users/smarti/Devel/qm3/dftb.so
-export QM3_LIBXTB=/Users/smarti/Devel/qm3/xtb.so
+export QM3_LIBSQM=$cwd/sqm.so
+export QM3_LIBDFTD3=$cwd/dftd3.so
+export QM3_LIBDFTD4=$cwd/dftd4.so
+export QM3_LIBDFTB=$cwd/dftb.so
+export QM3_LIBXTB=$cwd/xtb.so
 
 export QM3_MPLOT3D=/usr/lib/python3/dist-packages/mpl_toolkits
-export QM3_MPLOT3D=/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/mpl_toolkits
+export QM3_MPLOT3D=/Users/smarti/Library/Python/3.7/lib/python/site-packages/mpl_toolkits
