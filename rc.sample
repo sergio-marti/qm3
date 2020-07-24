@@ -13,4 +13,4 @@ export QM3_LIBDFTB=$cwd/dftb.so
 export QM3_LIBXTB=$cwd/xtb.so
 
 export QM3_MPLOT3D=/usr/lib/python3/dist-packages/mpl_toolkits
-export QM3_MPLOT3D=/Users/smarti/Library/Python/3.7/lib/python/site-packages/mpl_toolkits
+export QM3_MPLOT3D=/Users/smarti/Library/Python/3.8/lib/python/site-packages/mpl_toolkits
