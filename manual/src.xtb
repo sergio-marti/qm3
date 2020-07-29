@@ -1,7 +1,8 @@
 \normalsize
 \subsection[xtb]{xtb.py}
-This module allows to use xTB\footnote{https://github.com/grimme-lab/xtb} as a QM engine.
-
+This module allows to use xTB\footnote{https://github.com/grimme-lab/xtb} as a QM engine.\\
+If compiled as a library (xtb.so, set \textbf{QM3\_LIBXTB} environment variable) it can be accessed via ctypes (\func{dl\_xtb}),
+thus reducing the amount of IO needed.
 \begin{pyglist}[language=python,fvset={frame=single}]
 class xtb( mol, ini, sele, nbnd = [], link = [] )
     def get_func( mol )

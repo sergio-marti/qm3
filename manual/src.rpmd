@@ -1,17 +1,7 @@
 \normalsize
 \subsection[ring\_polymer]{ring\_polymer.py}
-
-Module with some engines for minimizing "problem.template" child objects. Functions can be classified on
-the kind of imformation used: zero-order (\func{downhill}: "func"), first-order (\func{steepest\_descent},
-\func{adam}, \func{fire}, \func{l\_bfgs} and \func{conjugate\_gradient\_plus}: "func" and "grad") and second-order
-(\func{baker} and \func{rfo}: "func", "grad" and "hess").\\
-The function \func{conjugate\_gradient\_plus} is only available if the binary \_minimize.so is available.
-This engine has three posible flavours for gradient conjugation: \parm{Fletcher-Reeves}, \parm{Positive Polak-Ribiere}
-and \parm{Polak-Ribiere} (which defaults to).\\
-The functions \func{baker} and \func{rfo} allow to follow an specific mode of the hessian (C-indexing \parm{follow\_mode}, for
-transition states search), or to perform plain minimization (\parm{follow\_mode = -1}).\\
-Finally, the class \func{stepped\_fire}  allows the FIRE engine to be stepped (user must
-iterate each step of the minimization, allowing him to control what happens between each step).
+http://dx.doi.org/10.1021/acs.jpclett.6b02115\\
+http://dx.doi.org/10.1063/1.3267318\\
 \begin{pyglist}[language=python,fvset={frame=single}]
 class model( molec )
     """
@@ -51,3 +41,5 @@ class md_template
 \begin{pyglist}[fvset={frame=single}]
 #SOURCE@../samples/logs/test.rpmd.log
 \end{pyglist}
+
+\includegraphics[width=.33\textwidth]{30.png}
