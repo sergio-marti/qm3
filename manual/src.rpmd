@@ -42,4 +42,7 @@ class md_template
 #SOURCE@../samples/logs/test.rpmd.log
 \end{pyglist}
 
-\includegraphics[width=.33\textwidth]{30.png}
+\begin{center}
+\includegraphics[height=2.9cm]{30.png}
+\end{center}
+
