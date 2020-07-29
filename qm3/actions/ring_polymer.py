@@ -21,13 +21,13 @@ def default_log( txt ):
 class model:
     def __init__( self, molec ):
         """
-        define as much engines as neeed based on the molec
+        define as much engines as needed based on the molec
         """
         pass
 
     def get_grad( self, molec ):
         """
-        sequncially accumulate all the engines.get_grad
+        sequencially accumulate all the engines.get_grad
         """
         pass
 

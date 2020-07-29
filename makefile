@@ -106,7 +106,9 @@ lapack_deps.o:
 dftb.so:
 	gfortran $(SHD) -o dftb.so qm3/engines/dftb.f90 -Jbuild -Ibuild \
 		-I$(DFTB)/prog/dftb+/include \
-		$(DFTB)/prog/dftb+/libdftbplus.a $(DFTB)/external/dftd3/origin/lib/libdftd3.a $(MLB) -fopenmp
+		$(DFTB)/prog/dftb+/libdftbplus.a \
+		$(DFTB)/external/dftd3/origin/lib/libdftd3.a \
+		$(DFTB)external/mudpack/libmudpack.a $(MLB) -fopenmp
 
 
 xtb.so:

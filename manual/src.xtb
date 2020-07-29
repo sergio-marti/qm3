@@ -7,7 +7,7 @@ class xtb( mol, ini, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
 
-class dl_xtb( mol, chrg, sele, nbnd = [], link = [] )
+class dl_xtb( mol, chrg, nope, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
 \end{pyglist}

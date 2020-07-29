@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source /usr/local/texlive/rc
 source /Users/smarti/Applications/Pygments-2.2.0/rc
 
 for ff in src.*; do
