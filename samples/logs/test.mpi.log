@@ -1,0 +1,8 @@
+node: 1, prev result: 0.011605332383476483
+node: 1, curr result: 0.01108982360436532
+node: 2, curr result: -0.035988795325866865
+node: 3, prev result: -0.035988795325866865
+node: 3, curr result: 0.017848750142271986
+node: 4, prev result: 0.017848750142271986
+node: 4, curr result: 0.007357186453127633
+node: 0, curr result: 0.011605332383476483
