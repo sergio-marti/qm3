@@ -105,7 +105,7 @@ lapack_deps.o:
 
 dftb.so:
 	gfortran $(SHD) -o dftb.so qm3/engines/dftb.f90 -Jbuild -Ibuild \
-		-I$(DFTB)/prog/dftb+/include \
+		-fPIC -I$(DFTB)/prog/dftb+/include \
 		$(DFTB)/prog/dftb+/libdftbplus.a \
 		$(DFTB)/external/dftd3/origin/lib/libdftd3.a \
 		$(DFTB)external/mudpack/libmudpack.a $(MLB) -fopenmp
@@ -113,22 +113,22 @@ dftb.so:
 
 xtb.so:
 	gfortran $(SHD) -o xtb.so qm3/engines/xtb.f90 -Jbuild -Ibuild \
-		-I$(XTB)/xtb-mod $(XTB)/libxtb.a $(MLB)
+		-fPIC -I$(XTB)/xtb-mod $(XTB)/libxtb.a $(MLB)
 
 
 dftd3.so:
 	gfortran $(SHD) -o dftd3.so qm3/engines/dftd3.f90 -Jbuild -Ibuild \
-		-I$(DFTD3) $(DFTD3)/libdftd3.a
+		-fPIC -I$(DFTD3) $(DFTD3)/libdftd3.a
 
 
 dftd4.so:
 	gfortran $(SHD) -o dftd4.so qm3/engines/dftd4.f90 -Jbuild -Ibuild \
-		-I$(DFTD4_INC) $(DFTD4)/libdftd4.a -fopenmp $(MLB)
+		-fPIC -I$(DFTD4_INC) $(DFTD4)/libdftd4.a -fopenmp $(MLB)
 
 
 sqm.so:
 	@gfortran $(SHD) -o sqm.so qm3/engines/sqm.f90 -Jbuild -Ibuild \
-		-I$(AMBER)/AmberTools/src/sqm \
+		-fPIC -I$(AMBER)/AmberTools/src/sqm \
 		$(AMBER)/AmberTools/src/sqm/file_io_dat.o \
 		$(AMBER)/AmberTools/src/sqm/constants.o \
 		$(AMBER)/AmberTools/src/sqm/findmask.o \
