@@ -1,3 +1,0 @@
-Fatal error in MPI_Send: Invalid rank, error stack:
-MPI_Send(174): MPI_Send(buf=0x7f8227519db0, count=1, MPI_DOUBLE_PRECISION, dest=4, tag=0, MPI_COMM_WORLD) failed
-MPI_Send(100): Invalid rank has value 4 but must be nonnegative and less than 4
