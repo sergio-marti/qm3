@@ -403,7 +403,7 @@ def intensities( chrg, mods ):
         for j in [0, 1, 2]:
             for k in range( size // 3 ):
                 tmp[j] += chrg[k] * mods[i+size*(3*k+j)]
-        inte.append( cons *( tmp[0] * tmp[0] + tmp[1] * tmp[1] + tmp[2] * tmp[2] ) )
+        inte.append( cons * ( tmp[0] * tmp[0] + tmp[1] * tmp[1] + tmp[2] * tmp[2] ) )
     # inte: km/mol
     return( inte )
 
