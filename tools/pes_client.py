@@ -347,6 +347,10 @@ while { [ gets $fd cmd ] >= 0 } {
         self.grad = []
         self.xumb = []
 
+        for i in sqm:
+            self.mol.chrg[i] = 0.0
+        self.emm.update_chrg( self.mol )
+
 
     def update_coor( self ):
         for i in range( len( self.sel ) ):
