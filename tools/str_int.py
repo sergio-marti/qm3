@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import    sys
+import  sys
 import  os
-import    qm3.actions.string
-import    matplotlib.pyplot as plt
+import  qm3.actions.string
+import  matplotlib.pyplot as plt
 from    matplotlib.backends.backend_pdf import PdfPages
 
 
@@ -21,7 +21,8 @@ plt.clf()
 plt.grid( True )
 plt.plot( y )
 pdf.savefig()
-plt.show()
+if( len( sys.argv ) == 1 ):
+    plt.show()
 plt.close()
 
 
@@ -30,9 +31,12 @@ plt.close()
 #
 crd = 5
 win = 60
-sys.stdout.write( "Range [0:-1]: " )
-sys.stdout.flush()
-rng = [ int( i ) for i in sys.stdin.readline().strip().split( ":" ) ] 
+if( len( sys.argv ) == 2 ):
+    rng = [ int( i ) for i in sys.argv[1].split( ":" ) ] 
+else:
+    sys.stdout.write( "Range [0:-1]: " )
+    sys.stdout.flush()
+    rng = [ int( i ) for i in sys.stdin.readline().strip().split( ":" ) ] 
 qm3.actions.string.string_integrate( crd, win, rng[0], rng[1] )
 
 
@@ -81,19 +85,20 @@ plt.close()
 ##
 ## plot each coordinate from string.dat (don't show!)
 ##
-#f = open( "string.dat", "rt" )
-#dat = []
-#for l in f:
-#    dat += [ float( i ) for i in l.strip().split() ]
-#f.close()
-#
-#npt = len( dat ) // ( crd * win )
-#for i in range( crd ):
-#    plt.clf()
-#    plt.grid( True )
-#    for j in range( win ):
+f = open( "string.dat", "rt" )
+dat = []
+for l in f:
+    dat += [ float( i ) for i in l.strip().split() ]
+f.close()
+
+npt = len( dat ) // ( crd * win )
+for i in range( crd ):
+    plt.clf()
+    plt.grid( True )
+    for j in range( win ):
 #        plt.plot( [ dat[i+crd*j+k*crd*win] for k in range( npt ) ] )
-#    pdf.savefig()
-#    plt.close()
+        plt.plot( [ dat[i+crd*j+k*crd*win] for k in range( rng[0], rng[1] ) ] )
+    pdf.savefig()
+    plt.close()
 
 pdf.close()
