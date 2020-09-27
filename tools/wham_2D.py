@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import numpy
 import glob
@@ -7,10 +7,10 @@ import sys
 
 dat_x = glob.glob( "dat_x.*.*" )
 dat_y = glob.glob( "dat_y.*.*" )
-npt_x = 37 * 2
-npt_y = 40 * 2
+npt_x = 30 * 2
+npt_y = 43 * 2
 temp  = 300.0
-skip  = 2000
+skip  = 2500
 
 
 ##############################################################
@@ -19,7 +19,7 @@ inf   = 1.e30
 skip += 1
 
 class _index_expression_class:
-    maxint = sys.maxint
+    maxint = float( 'inf' )
     def __getitem__( self, item ):
         if( type( item ) != type( () ) ):
             return ( item, )
@@ -40,7 +40,7 @@ def wham( data, bins, t, conv_limit = 0.001 ):
     beta = 1.0 / ( kB * t )
     dim = len( bins )
     nwin = len( data )
-    axes = map( binAxis, bins )
+    axes = list( map( binAxis, bins ) )
     hist = []
     pot = []
     for window in data:
@@ -84,13 +84,14 @@ def binAxis( bin_spec ):
 def histogram( data, bins ):
     dim = data.shape[1]
     if( dim != len( bins ) ):
-        raise ValueError, 'Inconsistent data'
-    min = numpy.array( map( lambda b: b[0], bins ) )
-    max = numpy.array( map( lambda b: b[1], bins ) )
-    n = numpy.array( map( lambda b: b[2], bins ) )
+        raise ValueError( 'Inconsistent data' )
+    min = numpy.array( list( map( lambda b: b[0], bins ) ) )
+    max = numpy.array( list( map( lambda b: b[1], bins ) ) )
+    n = numpy.array( list( map( lambda b: b[2], bins ) ) )
     w = ( max - min ) / ( n - 1 )
     indices = ( ( data - min + w / 2 ) / w ).astype( numpy.int )
-    h = apply( numpy.zeros, ( tuple( n ), numpy.int ) )
+#    h = apply( numpy.zeros, ( tuple( n ), numpy.int ) )
+    h = numpy.zeros( *( tuple( n ), numpy.int ) )
     for i in range( data.shape[0] ):
         ind = indices[i]
         if( numpy.logical_and.reduce( numpy.logical_and( numpy.greater_equal( ind, 0 ), numpy.less( ind, n ) ) ) ):
@@ -115,7 +116,7 @@ dat_x.sort()
 dat_y.sort()
 
 windows = []
-for files in map( None, dat_x, dat_y ):
+for files in zip( dat_x, dat_y ):
     rc0 = []
     fc = []
     rc = []
