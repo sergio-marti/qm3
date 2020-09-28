@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import	sys
 import	qm3.actions.minimize
@@ -53,7 +53,7 @@ x = pmf2d( sys.argv[1] )
 
 x.coor = [ float( sys.argv[2] ), float( sys.argv[3] ) ]
 x.get_func()
-print x.coor, x.func
+print( x.coor, x.func )
 
 #qm3.actions.minimize.baker( x, 
 #	step_number = 1000, 
@@ -71,4 +71,4 @@ qm3.actions.minimize.rfo( x,
 	gradient_tolerance = 0.01 )
 
 x.check_coor()
-print x.coor, x.func
+print( x.coor, x.func )
