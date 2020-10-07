@@ -7,7 +7,8 @@ if( sys.version_info[0] == 2 ):
 import math
 import qm3.maths.rand
 import qm3.utils.queue
-import multiprocessing
+import threading
+
 try:
     import cPickle as pickle
 except:
@@ -20,7 +21,7 @@ def default_log( txt ):
 
 
 """
-the larger the population, the better the performance (but the larger the calculation...)
+the larger the population, the better the performance (but the longer the calculation...)
     a value of: population = 5 * size   would be ideal whether it is affordable...
 
 diffevo [differential_evolution] is the standard (serialized) implementation, and works
@@ -32,12 +33,8 @@ mpi_diffevo is a MPI version, in which the global population is splitted into mp
     the global best one... ('intercourses' are 'local' with no interaction among 'villages').
 
 smp_diffevo is a SMP implementation, which allows parallel evaluation of the new genetarions...
-    Two approaches:
-        1) build all the trials, and evaluate them using a multiprocessing.Pool( ncpu )
-        2) build slots of ncpu trials, and evaluate them using multiprocessing.Process/qm3.utils.Queque
-
-    While (1) is faster, it does not allow to the improved trials to 'interact' with the
-    remaining parents... In (2) best trials and parents are swapped each size//ncpu chunks.
+    build slots of ncpu trials, and evaluate them using threading.Thread/qm3.utils.Queque,
+    best trials and parents are swapped each size//ncpu chunks.
 
 """
 
@@ -288,13 +285,6 @@ except:
 
 
 
-def _smp_diffevo_fitness_pool( args ):
-    who, obj, vec = args
-    obj.coor = vec[:]
-    obj.get_func()
-    return( ( who, obj.func ) )
-
-
 def __smp_diffevo_fitness_process( que, who, obj, vec ):
     obj.coor = vec[:]
     obj.get_func()
@@ -338,21 +328,20 @@ def smp_diffevo( objs,
     for i in range( size ):
         minc.append( min( boundaries[i] ) )
         disp.append( math.fabs( boundaries[i][1] - boundaries[i][0] ) )
-
     coor = []
     func = []
-    args = []
     for i in range( chnk ):
+        Q = qm3.utils.queue.Queue( ncpu )
         for j in range( ncpu ):
+            w = i * ncpu + j
             coor.append( [] )
             for k in range( size ):
                 coor[-1].append( qm3.maths.rand.random() )
-            args.append( [ i * ncpu + j, objs[j], [ minc[k] + disp[k] * coor[-1][k] for k in range( size ) ] ] )
-    work = multiprocessing.Pool( ncpu )
-    func = [ j for i,j in sorted( work.map( _smp_diffevo_fitness_pool, args ) ) ]
-    work.close()
-    work.join()
-
+            threading.Thread( target = __smp_diffevo_fitness_process,
+                args = ( Q, w, objs[j], [ minc[k] + disp[k] * coor[-1][k] for k in range( size ) ] ) ).start()
+        Q.serve()
+        func += Q.data
+    func = [ j for i,j in sorted( func ) ]
     ok_fun = min( func )
     ok_crd = coor[func.index( ok_fun )][:]
     ok_stp = 2.0 * step_tolerance
@@ -360,71 +349,32 @@ def smp_diffevo( objs,
     it = 0
     ff = ok_fun
     while( it < step_number and ok_stp > step_tolerance ):
-# =============================================================================================
-# Model: 1
-        args = []
-        T    = []
         for i in range( chnk ):
+            Q = qm3.utils.queue.Queue( ncpu )
+            T = []
             for j in range( ncpu ):
                 T.append( [] )
                 w = i * ncpu + j
                 # -------------------------------------------------------------------------
-#                # rand/1 + binomial
-#                a, b, c = qm3.maths.rand.sample( [ k for k in range( population_size ) if k != w ], 3 )
-#                for k in range( size ):
-#                    if( qm3.maths.rand.random() < crossover_probability ):
-#                        T[-1].append( min( max( coor[a][k] + mutation_factor * ( coor[b][k] - coor[c][k] ), 0.0 ), 1.0 ) )
-#                    else:
-#                        T[-1].append( coor[w][k] )
-                # -------------------------------------------------------------------------
-                # rand-to-best/1 + binomial
-                a, b = qm3.maths.rand.sample( [ k for k in range( population_size ) if k != i ], 2 )
+                # rand/1 + binomial
+                a, b, c = qm3.maths.rand.sample( [ k for k in range( population_size ) if k != w ], 3 )
                 for k in range( size ):
                     if( qm3.maths.rand.random() < crossover_probability ):
-                        T[-1].append( min( max( coor[i][k] + mutation_factor * ( ok_crd[k] - coor[i][k] + coor[a][k] - coor[b][k] ), 0.0 ), 1.0 ) )
+                        T[-1].append( min( max( coor[a][k] + mutation_factor * ( coor[b][k] - coor[c][k] ), 0.0 ), 1.0 ) )
                     else:
-                        T[-1].append( coor[i][k] )
-                args.append( [ w, objs[j], [ minc[k] + disp[k] * T[-1][k] for k in range( size ) ] ] )
-        work = multiprocessing.Pool( ncpu )
-        F = [ j for i,j in sorted( work.map( _smp_diffevo_fitness_pool, args ) ) ]
-        work.close()
-        work.join()
-        for i in range( population_size ):
-            if( F[i] < func[i] ):
-                func[i] = F[i]
-                coor[i] = T[i][:]
-                if( F[i] < ok_fun ):
-                    ok_stp = math.sqrt( sum( [ math.pow( ok_crd[k] - T[i][k], 2.0 ) for k in range( size ) ] ) / float( size ) )
-                    ok_fun = F[i]
-                    ok_crd = T[i][:]
-# =============================================================================================
-# Model: 2
-#        for i in range( chnk ):
-#            Q = qm3.utils.queue.Queue( ncpu )
-#            T = []
-#            for j in range( ncpu ):
-#                T.append( [] )
-#                w = i * ncpu + j
-#                # -------------------------------------------------------------------------
-#                # rand/1 + binomial
-#                a, b, c = qm3.maths.rand.sample( [ k for k in range( population_size ) if k != w ], 3 )
-#                for k in range( size ):
-#                    if( qm3.maths.rand.random() < crossover_probability ):
-#                        T[-1].append( min( max( coor[a][k] + mutation_factor * ( coor[b][k] - coor[c][k] ), 0.0 ), 1.0 ) )
-#                    else:
-#                        T[-1].append( coor[w][k] )
-#                multiprocessing.Process( target = __smp_diffevo_fitness_process,
-#                    args = ( Q, w, objs[j], [ minc[k] + disp[k] * T[-1][k] for k in range( size ) ] ) ).start()
-#            Q.serve()
-#            F = sorted( Q.data )
-#            for j in range( ncpu ):
-#                if( F[j][1] < func[F[j][0]] ):
-#                    func[F[j][0]] = F[j][1]
-#                    coor[F[j][0]] = T[j][:]
-#                    if( F[j][1] < ok_fun ):
-#                        ok_stp = math.sqrt( sum( [ math.pow( ok_crd[k] - T[j][k], 2.0 ) for k in range( size ) ] ) / float( size ) )
-#                        ok_fun = F[j][1]
-#                        ok_crd = T[j][:]
+                        T[-1].append( coor[w][k] )
+                threading.Thread( target = __smp_diffevo_fitness_process,
+                    args = ( Q, w, objs[j], [ minc[k] + disp[k] * T[-1][k] for k in range( size ) ] ) ).start()
+            Q.serve()
+            F = sorted( Q.data )
+            for j in range( ncpu ):
+                if( F[j][1] < func[F[j][0]] ):
+                    func[F[j][0]] = F[j][1]
+                    coor[F[j][0]] = T[j][:]
+                    if( F[j][1] < ok_fun ):
+                        ok_stp = math.sqrt( sum( [ math.pow( ok_crd[k] - T[j][k], 2.0 ) for k in range( size ) ] ) / float( size ) )
+                        ok_fun = F[j][1]
+                        ok_crd = T[j][:]
         if( ff > ok_fun ):
             ff = ok_fun
             it += 1

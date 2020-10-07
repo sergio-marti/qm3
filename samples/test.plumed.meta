@@ -11,91 +11,91 @@ import qm3.engines.dftb
 import time
 import os
 try:
-	import cPickle as pickle
+    import cPickle as pickle
 except:
-	import pickle
+    import pickle
 
 
 class my_problem( qm3.problem.template ):
 
-	def __init__( self ):
-		qm3.problem.template.__init__( self )
+    def __init__( self ):
+        qm3.problem.template.__init__( self )
 
-		os.mkfifo( "namd.pipe" )
-		os.system( "bash r.namd &" )
-		time.sleep( 10 )
+        os.mkfifo( "namd.pipe" )
+        os.system( "bash r.namd &" )
+        time.sleep( 10 )
 
-		self.mol = qm3.mol.molecule( "pdb" )
-		self.mol.boxl = [ 40., 40., 40. ]
-		self.mol.psf_read( "psf" )
-		self.mol.nbnd_read( "non_bonded" )
+        self.mol = qm3.mol.molecule( "pdb" )
+        self.mol.boxl = [ 40., 40., 40. ]
+        self.mol.psf_read( "psf" )
+        self.mol.nbnd_read( "non_bonded" )
 
-		self.emm = qm3.engines.namd.namd_pipe()
-		s_qm = sorted( self.mol.indx["A"][1].values() )
-		for i in s_qm:
-			self.mol.chrg[i] = 0.0
-		f = open( "in16", "rb" )
-		s_mm = pickle.load( f )
-		f.close()
+        self.emm = qm3.engines.namd.namd_pipe()
+        s_qm = sorted( self.mol.indx["A"][1].values() )
+        for i in s_qm:
+            self.mol.chrg[i] = 0.0
+        f = open( "in16", "rb" )
+        s_mm = pickle.load( f )
+        f.close()
 
-		self.eqm = qm3.engines.dftb.dftb( self.mol, s_qm, s_mm )
-		self.eqm.chg = 0
-		self.eqm.prm = "/home/gpuser/plumed/3ob-3-1/"
-		self.eqm.exe = "bash r.dftb"
+        self.eqm = qm3.engines.dftb.dftb( self.mol, s_qm, s_mm )
+        self.eqm.chg = 0
+        self.eqm.prm = "/home/gpuser/plumed/3ob-3-1/"
+        self.eqm.exe = "bash r.dftb"
 
-		self.fix = qm3.engines._mmint.QMLJ( self.mol, s_qm, s_mm, [] )
+        self.fix = qm3.engines._mmint.QMLJ( self.mol, s_qm, s_mm, [] )
 
-		self.rst = qm3.engines._plumed.Plumed( self.mol, 0.001, False )
+        self.rst = qm3.engines._plumed.Plumed( self.mol, 0.001, False )
 
-		# -- walls
-		self.ld1 = qm3.engines.mmres.distance( 10000., 1.4, [ 1, 2 ], skip_BE = 1.4 )
-		self.ud1 = qm3.engines.mmres.distance( 10000., 4.2, [ 1, 2 ], skip_LE = 4.2 )
-		self.ld2 = qm3.engines.mmres.distance( 10000., 1.4, [ 4, 5 ], skip_BE = 1.4 )
-		self.ud2 = qm3.engines.mmres.distance( 10000., 4.2, [ 4, 5 ], skip_LE = 4.2 )
+        # -- walls
+        self.ld1 = qm3.engines.mmres.distance( 10000., 1.4, [ 1, 2 ], skip_BE = 1.4 )
+        self.ud1 = qm3.engines.mmres.distance( 10000., 4.2, [ 1, 2 ], skip_LE = 4.2 )
+        self.ld2 = qm3.engines.mmres.distance( 10000., 1.4, [ 4, 5 ], skip_BE = 1.4 )
+        self.ud2 = qm3.engines.mmres.distance( 10000., 4.2, [ 4, 5 ], skip_LE = 4.2 )
 
-		self.size = self.mol.natm * 3
-		self.coor = self.mol.coor[:]
-		self.grad = []
-		self.mass = self.mol.mass
+        self.size = self.mol.natm * 3
+        self.coor = self.mol.coor[:]
+        self.grad = []
+        self.mass = self.mol.mass
 
-		self.time = -1
-		self.dcd = qm3.fio.dcd.dcd()
-		self.dcd.write( "dcd", self.mol.natm )
-		self.mol.dcd_write( self.dcd )
+        self.time = -1
+        self.dcd = qm3.fio.dcd.dcd()
+        self.dcd.write( "dcd", self.mol.natm )
+        self.mol.dcd_write( self.dcd )
 
-		self.emm.update_chrg( self.mol )
-
-
-	def current_step( self, istep ):
-		if( istep%100 == 0 ):
-			self.mol.dcd_write( self.dcd )
+        self.emm.update_chrg( self.mol )
 
 
-	def get_func( self ):
-		self.mol.coor = self.coor[:]
-		self.emm.update_coor( self.mol )
-		self.mol.func = .0
-		self.emm.get_func( self.mol )
-		self.eqm.get_func( self.mol )
-		self.func = self.mol.func
+    def current_step( self, istep ):
+        if( istep%100 == 0 ):
+            self.mol.dcd_write( self.dcd )
 
 
-	def get_grad( self ):
-		self.mol.coor = self.coor[:]
-		self.emm.update_coor( self.mol )
-		self.mol.func = .0
-		self.mol.grad = [ .0 for i in range( 3 * self.mol.natm ) ]
-		self.emm.get_grad( self.mol )
-		self.eqm.get_grad( self.mol )
-		self.fix.get_grad( self.mol )
-		self.time += 1
-		self.rst.get_grad( self.mol, self.time )
-		self.ld1.get_grad( self.mol )
-		self.ud1.get_grad( self.mol )
-		self.ld2.get_grad( self.mol )
-		self.ud2.get_grad( self.mol )
-		self.func = self.mol.func
-		self.grad = self.mol.grad[:]
+    def get_func( self ):
+        self.mol.coor = self.coor[:]
+        self.emm.update_coor( self.mol )
+        self.mol.func = .0
+        self.emm.get_func( self.mol )
+        self.eqm.get_func( self.mol )
+        self.func = self.mol.func
+
+
+    def get_grad( self ):
+        self.mol.coor = self.coor[:]
+        self.emm.update_coor( self.mol )
+        self.mol.func = .0
+        self.mol.grad = [ .0 for i in range( 3 * self.mol.natm ) ]
+        self.emm.get_grad( self.mol )
+        self.eqm.get_grad( self.mol )
+        self.fix.get_grad( self.mol )
+        self.time += 1
+        self.rst.get_grad( self.mol, self.time )
+        self.ld1.get_grad( self.mol )
+        self.ud1.get_grad( self.mol )
+        self.ld2.get_grad( self.mol )
+        self.ud2.get_grad( self.mol )
+        self.func = self.mol.func
+        self.grad = self.mol.grad[:]
 
 
 

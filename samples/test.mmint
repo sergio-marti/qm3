@@ -47,15 +47,15 @@ qm3.maths.matrix.mprint( mol.hess, 9, 9 )
 mol.hess = []
 dsp = 0.001
 for i in range( 9 ):
-	crd = mol.coor[i]
-	mol.coor[i] = crd + dsp
-	mol.grad = [ 0.0 for j in range( 3 * mol.natm ) ]
-	obj.get_grad( mol )
-	gpd = mol.grad[0:9]
-	mol.coor[i] = crd - dsp
-	mol.grad = [ 0.0 for j in range( 3 * mol.natm ) ]
-	obj.get_grad( mol )
-	gmd = mol.grad[0:9]
-	mol.coor[i] = crd
-	mol.hess += [ ( gpd[j] - gmd[j] ) / ( 2.0 * dsp ) for j in range( 9 ) ]
+    crd = mol.coor[i]
+    mol.coor[i] = crd + dsp
+    mol.grad = [ 0.0 for j in range( 3 * mol.natm ) ]
+    obj.get_grad( mol )
+    gpd = mol.grad[0:9]
+    mol.coor[i] = crd - dsp
+    mol.grad = [ 0.0 for j in range( 3 * mol.natm ) ]
+    obj.get_grad( mol )
+    gmd = mol.grad[0:9]
+    mol.coor[i] = crd
+    mol.hess += [ ( gpd[j] - gmd[j] ) / ( 2.0 * dsp ) for j in range( 9 ) ]
 qm3.maths.matrix.mprint( mol.hess, 9, 9 )

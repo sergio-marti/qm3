@@ -39,7 +39,7 @@ qm3.actions.dynamics.assign_velocities( obj, 10.0, project = False )
 job = qm3.actions.dynamics.velocity_verlet( obj, step_size = 0.001, temperature = 10.0, scale_frequency = 100,
     print_frequency = 50, project = False )
 for i in range( 1000 ):
-	job.integrate()
+    job.integrate()
 job.stats()
 
 obj.coor = [ 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 ]

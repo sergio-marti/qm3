@@ -29,17 +29,17 @@ qm3.maths.matrix.mprint( m.hess, 3 * m.natm, 3 * m.natm )
 nhes = []
 disp = 1.e-4
 for i in range( 3 * m.natm ):
-	bak = m.coor[i]
-	m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
-	m.coor[i] = bak + disp
-	r.get_grad( m )
-	gf = m.grad[:]
-	m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
-	m.coor[i] = bak - disp
-	r.get_grad( m )
-	gb = m.grad[:]
-	m.coor[i] = bak
-	nhes += [ (ii-jj) / ( 2.0 * disp ) for ii,jj in zip( gf, gb ) ]
+    bak = m.coor[i]
+    m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
+    m.coor[i] = bak + disp
+    r.get_grad( m )
+    gf = m.grad[:]
+    m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
+    m.coor[i] = bak - disp
+    r.get_grad( m )
+    gb = m.grad[:]
+    m.coor[i] = bak
+    nhes += [ (ii-jj) / ( 2.0 * disp ) for ii,jj in zip( gf, gb ) ]
 qm3.maths.matrix.mprint( nhes, 3 * m.natm, 3 * m.natm )
 
 
@@ -54,17 +54,17 @@ qm3.maths.matrix.mprint( m.hess, 3 * m.natm, 3 * m.natm )
 nhes = []
 disp = 1.e-4
 for i in range( 3 * m.natm ):
-	bak = m.coor[i]
-	m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
-	m.coor[i] = bak + disp
-	r.get_grad( m )
-	gf = m.grad[:]
-	m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
-	m.coor[i] = bak - disp
-	r.get_grad( m )
-	gb = m.grad[:]
-	m.coor[i] = bak
-	nhes += [ (ii-jj) / ( 2.0 * disp ) for ii,jj in zip( gf, gb ) ]
+    bak = m.coor[i]
+    m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
+    m.coor[i] = bak + disp
+    r.get_grad( m )
+    gf = m.grad[:]
+    m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
+    m.coor[i] = bak - disp
+    r.get_grad( m )
+    gb = m.grad[:]
+    m.coor[i] = bak
+    nhes += [ (ii-jj) / ( 2.0 * disp ) for ii,jj in zip( gf, gb ) ]
 qm3.maths.matrix.mprint( nhes, 3 * m.natm, 3 * m.natm )
 
 
@@ -79,15 +79,15 @@ qm3.maths.matrix.mprint( m.hess, 3 * m.natm, 3 * m.natm )
 nhes = []
 disp = 1.e-4
 for i in range( 3 * m.natm ):
-	bak = m.coor[i]
-	m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
-	m.coor[i] = bak + disp
-	r.get_grad( m )
-	gf = m.grad[:]
-	m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
-	m.coor[i] = bak - disp
-	r.get_grad( m )
-	gb = m.grad[:]
-	m.coor[i] = bak
-	nhes += [ (ii-jj) / ( 2.0 * disp ) for ii,jj in zip( gf, gb ) ]
+    bak = m.coor[i]
+    m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
+    m.coor[i] = bak + disp
+    r.get_grad( m )
+    gf = m.grad[:]
+    m.grad = [ 0.0 for jj in range( 3 * m.natm ) ]
+    m.coor[i] = bak - disp
+    r.get_grad( m )
+    gb = m.grad[:]
+    m.coor[i] = bak
+    nhes += [ (ii-jj) / ( 2.0 * disp ) for ii,jj in zip( gf, gb ) ]
 qm3.maths.matrix.mprint( nhes, 3 * m.natm, 3 * m.natm )

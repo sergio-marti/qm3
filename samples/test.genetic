@@ -109,14 +109,13 @@ if( ncpu > 1 ):
         population_size = 10 )
 else:
     if( len( sys.argv ) == 3 ):
-        if( __name__ == "__main__" or sys.platform != "darwin" ):
-            f = open( "log.smp", "at" )
-            a = [ obj ]
-            for i in range( 1, int( sys.argv[1] ) ):
-                a.append( p5_fitting( X, Y ) )
-            qm3.actions.genetic.smp_diffevo( a,
-                [ ( -5, 5 ) ] * 6,
-                population_size = int( sys.argv[2] ) )
+       f = open( "log.smp", "at" )
+       a = [ obj ]
+       for i in range( 1, int( sys.argv[1] ) ):
+           a.append( p5_fitting( X, Y ) )
+       qm3.actions.genetic.smp_diffevo( a,
+           [ ( -5, 5 ) ] * 6,
+           population_size = int( sys.argv[2] ) )
     else:
         f = open( "log.serial", "at" )
         qm3.actions.genetic.diffevo( obj,
@@ -125,9 +124,8 @@ else:
 t0 = time.time() - t0
 
 if( node == 0 ):
-    if( __name__ == "__main__" or sys.platform != "darwin" ):
-        f.write( "%12.6lf%20.3lf%20.10lf\n"%( t0, obj.func, math.sqrt( sum( [ math.pow( obj.coor[i] - C[i], 2.0 ) for i in range( obj.size ) ] ) ) ) )
-        f.close()
+    f.write( "%12.6lf%20.3lf%20.10lf\n"%( t0, obj.func, math.sqrt( sum( [ math.pow( obj.coor[i] - C[i], 2.0 ) for i in range( obj.size ) ] ) ) ) )
+    f.close()
 
 if( ncpu > 1 ):
     qm3.utils._mpi.barrier()

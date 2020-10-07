@@ -10,16 +10,18 @@ import qm3.utils._cions
 import qm3.utils
 import qm3.elements
 import qm3.constants
-import multiprocessing, qm3.utils.queue
+import threading
+import qm3.utils.queue
 import qm3.maths.rand
 import time
+import os
 
 
 
 def counter_ions( molec, num = 1, chrg = 1.0, d_grd = 0.5, d_ion = 11.0, d_prt = 6.5 ):
     out = qm3.mol.molecule()
     out.natm = num
-    out.coor = qm3.utils._cions.counter_ions( molec, num, chrg, d_grd, d_ion, d_prt, multiprocessing.cpu_count() )
+    out.coor = qm3.utils._cions.counter_ions( molec, num, chrg, d_grd, d_ion, d_prt, os.sysconf( 'SC_NPROCESSORS_ONLN' ) )
     for i in range( num ):
         out.labl.append( "ION" )
         out.resi.append( i + 1 )
@@ -83,11 +85,11 @@ def solvate( molec, solvnt, radii = qm3.elements.r_vdw, transform = True ):
     sys.stderr.write( "done!\n" )
     # -------------------------------------------------------------------------------------------------------
     sel = []
-    N = multiprocessing.cpu_count()
+    N = os.sysconf( 'SC_NPROCESSORS_ONLN' )
     Q = qm3.utils.queue.Queue( N )
     sys.stderr.write( "+ Num CPUs    : %d\n"%( N ) )
     for i in range( N ):
-        multiprocessing.Process( target = __SolParSel, args = ( Q, N, i, molec, r1m, r2m, solvnt, r1s, r2s, gcm, gcs ) ).start()
+        threading.Thread( target = __SolParSel, args = ( Q, N, i, molec, r1m, r2m, solvnt, r1s, r2s, gcm, gcs ) ).start()
     Q.serve()
     Q.data.sort()
     for i in Q.data:
@@ -134,12 +136,12 @@ def ionic_strength( molec, temp = 300.0, conc = 0.15, chains = None, mdst = 5.0 
     NION = 2 * int( round( conc * mass / ( dens * 1000.0 ), 0 ) )
     sys.stderr.write( "+ Num NaCl    : %d\n"%( NION // 2 ) )
     # -------------------------------------------------------------------------------------------------------
-    N = multiprocessing.cpu_count()
+    N = os.sysconf( 'SC_NPROCESSORS_ONLN' )
     sys.stderr.write( "+ Num CPUs    : %d\n"%( N ) )
     sys.stderr.write( "+ Pruning water molecules... " )
     Q = qm3.utils.queue.Queue( N )
     for i in range( N ):
-        multiprocessing.Process( target = __IonParSel, args = ( Q, N, i, molec, gcm, wat, mol, mdst ) ).start()
+        threading.Thread( target = __IonParSel, args = ( Q, N, i, molec, gcm, wat, mol, mdst ) ).start()
     Q.serve()
     sys.stderr.write( "done!\n" )
     # -------------------------------------------------------------------------------------------------------
@@ -161,7 +163,7 @@ def ionic_strength( molec, temp = 300.0, conc = 0.15, chains = None, mdst = 5.0 
         del s[w]
         Q = qm3.utils.queue.Queue( N )
         for j in range( N ):
-            multiprocessing.Process( target = __IonParSel, args = ( Q, N, j, molec, gcm, s, m, mdst ) ).start()
+            threading.Thread( target = __IonParSel, args = ( Q, N, j, molec, gcm, s, m, mdst ) ).start()
         Q.serve()
     sys.stderr.write( "done!\n" )
     sel = []

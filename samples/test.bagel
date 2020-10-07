@@ -18,16 +18,16 @@ class my_eng( qm3.problem.template ):
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
         f = io.StringIO( """
 { "bagel": [
-	qm3_guess
-	{
-	"title": "molecule",
-	"basis": "./def2-svp.json",
-	"df_basis": "./def2-fit.json",
-	"angstrom": true,
-	"geometry": qm3_atoms },
-	{ "title": "force", "export": true, "method": [ 
-		{ "title": "hf", "charge": "0", "nopen": "0", "thresh": "1.e-8", "maxiter": "500" } ] },
-	{ "title" : "save_ref", "file" : "bagel" }
+    qm3_guess
+    {
+    "title": "molecule",
+    "basis": "./def2-svp.json",
+    "df_basis": "./def2-fit.json",
+    "angstrom": true,
+    "geometry": qm3_atoms },
+    { "title": "force", "export": true, "method": [ 
+        { "title": "hf", "charge": "0", "nopen": "0", "thresh": "1.e-8", "maxiter": "500" } ] },
+    { "title" : "save_ref", "file" : "bagel" }
 ] }
 """ )
         f.seek( 0 )

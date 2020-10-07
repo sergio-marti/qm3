@@ -16,7 +16,7 @@ class my_eng( qm3.problem.template ):
         self.mol.chrg[1] = 0.0
         self.mol.chrg[2] = 0.0
 
-        os.mkfifo( "charmm.pipe" )	
+        os.mkfifo( "charmm.pipe" )    
         os.system( "/Users/smarti/Devel/charmm/43b1/charmm < charmm.pipe > charmm.log &" )
         self.eng = qm3.engines.charmm.charmm_pipe( "charmm.inp" )
         time.sleep( 10 )
@@ -177,7 +177,7 @@ close unit 10
 defi core sele resi 1 show end
 cons fix sele core end
 nbonds elec fswitch vdw vswitch -
-	cutnb 8.0 ctofnb 6.0 ctonnb 4.5
+    cutnb 8.0 ctofnb 6.0 ctonnb 4.5
 """ )
 f.close()
 
