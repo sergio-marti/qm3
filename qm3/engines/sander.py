@@ -8,7 +8,6 @@ import qm3.constants
 import qm3.fio
 import os
 import struct
-import multiprocessing
 
 
 __prmtop = ""

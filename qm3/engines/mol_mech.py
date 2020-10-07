@@ -7,7 +7,6 @@ if( sys.version_info[0] == 2 ):
 import math
 import os
 import inspect
-import multiprocessing
 import qm3.elements
 import qm3.maths.matrix
 import qm3.mol

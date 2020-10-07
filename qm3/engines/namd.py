@@ -10,7 +10,6 @@ import math
 import qm3.constants
 import qm3.fio
 import os, stat
-import multiprocessing
 import time
 
 

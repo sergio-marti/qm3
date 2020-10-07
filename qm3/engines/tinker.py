@@ -8,7 +8,6 @@ import qm3.constants
 import qm3.fio
 import re
 import os
-import multiprocessing
 import time
 
 
@@ -41,7 +40,7 @@ import time
 
 class tinker( object ):
 
-    def __init__( self, ini, cpu = multiprocessing.cpu_count() ):
+    def __init__( self, ini, cpu = os.sysconf( 'SC_NPROCESSORS_ONLN' ) ):
         f = open( "tinker.key", "wt" )
         f.write( ini )
         f.close()
