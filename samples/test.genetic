@@ -12,6 +12,7 @@ import    qm3.actions.genetic
 import    qm3.actions.fitting
 import    time
 import    os
+import    sys
 try:
     import    cPickle as pickle
 except:
@@ -108,7 +109,7 @@ if( ncpu > 1 ):
         population_size = 10 )
 else:
     if( len( sys.argv ) == 3 ):
-        if( __name__ == "__main__" ):
+        if( __name__ == "__main__" or sys.platform != "darwin" ):
             f = open( "log.smp", "at" )
             a = [ obj ]
             for i in range( 1, int( sys.argv[1] ) ):
@@ -124,7 +125,7 @@ else:
 t0 = time.time() - t0
 
 if( node == 0 ):
-    if( __name__ == "__main__" ):
+    if( __name__ == "__main__" or sys.platform != "darwin" ):
         f.write( "%12.6lf%20.3lf%20.10lf\n"%( t0, obj.func, math.sqrt( sum( [ math.pow( obj.coor[i] - C[i], 2.0 ) for i in range( obj.size ) ] ) ) ) )
         f.close()
 

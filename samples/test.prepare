@@ -4,13 +4,14 @@ import qm3.utils.prepare
 import qm3.constants
 import qm3.utils
 import os
+import sys
 
 try:
     import cStringIO as io
 except:
     import io
 
-if( __name__ == "__main__" ):
+if( __name__ == "__main__" or sys.platform != "darwin" ):
     f = io.StringIO( """ATOM      1  N   NH3     1       0.040   0.029  -0.171  0.00  0.00      A   
 ATOM      2  H1  NH3     1       0.917  -0.069  -0.589  0.00  0.00      A   
 ATOM      3  H2  NH3     1      -0.443   0.874  -0.242  0.00  0.00      A   
