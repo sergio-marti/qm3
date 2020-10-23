@@ -37,6 +37,7 @@ engines = {
     "nwchem":   ( "qm3.engines.nwchem.nwchem", "/bin/bash r.nwchem" ),
     "sqm":      ( "qm3.engines.sqm.dl_sqm", "" ),
     "dftb":     ( "qm3.engines.dftb.dl_dftb", "" ),
+    "xtb":      ( "qm3.engines.xtb.dl_xtb", "" ),
     # a fake input must be provided for fDynamo ---------------------------------
     "fdynamo":  ( "qm3.engines.dynamo.py_dynamo", "./dynamo.so" ),
     # ---------------------------------------------------------------------------

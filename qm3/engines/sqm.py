@@ -101,6 +101,10 @@ try:
 
             sqm_input( self, mol )
             self.lib.qm3_sqm_init_()
+
+
+        def write_density( self ):
+            self.lib.qm3_sqm_writedens_()
     
     
         def update_coor( self, mol ):
