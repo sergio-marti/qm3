@@ -7,10 +7,12 @@ if( sys.version_info[0] == 2 ):
 import qm3.constants
 import qm3.fio
 import os
+import re
 import struct
 
 
-__prmtop = ""
+__topo = ""
+__frmt = re.compile( "[aAiIeEdD]([0-9]+)" )
 
 
 
@@ -45,83 +47,107 @@ def coordinates_write( mol, fname = None ):
 
 
 def topology_read( mol, fname = None ):
-    global    __prmtop
-    __prmtop = ""
+    global    __topo, __frmt
+    __topo = ""
     f = qm3.fio.open_r( fname )
     if( mol.natm > 0 ):
         l = f.readline()
-        while( l ):
+        while( l != "" ):
             if( l[0:12].upper() == "%FLAG CHARGE" ):
-                f.readline()
+                dsp = int( __frmt.findall( f.readline() )[0] )
                 mol.chrg = []
                 while( len( mol.chrg ) < mol.natm ):
-                    mol.chrg += [ float( i ) / 18.2223 for i in f.readline().strip().split() ]
+                    l = f.readline()
+                    mol.chrg += [ float( l[i:i+dsp] ) / 18.2223 for i in range( 0, len( l ) - 1, dsp ) ]
             else:
-                __prmtop += l
+                __topo += l
             l = f.readline()
     else:
         mol.initialize()
         nres = 0
         lres = []
         l = f.readline()
-        while( l ):
+        while( l != "" ):
             if( l[0:12].upper() == "%FLAG CHARGE" ):
-                f.readline()
+                dsp = int( __frmt.findall( f.readline() )[0] )
                 while( len( mol.chrg ) < mol.natm ):
-                    mol.chrg += [ float( i ) / 18.2223 for i in f.readline().strip().split() ]
+                    l = f.readline()
+                    mol.chrg += [ float( l[i:i+dsp] ) / 18.2223 for i in range( 0, len( l ) - 1, dsp ) ]
+#                print( "chrg", mol.chrg[0], mol.chrg[-1], sum( mol.chrg ) )
             elif( l[0:14].upper() == "%FLAG POINTERS" ):
-                __prmtop += l
-                __prmtop += f.readline()
+                __topo += l
                 l = f.readline()
-                __prmtop += l
-                mol.natm = int( l.strip().split()[0] )
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
                 l = f.readline()
-                __prmtop += l
-                nres = int( l.strip().split()[1] )
+                __topo += l
+                mol.natm = int( l[0:dsp] )
+                l = f.readline()
+                __topo += l
+                nres = int( l[dsp:2*dsp] )
+#                print( "natm", mol.natm, nres )
             elif( l[0:15].upper() == "%FLAG ATOM_NAME" ):
-                __prmtop += l
-                __prmtop += f.readline()
+                __topo += l
+                l = f.readline()
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
                 while( len( mol.labl ) < mol.natm ):
                     l = f.readline()
-                    __prmtop += l
-                    mol.labl += l.strip().split()
+                    __topo += l
+                    mol.labl += [ l[i:i+dsp].strip() for i in range( 0, len( l ) - 1, dsp ) ]
+#                print( "labl", mol.labl[0], mol.labl[-1] )
             elif( l[0:19].upper() == "%FLAG ATOMIC_NUMBER" ):
-                __prmtop += l
-                __prmtop += f.readline()
+                __topo += l
+                l = f.readline()
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
                 while( len( mol.anum ) < mol.natm ):
                     l = f.readline()
-                    __prmtop += l
-                    mol.anum += [ int( i ) for i in l.strip().split() ]
+                    __topo += l
+                    mol.anum += [ int( l[i:i+dsp] ) for i in range( 0, len( l ) - 1, dsp ) ]
+#                print( "anum", mol.anum[0], mol.anum[-1] )
             elif( l[0:10].upper() == "%FLAG MASS" ):
-                __prmtop += l
-                __prmtop += f.readline()
+                __topo += l
+                l = f.readline()
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
                 while( len( mol.mass ) < mol.natm ):
                     l = f.readline()
-                    __prmtop += l
-                    mol.mass += [ float( i ) for i in l.strip().split() ]
+                    __topo += l
+                    mol.mass += [ float( l[i:i+dsp] ) for i in range( 0, len( l ) - 1, dsp ) ]
+#                print( "mass", mol.mass[0], mol.mass[-1], sum( mol.mass ) )
             elif( l[0:19].upper() == "%FLAG RESIDUE_LABEL" ):
-                __prmtop += l
-                __prmtop += f.readline()
+                __topo += l
+                l = f.readline()
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
                 while( len( lres ) < nres ):
                     l = f.readline()
-                    __prmtop += l
-                    lres += l.strip().split()
+                    __topo += l
+                    lres += [ l[i:i+dsp].strip() for i in range( 0, len( l ) - 1, dsp ) ]
+#                print( "resn", lres[0], lres[-1] )
             elif( l[0:21].upper() == "%FLAG RESIDUE_POINTER" ):
-                __prmtop += l
-                __prmtop += f.readline()
+                __topo += l
+                l = f.readline()
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
                 while( len( mol.res_lim ) < nres ):
                     l = f.readline()
-                    __prmtop += l
-                    mol.res_lim += [ int( i ) - 1 for i in l.strip().split() ]
+                    __topo += l
+                    mol.res_lim += [ int( l[i:i+dsp] ) - 1 for i in range( 0, len( l ) - 1, dsp ) ]
                 mol.res_lim.append( mol.natm )
+#                print( "rlim", len( mol.res_lim ) )
             elif( l[0:20].upper() == "%FLAG BOX_DIMENSIONS" ):
-                __prmtop += l
-                __prmtop += f.readline()
+                __topo += l
                 l = f.readline()
-                __prmtop += l
-                mol.boxl = [ float( i ) for i in l.strip().split()[-3:] ]
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
+                l = f.readline()
+                __topo += l
+                mol.boxl = [ float( l[i:i+dsp] ) for i in range( 0, len( l ) - 1, dsp ) ][1:4]
+#                print( "boxl", mol.boxl )
             else:
-                __prmtop += l
+                __topo += l
             l = f.readline()
         mol.segn = [ "A" for i in range( mol.natm ) ]
         mol.seg_lim = [ 0, mol.natm ]
@@ -133,10 +159,10 @@ def topology_read( mol, fname = None ):
 
 
 def topology_write( mol, fname = None ):
-    global    __prmtop
-    if( __prmtop and mol.chrg ):
+    global    __topo
+    if( __topo != "" and mol.chrg != [] ):
         f = qm3.fio.open_w( fname )
-        f.write( __prmtop )
+        f.write( __topo )
         f.write( "%FLAG CHARGE                                                                    \n" )
         f.write( "%FORMAT(5E16.8)                                                                 \n" )
         for i in range( mol.natm ):

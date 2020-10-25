@@ -56,7 +56,7 @@ class tinker( object ):
         os.system( self.exe )
         f = open( "tinker.log", "rt" )
         l = f.readline()
-        while( l ):
+        while( l != "" ):
             L = l.strip()
             if( L[0:22] == "Total Potential Energy" ):
                 mol.func += float( l.split()[4] ) * qm3.constants.K2J
@@ -72,7 +72,7 @@ class tinker( object ):
         f = open( "tinker.log", "rt" )
         p = re.compile( "Anlyt[\ ]*([0-9]+)[\ ]*([0-9\.\-]+)[\ ]*([0-9\.\-]+)[\ ]*([0-9\.\-]+)[\ ]*[0-9\.]+" )
         l = f.readline()
-        while( l ):
+        while( l != "" ):
             L = l.strip()
             if( p.match( L ) ):
                 t = L.split()

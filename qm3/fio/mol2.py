@@ -16,7 +16,7 @@ def mol2_read( fname = None ):
     mol = qm3.mol.molecule()
     f = qm3.fio.open_r( fname )
     l = f.readline()
-    while( l ):
+    while( l != "" ):
         if( l.strip() == "@<TRIPOS>MOLECULE" ):
             f.readline()
             t = f.readline().strip().split()

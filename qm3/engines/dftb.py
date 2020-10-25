@@ -73,7 +73,7 @@ class dftb( qm3.engines.qmbase ):
     def parse_log( self, mol, run ):
         f = open( "detailed.out", "rt" )
         l = f.readline()
-        while( l ):
+        while( l != "" ):
             if( l.strip() == "Net atomic charges (e)" or l.strip() == "Atomic gross charges (e)" ):
                 f.readline()
                 for i in range( len( self.sel ) ):

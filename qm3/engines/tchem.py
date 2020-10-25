@@ -68,7 +68,7 @@ class tchem( qm3.engines.qmbase ):
     def parse_log( self, mol, run ):
         f = open( "tchem.log", "rt" )
         l = f.readline()
-        while( l ):
+        while( l != "" ):
             L = l.strip()
             # read energy
             if( L[0:13] == "FINAL ENERGY:" ):

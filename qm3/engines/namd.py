@@ -13,8 +13,6 @@ import os, stat
 import time
 
 
-__tail = ""
-
 
 def coordinates_read( mol, fname ):
     f = open( fname, "rb" )
@@ -58,43 +56,6 @@ def pdb_write( mol, fname = None, fixed = [] ):
             s[i], 0.0, mol.segn[i] ) )
     f.write( "END\n" )
     qm3.fio.close( f, fname )
-
-
-def topology_read( mol, fname = None ):
-    global    __tail
-    __tail = ""
-    mol.type = []
-    mol.chrg = []
-    mol.mass = []
-    fd = qm3.fio.open_r( fname )
-    if( fd.readline().split()[0] == "PSF" ):
-        fd.readline()
-        for i in range( int( fd.readline().split()[0] ) + 1 ):
-            fd.readline()
-        if( mol.natm == int( fd.readline().split()[0] ) ):
-            for i in range( mol.natm ):
-                t = fd.readline().split()
-                if( mol.segn[i] == t[1] and mol.resi[i] == int( t[2] ) and mol.resn[i] == t[3] and mol.labl[i] == t[4]  ):
-                    mol.type.append( t[5] )
-                    mol.chrg.append( float( t[6] ) )
-                    mol.mass.append( float( t[7] ) )
-                else:
-                    print( "- Wrong data (%d): %s/%s %d/%s %s/%s %s/%s"%( i+1, mol.segn[i], t[1], mol.resi[i], t[2], mol.resn[i], t[3], mol.labl[i], t[4] ) )
-            __tail = fd.read()
-        else:
-            print( "- Invalid number of atoms in PSF!" )
-    qm3.fio.close( fd, fname )
-
-
-def topology_write( mol, fname = None ):
-    global    __tail
-    fd = qm3.fio.open_w( fname )
-    fd.write( "PSF\n\n       1 !NTITLE\n REMARKS generated structure x-plor psf file\n\n%8d !NATOM\n"%( mol.natm ) )
-    for i in range( mol.natm ):
-        fd.write( "%8d %-5s%-5d%-5s%-5s%-5s%10.6lf%14.4lf%12d\n"%( i + 1, mol.segn[i], mol.resi[i], mol.resn[i], mol.labl[i], mol.type[i], mol.chrg[i], mol.mass[i], 0 ) )
-    fd.write( __tail )
-    qm3.fio.close( fd, fname )
-
 
 
 
@@ -246,10 +207,6 @@ class namd( object ):
 
     def update_coor( self, mol ):
         coordinates_write( mol, "namd.coor" )
-
-
-    def update_chrg( self, mol, fname ):
-        topology_write( mol, fname )
 
 
     def get_func( self, mol ):

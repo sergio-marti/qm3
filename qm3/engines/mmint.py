@@ -10,6 +10,7 @@ import qm3.fio
 from qm3.engines._mmint import *
 
 
+# >> add a parser function for qm3/def, charmm/par, dynamo/opls, sander/prmtop?
 
 def non_bonded( mol, fname ):
     out = True

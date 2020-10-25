@@ -85,33 +85,33 @@ def coordinates_write( mol, fname = None ):
     qm3.fio.close( f, fname )
 
 
-def topology_read( mol, fname ):
-    mol.mass = []
-    mol.chrg = []
-    mol.epsi = []
-    mol.rmin = []
-    f = open( fname, "rb" )
-    for i in range( 6 ):
-        f.read( struct.unpack( "i", f.read( 4 ) )[0] + 4 )
-    f.read( 4 )
-    if( mol.natm == struct.unpack( "i", f.read( 4 ) )[0] ):
-        f.read( 8 )
-        mol.mass = list( struct.unpack( "%dd"%( mol.natm ), f.read( 8 * mol.natm ) ) )
-        f.read( 4 )
-        for i in range( 3 ):
-            f.read( struct.unpack( "i", f.read( 4 ) )[0] + 4 )
-        f.read( 4 )
-        mol.chrg = list( struct.unpack( "%dd"%( mol.natm ), f.read( 8 * mol.natm ) ) )
-        f.read( 4 )
-        f.read( struct.unpack( "i", f.read( 4 ) )[0] + 4 )
-        f.read( 4 )
-        mol.epsi = [ i*0.5 for i in struct.unpack( "%dd"%( mol.natm ), f.read( 8 * mol.natm ) ) ]
-        f.read( 4 )
-        f.read( struct.unpack( "i", f.read( 4 ) )[0] + 4 )
-        f.read( 4 )
-        c = 0.5 * math.pow( 2, 1.0 / 6.0 )
-        mol.rmin = [ i*i*c for i in struct.unpack( "%dd"%( mol.natm ), f.read( 8 * mol.natm ) ) ]
-    f.close()
+#def topology_read( mol, fname ):
+#    mol.mass = []
+#    mol.chrg = []
+#    mol.epsi = []
+#    mol.rmin = []
+#    f = open( fname, "rb" )
+#    for i in range( 6 ):
+#        f.read( struct.unpack( "i", f.read( 4 ) )[0] + 4 )
+#    f.read( 4 )
+#    if( mol.natm == struct.unpack( "i", f.read( 4 ) )[0] ):
+#        f.read( 8 )
+#        mol.mass = list( struct.unpack( "%dd"%( mol.natm ), f.read( 8 * mol.natm ) ) )
+#        f.read( 4 )
+#        for i in range( 3 ):
+#            f.read( struct.unpack( "i", f.read( 4 ) )[0] + 4 )
+#        f.read( 4 )
+#        mol.chrg = list( struct.unpack( "%dd"%( mol.natm ), f.read( 8 * mol.natm ) ) )
+#        f.read( 4 )
+#        f.read( struct.unpack( "i", f.read( 4 ) )[0] + 4 )
+#        f.read( 4 )
+#        mol.epsi = [ i*0.5 for i in struct.unpack( "%dd"%( mol.natm ), f.read( 8 * mol.natm ) ) ]
+#        f.read( 4 )
+#        f.read( struct.unpack( "i", f.read( 4 ) )[0] + 4 )
+#        f.read( 4 )
+#        c = 0.5 * math.pow( 2, 1.0 / 6.0 )
+#        mol.rmin = [ i*i*c for i in struct.unpack( "%dd"%( mol.natm ), f.read( 8 * mol.natm ) ) ]
+#    f.close()
 
 
 def sequence( mol, fname = None ):

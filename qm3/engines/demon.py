@@ -58,7 +58,7 @@ class demon( qm3.engines.qmbase ):
         mol.func += float( f.readline().split()[-1] ) * self._ce
         if( run == "grad" ):
             l = f.readline()
-            while( l ):
+            while( l != "" ):
                 # read gradient and LAs projection
                 if( l.strip() == "QMFORCES" ):
                     g = []

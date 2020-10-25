@@ -73,7 +73,7 @@ class gamess( qm3.engines.qmbase ):
         self.chk = ""
         f = open( "gamess.data", "rt" )
         l = f.readline()
-        while( l ):
+        while( l != "" ):
             if( l[0:2] == "E(" ):
                 mol.func += float( l.split()[-5][:-1] ) * self._ce
             if( l[0:5] == " $VEC" ):

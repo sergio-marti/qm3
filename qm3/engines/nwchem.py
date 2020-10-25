@@ -68,7 +68,7 @@ class nwchem( qm3.engines.qmbase ):
     def parse_log( self, mol, run ):
         f = open( "nwchem.log", "rt" )
         l = f.readline()
-        while( l ):
+        while( l != "" ):
             L = l.strip()
             # read energy
             if( L.find( "Total " ) > -1 and L.find( " energy " ) > -1 ):

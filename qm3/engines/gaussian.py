@@ -75,20 +75,20 @@ class gaussian( qm3.engines.qmbase ):
 
     def parse_log( self, mol, run ):
         fd = open( "Test.FChk", "rt" )
-        ln = fd.readline()
-        while( ln ):
+        l = fd.readline()
+        while( l != "" ):
             # read energy
-            if( ln[0:12] == "Total Energy" ):
-                mol.func += float( ln.split()[3] ) * self._ce
+            if( l[0:12] == "Total Energy" ):
+                mol.func += float( l.split()[3] ) * self._ce
             # read gadient
-            if( run in [ "grad", "hess" ] and ln[0:18] == "Cartesian Gradient" ):
-                i = int( ln.split()[-1] )
+            if( run in [ "grad", "hess" ] and l[0:18] == "Cartesian Gradient" ):
+                i = int( l.split()[-1] )
                 j = int( i // 5 ) + ( i%5 != 0 )
                 i = 0
                 g = []
                 while( i < j ):
-                    ln = fd.readline()
-                    for itm in ln.split():
+                    l = fd.readline()
+                    for itm in l.split():
                         g.append( float( itm ) * self._cg )
                     i += 1
                 # remove LAs from gradient
@@ -100,14 +100,14 @@ class gaussian( qm3.engines.qmbase ):
                         mol.grad[3*self.sel[i]+j] += g[i3+j]
                 # read hessian (columns)
                 if( run == "hess" ):
-                    ln = fd.readline()
-                    i = int( ln.split()[-1] )
+                    l = fd.readline()
+                    i = int( l.split()[-1] )
                     j = int( i // 5 ) + ( i % 5 != 0 )
                     i = 0
                     h = []
                     while( i < j ):
-                        ln = fd.readline()
-                        for itm in ln.split():
+                        l = fd.readline()
+                        for itm in l.split():
                             h.append( float( itm ) * self._ch )
                         i += 1
                     # truncate LAs and swap hessian (cols>>rows)
@@ -115,34 +115,34 @@ class gaussian( qm3.engines.qmbase ):
                     j = i * ( i + 1 ) // 2
                     mol.hess = qm3.maths.matrix.from_upper_diagonal_columns( h[0:j], i )
             # read charges
-            if( ln[0:11] == "ESP Charges" ):
-                i = int( ln.split()[-1] )
+            if( l[0:11] == "ESP Charges" ):
+                i = int( l.split()[-1] )
                 j = int( i // 5 ) + ( i % 5 != 0 )
                 i = 0
                 k = 0
                 while( i < j ):
-                    ln = fd.readline()
-                    for itm in ln.split():
+                    l = fd.readline()
+                    for itm in l.split():
                         if( k < len( self.sel ) ):
                             mol.chrg[self.sel[k]] = float( itm )
                             k += 1
                     i += 1
-            ln = fd.readline()
+            l = fd.readline()
         fd.close()
         # remove autoenergy of the charges, and calculate MM gradient
         if( self.nbn ):
             fd = open( "g09.log", "rt" )
-            ln = fd.readline()
+            l = fd.readline()
             fl = True
-            while( ln and fl ):
-                if( ln[0:29] == " Self energy of the charges =" ):
+            while( l != "" and fl ):
+                if( l[0:29] == " Self energy of the charges =" ):
                     fl = False
-                    mol.func -= float( ln.split()[-2] ) * self._ce
-                ln = fd.readline()
+                    mol.func -= float( l.split()[-2] ) * self._ce
+                l = fd.readline()
             if( run in [ "grad", "hess" ] and self.gmm ):
                 fl = True
-                while( ln and fl ):
-                    if( ln.strip() == "Potential          X             Y             Z" ):
+                while( l != "" and fl ):
+                    if( l.strip() == "Potential          X             Y             Z" ):
                         fl = False
                         for i in range( 1 + len( self.sel ) + len( self.lnk ) ):
                             fd.readline()
@@ -151,7 +151,7 @@ class gaussian( qm3.engines.qmbase ):
                             t = fd.readline().split()[2:]
                             for j in [0, 1, 2]:
                                 mol.grad[i3+j] += - self._cg * mol.chrg[i] * float( t[j] )
-                    ln = fd.readline()
+                    l = fd.readline()
             fd.close()
         # return
         os.unlink( "Test.FChk" )
