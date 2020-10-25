@@ -10,8 +10,8 @@ import qm3.constants
 import qm3.maths.matrix
 import qm3.fio
 import qm3.elements
-import re
 import collections
+import re
 
 
 MXLAT = 1.0e300

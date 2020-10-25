@@ -1,7 +1,6 @@
 import qm3.mol
-import qm3.engines._mmint
+import qm3.engines.mmint
 import qm3.maths.matrix
-import qm3.elements
 try:
     import cStringIO as io
 except:
@@ -21,25 +20,32 @@ mol.xyz_read( f )
 f.close()
 mol.chrg = [ -0.834, 0.417, 0.417, -0.834, 0.417, 0.417 ]
 mol.anum = [ 8, 1, 1, 8, 1, 1 ]
-mol.mass = [ qm3.elements.mass[mol.anum[i]] for i in range( mol.natm ) ]
-mol.epsi = [ 0.9374, 0.0000, 0.0000, 0.9374, 0.000, 0.000 ] # Sqrt( eps * 4.184 ) >> Sqrt(kJ/mol)
-mol.rmin = [ 1.6610, 0.0000, 0.0000, 1.6610, 0.000, 0.000 ] # rmin/2 >> Ang
 
-obj = qm3.engines._mmint.QMLJ_MMEL( mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )
+#mol.epsi = [ 0.9374, 0.0000, 0.0000, 0.9374, 0.000, 0.000 ] # Sqrt( eps * 4.184 ) >> Sqrt(kJ/mol)
+#mol.rmin = [ 1.6610, 0.0000, 0.0000, 1.6610, 0.000, 0.000 ] # rmin/2 >> Ang
+mol.type = [ "OW", "HW", "HW", "OW", "HW", "HW" ]
+f = io.StringIO( """
+OW    0.21002    1.661
+HW    0.00000    0.000
+""" )
+out = qm3.engines.mmint.non_bonded( mol, f )
+print( list( zip( mol.epsi, mol.rmin ) ) )
+
+obj = qm3.engines.mmint.QMLJ_MMEL( mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )
 mol.grad = [ 0.0 for i in range( 3 * mol.natm ) ]
 mol.hess = [ 0.0 for i in range( 9 * 9 ) ]
 obj.get_hess( mol )
 qm3.maths.matrix.mprint( mol.grad, mol.natm, 3 )
 qm3.maths.matrix.mprint( mol.hess, 9, 9 )
 
-obj = qm3.engines._mmint.QMLJ_MMEL( mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [ [0,3,0.5] ] )
+obj = qm3.engines.mmint.QMLJ_MMEL( mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [ [0,3,0.5] ] )
 mol.grad = [ 0.0 for i in range( 3 * mol.natm ) ]
 mol.hess = [ 0.0 for i in range( 9 * 9 ) ]
 obj.get_hess( mol )
 qm3.maths.matrix.mprint( mol.grad, mol.natm, 3 )
 qm3.maths.matrix.mprint( mol.hess, 9, 9 )
 
-obj = qm3.engines._mmint.QMLJ( mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )
+obj = qm3.engines.mmint.QMLJ( mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )
 mol.grad = [ 0.0 for i in range( 3 * mol.natm ) ]
 mol.hess = [ 0.0 for i in range( 9 * 9 ) ]
 obj.get_hess( mol )
