@@ -1,5 +1,6 @@
 \normalsize
-\subsection[\_mmint]{\_mmint.so}
+\subsection[mmint]{mmint.py}
+This python module depends on the availability of the binary one called \_mmint.so\\
 The simplest way for mixing QM and MM within a single problem is to 
 freeze the QM atoms within the MM\_engine (nullifying their charges), and perform perturbed QM\_engine calculations
  (including the MM charges around). If the QM\_engine provides the electrostatic interaction MM\_gradient
@@ -12,6 +13,8 @@ For those QM engines which doesn't provide the electrostatic interaction MM\_gra
 \func{QMLJ\_MMEL} evaluates them classically (Coulomb based, without cut-off) using the charges stored in the molecule object ("mol.chrg"). Alternatively, change the order of the engines: QM.get\_grad >> QMLJ.get\_grad >> MM.update\_charges >> MM.get\_grad.\\
 In addition it also provides the QM\_Lennard-Jones hessian.\\
 \begin{pyglist}[language=python,fvset={frame=single}]
+def non_bonded( mol, fname )
+
 class QMLJ( mol, qm_lst, mm_lst, ex_lst )
     def get_func( mol )
     def get_grad( mol )

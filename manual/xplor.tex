@@ -1,0 +1,9 @@
+\normalsize
+\subsection[xplor]{xplor.py}
+Basic support for reading/writing of X-Plor PSF files (supported by CHARMM and NAMD among others).
+If an empty molecule (molecule.natm = 0) is passed as an argument to \func{psf\_read} if will be filled from the contents of the PSF file (\parm{fname}) just missing the coordinates. This function also returns the list of bonds of the system.\\
+In order to use \func{psf\_write} a previous call to \func{psf\_read} must be done (the module internally stores the topological content of the PSF file for later writing).
+\begin{pyglist}[language=python,fvset={frame=single}]
+def psf_read( mol, fname )
+def psf_write( mol, fname = None )
+\end{pyglist}
