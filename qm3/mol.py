@@ -582,7 +582,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
     def nbnd_read( self, fname ):
         out = True
         if( self.type == [] ):
-            print( "- PSF data undefined (load one!)" )
+            print( "- Molecule types undefined!" )
             return( False )
         self.epsi = []
         self.rmin = []

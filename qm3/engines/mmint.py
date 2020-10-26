@@ -10,12 +10,12 @@ import qm3.fio
 from qm3.engines._mmint import *
 
 
-# >> add a parser function for qm3/def, charmm/par, dynamo/opls, sander/prmtop?
+# >> add a parser function for charmm/par, dynamo/opls?
 
 def non_bonded( mol, fname ):
     out = True
     if( mol.type == [] ):
-        print( "- molecule types undefined!" )
+        print( "- Molecule types undefined!" )
         return( False )
     mol.epsi = []
     mol.rmin = []

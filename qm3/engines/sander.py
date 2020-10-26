@@ -96,6 +96,16 @@ def topology_read( mol, fname = None ):
                     __topo += l
                     mol.labl += [ l[i:i+dsp].strip() for i in range( 0, len( l ) - 1, dsp ) ]
 #                print( "labl", mol.labl[0], mol.labl[-1] )
+            elif( l[0:21].upper() == "%FLAG AMBER_ATOM_TYPE" ):
+                __topo += l
+                l = f.readline()
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
+                while( len( mol.type ) < mol.natm ):
+                    l = f.readline()
+                    __topo += l
+                    mol.type += [ l[i:i+dsp].strip() for i in range( 0, len( l ) - 1, dsp ) ]
+#                print( "type", mol.type[0], mol.type[-1] )
             elif( l[0:19].upper() == "%FLAG ATOMIC_NUMBER" ):
                 __topo += l
                 l = f.readline()
