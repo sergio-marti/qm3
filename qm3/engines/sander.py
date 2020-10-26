@@ -231,7 +231,7 @@ def topology_write( mol, fname = None ):
         f.write( "%FLAG CHARGE                                                                    \n" )
         f.write( "%FORMAT(5E16.8)                                                                 \n" )
         for i in range( mol.natm ):
-            f.write( "%16.8lf"%( mol.chrg[i] * 18.2223 ) )
+            f.write( "%16.8le"%( mol.chrg[i] * 18.2223 ) )
             if( (i+1)%5 == 0 ):
                 f.write( "\n" )
         qm3.fio.close( f, fname )
