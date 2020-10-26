@@ -51,6 +51,10 @@ def topology_read( mol, fname = None ):
     __topo = ""
     f = qm3.fio.open_r( fname )
     if( mol.natm > 0 ):
+        hbnd = 0
+        hlst = []
+        xbnd = 0
+        xlst = []
         l = f.readline()
         while( l != "" ):
             if( l[0:12].upper() == "%FLAG CHARGE" ):
@@ -59,11 +63,42 @@ def topology_read( mol, fname = None ):
                 while( len( mol.chrg ) < mol.natm ):
                     l = f.readline()
                     mol.chrg += [ float( l[i:i+dsp] ) / 18.2223 for i in range( 0, len( l ) - 1, dsp ) ]
+            elif( l[0:14].upper() == "%FLAG POINTERS" ):
+                __topo += l
+                l = f.readline()
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
+                l = f.readline()
+                __topo += l
+                hbnd = int( l[2*dsp:3*dsp] ) * 3
+                xbnd = int( l[3*dsp:4*dsp] ) * 3
+            elif( l[0:24].upper() == "%FLAG BONDS_INC_HYDROGEN" ):
+                __topo += l
+                l = f.readline()
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
+                while( len( hlst ) < hbnd ):
+                    l = f.readline()
+                    __topo += l
+                    hlst += [ int( l[i:i+dsp] ) // 3 for i in range( 0, len( l ) - 1, dsp ) ]
+            elif( l[0:28].upper() == "%FLAG BONDS_WITHOUT_HYDROGEN" ):
+                __topo += l
+                l = f.readline()
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
+                while( len( xlst ) < xbnd ):
+                    l = f.readline()
+                    __topo += l
+                    xlst += [ int( l[i:i+dsp] ) // 3 for i in range( 0, len( l ) - 1, dsp ) ]
             else:
                 __topo += l
             l = f.readline()
     else:
         mol.initialize()
+        hbnd = 0
+        hlst = []
+        xbnd = 0
+        xlst = []
         nres = 0
         lres = []
         l = f.readline()
@@ -73,7 +108,6 @@ def topology_read( mol, fname = None ):
                 while( len( mol.chrg ) < mol.natm ):
                     l = f.readline()
                     mol.chrg += [ float( l[i:i+dsp] ) / 18.2223 for i in range( 0, len( l ) - 1, dsp ) ]
-#                print( "chrg", mol.chrg[0], mol.chrg[-1], sum( mol.chrg ) )
             elif( l[0:14].upper() == "%FLAG POINTERS" ):
                 __topo += l
                 l = f.readline()
@@ -82,10 +116,11 @@ def topology_read( mol, fname = None ):
                 l = f.readline()
                 __topo += l
                 mol.natm = int( l[0:dsp] )
+                hbnd = int( l[2*dsp:3*dsp] ) * 3
+                xbnd = int( l[3*dsp:4*dsp] ) * 3
                 l = f.readline()
                 __topo += l
                 nres = int( l[dsp:2*dsp] )
-#                print( "natm", mol.natm, nres )
             elif( l[0:15].upper() == "%FLAG ATOM_NAME" ):
                 __topo += l
                 l = f.readline()
@@ -95,7 +130,6 @@ def topology_read( mol, fname = None ):
                     l = f.readline()
                     __topo += l
                     mol.labl += [ l[i:i+dsp].strip() for i in range( 0, len( l ) - 1, dsp ) ]
-#                print( "labl", mol.labl[0], mol.labl[-1] )
             elif( l[0:21].upper() == "%FLAG AMBER_ATOM_TYPE" ):
                 __topo += l
                 l = f.readline()
@@ -105,7 +139,6 @@ def topology_read( mol, fname = None ):
                     l = f.readline()
                     __topo += l
                     mol.type += [ l[i:i+dsp].strip() for i in range( 0, len( l ) - 1, dsp ) ]
-#                print( "type", mol.type[0], mol.type[-1] )
             elif( l[0:19].upper() == "%FLAG ATOMIC_NUMBER" ):
                 __topo += l
                 l = f.readline()
@@ -115,7 +148,6 @@ def topology_read( mol, fname = None ):
                     l = f.readline()
                     __topo += l
                     mol.anum += [ int( l[i:i+dsp] ) for i in range( 0, len( l ) - 1, dsp ) ]
-#                print( "anum", mol.anum[0], mol.anum[-1] )
             elif( l[0:10].upper() == "%FLAG MASS" ):
                 __topo += l
                 l = f.readline()
@@ -125,7 +157,6 @@ def topology_read( mol, fname = None ):
                     l = f.readline()
                     __topo += l
                     mol.mass += [ float( l[i:i+dsp] ) for i in range( 0, len( l ) - 1, dsp ) ]
-#                print( "mass", mol.mass[0], mol.mass[-1], sum( mol.mass ) )
             elif( l[0:19].upper() == "%FLAG RESIDUE_LABEL" ):
                 __topo += l
                 l = f.readline()
@@ -135,7 +166,6 @@ def topology_read( mol, fname = None ):
                     l = f.readline()
                     __topo += l
                     lres += [ l[i:i+dsp].strip() for i in range( 0, len( l ) - 1, dsp ) ]
-#                print( "resn", lres[0], lres[-1] )
             elif( l[0:21].upper() == "%FLAG RESIDUE_POINTER" ):
                 __topo += l
                 l = f.readline()
@@ -146,7 +176,6 @@ def topology_read( mol, fname = None ):
                     __topo += l
                     mol.res_lim += [ int( l[i:i+dsp] ) - 1 for i in range( 0, len( l ) - 1, dsp ) ]
                 mol.res_lim.append( mol.natm )
-#                print( "rlim", len( mol.res_lim ) )
             elif( l[0:20].upper() == "%FLAG BOX_DIMENSIONS" ):
                 __topo += l
                 l = f.readline()
@@ -155,17 +184,43 @@ def topology_read( mol, fname = None ):
                 l = f.readline()
                 __topo += l
                 mol.boxl = [ float( l[i:i+dsp] ) for i in range( 0, len( l ) - 1, dsp ) ][1:4]
-#                print( "boxl", mol.boxl )
+            elif( l[0:24].upper() == "%FLAG BONDS_INC_HYDROGEN" ):
+                __topo += l
+                l = f.readline()
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
+                while( len( hlst ) < hbnd ):
+                    l = f.readline()
+                    __topo += l
+                    hlst += [ int( l[i:i+dsp] ) // 3 for i in range( 0, len( l ) - 1, dsp ) ]
+            elif( l[0:28].upper() == "%FLAG BONDS_WITHOUT_HYDROGEN" ):
+                __topo += l
+                l = f.readline()
+                __topo += l
+                dsp = int( __frmt.findall( l )[0] )
+                while( len( xlst ) < xbnd ):
+                    l = f.readline()
+                    __topo += l
+                    xlst += [ int( l[i:i+dsp] ) // 3 for i in range( 0, len( l ) - 1, dsp ) ]
             else:
                 __topo += l
             l = f.readline()
-        mol.segn = [ "A" for i in range( mol.natm ) ]
+        mol.segn = []
+        for i in range( mol.natm ):
+            mol.segn.append( "A" )
         mol.seg_lim = [ 0, mol.natm ]
         for i in range( nres ):
             for j in range( mol.res_lim[i], mol.res_lim[i+1] ):
                 mol.resi.append( i + 1 )
                 mol.resn.append( lres[i] )
     qm3.fio.close( f, fname )
+    bond = []
+    for i in range( 0, xbnd, 3 ):
+        bond.append( [ xlst[i], xlst[i+1] ] )
+    for i in range( 0, hbnd, 3 ):
+        bond.append( [ hlst[i], hlst[i+1] ] )
+    bond.sort()
+    return( bond )
 
 
 def topology_write( mol, fname = None ):
