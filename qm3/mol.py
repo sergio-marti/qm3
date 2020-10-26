@@ -337,7 +337,7 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
             i3 = i * 3
             f.write( "ATOM  %5d %-5s%-5s%4d    %8.3lf%8.3lf%8.3lf%6.2lf%6.2lf      %-4s\n"%( ( j % 99999 ) + 1, 
                 " " * ( len( self.labl[i] ) < 4 ) + self.labl[i],
-                self.resn[i], self.resi[i], self.coor[i3], self.coor[i3+1], self.coor[i3+2], 
+                self.resn[i], self.resi[i] % 10000, self.coor[i3], self.coor[i3+1], self.coor[i3+2], 
                 0.0, 0.0, self.segn[i] ) )
             j += 1
         f.write( "END\n" )
