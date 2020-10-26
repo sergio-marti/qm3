@@ -213,6 +213,7 @@ def topology_read( mol, fname = None ):
             for j in range( mol.res_lim[i], mol.res_lim[i+1] ):
                 mol.resi.append( i + 1 )
                 mol.resn.append( lres[i] )
+        mol.settle()
     qm3.fio.close( f, fname )
     bond = []
     for i in range( 0, xbnd, 3 ):
