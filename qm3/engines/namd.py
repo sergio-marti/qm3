@@ -52,7 +52,7 @@ def pdb_write( mol, fname = None, fixed = [] ):
         i3 = i * 3
         f.write( "ATOM  %5d %-5s%-5s%4d    %8.3lf%8.3lf%8.3lf%6.2lf%6.2lf      %-4s\n"%( ( i % 99999 ) + 1, 
             " " * ( len( mol.labl[i] ) < 4 ) + mol.labl[i],
-            mol.resn[i], mol.resi[i], mol.coor[i3], mol.coor[i3+1], mol.coor[i3+2], 
+            mol.resn[i], mol.resi[i] % 10000, mol.coor[i3], mol.coor[i3+1], mol.coor[i3+2], 
             s[i], 0.0, mol.segn[i] ) )
     f.write( "END\n" )
     qm3.fio.close( f, fname )
