@@ -215,8 +215,7 @@ class umbint( object ):
         print( "#%19s%20s"%( "Reference", "PMF" ) )
         x = max( self.pmf )
         for i in range( self.__nb ):
-            self.pmf[i] -= x
-            print( "%20.10lf%20.10lf"%( self.crd[i], self.pmf[i] ) )
+            print( "%20.10lf%20.10lf"%( self.crd[i], self.pmf[i] - x ) )
 
 
     # Eq 6: using all (correlated) data
@@ -252,6 +251,7 @@ class umbint( object ):
 #
 # wham.F90 fDynamo module
 # Comput. Phys. Communications v135, p40 (2001) [10.1016/S0010-4655(00)00215-0]
+# J. Chem. Theory Comput. v6, p3713 (2010) [10.1021/ct100494z]
 #
 class wham( object ):
 
@@ -260,7 +260,9 @@ class wham( object ):
         self.__nw = 0
         self.__fc = []
         self.__rf = []
-        self.__NN = []
+        self.__ss = []
+        self.__gm = []
+        self.__gr = []
         self.__nb = None
         self.__nn = []
         self.__mx = None
@@ -276,14 +278,21 @@ class wham( object ):
             if( not self.__mx ): self.__mx = t[1]
             if( not self.__Mx ): self.__Mx = t[1]
             n = 0.0
+            gm = 0.0
+            gr = 0.0
             for l in f:
                 t = float( l.strip() )
                 self.__dd.append( t )
                 self.__mx = min( self.__mx, t )
                 self.__Mx = max( self.__Mx, t )
                 n += 1.0
+                gm += t
+                gr += t * t
             f.close()
-            self.__NN.append( n )
+            self.__ss.append( n )
+            gm /= n
+            self.__gm.append( gm )
+            self.__gr.append( math.sqrt( math.fabs( gr / n - gm * gm ) ) )
             self.__nw += 1
 
 
@@ -291,17 +300,22 @@ class wham( object ):
         self.__nb = nbins
         if( not self.__nb ):
             self.__nb = 2 * self.__nw
-        __db      = ( self.__Mx - self.__mx ) / float( self.__nb )
+        self.__db = ( self.__Mx - self.__mx ) / float( self.__nb )
         self.__nn = [ 0.0 for i in range( self.__nb ) ]
-        self.crd  = [ self.__mx + __db * ( float( i ) + 0.5 ) for i in range( self.__nb ) ]
+        self.crd  = [ self.__mx + self.__db * ( float( i ) + 0.5 ) for i in range( self.__nb ) ]
         for t in self.__dd:
-            w = sorted( [ ( math.fabs( self.crd[i] - t ), i ) for i in range( self.__nb ) ] )[0][1]
-            self.__nn[w] += 1.0
+#            w = sorted( [ ( math.fabs( self.crd[i] - t ), i ) for i in range( self.__nb ) ] )[0][1]
+            try:
+                w = int( ( t - self.__mx ) / self.__db )
+                self.__nn[w] += 1.0
+            except:
+                pass
+        self.__ff = [ 0.0 for i in range( self.__nw ) ]
+        del( self.__dd )
 
 
-    def integrate( self, temperature = 300.0, maxit = 10000, toler = 1.0e-3 ):
+    def integrate( self, temperature = 300.0, maxit = 10000, toler = 1.0e-3, qprint = True ):
         __rt     = temperature * 1.0e-3 * qm3.constants.R
-        __ff     = [ 0.0 for i in range( self.__nw ) ]
         __rr     = [ 0.0 for i in range( self.__nb ) ]
         __uu     = []
         __eu     = []
@@ -316,12 +330,12 @@ class wham( object ):
         f = False
         I = 0
         while( I < maxit and not f ):
-            __fo = __ff[:]
+            __fo = self.__ff[:]
             for i in range( self.__nb ):
-                __rr[i] = self.__nn[i] / sum( [ self.__NN[j] * math.exp( - ( __uu[i][j] - __ff[j] ) / __rt ) for j in range( self.__nw ) ] )
+                __rr[i] = self.__nn[i] / sum( [ self.__ss[j] * math.exp( - ( __uu[i][j] - self.__ff[j] ) / __rt ) for j in range( self.__nw ) ] )
             for j in range( self.__nw ):
-                __ff[j] = - __rt * math.log( sum( [ __eu[i][j] * __rr[i] for i in range( self.__nb ) ] ) )
-            f = max( [ math.fabs( __fo[i] - __ff[i] ) for i in range( self.__nw ) ] ) < toler
+                self.__ff[j] = - __rt * math.log( sum( [ __eu[i][j] * __rr[i] for i in range( self.__nb ) ] ) )
+            f = max( [ math.fabs( __fo[i] - self.__ff[i] ) for i in range( self.__nw ) ] ) < toler
             I += 1
         print( "#%9s%20d"%( f, I ) )
         if( f ):
@@ -332,12 +346,57 @@ class wham( object ):
                     self.pmf.append( - __rt * math.log( __rr[i] ) )
                 else:
                     self.pmf.append( 0.0 )
-            x = max( self.pmf )
-            print( "#%9s%20s%20s%20s"%( "Points", "Reference", "Density", "PMF" ) )
-            for i in range( self.__nb ):
-                self.pmf[i] -= x
-                print( "%10.0lf%20.10lf%20.10lg%20.10lf"%( self.__nn[i], self.crd[i], __rr[i], self.pmf[i] ) )
+            if( qprint ):
+                x = max( self.pmf )
+                print( "#%9s%20s%20s%20s"%( "Points", "Reference", "Density", "PMF" ) )
+                for i in range( self.__nb ):
+                    print( "%10.0lf%20.10lf%20.10lg%20.10lf"%( self.__nn[i], self.crd[i], __rr[i], self.pmf[i] - x ) )
         return( f )
+
+
+    def bootstrap( self, samples = 200, by_window = True, temperature = 300., maxit = 10000, toler = 1.0e-3 ):
+        self.integrate( temperature, maxit, toler, False )
+        m_pmf = self.pmf[:]
+        self.rms = [ i * i for i in m_pmf ]
+        if( by_window ):
+            for ii in range( 1, samples ):
+                self.__nn = [ .0 for i in range( self.__nb ) ]
+                for i in range( self.__nw ):
+                    j = 0
+                    while( j < int( self.__ss[i] ) ):
+                        t = qm3.maths.rand.gauss( self.__gm[i], self.__gr[i] )
+                        try:
+                            w = int( ( t - self.__mx ) / self.__db )
+                            self.__nn[w] += 1.0
+                            j += 1
+                        except:
+                            pass
+                self.integrate( temperature, maxit, toler, False )
+                for i in range( self.__nb ):
+                    m_pmf[i] += self.pmf[i]
+                    self.rms[i] += self.pmf[i] * self.pmf[i]
+        else:
+            pop = sum( self.__nn )
+            den = [ i / pop for i in self.__nn ]
+            xdn = max( den )
+            nbn = self.__nb - 2
+            for ii in range( 1, samples ):
+                self.__nn = [ .0 for i in range( self.__nb ) ]
+                c = 0
+                while( c < pop ):
+                    w = qm3.maths.rand.randint( 0, nbn )
+                    if( den[w] >= qm3.maths.rand.random() * xdn ):
+                        self.__nn[w] += 1.0
+                        c += 1
+                self.integrate( temperature, maxit, toler, False )
+                for i in range( self.__nb ):
+                    m_pmf[i] += self.pmf[i]
+                    self.rms[i] += self.pmf[i] * self.pmf[i]
+        print( "#%19s%20s%20s"%( "Reference", "<PMF>", "RMS" ) )
+        for i in range( self.__nb ):
+            self.pmf[i] = m_pmf[i] / float( samples )
+            self.rms[i] = math.sqrt( math.fabs( self.rms[i] / float( samples ) - self.pmf[i] * self.pmf[i] ) )
+            print( "%20.10lf%20.10lf%20.10lf"%( self.crd[i], self.pmf[i], self.rms[i] ) )
 
 
 
