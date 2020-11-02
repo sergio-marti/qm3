@@ -23,7 +23,7 @@ try:
         return( list( numpy.random.choice( lst, num, replace = False ) ) )
 
     def randint( a, b ):
-        return( numpy.random.random_integers( a, b + 1 ) )
+        return( numpy.random.randint( a, b + 1 ) )
 
     def gauss( mean, stdv ):
         return( numpy.random.normal( mean, stdv ) )
@@ -39,7 +39,7 @@ except:
         return( py_random.sample( lst, num ) )
 
     def randint( a, b ):
-#        return( a + int( random() * ( b - a + 1 ) ) )
+#        return( a + int( random() * ( b - a ) ) )
         return( py_random.randint( a, b ) )
 
     def gauss( mean, stdv ):

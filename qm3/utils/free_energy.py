@@ -354,6 +354,7 @@ class wham( object ):
         return( f )
 
 
+    # mostly instructive (*very* slow): use tools/wham_bootstrapping.c instead
     def bootstrap( self, samples = 200, by_window = True, temperature = 300., maxit = 10000, toler = 1.0e-3 ):
         self.integrate( temperature, maxit, toler, False )
         m_pmf = self.pmf[:]
@@ -379,7 +380,7 @@ class wham( object ):
             pop = sum( self.__nn )
             den = [ i / pop for i in self.__nn ]
             xdn = max( den )
-            nbn = self.__nb - 2
+            nbn = self.__nb - 1
             for ii in range( 1, samples ):
                 self.__nn = [ .0 for i in range( self.__nb ) ]
                 c = 0
