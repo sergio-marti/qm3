@@ -157,6 +157,7 @@ class umbint( object ):
         self.__Mx = None
         self.crd  = []
         self.pmf  = []
+        self.__xi = []
         # ---------------------------------------------
         for fn in data:
             f = open( fn, "rt" )
@@ -166,6 +167,7 @@ class umbint( object ):
             if( not self.__mx ): self.__mx = t[1]
             if( not self.__Mx ): self.__Mx = t[1]
             n = 0.0; m = 0.0; s = 0.0
+            m3 = 0.0; m4 = 0.0
             for l in f:
                 t = float( l.strip() )
                 n += 1.0
@@ -173,12 +175,19 @@ class umbint( object ):
                 s += t * t
                 self.__mx = min( self.__mx, t )
                 self.__Mx = max( self.__Mx, t )
+                t2 = t * t
+                m3 += t2 * t
+                m4 += t2 * t2
             f.close()
             self.__ff.append( n )
             m /= n
             self.__mm.append( m )
             self.__ss.append( math.sqrt( math.fabs( s / n - m * m ) ) )
             self.__nw += 1
+            m2 = s / n
+            m3 /= n
+            m4 /= n
+            self.__xi.append( m4 + 6.0 * m * m * m2 - 3.0 * m * m * m * m - 4.0 * m * m3 )
 
 
     def setup( self, nbins = None ):
@@ -203,6 +212,19 @@ class umbint( object ):
         return( px / pt )
 
 
+    # from eq. 5: var( mu ) = sig^2 / n; var( sig^2 ) = ( sum ( x - mu )^4 / n - sig^4 ) / n
+    def __vdAdx( self, x, RT ):
+        pt = 0.0
+        px = 0.0
+        for j in range( self.__nw ):
+            p   = self.__ff[j] * self.__prob( x, self.__mm[j], self.__ss[j] )
+            s2  = self.__ss[j] * self.__ss[j]
+            s4  = s2 * s2
+            pt += p
+            px += p * p * RT * RT * ( 1.0 / s2 + math.pow( x - self.__mm[j], 2.0 ) * ( self.__xi[j] - s4 ) / s4 ) / self.__ff[j]
+        return( px / ( pt * pt ) )
+
+
     def integrate( self, temperature = 300.0 ):
         self.__rt = temperature * 1.0e-3 * qm3.constants.R
         self.pmf  = [ 0.0 ]
@@ -212,39 +234,17 @@ class umbint( object ):
             e = self.__dAdx( self.crd[i], self.__rt )
             self.pmf.append( self.pmf[-1] + 0.5 * self.__db * ( l + e ) )
             l = e
-        print( "#%19s%20s"%( "Reference", "PMF" ) )
+        self.rms = [ 0.0 ]
+        e = 0.0
+        l = self.__vdAdx( self.crd[0], self.__rt )
+        for i in range( 1, self.__nb ):
+            e = self.__vdAdx( self.crd[i], self.__rt )
+            self.rms.append( self.rms[-1] + 0.5 * self.__db * ( l + e ) )
+            l = e
+        print( "#%19s%20s%20s"%( "Reference", "PMF", "Stdev" ) )
         x = max( self.pmf )
         for i in range( self.__nb ):
-            print( "%20.10lf%20.10lf"%( self.crd[i], self.pmf[i] - x ) )
-
-
-    # Eq 6: using all (correlated) data
-    def __vdAdx( self, x, RT ):
-        pt = 0.0
-        px = 0.0
-        for j in range( self.__nw ):
-            p   = self.__ff[j] * self.__prob( x, self.__mm[j], self.__ss[j] )
-            s2  = self.__ss[j] * self.__ss[j]
-            pt += p
-            px += p * p * RT * RT * ( 2.0 * math.pow( x - self.__mm[j], 2.0 ) + s2 ) / ( self.__ff[j] * s2 * s2 ) 
-        return( px / ( pt * pt ) )
-
-
-    def error( self, bin_a, bin_b = None ):
-        if( bin_b == None ):
-            bin_b = self.pmf.index( 0.0 )
-        t_a = min( bin_a, bin_b )
-        t_b = max( bin_a, bin_b )
-        bin_a = t_a
-        bin_b = t_b
-        pmf = self.pmf[bin_b] - self.pmf[bin_a]
-        # references are not sorted... (average all dispersions)
-        ssm = sum( self.__ss ) / self.__nw
-        err = 0.0
-        for j in range( bin_a, bin_b + 1 ):
-            err += self.__vdAdx( self.crd[j], self.__rt )
-        err *= ( ( self.crd[bin_b] - self.crd[bin_a] ) * ssm / self.__gs - 2.0 * ssm * ssm )
-        return( pmf, err )
+            print( "%20.10lf%20.10lf%20.10lf"%( self.crd[i], self.pmf[i] - x, math.sqrt( self.rms[i] ) ) )
 
 
 
@@ -289,6 +289,7 @@ class wham( object ):
                 gm += t
                 gr += t * t
             f.close()
+            # autocorrelated data would divide the amount of samples...
             self.__ss.append( n )
             gm /= n
             self.__gm.append( gm )
@@ -393,7 +394,7 @@ class wham( object ):
                 for i in range( self.__nb ):
                     m_pmf[i] += self.pmf[i]
                     self.rms[i] += self.pmf[i] * self.pmf[i]
-        print( "#%19s%20s%20s"%( "Reference", "<PMF>", "RMS" ) )
+        print( "#%19s%20s%20s"%( "Reference", "<PMF>", "Stdev" ) )
         for i in range( self.__nb ):
             self.pmf[i] = m_pmf[i] / float( samples )
             self.rms[i] = math.sqrt( math.fabs( self.rms[i] / float( samples ) - self.pmf[i] * self.pmf[i] ) )

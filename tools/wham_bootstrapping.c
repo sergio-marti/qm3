@@ -159,11 +159,11 @@ int main( int argc, char **argv ){
 			wham( c, n_win, n_bin, kbt, _ss, _nn, _uu, _eu, _ff, _fo, _rr, pmf, rms );
 		}
 	} else {
+		// global-based MC density
 		double popu, mxdn, *dens = NULL;
 		dens = (double*) malloc( n_bin * sizeof( double ) );
 		for( popu =  _nn[0], i = 1; i < n_bin; i++ ) { popu += _nn[i]; }
 		for( mxdn = dens[0], i = 0; i < n_bin; i++ ) { dens[i] = _nn[i] / popu; mxdn = max( mxdn, dens[i] ); }
-		// global-based MC density
 		for( c = 1; c < n_bts; c++ ) {
 			for( i = 0; i < n_bin; i++ ) _nn[i] = 0.0;
 			i = 0;
