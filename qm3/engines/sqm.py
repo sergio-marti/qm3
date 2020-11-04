@@ -28,7 +28,7 @@ def sqm_input( obj, mol ):
         for i,j in obj.lnk:
             c, v = qm3.engines.LA_coordinates( i, j, mol )
             # To allow the interaction of the Link-Atom with the environment change atomic number to "1"
-            s_qm += "%3d%4s%20.10lf%20.10lf%20.10lf\n"%( -1, "H", c[0], c[1], c[2] )
+            s_qm += "%3d%4s%20.10lf%20.10lf%20.10lf\n"%( 1, "H", c[0], c[1], c[2] )
             obj.vla.append( ( obj.sel.index( i ), k, v[:] ) )
             k += 1
     s_mm = ""
