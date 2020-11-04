@@ -8,7 +8,7 @@ except:
   import io
 import os
 
-os.environ["QM3_LIBDFTB"] = "/Users/smarti/Devel/qm3/dftb.so"
+os.environ["QM3_LIBDFTB"] = "/Users/smarti/Devel/qm3/EXTERNAL/dftb/dftb.so"
 
 
 class my_eng( qm3.problem.template ):

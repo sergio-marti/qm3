@@ -21,7 +21,7 @@ except:
 
 #qm3.engines.mol_mech.mol_mech_so = False
 os.environ["AMBERHOME"] = "/Users/smarti/Devel/amber/18"
-os.environ["QM3_LIBSQM"] = "/Users/smarti/Devel/amber/18/qm3/libsqm.so"
+os.environ["QM3_LIBSQM"] = "/Users/smarti/Devel/qm3/EXTERNAL/sqm/sqm.so"
 
 
 class my_problem( qm3.problem.template ):
@@ -110,7 +110,7 @@ O.2     -0.5100
 _slave_
 &qmmm 
 maxcyc    = 0,
-qm_theory = "DFTB",
+qm_theory = "AM1",
 qmcharge  = +1,
 qmmm_int  = 1,
 verbosity = 4

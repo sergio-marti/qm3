@@ -6,7 +6,7 @@ import  qm3.engines.xtb
 import  qm3.actions.ring_polymer
 
 
-os.environ["QM3_LIBXTB"] = "/Users/smarti/Devel/qm3/xtb.so"
+os.environ["QM3_LIBXTB"] = "/Users/smarti/Devel/qm3/EXTERNAL/xtb/xtb.so"
 
 
 class my_model:
