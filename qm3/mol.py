@@ -21,7 +21,7 @@ class molecule( object ):
 
     def __init__( self, fname = None ):
         self.initialize()
-        if( fname ): 
+        if( fname != None ): 
             self.pdb_read( fname )
 
 
@@ -133,8 +133,8 @@ class molecule( object ):
         return( out )
 
 
-    def rotate( self, center, axis, theta, sele = None ):
-        if( sele ):
+    def rotate( self, center, axis, theta, sele = [] ):
+        if( len( sele ) > 0 ):
             t_sel = sele[:]
         else:
             t_sel = range( self.natm )
@@ -158,17 +158,17 @@ class molecule( object ):
             out.resi.append( self.resi[i] )
             out.labl.append( self.labl[i] )
             out.coor += self.coor[i3:i3+3]
-            if( self.anum ):
+            if( len( self.anum ) > 0 ):
                 out.anum.append( self.anum[i] )
-            if( self.type ):
+            if( len( self.type ) > 0 ):
                 out.type.append( self.type[i] )
-            if( self.mass ):
+            if( len( self.mass ) > 0 ):
                 out.mass.append( self.mass[i] )
-            if( self.chrg ):
+            if( len( self.chrg ) > 0 ):
                 out.chrg.append( self.chrg[i] )
-            if( self.epsi ):
+            if( len( self.epsi ) > 0 ):
                 out.epsi.append( self.epsi[i] )
-            if( self.rmin ):
+            if( len( self.rmin ) > 0 ):
                 out.rmin.append( self.rmin[i] )
         out.settle()
         return( out )
@@ -188,7 +188,7 @@ class molecule( object ):
         if( len( self.anum ) > 0 and len( molec.anum ) > 0 ):
             self.anum += molec.anum[:]
         else:
-            self.type = []
+            self.anum = []
         if( len( self.mass ) > 0 and len( molec.mass ) > 0 ):
             self.mass += molec.mass[:]
         else:
@@ -251,7 +251,7 @@ class molecule( object ):
 
 
     def guess_atomic_numbers( self ):
-        if( self.mass  ):
+        if( len( self.mass > 0 ):
             self.anum = []
             for i in range( self.natm ):
                 self.anum.append( sorted( [ ( math.fabs( qm3.elements.mass[j] - self.mass[i] ), j ) for j in iter( qm3.elements.mass ) if j > 0 ] )[0][1] )
@@ -264,7 +264,7 @@ class molecule( object ):
 
 
     def fill_masses( self ):
-        if( self.anum ):
+        if( len( self.anum ) > 0 ):
             self.mass = [ qm3.elements.mass[i] for i in self.anum ]
         else:
             self.guess_atomic_numbers()
