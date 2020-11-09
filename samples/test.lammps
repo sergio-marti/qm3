@@ -90,7 +90,7 @@ write_dump      all custom lammps.force id fx fy fz modify sort id format line "
 """ )
 f.close()
 eng = qm3.engines._lammps.lammps()
-eng.exe = "mpirun -n 4 /Users/smarti/Devel/lammps/lmp_mpi-16Mar18 -in lammps.inp -sc none -log lammps.log"
+eng.exe = "mpirun -n 4 ./bin/lmp_mpi-16Mar18 -in lammps.inp -sc none -log lammps.log"
 mol.func = 0
 mol.grad = [ 0 for i in range( 3 * mol.natm ) ]
 eng.get_grad( mol )
@@ -127,7 +127,7 @@ thermo_style    multi
 thermo          1
 """ )
 f.close()
-os.system( "/Users/smarti/Devel/lammps/lmp_mpi-16Mar18 -in lammps.pipe -sc none -log lammps.log &" )
+os.system( "./bin/lmp_mpi-16Mar18 -in lammps.pipe -sc none -log lammps.log &" )
 time.sleep( 10 )
 eng = qm3.engines._lammps.lammps_pipe( "lammps.inp" )
 mol.func = 0

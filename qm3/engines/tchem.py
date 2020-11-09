@@ -34,7 +34,7 @@ class tchem( qm3.engines.qmbase ):
                 mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
                 mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
             j += 1
-        if( self.lnk ):
+        if( len( self.lnk ) > 0 ):
             self.vla = []
             k = len( self.sel )
             for i,j in self.lnk:
@@ -47,7 +47,7 @@ class tchem( qm3.engines.qmbase ):
         s_rn = "energy"
         if( run == "grad" ):
             s_rn = "gradient"
-        if( self.nbn ):
+        if( len( self.nbn ) > 0 ):
             s_mm = "pointcharges  tchem_mm.xyz\namber         yes\n"
             f = open( "tchem_mm.xyz", "wt" )
             f.write( "%d\n\n"%( len( self.nbn ) ) )
@@ -136,7 +136,7 @@ class tchem_sckt( qm3.engines.qmbase ):
             i3 = i * 3
             for j in [0, 1, 2]:
                 crd.append( mol.coor[i3+j] - mol.boxl[j] * round( mol.coor[i3+j] / mol.boxl[j], 0 ) )
-        if( self.lnk ):
+        if( len( self.lnk ) > 0 ):
             self.vla = []
             k = len( self.sel )
             for i,j in self.lnk:

@@ -73,7 +73,7 @@ f.close()
 
 f = open( "r.lsdalton", "wt" )
 f.write( """
-cwd=/Users/smarti/Devel/lsdalton
+cwd=./bin
 mem=512
 export WRKDIR=`pwd`
 export BASDIR=$WRKDIR:$cwd/basis

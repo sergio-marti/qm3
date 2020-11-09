@@ -2,7 +2,7 @@ import sys
 import qm3.actions.dynamics
 import qm3.engines.mmres
 import qm3.engines._plumed
-import qm3.engines._mmint
+import qm3.engines.mmint
 import qm3.problem
 import qm3.mol
 import qm3.fio.dcd
@@ -27,8 +27,8 @@ class my_problem( qm3.problem.template ):
 
         self.mol = qm3.mol.molecule( "pdb" )
         self.mol.boxl = [ 40., 40., 40. ]
-        self.mol.psf_read( "psf" )
         self.mol.nbnd_read( "non_bonded" )
+        qm3.engines.mmint.non_bonded( self.mol, "non_bonded" )
 
         self.emm = qm3.engines.namd.namd_pipe()
         s_qm = sorted( self.mol.indx["A"][1].values() )
@@ -40,10 +40,10 @@ class my_problem( qm3.problem.template ):
 
         self.eqm = qm3.engines.dftb.dftb( self.mol, s_qm, s_mm )
         self.eqm.chg = 0
-        self.eqm.prm = "/home/gpuser/plumed/3ob-3-1/"
+        self.eqm.prm = "./bin/3ob-3-1/"
         self.eqm.exe = "bash r.dftb"
 
-        self.fix = qm3.engines._mmint.QMLJ( self.mol, s_qm, s_mm, [] )
+        self.fix = qm3.engines.mmint.QMLJ( self.mol, s_qm, s_mm, [] )
 
         self.rst = qm3.engines._plumed.Plumed( self.mol, 0.001, False )
 
@@ -145,14 +145,14 @@ f.close()
 
 
 f = open( "r.namd", "wt" )
-f.write( "/usr/local/chem/namd_2.12/namd2 +setcpuaffinity +isomalloc_sync +idlepoll namd.inp > namd.out\n" )
+f.write( "./bin/namd2 +setcpuaffinity +isomalloc_sync +idlepoll namd.inp > namd.out\n" )
 f.close()
 
 
 f = open( "r.dftb", "wt" )
 f.write( """
 export OMP_NUM_THREADS=4
-/usr/local/chem/dftb+_git > dftb_in.log
+./bin/dftb+ > dftb_in.log
 """ )
 f.close()
 

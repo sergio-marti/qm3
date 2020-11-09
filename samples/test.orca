@@ -64,16 +64,7 @@ f.close()
 
 f = open( "r.orca", "wt" )
 f.write( """
-#mpi=/usr/local/chem/openmpi-2.0.2
-#export PATH=$mpi/bin:$PATH
-#export LD_LIBRARY_PATH=$mpi/lib:$LD_LIBRARY_PATH
-
-#cwd=/usr/local/chem/orca_4.0.1
-#export PATH=$cwd:$PATH
-#export LD_LIBRARY_PATH=$cwd:$LD_LIBRARY_PATH
-#$cwd/orca orca.inp > orca.out
-
-cwd=/Users/smarti/Devel/orca/orca_4_2_1_macosx_openmpi314
+cwd=./bin/orca
 $cwd/orca orca.inp > orca.out
 """ )
 f.close()

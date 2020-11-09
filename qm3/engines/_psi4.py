@@ -43,7 +43,7 @@ try:
                     mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
                 j += 1
             self.vla = []
-            if( self.lnk ):
+            if( len( self.lnk ) > 0 ):
                 k = len( self.sel )
                 for i,j in self.lnk:
                     c, v = qm3.engines.LA_coordinates( i, j, mol )
@@ -61,7 +61,7 @@ try:
             buf += "symmetry c1\nno_reorient\nno_com\n"
             self.QMatm = psi4.geometry( buf )
             psi4.activate( self.QMatm )
-            if( self.nbn ):
+            if( len( self.nbn ) > 0 ):
                 self.MMatm = psi4.QMMM()
                 self.MMatm.charges = []
                 for i in self.nbn:
@@ -82,7 +82,7 @@ try:
                 i3 = i * 3
                 crd.append( [ ( mol.coor[i3+j] - mol.boxl[j] * round( mol.coor[i3+j] / mol.boxl[j], 0 ) ) / qm3.constants.A0 for j in [0, 1, 2] ] )
             self.vla = []
-            if( self.lnk ):
+            if( len( self.lnk ) > 0 ):
                 k = len( self.sel )
                 for i,j in self.lnk:
                     c, v = qm3.engines.LA_coordinates( i, j, mol )
@@ -91,7 +91,7 @@ try:
                     k += 1
             self.QMatm.set_geometry( psi4.core.Matrix.from_list( crd ) )
             self.QMatm.update_geometry()
-            if( self.nbn ):
+            if( len( self.nbn ) > 0 ):
                 self.MMatm = psi4.QMMM()
                 self.MMatm.charges = []
                 f = open( "grid.dat", "wt" )
@@ -120,7 +120,7 @@ try:
                 i3 = i * 3
                 for j in [0, 1, 2]:
                     mol.grad[3*self.sel[i]+j] += g[i3+j] * self._cg
-            if( self.nbn ):
+            if( len( self.nbn ) > 0 ):
                 ef = psi4.core.OEProp( wfn )
                 ef.add( "GRID_FIELD" )
                 ef.compute()

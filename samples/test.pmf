@@ -1,10 +1,11 @@
 import qm3.mol
+import qm3.fio.xplor
 import qm3.problem
 import qm3.utils._mpi
 import qm3.actions.dynamics
 import qm3.engines.namd
 import qm3.engines.dftb
-import qm3.engines._mmint
+import qm3.engines.mmint
 import qm3.engines.mmres
 import os
 import time
@@ -72,8 +73,8 @@ while { [ gets $fd cmd ] >= 0 } {
 
         self.mol = qm3.mol.molecule( "../seed" )
         self.mol.boxl = [ 40., 40., 40. ]
-        self.mol.psf_read( "../psf" )
-        self.mol.nbnd_read( "../non_bonded" )
+        qm3.fio.xplor.psf_read( self.mol, "../psf" )
+        qm3.engines.mmint.non_bonded( self.mol, "../non_bonded" )
 
         self.mass = self.mol.mass
 
@@ -87,10 +88,10 @@ while { [ gets $fd cmd ] >= 0 } {
 
         self.eqm = qm3.engines.dftb.dftb( self.mol, s_qm, s_mm )
         self.eqm.chg = 0
-        self.eqm.prm = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
+        self.eqm.prm = "./bin/3ob-3-1/"
         self.eqm.exe = "bash ../r.dftb"
 
-        self.fix = qm3.engines._mmint.QMLJ( self.mol, s_qm, s_mm, [] ) 
+        self.fix = qm3.engines.mmint.QMLJ( self.mol, s_qm, s_mm, [] ) 
 
         self.size = self.mol.natm * 3
         self.coor = self.mol.coor[:]

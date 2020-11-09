@@ -40,12 +40,11 @@ class series( object ):
             self.bcof.append( qm3.maths.integration.Simpson_f( lambda r: self.inte.calc( r )[0] * math.sin( r * f ), self.x[0], self.x[-1], n = 1000 )[0] )
 
 
-    def calc( self, r, items = None ):
+    def calc( self, r, items = -1 ):
         o = self.base
         n = self.size
-        if( items ):
-            if( items > 0 and items <= self.size ):
-                n = items
+        if( items > 0 and items <= self.size ):
+            n = items
         for i in range( n ):
             f = float( i + 1 ) * math.pi / self.peri
             o += self.acof[i] * math.cos( f * r ) + self.bcof[i] * math.sin( f * r )

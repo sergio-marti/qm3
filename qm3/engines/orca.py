@@ -29,7 +29,7 @@ class orca( qm3.engines.qmbase ):
                 mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
                 mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
             j += 1
-        if( self.lnk ):
+        if( len( self.lnk ) > 0 ):
             self.vla = []
             k = len( self.sel )
             for i,j in self.lnk:
@@ -38,7 +38,7 @@ class orca( qm3.engines.qmbase ):
                 self.vla.append( ( self.sel.index( i ), k, v[:] ) )
                 k += 1
         s_mm = ""
-        if( self.nbn ):
+        if( len( self.nbn ) > 0 ):
             s_mm = "%pointcharges \"orca.pc\""
             f = open( "orca.pc", "wt" )
             f.write( "%d\n"%( len( self.nbn ) ) )

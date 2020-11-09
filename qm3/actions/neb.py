@@ -174,7 +174,7 @@ class serial_neb( qm3.problem.template ):
             # common to all nodes
             gsp = sum( [ ii * jj for ii,jj in zip( tau, gpot[self.dime*who:self.dime*who+self.dime] ) ] )
             grd = [ ii - gsp * jj + kk for ii,jj,kk in zip( gpot[self.dime*who:self.dime*who+self.dime], tau, gum ) ]
-            qm3.utils.project_RT_modes( self.prob.mass, self.coor[self.dime*who:self.dime*who+self.dime], grd, None )
+            qm3.utils.project_RT_modes( self.prob.mass, self.coor[self.dime*who:self.dime*who+self.dime], grd, [] )
             self.grad += grd[:]
 #-            # check for a possible update in the fixed points...
 #-            if( upd0 != None ):
@@ -281,7 +281,7 @@ try:
 #                usp = sum( [ ii * jj for ii,jj in zip( tau, gum ) ] )
 #                gsp = sum( [ ii * jj for ii,jj in zip( tau, self.prob.grad ) ] )
 #                grd = [ ii - gsp * jj + usp * jj for ii,jj in zip( self.prob.grad, tau ) ]
-#                qm3.utils.project_RT_modes( self.prob.mass, self.prob.coor, grd, None )
+#                qm3.utils.project_RT_modes( self.prob.mass, self.prob.coor, grd, [] )
 #                self.grad += grd[:]
 #            # sync func from and to nodes
 #            qm3.utils._mpi.barrier()
@@ -398,7 +398,7 @@ try:
                 # common to all nodes
                 gsp = sum( [ ii * jj for ii,jj in zip( tau, gpot[self.dime*who:self.dime*who+self.dime] ) ] )
                 grd = [ ii - gsp * jj + kk for ii,jj,kk in zip( gpot[self.dime*who:self.dime*who+self.dime], tau, gum ) ]
-                qm3.utils.project_RT_modes( self.prob.mass, self.coor[self.dime*who:self.dime*who+self.dime], grd, None )
+                qm3.utils.project_RT_modes( self.prob.mass, self.coor[self.dime*who:self.dime*who+self.dime], grd, [] )
                 self.grad += grd[:]
 #-            # check for a possible update in the fixed points...
 #-            if( upd0 != None ):

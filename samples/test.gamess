@@ -135,7 +135,7 @@ f.close()
 
 
 f = open( "r.gamess", "wt" )
-f.write( """GWD=/Users/smarti/Devel/gamess_us/2018R3
+f.write( """GWD=./bin
 SCR=`pwd`
 DDI=$GWD/ddikick.x
 EXE=$GWD/gamess.00.x
@@ -156,7 +156,7 @@ rm -f $JOB.* $PUNCH
 export DDI_RSH=ssh
 export DDI_VER=new
 export NNODES=1
-export NCPUS=2
+export NCPUS=1
 export HOSTLIST="`hostname`:cpus=$NCPUS"
 $DDI $EXE $JOB -ddi $NNODES $NCPUS $HOSTLIST -scr $SCR < /dev/null >& gamess.out
 """ )

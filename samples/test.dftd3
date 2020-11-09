@@ -8,7 +8,7 @@ except:
   import io
 import os
 
-os.environ["QM3_LIBDFTD3"] = "/Users/smarti/Devel/qm3/EXTERNAL/dftd3/dftd3.so"
+os.environ["QM3_LIBDFTD3"] = "./bin/dftd3.so"
 
 
 class my_eng( qm3.problem.template ):
@@ -55,7 +55,7 @@ H       0.05804      1.92714      2.01036
 
 
 f = open( "r.dftd3", "wt" )
-f.write( "/Users/smarti/Devel/dftd3/3.2r0/dftd3 dftd3.xyz -func b3-lyp -bjm -grad > dftd3.log" )
+f.write( "./bin/dftd3 dftd3.xyz -func b3-lyp -bjm -grad > dftd3.log" )
 f.close()
 
 

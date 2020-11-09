@@ -8,7 +8,7 @@ except:
   import io
 import os
 
-os.environ["QM3_LIBDFTB"] = "/Users/smarti/Devel/qm3/EXTERNAL/dftb/dftb.so"
+os.environ["QM3_LIBDFTB"] = "./dftb.so"
 
 
 class my_eng( qm3.problem.template ):
@@ -29,7 +29,7 @@ Hamiltonian = DFTB {
 #  ShellResolvedSCC = Yes
   Mixer = DIIS {}
   SlaterKosterFiles = Type2FileNames {
-    Prefix = "/Users/smarti/Devel/dftbplus/params/3ob-3-1/"
+    Prefix = "./3ob-3-1/"
     Separator = "-"
     Suffix = ".skf"
   }
@@ -69,7 +69,7 @@ ParserOptions { WriteHSDInput = No }
 """ )
         f.seek( 0 )
 #        self.eng = qm3.engines.dftb.dftb( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
-#        self.eng.exe = "/Users/smarti/Devel/dftb+/dftbplus/bin/dftb+ > dftb_in.log"
+#        self.eng.exe = "./dftb+ > dftb_in.log"
         self.eng = qm3.engines.dftb.dl_dftb( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 
         self.size = 3 * self.mol.natm

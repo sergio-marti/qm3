@@ -20,9 +20,9 @@ class problem( qm3.actions.ipi.ipi_problem ):
         self.mol.chrg = [ 0.0 for i in range( self.mol.natm ) ]
 
         self.eng = qm3.engines.dftb.dftb( self.mol, list( range( self.mol.natm ) ) )
-        self.eng.exe = "/Users/smarti/Devel/dftb+/_18.2/dftb+ > dftb_in.log"
+        self.eng.exe = "./bin/dftb+ > dftb_in.log"
         self.eng.chg = +1.0
-        self.eng.prm = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
+        self.eng.prm = "./bin/3ob-3-1/"
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor[:]

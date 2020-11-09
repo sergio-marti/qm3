@@ -276,10 +276,10 @@ class molecule( object ):
         else:
             t_sel = range( self.natm )
         smb = []
-        if( self.anum ):
+        if( len( self.anum ) > 0 ):
             for i in t_sel:
                 smb.append( qm3.elements.symbol[self.anum[i]] )
-        elif( self.mass  ):
+        elif( len( self.mass ) > 0 ):
             for i in t_sel:
                 smb.append( qm3.elements.symbol[ sorted( [ ( math.fabs( qm3.elements.mass[j] - self.mass[i] ), j ) for j in iter( qm3.elements.mass ) if j > 0 ] )[0][1] ] )
         else:

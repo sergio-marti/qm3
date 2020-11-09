@@ -30,13 +30,13 @@ def remove_non_polar_H( mol, bnd = [] ):
             out.coor += mol.coor[3*i:3*i+3]
             out.anum.append( mol.anum[i] )
             out.chrg.append( mol.chrg[i] )
-            if( mol.type ):
+            if( len( mol.type ) > 0 ):
                 out.type.append( mol.type[i] )
-            if( mol.mass ):
+            if( len( mol.mass ) > 0 ):
                 out.mass.append( mol.mass[i] )
-            if( mol.epsi ):
+            if( len( mol.epsi ) > 0 ):
                 out.epsi.append( mol.epsi[i] )
-            if( mol.rmin ):
+            if( len( mol.rmin ) > 0 ):
                 out.rmin.append( mol.rmin[i] )
             out.natm += 1
             rem.append( i )
@@ -53,7 +53,7 @@ class topological_index( object ):
     def __init__( self, mol, bond = [] ):
         self.natm = mol.natm
         self.anum = mol.anum
-        if( bond ):
+        if( len( bond ) > 0 ):
             self.bond = bond[:]
         else:
             self.bond = qm3.utils.connectivity( mol )

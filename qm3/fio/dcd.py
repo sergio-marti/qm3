@@ -23,7 +23,7 @@ class dcd( object ):
         self._C = 0
         self._W = None
         self._H = 0
-        if( fname ):
+        if( fname != None ):
             self.read( fname, qprint )
 
 

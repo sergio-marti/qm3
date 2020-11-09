@@ -32,7 +32,7 @@ class gaussian( qm3.engines.qmbase ):
                     mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
                     mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
             j += 1
-        if( self.lnk ):
+        if( len( self.lnk ) > 0 ):
             self.vla = []
             k = len( self.sel )
             for i,j in self.lnk:
@@ -42,7 +42,7 @@ class gaussian( qm3.engines.qmbase ):
                 k += 1
         s_mm = ""
         s_nq = ""
-        if( self.nbn ):
+        if( len( self.nbn ) > 0 ):
             for i in self.nbn:
                 i3 = i * 3
                 s_mm += "%20.10lf%20.10lf%20.10lf%12.4lf\n"%( 
@@ -130,7 +130,7 @@ class gaussian( qm3.engines.qmbase ):
             l = fd.readline()
         fd.close()
         # remove autoenergy of the charges, and calculate MM gradient
-        if( self.nbn ):
+        if( len( self.nbn ) > 0 ):
             fd = open( "g09.log", "rt" )
             l = fd.readline()
             fl = True

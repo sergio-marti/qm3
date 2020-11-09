@@ -54,7 +54,7 @@ structure wat
 end structure
 """%( n, v - 0.5 ) )
 f.close()
-os.system( "/Users/smarti/Devel/packmol/bin/packmol < inp" )
+os.system( "./bin/packmol < inp" )
 
 s = qm3.mol.molecule( "pdb" )
 f.close()

@@ -77,7 +77,7 @@ class problem( qm3.problem.template ):
 
     
     def table( self, fname = None ):
-        if( fname ):
+        if( fname != None ):
             fd = open( fname, "wt" )
         else:
             fd = sys.stdout
@@ -86,12 +86,12 @@ class problem( qm3.problem.template ):
         fd.write( "#%19s%20s%20s\n"%( "X", "Y", "Fitted" ) )
         for i in range( self.__n ):
             fd.write( "%20.10lf%20.10lf%20.10lf\n"%( self.__x[i], self.__y[i], self.efun( self.__x[i], self.coor ) ) )
-        if( fname ):
+        if( fname != None ):
             fd.close()
 
 
     def fit( self, minimize_func = None ):
-        if( minimize_func ):
+        if( minimize_func != None ):
             minimize_func( self )
         else:
             qm3.actions.minimize.steepest_descent( self, step_number = 1000, print_frequency = 1000, gradient_tolerance = 100.0, step_size = 0.1 )

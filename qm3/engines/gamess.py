@@ -17,7 +17,7 @@ class gamess( qm3.engines.qmbase ):
     def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
         qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
         self.exe = "bash r.gamess"
-        self.chk = None
+        self.chk = ""
 
 
     def mk_input( self, mol, run ):
@@ -30,7 +30,7 @@ class gamess( qm3.engines.qmbase ):
                 mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
                 mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
             j += 1
-        if( self.lnk ):
+        if( len( self.lnk ) > 0 ):
             self.vla = []
             k = len( self.sel )
             for i,j in self.lnk:
@@ -45,7 +45,7 @@ class gamess( qm3.engines.qmbase ):
         else:
             s_rn = "energy"
         s_wf = ""
-        if( self.chk ):
+        if( len( self.chk ) > 0 ):
             s_wf = " $guess\nguess=moread\n $end\n%s"%( self.chk )
         f = open( "gamess.inp", "wt" )
         buf = self.inp.replace( "qm3_atoms", s_qm[:-1] )
@@ -53,7 +53,7 @@ class gamess( qm3.engines.qmbase ):
         buf = buf.replace( "qm3_job", s_rn )
         f.write( buf )
         f.close()
-        if( self.nbn ):
+        if( len( self.nbn ) > 0 ):
             f = open( "mm_charges", "wb" )
 #            f.write( struct.pack( "i", 4 ) + struct.pack( "i", len( self.nbn ) ) + struct.pack( "i", 4 ) )
             # "-fdefault-integer-8" / "-i8" flag for Gamess-US compilation

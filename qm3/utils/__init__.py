@@ -233,9 +233,9 @@ def superimpose_kabsch( mass, coor_a, coor_b ):
 # r.a
 # -----------------------------------------------------------------------------
 # -- coor_b should be initially centered...
-def superimpose_vector( vec_a, vec_b, coor_b = None ):
+def superimpose_vector( vec_a, vec_b, coor_b = [] ):
     size = 0
-    if( coor_b ):
+    if( len( coor_b ) > 0 ):
         size = len( coor_b ) // 3
     nrm_a = qm3.maths.matrix.norm( vec_a )
     nrm_b = qm3.maths.matrix.norm( vec_b )
@@ -334,16 +334,16 @@ def get_RT_modes( mass, coor ):
 
 
 
-def project_RT_modes( mass, coor, grad, hess ): 
+def project_RT_modes( mass, coor, grad = [], hess = [] ): 
     size = len( coor )
     rt = get_RT_modes( mass, coor )
     # G' = G - Tx * G * Tx - ... - Rx * G * Rx - ...
-    if( grad ):
+    if( grad != [] ):
         for i in range( 6 ):
             t = sum( [ ii * jj  for ii,jj in zip( grad, rt[i] ) ] )
             for j in range( size ):
                 grad[j] -= t * rt[i][j]
-    if( hess ):
+    if( hess != [] ):
         # P = I - Tx * Tx - ... - Rx * Rx - ... 
         ix = [ 0.0 for ii in range( size * size ) ]
         for i in range( size ):
@@ -377,7 +377,7 @@ def hessian_frequencies( mass, coor, hess, project_RT = True ):
         for j in range( size ):
             h.append( hess[i*size+j] * w[i//3] * w[j//3] )
     if( project_RT ):
-        project_RT_modes( mass, coor, None, h )
+        project_RT_modes( mass, coor, [], h )
     freq, mods = qm3.maths.matrix.diag( h, size )
     wns = 1.0e11 / ( 2. * math.pi * qm3.constants.C )
     for i in range( size ):

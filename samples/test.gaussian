@@ -63,7 +63,7 @@ qm3_field
 """ )
         f.seek( 0 )
         self.eng = qm3.engines.gaussian.gaussian( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
-        self.eng.exe = ". /Users/smarti/Devel/g09/pgi.imac64/g09.profile; g09 g09.com"
+        self.eng.exe = "source ./bin/g09.profile; g09 g09.com"
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

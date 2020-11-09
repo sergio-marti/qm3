@@ -20,7 +20,7 @@ def default_log( txt ):
 
 
 # mass weighted:  xyz * sqrt(m)  ;  grd / sqrt(m)  ;  hes / sqrt(mi * mj)
-def __project_RT_modes( mas, crd, grd, hes = None ):
+def __project_RT_modes( mas, crd, grd, hes = [] ):
     siz = len( crd )
     mtt = 0.0
     cen = [ 0.0, 0.0, 0.0 ]

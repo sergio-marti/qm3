@@ -19,7 +19,7 @@ def dftb_input( obj, mol, run ):
             mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
             mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
         j += 1
-    if( obj.lnk ):
+    if( len( obj.lnk ) > 0 ):
         obj.vla = []
         k = len( obj.sel )
         w = obj.tbl.index( "H" ) + 1
@@ -35,7 +35,7 @@ def dftb_input( obj, mol, run ):
     if( run == "grad" ):
         s_rn = "  CalculateForces = Yes"
     s_nq = ""
-    if( obj.nbn ):
+    if( len( obj.nbn ) > 0 ):
         s_nq = str( len( obj.nbn ) )
         g = open( "charges.dat", "wt" )
         for i in obj.nbn:
@@ -61,7 +61,7 @@ class dftb( qm3.engines.qmbase ):
         qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
         self.exe = "bash r.dftb"
         self.tbl = { i:None for i in self.smb }
-        if( self.lnk ):
+        if( len( self.lnk ) > 0 ):
             self.tbl["H"] = None
         self.tbl = list( self.tbl )
 
@@ -107,7 +107,7 @@ try:
             qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
             self.exe = "bash r.dftb"
             self.tbl = { i:None for i in self.smb }
-            if( self.lnk ):
+            if( len( self.lnk ) > 0 ):
                 self.tbl["H"] = None
             self.tbl = list( self.tbl )
 

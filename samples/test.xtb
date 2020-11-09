@@ -9,7 +9,7 @@ except:
   import io
 
 
-os.environ["QM3_LIBXTB"] = "/Users/smarti/Devel/qm3/EXTERNAL/xtb/xtb.so"
+os.environ["QM3_LIBXTB"] = "./bin/xtb.so"
 
 
 class my_eng( qm3.problem.template ):
@@ -96,7 +96,7 @@ f.close()
 
 
 f = open( "r.xtb", "wt" )
-f.write( "/Users/smarti/Devel/xtb/dist/xtb --input xtb.inp --grad xtb_qm.xyz >& xtb.log\n" );
+f.write( "./bin/xtb --input xtb.inp --grad xtb_qm.xyz >& xtb.log\n" );
 f.close()
 
 

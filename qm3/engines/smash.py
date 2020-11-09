@@ -26,7 +26,7 @@ class smash( qm3.engines.qmbase ):
                 mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
                 mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
             j += 1
-        if( self.lnk ):
+        if( len( self.lnk ) > 0 ):
             self.vla = []
             k = len( self.sel )
             for i,j in self.lnk:
@@ -34,7 +34,7 @@ class smash( qm3.engines.qmbase ):
                 s_qm += "%-2s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] )
                 self.vla.append( ( self.sel.index( i ), k, v[:] ) )
                 k += 1
-        if( self.nbn ):
+        if( len( self.nbn ) > 0 ):
             for i in self.nbn:
                 i3 = i * 3
                 s_qm += "X %20.10lf%20.10lf%20.10lf\n"%( 
@@ -120,7 +120,7 @@ class smash( qm3.engines.qmbase ):
                 i3 = i * 3
                 for j in [0, 1, 2]:
                     mol.grad[3*self.sel[i]+j] += g_qm[i3+j]
-            if( self.nbn ):
+            if( len( self.nbn ) > 0 ):
                 k = 0
                 for i in range( len( self.nbn ) ):
                     for j in [0, 1, 2]:

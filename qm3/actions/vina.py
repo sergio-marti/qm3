@@ -100,13 +100,13 @@ const atom_kind atom_kind_data[] = {
             __vina[i] = "SA"
 
 
-def receptor( mol, fname = None, sele = None ):
+def receptor( mol, fname = None, sele = [] ):
     global    __vina
     f = qm3.fio.open_w( fname )
     f.write( "REMARK --------------------------------------------------------------------------\n" )
     f.write( "REMARK                            x       y       z     vdW  Elec       q    Type\n" )
     f.write( "REMARK                         _______ _______ _______ _____ _____    ______ ____\n" )
-    if( sele ):
+    if( len( sele ) > 0 ):
         t_sel = sorted( sele )
     else:
         t_sel = range( mol.natm )
@@ -123,7 +123,7 @@ def receptor( mol, fname = None, sele = None ):
 
 
 
-def ligand( mol, fname = None, sele = None ):
+def ligand( mol, fname = None, sele = [] ):
     """
     Ligands can be treated as flexible in AutoDock, and we use the idea of a "torsion tree" to represent the
     rigid and rotatable pieces. There is always one "root", and zero or more "branches". Branches can be nested.
@@ -160,7 +160,7 @@ TORSDOF 1
     f.write( "REMARK                            x       y       z     vdW  Elec       q    Type\n" )
     f.write( "REMARK                         _______ _______ _______ _____ _____    ______ ____\n" )
     f.write( "ROOT\n" )
-    if( sele ):
+    if( len( sele ) > 0 ):
         t_sel = sorted( sele )
     else:
         t_sel = range( mol.natm )

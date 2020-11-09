@@ -47,7 +47,7 @@ class grote_hynes( object ):
         self.vacc = []
         self.obj.get_grad()
         if( self.project_RT ):
-            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.obj.grad, None )
+            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.obj.grad, [] )
         for i in range( self.obj.size // 3 ):
             i3 = i * 3
             for j in [0, 1, 2]:
@@ -80,7 +80,7 @@ class grote_hynes( object ):
             self.obj.coor[i] += self.fc * self.obj.velo[i] + self.fa * self.vacc[i]
         self.obj.get_grad()
         if( self.project_RT ):
-            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.obj.grad, None )
+            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.obj.grad, [] )
         self.coordinate.force( self.obj.mass, self.obj.coor, self.obj.grad )
         vtmp = self.vacc[:]
         self.vacc = []

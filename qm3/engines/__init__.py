@@ -91,8 +91,8 @@ def LA_gradient( lnk, grd ):
 # ----------------------------------------------------------------------------------
 # Exclusions
 #
-def exclusions( sele_QM, molec, bonds = None ):
-    if( bonds != None ):
+def exclusions( sele_QM, molec, bonds = [] ):
+    if( len( bonds ) > 0 ):
         bond = bonds
         natm = 0
         for i,j in bonds:

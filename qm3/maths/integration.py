@@ -33,7 +33,7 @@ def Simpson_f( f, a, b, eps = 1.0e-3, n = None ):
         h = float( b - a ) / float( n )
         return( h / 3.0 * ( f(a) + 2 * sum( (k%2+1) * f( a + h * k ) for k in range( 1, n ) ) + f(b) ) )
     
-    if( n ):
+    if( n != None ):
         if( n%2 != 0 ):
             n += 1
         return( __integrate( f, a, b, n ), n )

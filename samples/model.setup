@@ -65,7 +65,7 @@ structure hoh
 end structure
 """%( n, v - 0.5 ) )
 f.close()
-os.system( "/Users/smarti/Devel/packmol/bin/packmol < inp" )
+os.system( "./bin/packmol < inp" )
 
 # -----------------------------------------------------------------------------
 # solvation
@@ -140,7 +140,7 @@ for i in s:
 """%( i, i ) )
 f.write( "writepsf psf\n" )
 f.close()
-os.system( "/Users/smarti/Devel/namd/2.12/psfgen < inp" )
+os.system( "./bin/psfgen < inp" )
 
 pat = re.compile( "([A-Z0-9]+)[\ ]+[0-9\.]+[\ ]+-([0-9\.]+)[\ ]+([0-9\.]+)" )
 f = open( "acs.prm", "rt" )
@@ -159,11 +159,11 @@ f.close()
 #
 f = open( "r.dftb", "wt" )
 f.write( "export OMP_NUM_THREADS=1\n" )
-f.write( "/Users/smarti/Devel/dftb+/_18.1/dftb+ > dftb_in.log" )
+f.write( "./bin/dftb+ > dftb_in.log" )
 f.close()
 
 f = open( "r.namd", "wt" )
-f.write( "/Users/smarti/Devel/namd/2.12/namd2 +setcpuaffinity +isomalloc_sync +idlepoll namd.inp > namd.out\n" )
+f.write( "./bin/namd2 +setcpuaffinity +isomalloc_sync +idlepoll namd.inp > namd.out\n" )
 f.close()
 
 s = sorted( m.indx["A"][1].values() )

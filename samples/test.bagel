@@ -72,7 +72,7 @@ f.close()
 f = open( "bagel.run", "wt" )
 f.write( """
 export BAGEL_NUM_THREADS=2
-/Users/smarti/Devel/bagel/dist/bin/BAGEL bagel.json > bagel.log
+./bin/BAGEL bagel.json > bagel.log
 """ )
 f.close()
 

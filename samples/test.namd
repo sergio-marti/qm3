@@ -1,6 +1,7 @@
 import qm3.mol
+import qm3.fio.xplor
 import qm3.engines.namd
-import qm3.engines._mmint
+import qm3.engines.mmint
 import qm3.problem
 import qm3.maths.matrix
 
@@ -8,18 +9,17 @@ class my_eng( qm3.problem.template ):
 
     def __init__( self ):
         self.mol = qm3.mol.molecule( "pdb" )
-        qm3.engines.namd.topology_read( self.mol, "psf" )
-        self.mol.nbnd_read( "nbn" )
+        qm3.fio.xplor.psf_read( self.mol, "psf" )
+        qm3.engines.mmint.non_bonded( self.mol, "nbn" )
         self.mol.chrg[0] = 0.0
         self.mol.chrg[1] = 0.0
         self.mol.chrg[2] = 0.0
 
         self.eng = qm3.engines.namd.namd()
-        self.eng.exe = "/Users/smarti/Devel/namd/2.12/bin/namd2 +setcpuaffinity +isomalloc_sync +idlepoll +ppn 2 namd.inp > namd.out"
-        self.eng.exe = "/Users/smarti/Devel/namd/2.8/namd2 +ppn 2 namd.inp > namd.out"
-        self.eng.update_chrg( self.mol, "psf" )
+        self.eng.exe = "./bin/namd2 +ppn 2 namd.inp > namd.out"
+        qm3.fio.xplor.psf_write( self.mol, "psf" )
 
-        self.fix = qm3.engines._mmint.QMLJ( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )
+        self.fix = qm3.engines.mmint.QMLJ( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )
         
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

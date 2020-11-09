@@ -45,7 +45,7 @@ def assign_velocities( obj, temperature = 300.0, project = True ):
         SD = math.sqrt( KT / obj.mass[i] )
         obj.velo += [ qm3.maths.rand.gauss( 0.0, SD ) * 1.0e-2 for ii in [0, 1, 2] ]     # ang/ps
     if( project ):
-#        qm3.utils.project_RT_modes( obj.mass, obj.coor, obj.velo, None )
+#        qm3.utils.project_RT_modes( obj.mass, obj.coor, obj.velo, [] )
         obj.prjT = [ [], [], [] ]
         for i in range( obj.size // 3 ):
             sm = math.sqrt( obj.mass[i] )
@@ -117,7 +117,7 @@ class velocity_verlet( object ):
                 self.cacc.append( - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0 )
                 self.oacc.append( 0.0 )
         if( self.project ):
-#            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, None )
+#            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
                 t = 0.0
                 for j in range( self.obj.size ):
@@ -152,7 +152,7 @@ class velocity_verlet( object ):
                 self.oacc[i3+j] = self.cacc[i3+j]
                 self.cacc[i3+j] = - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0
         if( self.project ):
-#            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, None )
+#            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
                 t = 0.0
                 for j in range( self.obj.size ):
@@ -187,7 +187,7 @@ class velocity_verlet( object ):
                 self.oacc[i3+j] = self.cacc[i3+j]
                 self.cacc[i3+j] = - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0
         if( self.project ):
-#            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, None )
+#            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
                 t = 0.0
                 for j in range( self.obj.size ):
@@ -227,7 +227,7 @@ class velocity_verlet( object ):
                 self.oacc[i3+j] = self.cacc[i3+j]
                 self.cacc[i3+j] = - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0
         if( self.project ):
-#            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, None )
+#            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
                 t = 0.0
                 for j in range( self.obj.size ):
@@ -323,7 +323,7 @@ class langevin_verlet( object ):
                 self.cacc.append( - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0 )
                 self.oacc.append( 0.0 )
         if( self.project ):
-#            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, None )
+#            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
                 t = 0.0
                 for j in range( self.obj.size ):

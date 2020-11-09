@@ -37,7 +37,7 @@ class dftd4():
                 mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
                 mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) ) )
             j += 1
-        if( self.lnk ):
+        if( len( self.lnk ) > 0 ):
             self.vla = []
             k = self.nat
             for i,j in self.lnk:
@@ -110,7 +110,7 @@ try:
             for i in range( self.nat ):
                 self.vec[k] = mol.anum[self.sel[i]]
                 k += 1
-            if( self.lnk ):
+            if( len( self.lnk ) > 0 ):
                 for i,j in self.lnk:
                     self.vec[k] = 1
                     k += 1
@@ -127,7 +127,7 @@ try:
                 j3 = i * 3
                 for j in [0, 1, 2]:
                     self.vec[j3+j] = mol.coor[i3+j] - mol.boxl[j] * round( mol.coor[i3+j] / mol.boxl[j], 0 ) 
-            if( self.lnk ):
+            if( len( self.lnk ) > 0 ):
                 self.vla = []
                 k = self.nat 
                 for i,j in self.lnk:

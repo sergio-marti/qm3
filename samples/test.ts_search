@@ -1,12 +1,13 @@
 import qm3.problem
 import qm3.fio.dcd
+import qm3.fio.xplor
 import qm3.mol
 import qm3.utils
 import qm3.elements
 import qm3.actions.minimize
 import qm3.engines.namd
 import qm3.engines.dftb
-import qm3.engines._mmint
+import qm3.engines.mmint
 import time
 import os
 
@@ -76,10 +77,10 @@ class QM_problem( qm3.problem.template ):
 
         self.eng = qm3.engines.dftb.dftb( self.mol, self.sel, self.nbn )
         self.eng.chg = 0
-        self.eng.prm = "/Users/smarti/Devel/dftb+/params/3ob-3-1/"
+        self.eng.prm = "./bin/3ob-3-1/"
         self.eng.exe = "bash r.dftb"
 
-        self.fix = qm3.engines._mmint.QMLJ( self.mol, self.sel, self.nbn, [] )
+        self.fix = qm3.engines.mmint.QMLJ( self.mol, self.sel, self.nbn, [] )
 
         self.grad = []
         self.hess = []
@@ -147,8 +148,9 @@ class QM_problem( qm3.problem.template ):
 
 mol = qm3.mol.molecule( "pdb" )
 mol.boxl = [ 40.0, 40.0, 40.0 ]
-mol.psf_read( "psf" )
-mol.nbnd_read( "non_bonded" )
+qm3.fio.xplor.psf_read( self.mol, "psf" )
+qm3.engines.mmint.non_bonded( self.mol, "non_bonded" )
+
 
 obj = QM_problem( mol )
 

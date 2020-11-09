@@ -14,8 +14,8 @@ class my_eng( qm3.problem.template ):
         self.mol = qm3.engines.gromacs.coordinates_read( "gromacs.g96" )
 
         self.eng = qm3.engines.gromacs.gromacs()
-        self.eng.exe  = "source /Users/smarti/Devel/gromacs/2019.b1/bin/GMXRC.bash;"
-        self.eng.exe += "gmx mdrun -s gromacs.tpr -e gromacs.edr -o gromacs.trr -g gromacs.log -rerun gromacs.g96 >& /dev/null"
+        self.eng.exe  = "source ./bin/gmx_rc; "
+        self.eng.exe += "gmx mdrun -s gromacs.tpr -e gromacs.edr -o gromacs.trr -g gromacs.log -rerun gromacs.g96 >& gromacs.out2"
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor
@@ -121,8 +121,8 @@ rvdw = 0.6
 """ )
 f.close()
 
-cmd  = "source /Users/smarti/Devel/gromacs/2019.b1/bin/GMXRC.bash; "
-cmd += "gmx grompp -f gromacs.mdp -c gromacs.g96 -p gromacs.top -o gromacs.tpr -maxwarn 100 >& /dev/null"
+cmd  = "source ./bin/gmx_rc; "
+cmd += "gmx grompp -f gromacs.mdp -c gromacs.g96 -p gromacs.top -o gromacs.tpr -maxwarn 100 >& gromacs.out1"
 os.system( cmd )
 
 

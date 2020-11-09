@@ -48,7 +48,7 @@ class simple_force_field( object ):
         impr = [ [ central_i, j, k, l, kmb (kal/mol.rad^2), ref (deg) ], ... ]
         """
         # guess (or not) bonds
-        if( bond != [] ):
+        if( len( bond ) > 0 ):
             self.bond = bond[:]
         else:
             self.bond = qm3.utils.connectivity( mol, self.ncpu )
@@ -58,12 +58,12 @@ class simple_force_field( object ):
             self.conn[i].append( j )
             self.conn[j].append( i )
         # guess (or not) angles
-        if( angl != [] ):
+        if( len( angl ) > 0 ):
             self.angl = angl[:]
         else:
             self.x__angles()
         # guess (or not) dihedrals
-        if( dihe != [] ):
+        if( len( dihe ) > 0 ):
             self.dihe = dihe[:]
         else:
             self.x__dihedrals()
@@ -73,7 +73,7 @@ class simple_force_field( object ):
         if( qtyp ):
             self.x__types( mol )
         # guess (or not) partial charges
-        if( qchg and mol.chrg != [] ):
+        if( qchg and len( mol.chrg ) > 0 ):
             self.x__charges( mol )
 
     
@@ -271,7 +271,7 @@ class simple_force_field( object ):
 
 
     def parameters( self, mol, path = None ):
-        if( path ):
+        if( path != None ):
             self.path = path + os.sep
         out = True
         self.bond_data = []

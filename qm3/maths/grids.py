@@ -66,7 +66,7 @@ class grid( object ):
         self.z = []
         self.__intp = interpolant
         self.__spln = None
-        if( fname ):
+        if( fname != None ):
             self.parse( fname )
 
 
@@ -94,7 +94,7 @@ class grid( object ):
         self.x = [ d[i*ny][0] for i in range( nx ) ]
         self.y = [ d[i][1] for i in range( ny ) ]
         self.z = [ d[i][2] for i in range( nz ) ]
-        if( self.__intp ):
+        if( self.__intp != None ):
             self.__spln = qm3.maths.interpolation.interpolate_2d( self.x, self.y, self.z, self.__intp )
             self.calc = self.__spln.calc
 
@@ -169,7 +169,7 @@ class grid( object ):
                         rz += c * w
                         rw += w
                     self.z.append( rz / rw )
-        if( self.__intp ):
+        if( self.__intp != None ):
             self.__spln = qm3.maths.interpolation.interpolate_2d( self.x, self.y, self.z, self.__intp )
             self.calc = self.__spln.calc
 

@@ -1,11 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: iso-8859-1 -*-
-
-from __future__ import print_function, division
-import    sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
-
 import    qm3.mol
 import    qm3.problem
 import    qm3.engines.mol_mech
@@ -20,8 +12,7 @@ except:
 
 
 #qm3.engines.mol_mech.mol_mech_so = False
-os.environ["AMBERHOME"] = "/Users/smarti/Devel/amber/18"
-os.environ["QM3_LIBSQM"] = "/Users/smarti/Devel/qm3/EXTERNAL/sqm/sqm.so"
+os.environ["QM3_LIBSQM"] = "./bin/sqm.so"
 
 
 class my_problem( qm3.problem.template ):
@@ -164,7 +155,7 @@ qm3_charges
         self.grad = []
         for i in self.sel:
             self.grad += self.mol.grad[3*i:3*i+3]
-        qm3.utils.project_RT_modes( self.mass, self.coor, self.grad, None )
+        qm3.utils.project_RT_modes( self.mass, self.coor, self.grad, [] )
 
 
 

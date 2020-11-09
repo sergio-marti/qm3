@@ -59,7 +59,7 @@ energy_range = 5
 f.close()
 
 import os
-os.system( "/Users/smarti/Devel/autodock_4.2/vina.macosx --cpu 2 --config vina.conf" )
+os.system( "./bin/vina --cpu 2 --config vina.conf" )
 
 qm3.actions.vina.parse_dock( m, fname = "x.lig_out.pdbqt", sele = [ 0, 1, 2 ], model = 10 )
 m.pdb_write()

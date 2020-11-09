@@ -22,7 +22,7 @@ def sqm_input( obj, mol ):
             mol.coor[i3+1] - mol.boxl[1] * round( mol.coor[i3+1] / mol.boxl[1], 0 ),
             mol.coor[i3+2] - mol.boxl[2] * round( mol.coor[i3+2] / mol.boxl[2], 0 ) )
         j += 1
-    if( obj.lnk ):
+    if( len( obj.lnk ) > 0 ):
         obj.vla = []
         k = len( obj.sel )
         for i,j in obj.lnk:
@@ -32,7 +32,7 @@ def sqm_input( obj, mol ):
             obj.vla.append( ( obj.sel.index( i ), k, v[:] ) )
             k += 1
     s_mm = ""
-    if( obj.nbn ):
+    if( len( obj.nbn ) > 0 ):
         s_mm = "#EXCHARGES\n"
         for i in obj.nbn:
             i3 = i * 3
@@ -74,7 +74,7 @@ class sqm( qm3.engines.qmbase ):
                 i3 = i * 3
                 for j in [0, 1, 2]:
                     mol.grad[3*self.sel[i]+j] += g[i3+j]
-            if( self.nbn ):
+            if( len( self.nbn ) > 0 ):
                 n = struct.unpack( "i", f.read( 4 ) )[0] // 8
                 g = [ i * qm3.constants.K2J for i in struct.unpack( "%dd"%( n ), f.read( 8 * n ) ) ]
                 for i in range( len( self.nbn ) ):
