@@ -251,7 +251,7 @@ class molecule( object ):
 
 
     def guess_atomic_numbers( self ):
-        if( len( self.mass > 0 ):
+        if( len( self.mass ) > 0 ):
             self.anum = []
             for i in range( self.natm ):
                 self.anum.append( sorted( [ ( math.fabs( qm3.elements.mass[j] - self.mass[i] ), j ) for j in iter( qm3.elements.mass ) if j > 0 ] )[0][1] )
