@@ -1,0 +1,13 @@
+set term pdf
+set output 'dccm.pdf'
+set view map
+unset key
+set colorbox
+set grid
+unset surface
+set pm3d at b
+set zrange[-1:1]
+set xrange[0:160]
+set yrange[0:160]
+set palette model RGB defined ( -1 "navy", -0.5 "blue", 0 "cyan", 0.5 "yellow", 1 "red" )
+splot 'fort.999' with pm3d
