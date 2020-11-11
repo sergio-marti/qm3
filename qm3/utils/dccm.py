@@ -41,7 +41,7 @@ def dynamic_cross_correlation_map( mol, dcd, fname ):
         for j in range( nfr ):
             for k in [0, 1, 2]:
                 t += dri[j*nca*3+i*3+k] * dri[j*nca*3+i*3+k]
-        dri2.append( t / float( nfr ) )
+        dri2.append( math.sqrt( t / float( nfr ) ) )
     f = qm3.fio.open_w( fname )
     for i in range( nca ):
         for j in range( nca ):
@@ -49,6 +49,6 @@ def dynamic_cross_correlation_map( mol, dcd, fname ):
             for k in range( nfr ):
                 for l in [0, 1, 2]:
                     t += dri[k*nca*3+i*3+l] * dri[k*nca*3+j*3+l]
-            f.write( "%10d%10d%20.10lf\n"%( i+1, j+1, t / ( float( nfr ) * math.sqrt( dri2[i] * dri2[j] ) ) ) )
+            f.write( "%10d%10d%20.10lf\n"%( i+1, j+1, t / ( float( nfr ) * dri2[i] * dri2[j] ) ) )
         f.write( "\n" )
     qm3.fio.close( f, fname )
