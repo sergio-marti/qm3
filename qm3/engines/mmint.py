@@ -7,7 +7,10 @@ if( sys.version_info[0] == 2 ):
 import math
 import re
 import qm3.fio
-from qm3.engines._mmint import *
+try:
+    from qm3.engines._mmint import *
+except:
+    pass
 
 
 def p_sander( data ):
@@ -36,16 +39,16 @@ def p_charmm( data ):
         lst = data[:]
     else:
         lst = [ data ]
+    p = re.compile( "^[\ ]*([^\ ^!]+)[\ ]+[0-9\.]+[\ ]+-([0-9\.]+)[\ ]+([0-9\.]+)" ) 
     for fname in lst:
         f = qm3.fio.open_r( fname )
-#        l = f.readline()
-#        while( l != "" ):
-#            if( l[0:4] == "MOD4" ):
-#                t = f.readline().split()
-#                while( len( t ) >= 3 ):
-#                    out[t[0].upper()] = [ math.sqrt( float( t[2] ) * qm3.constants.K2J ), float( t[1] ) ]
-#                    t = f.readline().split()
-#            l = f.readline()
+        l = f.readline()
+        while( l != "" ):
+            if( p.match( l ) ):
+                t = p.findall( l )[0]
+                if( len( t ) == 3 ):
+                    out[t[0].upper()] = [ math.sqrt( float( t[1] ) * qm3.constants.K2J ), float( t[2] ) ]
+            l = f.readline()
         qm3.fio.close( f, fname )
     return( out )
 
@@ -70,7 +73,7 @@ def p_dynamo( data ):
     return( out )
 
 
-def p_simple( data ):
+def p_default( data ):
     out = {}
     pat = re.compile( "([^\ ^\n]+)[\ ]+([0-9\.]+)[\ ]+([0-9\.]+)" )
     if( type( data ) == list ):
@@ -85,7 +88,7 @@ def p_simple( data ):
     return( out )
 
 
-def non_bonded( mol, data, parser = p_simple ):
+def non_bonded( mol, data, parser = p_default ):
     out = True
     if( mol.type == [] ):
         print( "- Molecule types undefined!" )
