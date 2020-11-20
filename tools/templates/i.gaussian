@@ -1,4 +1,4 @@
-%chk=g09.chk
+%chk=gauss.chk
 %mem=2048mb
 %nproc=2
 #p b3lyp/gen qm3_job qm3_guess charge prop=(field,read) scf=direct nosymm fchk

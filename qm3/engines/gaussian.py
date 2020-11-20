@@ -60,9 +60,9 @@ class gaussian( qm3.engines.qmbase ):
         elif( run == "hess" ):
             s_rn = "freq=noraman cphf(maxinv=10000)"
         s_wf = ""
-        if( os.access( "g09.chk", os.R_OK ) ):
+        if( os.access( "gauss.chk", os.R_OK ) ):
             s_wf = "guess=(read)"
-        f = open( "g09.com", "wt" )
+        f = open( "gauss.com", "wt" )
         buf = self.inp.replace( "qm3_atoms", s_qm[:-1] )
         buf = buf.replace( "qm3_job", s_rn )
         buf = buf.replace( "qm3_guess", s_wf )
@@ -131,7 +131,7 @@ class gaussian( qm3.engines.qmbase ):
         fd.close()
         # remove autoenergy of the charges, and calculate MM gradient
         if( len( self.nbn ) > 0 ):
-            fd = open( "g09.log", "rt" )
+            fd = open( "gauss.log", "rt" )
             l = fd.readline()
             fl = True
             while( l != "" and fl ):
