@@ -318,7 +318,7 @@ static PyObject* __cavity_grid( PyObject *self, PyObject *args ){
     time_t		t0;
 
     o_flg = Py_False;
-    if( PyArg_ParseTuple( args, "OOOd|O", &o_rad, &o_xyz, &o_cen, &dsp, &o_flg ) ) {
+    if( PyArg_ParseTuple( args, "OOOd|Od", &o_rad, &o_xyz, &o_cen, &dsp, &o_flg, &prb ) ) {
 
     	t0  = time( NULL );
     	siz = (long) PyList_Size( o_rad );
@@ -326,6 +326,7 @@ static PyObject* __cavity_grid( PyObject *self, PyObject *args ){
     	crd = (double*) malloc( 3 * siz * sizeof( double ) );
 fprintf(stderr,"SIZ: %ld\n",siz);
 fprintf(stderr,"DSP: %lf\n",dsp);
+fprintf(stderr,"PRB: %lf\n",prb);
 
     	for( l = 0; l < siz; l++ ) {
     		rad[l] = PyFloat_AsDouble( PyList_GetItem( o_rad, l ) );
