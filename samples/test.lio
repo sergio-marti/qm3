@@ -12,7 +12,7 @@ except:
 
 os.environ["LIOHOME"] = "./bin/slio"
 os.environ["OMP_NUM_THREADS"] = "2"
-os.environ["LIB_QM3LIO"] = "./bin/lio.so"
+os.environ["QM3_LIBLIO"] = "./bin/lio.so"
 
 
 class my_eng( qm3.problem.template ):
