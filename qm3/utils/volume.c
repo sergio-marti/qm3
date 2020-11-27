@@ -381,7 +381,6 @@ fprintf(stderr,"CEN: %8ld%8ld%8ld\n",cnt[0],cnt[1],cnt[2]);
 										if( cj >= 0 && cj < npt[1] )
 										for( k = - wr - 1; k < wr + 1; k++ ) {
 											ck = wk + k;
-//											if( ci >= 0 && ci < npt[0] && cj >= 0 && cj < npt[1] && ck >= 0 && ck < npt[2] ) 
 											if( ck >= 0 && ck < npt[2] ) 
 												if( i * i + j * j + k * k <= w2 ) grd[ci][cj][ck] = 1;
 										}

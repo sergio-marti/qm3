@@ -1,0 +1,11 @@
+&lio
+ natom       = qm3_natm
+ nsol        = qm3_nchg
+ charge      = 0
+ writeforces = t
+ mulliken    = t
+ nmax        = 100
+ verbose     = 4
+ basis_set   = "6-31G**"
+ told        = 1.0d-6
+&end

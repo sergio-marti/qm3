@@ -10,3 +10,5 @@ It has been designed considering the lowest number of external dependencies (jus
 an algebra library, included in the distribution), which makes it extremely portable.
 In addition, the different modules have been structured in such a way that it 
 should be easy to expand the suite, and develop new computational methods.
+
+Please include this reference in published work using QMCube:

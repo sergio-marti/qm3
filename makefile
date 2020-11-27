@@ -126,6 +126,11 @@ dftd4.so:
 		-fPIC -I$(DFTD4_INC) $(DFTD4)/libdftd4.a -fopenmp $(MLB)
 
 
+lio.so:
+	gfortran $(SHD) -o lio.so qm3/engines/lio.f90 \
+		-fPIC -I$(LIO)/g2g -I$(LIO)/lio -L$(LIO) -lg2g -lxc -llio
+
+
 sqm.so:
 	@gfortran $(SHD) -o sqm.so qm3/engines/sqm.f90 -Jbuild -Ibuild \
 		-fPIC -I$(AMBER)/AmberTools/src/sqm \

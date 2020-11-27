@@ -1,0 +1,60 @@
+================================================================================
+-200456.72968268406
+6 rows x 3 columns
+    23.827   -31.355   -21.097
+     1.667    -3.258   -10.466
+   -15.992    16.702    -5.838
+    14.136   -18.496   -40.487
+   -22.026    23.378    64.562
+    -1.566    13.288    13.667
+================================================================================
+   func_id: 106                 	      name: gga_x_b88                
+    family: XC_FAMILY_GGA       	      kind: XC_EXCHANGE              
+   comment: Becke 88
+
+   func_id: 131                 	      name: gga_c_lyp                
+    family: XC_FAMILY_GGA       	      kind: XC_CORRELATION           
+   comment: Lee, Yang & Parr
+
+-200628.57170466846
+6 rows x 3 columns
+    22.831   -39.509   -35.368
+    11.138    -5.089    -0.469
+   -24.514    26.484    -1.865
+    14.037   -18.328   -40.122
+   -21.966    23.234    64.161
+    -1.558    13.172    13.538
+================================================================================
+   func_id: 101                 	      name: gga_x_pbe                
+    family: XC_FAMILY_GGA       	      kind: XC_EXCHANGE              
+   comment: Perdew, Burke & Ernzerhof
+
+   func_id: 130                 	      name: gga_c_pbe                
+    family: XC_FAMILY_GGA       	      kind: XC_CORRELATION           
+   comment: Perdew, Burke & Ernzerhof
+
+-200456.74480424923
+6 rows x 3 columns
+    23.824   -31.385   -21.144
+     1.709    -3.262   -10.411
+   -16.030    16.752    -5.812
+    14.135   -18.495   -40.483
+   -22.024    23.376    64.556
+    -1.566    13.287    13.666
+================================================================================
+   func_id: 110                 	      name: gga_x_optx               
+    family: XC_FAMILY_GGA       	      kind: XC_EXCHANGE              
+   comment: Handy & Cohen OPTX 01
+
+   func_id: 131                 	      name: gga_c_lyp                
+    family: XC_FAMILY_GGA       	      kind: XC_CORRELATION           
+   comment: Lee, Yang & Parr
+
+-200619.86559564507
+6 rows x 3 columns
+    24.729   -17.644     2.624
+   -16.923     1.471   -28.210
+     1.455    -2.135   -12.056
+    13.825   -18.182   -39.650
+   -21.505    23.127    63.300
+    -1.541    13.014    13.383
