@@ -375,11 +375,14 @@ fprintf(stderr,"CEN: %8ld%8ld%8ld\n",cnt[0],cnt[1],cnt[2]);
 							if( __collide( ri, rj, rk, prb, dsp, siz, rad, crd ) == 0 ) {
 								for( i = - wr - 1; i < wr + 1; i++ ) {
 									ci = wi + i;
+									if( ci >= 0 && ci < npt[0] )
 									for( j = - wr - 1; j < wr + 1; j++ ) {
 										cj = wj + j;
+										if( cj >= 0 && cj < npt[1] )
 										for( k = - wr - 1; k < wr + 1; k++ ) {
 											ck = wk + k;
-											if( ci >= 0 && ci < npt[0] && cj >= 0 && cj < npt[1] && ck >= 0 && ck < npt[2] ) 
+//											if( ci >= 0 && ci < npt[0] && cj >= 0 && cj < npt[1] && ck >= 0 && ck < npt[2] ) 
+											if( ck >= 0 && ck < npt[2] ) 
 												if( i * i + j * j + k * k <= w2 ) grd[ci][cj][ck] = 1;
 										}
 									}
