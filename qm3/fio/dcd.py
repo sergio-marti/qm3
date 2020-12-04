@@ -143,16 +143,13 @@ class dcd( object ):
 
 
     def goto( self, num ):
-        if( num > 0 ):
-            if( self.N != self._n ):
+        if( num >= 0 ):
+            if( self.N != self._n and num > 1 ):
                 dsp = 4 + self._Q * 56 + 3 * 4 * self._n + 20
             else:
                 dsp = 4 + self._Q * 56 + 3 * 4 * self.N + 20
             self._C = num
-            self._F.seek( self._H + dsp * ( num - 1 ) )
-        elif( num == 0 ):
-            self._C = 0
-            self._F.seek( self._H )
+            self._F.seek( self._H + dsp * num )
 
 
     def close( self ):
