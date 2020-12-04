@@ -345,36 +345,6 @@ HETATM   86  H2  HOH A  29       9.503  46.512  57.945
 
 
 ###################################################################################################
-# DCD
-#
-#    def dcd_read( self, dcd, advance = True ):
-#        f = False
-#        if( self.natm == dcd.N ):
-#            if( advance ):
-#                f = dcd.next()
-#            for i in range( dcd.N ):
-#                i3 = i * 3
-#                self.coor[i3]   = dcd.X[i]
-#                self.coor[i3+1] = dcd.Y[i]
-#                self.coor[i3+2] = dcd.Z[i]
-#        else:
-#            print( "- Wrong atom number (%d) vs DCD (%d)"%( self.natm, dcd.N ) )
-#        return( f )
-#
-#
-#    def dcd_write( self, dcd ):
-#        if( self.natm == dcd.N ):
-#            for i in range( dcd.N ):
-#                i3 = i * 3
-#                dcd.X[i] = self.coor[i3]
-#                dcd.Y[i] = self.coor[i3+1]
-#                dcd.Z[i] = self.coor[i3+2]
-#            dcd.append()
-#        else:
-#            print( "- Wrong atom number (%d) vs DCD (%d)"%( self.natm, dcd.N ) )
-
-
-###################################################################################################
 # XYZ
 #
     def xyz_read( self, fname = None, append = False, replace = False ):
