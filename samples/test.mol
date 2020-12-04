@@ -91,6 +91,6 @@ print( f.read() )
 for vv in [ [ 1., .0, .0 ], [ .0, 1., .0 ], [ .0, .0, 1. ], [ 1., 1., .0 ], [ 1., .0, 1. ], [ .0, 1., 1. ], [ 1., 1., 1. ] ]:
     f.seek( 0 )
     m.zmat_read( f , axis = vv )
-    m.dcd_write( d )
+    d.append( m )
 d.close()
 f.close()
