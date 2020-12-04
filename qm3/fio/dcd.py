@@ -6,244 +6,222 @@ if( sys.version_info[0] == 2 ):
     range = xrange
 
 import struct
+import os
+import stat
 
 
 class dcd( object ):
 
     def __init__( self, fname = None, qprint = True ):
-        self.N  = 0
-        self.X  = []
-        self.Y  = []
-        self.Z  = []
-        self._S = []
-        self._F = None
-        self._E = None
-        self._Q = None
-        self._n = 0
-        self._C = 0
-        self._W = None
-        self._H = 0
+        self.__clean()
         if( fname != None ):
             self.read( fname, qprint )
+            
+
+    def __clean( self ):
+        self.natm  = 0
+        self.sele = []
+        self.fdes = None
+        self.fsiz = 0
+        self.endi = ""
+        self.crys = 0
+        self.free = 0
+        self.curr = 0
+        self.writ = ""
+        self.head = 0
 
 
     def read( self, fname, qprint = True ):
-        self.__init__()
-        self._F = open( fname, "rb" )    
+        self.__clean()
+        self.fdes = open( fname, "rb" )    
+        self.fsiz = os.stat( fname )[stat.ST_SIZE]
         if( qprint ):
             print( "* [%s] "%( fname ) + (55-len(fname))*"-" )
-        if( struct.unpack( "<i", self._F.read( 4 ) )[0] == 84 ):
-            self._E = "<"
+        if( struct.unpack( "<i", self.fdes.read( 4 ) )[0] == 84 ):
+            self.endi = "<"
             if( qprint ):
                 print( "+ \tLittle Endian" )
         else:
-            self._E = ">"
+            self.endi = ">"
             if( qprint ):
                 print( "+ \tBig Endian" )
-        self._F.read( 4 )
-        t = struct.unpack( self._E + "i", self._F.read( 4 ) )[0]
+        self.fdes.read( 4 )
+        t = struct.unpack( self.endi + "i", self.fdes.read( 4 ) )[0]
         if( qprint ):
             print( "+ \tNFrames: %d"%( t ) )
-        self._F.read( 28 )
-        f = struct.unpack( self._E + "i", self._F.read( 4 ) )[0]
-        self._F.read( 4 )
-        self._Q = struct.unpack( self._E + "i", self._F.read( 4 ) )[0]
-        self._F.read( 40 )
-        self._F.read( struct.unpack( self._E + "i", self._F.read( 4 ) )[0] + 8 )
-        self.N = struct.unpack( self._E + "i", self._F.read( 4 ) )[0]
+        self.fdes.read( 28 )
+        f = struct.unpack( self.endi + "i", self.fdes.read( 4 ) )[0]
+        self.fdes.read( 4 )
+        self.crys = struct.unpack( self.endi + "i", self.fdes.read( 4 ) )[0]
+        self.fdes.read( 40 )
+        self.fdes.read( struct.unpack( self.endi + "i", self.fdes.read( 4 ) )[0] + 8 )
+        self.natm = struct.unpack( self.endi + "i", self.fdes.read( 4 ) )[0]
         if( qprint ):
-            print( "+ \tAtoms: %d"%( self.N ) )
-        self._F.read( 4 )
-        self._n = self.N - f
-        self._S = []
+            print( "+ \tAtoms: %d"%( self.natm ) )
+        self.fdes.read( 4 )
+        self.free = self.natm - f
+        self.sele = []
         if( f > 0 ):
             if( qprint ):
                 print( "+ \tFixed Atoms: %d"%( f ) )
-                print( "+ \tFree  Atoms: %d"%( self._n ) )
-            self._F.read( 4 )
-            for i in struct.unpack( self._E + "%di"%( self._n ), self._F.read( 4 * self._n ) ):
-                self._S.append( i - 1 )
-            self._F.read( 4 )
-        self._C = 0
-        self._H = self._F.tell()
-        for i in range( self.N ):
-            self.X.append( 9999.0 )
-            self.Y.append( 9999.0 )
-            self.Z.append( 9999.0 )
+                print( "+ \tFree  Atoms: %d"%( self.free ) )
+            self.fdes.read( 4 )
+            for i in struct.unpack( self.endi + "%di"%( self.free ), self.fdes.read( 4 * self.free ) ):
+                self.sele.append( i - 1 )
+            self.fdes.read( 4 )
+        self.curr = 0
+        self.head = self.fdes.tell()
         if( qprint ):
             print( 60*"-" )
         return( t )
 
 
-    def next( self ):
+    def next( self, molec ):
         try:
-            self._F.read( 4 )
+            self.fdes.read( 4 )
         except AttributeError:
             print( "* No DCD open or End-Of-File reached...\n" )
             return( False )
         else:
-            if( self._Q == 1 ):
-                if( len( self._F.read( 56 ) ) != 56 ):
+            if( self.crys == 1 ):
+                if( len( self.fdes.read( 56 ) ) != 56 ):
                     return( False )
-            if( self.N != self._n and self._C > 0 ):
-# ------------------------------------------------------------------------------------
-#                for i in range( self._n ):
-#                    self.X[self._S[i]] = struct.unpack( self._E + "f", self._F.read( 4 ) )[0]
-#                self._F.read( 8 )
-#                for i in range( self._n ):
-#                    self.Y[self._S[i]] = struct.unpack( self._E + "f", self._F.read( 4 ) )[0]
-#                self._F.read( 8 )
-#                for i in range( self._n ):
-#                    self.Z[self._S[i]] = struct.unpack( self._E + "f", self._F.read( 4 ) )[0]
-#                self._F.read( 4 )
-# ====================================================================================
-                ii = 4 * self._n
-                jj = 20 + 3 * ii
-                bb = self._F.read( jj )
-                if( len( bb ) != jj ):
+            if( self.natm != self.free and self.curr > 0 ):
+                ii = 4 * self.free
+                if( self.fsiz - self.fdes.tell() - 20 - 3 * ii < 0 ):
                     return( False )
-                kk = 0
-                cx = struct.unpack( self._E + "%df"%( self._n ), bb[kk:kk+ii] )
-                kk += ( 8 + ii )
-                cy = struct.unpack( self._E + "%df"%( self._n ), bb[kk:kk+ii] )
-                kk += ( 8 + ii )
-                cz = struct.unpack( self._E + "%df"%( self._n ), bb[kk:kk+ii] )
-                for i in range( self._n ):
-                    self.X[self._S[i]] = cx[i]
-                    self.Y[self._S[i]] = cy[i]
-                    self.Z[self._S[i]] = cz[i]
+                cx = struct.unpack( self.endi + "%df"%( self.natm ), self.fdes.read( ii ) )
+                self.fdes.read( 8 )
+                cy = struct.unpack( self.endi + "%df"%( self.natm ), self.fdes.read( ii ) )
+                self.fdes.read( 8 )
+                cz = struct.unpack( self.endi + "%df"%( self.natm ), self.fdes.read( ii ) )
+                self.fdes.read( 4 )
+                for i in range( self.free ):
+                    i3 = self.sele[i] * 3
+                    molec.coor[i3  ] = cx[i]
+                    molec.coor[i3+1] = cy[i]
+                    molec.coor[i3+2] = cz[i]
                 del cx, cy, cz
-# ------------------------------------------------------------------------------------
             else:
-# ------------------------------------------------------------------------------------
-#                for i in range( self.N ):
-#                    self.X[i] = struct.unpack( self._E + "f", self._F.read( 4 ) )[0]
-#                self._F.read( 8 )
-#                for i in range( self.N ):
-#                    self.Y[i] = struct.unpack( self._E + "f", self._F.read( 4 ) )[0]
-#                self._F.read( 8 )
-#                for i in range( self.N ):
-#                    self.Z[i] = struct.unpack( self._E + "f", self._F.read( 4 ) )[0]
-#                self._F.read( 4 )
-# ====================================================================================
-                ii = 4 * self.N
-                jj = 20 + 3 * ii
-                bb = self._F.read( jj )
-                if( len( bb ) != jj ):
+                ii = 4 * self.natm
+                if( self.fsiz - self.fdes.tell() - 20 - 3 * ii < 0 ):
                     return( False )
-                kk = 0
-                self.X = list( struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] ) )
-                kk += ( 8 + ii )
-                self.Y = list( struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] ) )
-                kk += ( 8 + ii )
-                self.Z = list( struct.unpack( self._E + "%df"%( self.N ), bb[kk:kk+ii] ) )
-# ------------------------------------------------------------------------------------
-            self._C += 1
+                cx = struct.unpack( self.endi + "%df"%( self.natm ), self.fdes.read( ii ) )
+                self.fdes.read( 8 )
+                cy = struct.unpack( self.endi + "%df"%( self.natm ), self.fdes.read( ii ) )
+                self.fdes.read( 8 )
+                cz = struct.unpack( self.endi + "%df"%( self.natm ), self.fdes.read( ii ) )
+                self.fdes.read( 4 )
+                for i in range( self.natm ):
+                    i3 = i * 3
+                    molec.coor[i3  ] = cx[i]
+                    molec.coor[i3+1] = cy[i]
+                    molec.coor[i3+2] = cz[i]
+                del cx, cy, cz
+            self.curr += 1
             return( True )
 
 
     def goto( self, num ):
         if( num >= 0 ):
-            if( self.N != self._n and num > 1 ):
-                dsp = 4 + self._Q * 56 + 3 * 4 * self._n + 20
+            if( self.natm != self.free and num > 1 ):
+                dsp = 4 + self.crys * 56 + 3 * 4 * self.free + 20
             else:
-                dsp = 4 + self._Q * 56 + 3 * 4 * self.N + 20
-            self._C = num
-            self._F.seek( self._H + dsp * num )
+                dsp = 4 + self.crys * 56 + 3 * 4 * self.natm + 20
+            self.curr = num
+            self.fdes.seek( self.head + dsp * num )
 
 
     def close( self ):
-        self._F.close()
+        self.fdes.close()
         # fix number of frames added...
-        if( self._W != None ):
-            self._F = open( self._W, "rb+" )
-            self._F.seek( 8 )
-            self._F.write( struct.pack( "i", self._C ) )
-            self._F.seek( 20 )
-            self._F.write( struct.pack( "i", self._C ) )
-            self._F.close()
+        if( self.writ != "" ):
+            self.fdes = open( self.writ, "rb+" )
+            self.fdes.seek( 8 )
+            self.fdes.write( struct.pack( "i", self.curr ) )
+            self.fdes.seek( 20 )
+            self.fdes.write( struct.pack( "i", self.curr ) )
+            self.fdes.close()
 
 
     def write( self, fname, natoms, sele = None ):
         self.__init__()
-        self._W = fname
-        self._C = 0
-        self._F = open( fname, "wb" )
-        self._F.write( struct.pack( "i", 84 ) + b"CORD" )
-        self._F.write( struct.pack( "i", -1 ) )
-        self._F.write( struct.pack( "i", 1 ) )
-        self._F.write( struct.pack( "i", 1 ) )
-        self._F.write( struct.pack( "i", -1 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self.N = natoms
-        if( sele != None and len( sele ) < self.N ):
-            self._S = sele[:]
-            self._n = len( sele )
-            f = self.N - self._n
+        self.writ = fname
+        self.curr = 0
+        self.fdes = open( fname, "wb" )
+        self.fdes.write( struct.pack( "i", 84 ) + b"CORD" )
+        self.fdes.write( struct.pack( "i", -1 ) )
+        self.fdes.write( struct.pack( "i", 1 ) )
+        self.fdes.write( struct.pack( "i", 1 ) )
+        self.fdes.write( struct.pack( "i", -1 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.natm = natoms
+        if( sele != None and len( sele ) < self.natm ):
+            self.sele = sele[:]
+            self.free = len( sele )
+            f = self.natm - self.free
         else:
-            self._S = []
-            self._n = self.N
+            self.sele = []
+            self.free = self.natm
             f = 0
-        self._F.write( struct.pack( "i", 3 * self._n ) )
-        self._F.write( struct.pack( "i", f ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 0 ) )
-        self._F.write( struct.pack( "i", 84 ) )
-        self._F.write( struct.pack( "i", 4 + 80 ) )
-        self._F.write( struct.pack( "i", 1 ) )
-        self._F.write( b"* Created with QMCube (qm3)                                                     " )
-        self._F.write( struct.pack( "i", 4 + 80 ) )
-        self._F.write( struct.pack( "i", 4 ) + struct.pack( "i", self.N ) + struct.pack( "i", 4 ) )
-        if( self._S != [] ):
+        self.fdes.write( struct.pack( "i", 3 * self.free ) )
+        self.fdes.write( struct.pack( "i", f ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 0 ) )
+        self.fdes.write( struct.pack( "i", 84 ) )
+        self.fdes.write( struct.pack( "i", 4 + 80 ) )
+        self.fdes.write( struct.pack( "i", 1 ) )
+        self.fdes.write( b"* Created with QMCube (qm3)                                                     " )
+        self.fdes.write( struct.pack( "i", 4 + 80 ) )
+        self.fdes.write( struct.pack( "i", 4 ) + struct.pack( "i", self.natm ) + struct.pack( "i", 4 ) )
+        if( self.sele != [] ):
             b = struct.pack( "i", 4 * len( sele ) )
-            self._F.write( b )
-            for i in self._S:
-                self._F.write( struct.pack( "i", i+1 ) )
-            self._F.write( b )
-        for i in range( self.N ):
-            self.X.append( 9999. )
-            self.Y.append( 9999. )
-            self.Z.append( 9999. )
+            self.fdes.write( b )
+            for i in self.sele:
+                self.fdes.write( struct.pack( "i", i+1 ) )
+            self.fdes.write( b )
 
 
-    def append( self ):
+    def append( self, molec ):
         try:
-            self._F.tell()
+            self.fdes.tell()
         except AttributeError:
             print( "* No DCD open..." )
             return( False )
         else:
-            if( self.N != self._n and self._C > 0 ):
-                t = struct.pack( "i", self._n * 4 )
+            if( self.natm != self.free and self.curr > 0 ):
+                t = struct.pack( "i", self.free * 4 )
                 bx = b""
                 by = b""
                 bz = b""
-                for i in self._S:
-                    bx += struct.pack( "f", self.X[i] )
-                    by += struct.pack( "f", self.Y[i] )
-                    bz += struct.pack( "f", self.Z[i] )
+                for i in self.sele:
+                    i3 = 3 * i
+                    bx += struct.pack( "f", molec.coor[i3]   )
+                    by += struct.pack( "f", molec.coor[i3+1] )
+                    bz += struct.pack( "f", molec.coor[i3+2] )
             else:
-                t = struct.pack( "i", self.N * 4 )
+                t = struct.pack( "i", self.natm * 4 )
                 bx = b""
                 by = b""
                 bz = b""
-                for i in range( self.N ):
-                    bx += struct.pack( "f", self.X[i] )
-                    by += struct.pack( "f", self.Y[i] )
-                    bz += struct.pack( "f", self.Z[i] )
-            self._F.write( t + bx + t + t + by + t + t + bz + t )
-            self._F.flush()
-            self._C += 1
+                for i in range( self.natm ):
+                    i3 = 3 * i
+                    bx += struct.pack( "f", molec.coor[i3]   )
+                    by += struct.pack( "f", molec.coor[i3+1] )
+                    bz += struct.pack( "f", molec.coor[i3+2] )
+            self.fdes.write( t + bx + t + t + by + t + t + bz + t )
+            self.fdes.flush()
+            self.curr += 1
             return( True )
 
