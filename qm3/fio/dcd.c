@@ -279,6 +279,7 @@ static PyObject* __write( PyObject *self, PyObject *args ) {
         obj->natm = natom;
         obj->curr = 0;
         snprintf( obj->fnam, 2048, "%s", fname );
+fprintf(stderr,"[%s] %ld\n", obj->fnam, obj->natm );
 
         obj->fdes  = fopen( obj->fnam, "wb" );
         blk = 84; memcpy( &buf[0], &blk, 4 ); fwrite( buf, 1, 4, obj->fdes );
@@ -294,7 +295,7 @@ static PyObject* __write( PyObject *self, PyObject *args ) {
         obj->free = natom;
         obj->sele = NULL;
         fix = 0;
-        if( PyList_Check( o_sele ) ) {
+        if( o_sele != NULL && PyList_Check( o_sele ) ) {
             i = (long) PyList_Size( o_sele );
             if( i > 0 && i < natom ) {
                 obj->free = i;
@@ -316,11 +317,16 @@ static PyObject* __write( PyObject *self, PyObject *args ) {
         blk = 4; memcpy( &buf[0], &blk, 4 ); fwrite( buf, 1, 4, obj->fdes );
         blk = (int) natom; memcpy( &buf[0], &blk, 4 ); fwrite( buf, 1, 4, obj->fdes );
         blk = 4; memcpy( &buf[0], &blk, 4 ); fwrite( buf, 1, 4, obj->fdes );
-        blk = (int)( 4 * obj->free ); memcpy( &buf[0], &blk, 4 ); fwrite( buf, 1, 4, obj->fdes );
-        for( i = 0; i < obj->free; i++ ) {
-            blk = (int)( obj->sele[i] + 1 ); memcpy( &buf[0], &blk, 4 ); fwrite( buf, 1, 4, obj->fdes );
-        }
-        blk = (int)( 4 * obj->free ); memcpy( &buf[0], &blk, 4 ); fwrite( buf, 1, 4, obj->fdes );
+		if( obj->sele != NULL ) {
+        	blk = (int)( 4 * obj->free ); memcpy( &buf[0], &blk, 4 ); fwrite( buf, 1, 4, obj->fdes );
+			for( i = 0; i < obj->free; i++ ) {
+				blk = (int)( obj->sele[i] + 1 ); memcpy( &buf[0], &blk, 4 ); fwrite( buf, 1, 4, obj->fdes );
+			}
+        	blk = (int)( 4 * obj->free ); memcpy( &buf[0], &blk, 4 ); fwrite( buf, 1, 4, obj->fdes );
+		}
+
+		obj->buff = (char*) malloc( 4 * obj->natm * sizeof( char ) );
+    	bzero( obj->fnam, 2048 );
     }
     Py_INCREF( Py_None );
     return( Py_None );
