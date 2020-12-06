@@ -4,6 +4,10 @@ include config
 all: matrix minimize cions volume colvar_v mmint mol_mech ode fitpack grids dynamo shm conn
 
 
+dcd:
+	$(PYX) setup/dcd build_ext --build-lib qm3/fio
+
+
 cions:
 	$(PYX) setup/cions build_ext --build-lib qm3/utils
 

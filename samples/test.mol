@@ -85,7 +85,7 @@ f = io.StringIO()
 m.zmat_write( c, f )
 
 d = qm3.fio.dcd.dcd()
-d.write( "tmp.dcd", m.natm )
+d.open_write( "tmp.dcd", m.natm )
 f.seek( 0 )
 print( f.read() )
 for vv in [ [ 1., .0, .0 ], [ .0, 1., .0 ], [ .0, .0, 1. ], [ 1., 1., .0 ], [ 1., .0, 1. ], [ .0, 1., 1. ], [ 1., 1., 1. ] ]:

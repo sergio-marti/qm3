@@ -12,10 +12,8 @@ import stat
 
 class dcd( object ):
 
-    def __init__( self, fname = None, qprint = True ):
+    def __init__( self ):
         self.__clean()
-        if( fname != None ):
-            self.read( fname, qprint )
             
 
     def __clean( self ):
@@ -31,7 +29,7 @@ class dcd( object ):
         self.head = 0
 
 
-    def read( self, fname, qprint = True ):
+    def open_read( self, fname, qprint = True ):
         self.__clean()
         self.fdes = open( fname, "rb" )    
         self.fsiz = os.stat( fname )[stat.ST_SIZE]
@@ -144,7 +142,7 @@ class dcd( object ):
             self.fdes.close()
 
 
-    def write( self, fname, natoms, sele = None ):
+    def open_write( self, fname, natoms, sele = None ):
         self.__init__()
         self.writ = fname
         self.curr = 0
