@@ -79,6 +79,7 @@ static PyObject* __read( PyObject *self, PyObject *args ) {
 	o_flg = Py_True;
 	if( PyArg_ParseTuple( args, "s|O", &fname, &o_flg ) ) {
 		obj->fdes = fopen( fname, "rb" );
+		if( obj->fdes == NULL ) { Py_INCREF( Py_None ); return( Py_None ); }
 		stat( fname, &inf );
 		obj->fsiz = (long) inf.st_size;
 		if( o_flg == Py_True ) {
