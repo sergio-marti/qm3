@@ -2,20 +2,19 @@
 \subsection[dcd]{dcd.py}
 The class \func{dcd} provides
 minimal methods for reading and writing XPLOR-based trajectory files (DCD). The main variables/attributes are
-the number of atoms (\func{N}); and the coordinates (\func{X}, \func{Y} and \func{Z}), which should
-be modified previous to an \func{append} call. The \func{read} and \func{write} methods are intended
-only for initialisation, and \func{next}/\func{append} will perform the reading/writing sutff.
-The final number of frames in the trajectory is set after the \func{close} method is called.\\
+the number of atoms (\parm{natm}) and the current frame pointer (\parm{curr}).
+The \func{open\_read} and \func{open\_write} methods are intended
+only for initialisation, and \func{next}/\func{append} will perform the reading/writing sutff on the coordinates
+of the molecule object provided as an argument (\parm{molec}).
+The final number of frames in the trajectory is updated after the \func{close} method is called.\\
 \begin{pyglist}[language=python,fvset={frame=single}]
 class dcd( fname = None, qprint = True )
-    N = 0
-    X = []
-    Y = []
-    Z = []
-    def read( fname, qprint = True )
-    def next()
+    natm = 0
+	curr = 0
+    def open_read( fname, qprint = True )
+    def next( molec )
     def goto( num )
+    def open_write( fname, natoms, sele = None )
+    def append( molec )
     def close()
-    def write( fname, natoms, sele = None )
-    def append()
 \end{pyglist}
