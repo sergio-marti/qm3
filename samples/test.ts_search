@@ -28,7 +28,7 @@ class MM_problem( qm3.problem.template ):
         time.sleep( 10 )
         self.eng = qm3.engines.namd.namd_pipe()
 
-        self.sel = nbn
+        self.sel  = nbn
         self.coor = sum( [ self.mol.coor[3*i:3*i+3] for i in self.sel ], [] )
         self.size = len( self.coor )
         self.grad = []
@@ -90,11 +90,11 @@ class QM_problem( qm3.problem.template ):
         self.cnt = 0
 
         self.dcd = qm3.fio.dcd.dcd()
-        self.dcd.write( "dcd", self.mol.natm )
+        self.dcd.open_write( "dcd", self.mol.natm )
 
 
     def current_step( self, istep ):
-        self.mol.dcd_write( self.dcd )
+        self.dcd.append( self.mol )
 
 
     def update_coor( self ):

@@ -60,7 +60,7 @@ class my_problem( qm3.problem.template ):
 
         self.time = -1
         self.dcd = qm3.fio.dcd.dcd()
-        self.dcd.write( "dcd", self.mol.natm )
+        self.dcd.open_write( "dcd", self.mol.natm )
         self.mol.dcd_write( self.dcd )
 
         self.emm.update_chrg( self.mol )
@@ -68,7 +68,7 @@ class my_problem( qm3.problem.template ):
 
     def current_step( self, istep ):
         if( istep%100 == 0 ):
-            self.mol.dcd_write( self.dcd )
+            self.dcd.append( self.mol )
 
 
     def get_func( self ):
