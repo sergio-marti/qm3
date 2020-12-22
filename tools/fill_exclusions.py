@@ -82,6 +82,7 @@ if( sys.argv[1].lower() == "charmm" ):
             if( t != [] ):
                 if( float( t[0] ) != 0.0 ):
                     _DIE["%s-%s-%s-%s"%( ai, aj, ak, al )] = [ float( t[0] ) * 4.184 * 2.0, int( t[1] ), float( t[2] ) ]
+# -- AMBER parameters
 elif( sys.argv[1].lower() == "sander" ):
     for ai, aj in BND:
         pij = re.compile( "^[\ ]*%s[\ ]*-[\ ]*%s[\ ]+([0-9\.]+)[\ ]+([0-9\.]+)"%( ai, aj ) )
