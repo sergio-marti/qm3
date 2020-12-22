@@ -88,7 +88,7 @@
        CALL TMDATE(TIMSTR)
        IF (MASWRK) WRITE(IW,9002) TIMSTR
 +C-xexo
-+      if(nchmat.gt.0) call mm_summary
++      if(nchmat.gt.0 .and. maswrk) call mm_summary
 +C ----------------------------------------------------
        CALL ENDING
        STOP
