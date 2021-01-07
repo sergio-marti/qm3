@@ -1,8 +1,0 @@
-from distutils.core import setup, Extension
-
-setup( 
-	name = "Truncated Lennard-Jones", 
-	ext_modules = [ 
-		Extension( "_qmmm", [ "qmmm.c" ] )
-	]
-)
