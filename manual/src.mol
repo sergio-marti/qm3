@@ -47,8 +47,8 @@ around the 3-list items \parm{axis} the amount of \parm{theta} degrees (clockwis
 \item[\func{zmat\_read}( fname = None, orig = [ 0.0, 0.0, 0.0 {]}, axis = [ 1.0, 0.0, 0.0 {]} )] provides a molecule object based on a condensed z-matrix
 \item[\func{zmat\_write}( conn, fname = None )] exports current molecule to a z-matrix based on the connectivity \parm{conn} (C-indexing)
 
-\item[\func{psf\_read}( fname )] allows to fill atom types (type), partial cahrges (chrg) and masses (mass) from a compatible XPLOR PSF file (\parm{fname}).
-\item[\func{nbnd\_read}( fname )] fills epsilon (epsi, $\sqrt{kJ/mol}$) and $R_{min}/2$ (rmin, Å) values from the corresponding types (type) as present in the PSF file (which should be loaded previously).
+%\item[\func{psf\_read}( fname )] allows to fill atom types (type), partial cahrges (chrg) and masses (mass) from a compatible XPLOR PSF file (\parm{fname}).
+%\item[\func{nbnd\_read}( fname )] fills epsilon (epsi, $\sqrt{kJ/mol}$) and $R_{min}/2$ (rmin, Å) values from the corresponding types (type) as present in the PSF file (which should be loaded previously).
 \end{description}
 The two last functions return True/False whether the information has been successfully read or not.
 \begin{pyglist}[language=python,fvset={frame=single}]
@@ -82,14 +82,10 @@ class molecule( fname = None )
     def guess_symbols( sele = None )
     def pdb_read( fname = None, append = False )
     def pdb_write( fname = None, sele = None )
-    def dcd_read( dcd, advance = True )
-    def dcd_write( dcd )
     def xyz_read( fname = None, append = False )
     def xyz_write( fname = None, sele = None )
     def zmat_read( fname = None, orig = [ 0.0, 0.0, 0.0 ], axis = [ 1.0, 0.0, 0.0 ] )
     def zmat_write( conn, fname = None )
-    def psf_read( fname )
-    def nbnd_read( fname )
 \end{pyglist}
 
 \footnotesize
