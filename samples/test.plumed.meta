@@ -27,7 +27,6 @@ class my_problem( qm3.problem.template ):
 
         self.mol = qm3.mol.molecule( "pdb" )
         self.mol.boxl = [ 40., 40., 40. ]
-        self.mol.nbnd_read( "non_bonded" )
         qm3.engines.mmint.non_bonded( self.mol, "non_bonded" )
 
         self.emm = qm3.engines.namd.namd_pipe()
