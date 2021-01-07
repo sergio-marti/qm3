@@ -13,7 +13,7 @@ For those QM engines which doesn't provide the electrostatic interaction MM\_gra
 \func{QMLJ\_MMEL} evaluates them classically (Coulomb based, without cut-off) using the charges stored in the molecule object ("mol.chrg").
 In addition it also provides the QM\_Lennard-Jones hessian.\\
 Finally, it also provides the function \func{non\_bonded}, which allows to populate the molecule attributes "mol.epsi" ($\varepsilon_o,\,\sqrt{kJ/mol}$) and "mol.rmin" ($R_{min}/2$, Å), once defined the corresponding atomic types ("mol.type").
-Currently, it allows to parse CHARMMM (\parm{parser = p\_charmm}) and AMBER (\parm{parser = p\_sander}) from a single or list of parameter
+Currently, it allows to parse CHARMM (\parm{parser = p\_charmm}) and AMBER (\parm{parser = p\_sander}) from a single or list of parameter
 files (\parm{data}).
 \begin{pyglist}[language=python,fvset={frame=single}]
 def non_bonded( mol, data, parser = p_default )
