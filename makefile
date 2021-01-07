@@ -1,7 +1,7 @@
 include config
 
 
-all: matrix minimize cions volume colvar_v mmint mol_mech ode fitpack grids dynamo shm conn
+all: matrix minimize cions volume colvar_v mmint mol_mech ode fitpack grids dynamo shm conn dcd
 
 
 dcd:

@@ -1,0 +1,35 @@
+1) make a local copy of "confing.sample" into "config":
+
+    cp config.sample config
+
+2) edit "config" and change your system variables accordingly:
+
+PYX           python interpreter
+PYL           python development library (include the corresponding path with "-L")
+SHD           gfortran linker option for creating shared/dynamic libraries
+MTH           linear algebra version (version identifier)
+MLB           linear algebra library library and path
+MPI           C mpi compiler with the corresponding keyword for creating shared/dynamic libraries
+
+The following variables should point to the paths of the different external programs
+in order to compile a shared version (ctypes).
+
+DFTB XTB DFTD4 DFTD4_INC AMBER
+
+3) edit "setup/*" files (mostly plumed and sander), and change the paths of the external programs
+
+4) compile the standard distribution:
+
+    make
+
+5) optionally, compile additional stuff:
+
+    make mpi
+
+    make plumed
+    make sander
+
+    make dftb.so
+    make xtb.so
+    make dftd4.so
+    make sqm.so
