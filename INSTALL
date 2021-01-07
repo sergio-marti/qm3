@@ -16,11 +16,11 @@ in order to compile a shared version (ctypes).
 
 DFTB XTB DFTD4 DFTD4_INC AMBER
 
-3) edit "setup/*" files (mostly plumed and sander), and change the paths of the external programs
-
-4) compile the standard distribution:
+3) compile the standard distribution:
 
     make
+
+4) edit "setup/plumed" and "setup/sander"files, and change the paths of the external programs
 
 5) optionally, compile additional stuff:
 
