@@ -54,7 +54,7 @@ class pmf2d:
 
 x = pmf2d( sys.argv[1] )
 
-x.fd = file( "path.log", "wt" )
+x.fd = open( "path.log", "wt" )
 x.fd.write( "# Forward\n" )
 x.coor = [ float( sys.argv[2] ), float( sys.argv[3] ) ]
 x.get_func()
