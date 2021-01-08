@@ -29,10 +29,8 @@ except:
 # SFF: Simple Force Field
 #
 class simple_force_field( object ):
-    def __init__( self, mol ):
-        self.ncpu = 1
-        if( mol_mech_so ):
-            self.ncpu = os.sysconf( 'SC_NPROCESSORS_ONLN' )
+    def __init__( self, mol, ncpu = os.sysconf( 'SC_NPROCESSORS_ONLN' ) ):
+        self.ncpu     = ncpu
         self.cut_on   = 10.0
         self.cut_off  = 12.0
         self.cut_list = 14.0
