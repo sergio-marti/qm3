@@ -204,6 +204,12 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
         }
         Py_DECREF( otmp );
 
+// ======================================================================================================================
+/* crear una versión con threads en la que se paralelice solo el primer bucle (i), pero que el reparto
+ * sea lo más equitativo posible entre las cpus... i,j > i*n+j-i*(i-1)/2
+ * los chunks en i serán menores cuando menor sea i, ya que tendrá que hacer más ciclos en j
+ */
+// ======================================================================================================================
         out = PyList_New( 0 );
 		for( i = 0; i < n - 1; i++ ) {
 			for( j = i + 1; j < n; j++ ) {
@@ -240,6 +246,7 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
 		for( i = 0; i < n_dih; i++ ) {
 			PyList_Append( out, Py_BuildValue( "[l,l,d]", dih[2*i], dih[2*i+1], 0.5 ) );
 		}
+// ======================================================================================================================
         free( qms ); free( bnd ); free( ang ); free( dih ); free( xyz );
         return( out );
     } else { Py_INCREF( Py_None ); return( Py_None ); }
