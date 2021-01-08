@@ -9,6 +9,9 @@
 #define max(a,b) (((a)>(b))?(a):(b))
 
 
+typedef struct con_bnd_node { long i,j; struct con_bnd_node *n; } con_bnd;
+typedef struct { long siz, _i0, _if; long n_bnd, n_ang, n_dih; long *qms, *bnd, *ang, *dih;
+    			double cut, *xyz, *box; con_bnd *nbn; } nbn_arg;
 
 typedef struct { long who, _i0, _if, n_lst, *lst, n_dat, *ind, *fre; double *xyz, *grd, ene, *dat; } ene_arg;
 
@@ -86,7 +89,7 @@ static PyObject* w_guess_angles( PyObject *self, PyObject *args ) {
 static PyObject* w_guess_dihedrals( PyObject *self, PyObject *args ) {
     PyObject    *out, *object, *otmp, *olst;
     long        i, j, k, ii, jj, kk, ll, *lst, siz, cnt;
-	long		nat, **con, *nel;
+    long        nat, **con, *nel;
 
     if( PyArg_ParseTuple( args, "O", &object ) ) {
 
@@ -97,49 +100,49 @@ static PyObject* w_guess_dihedrals( PyObject *self, PyObject *args ) {
             for( j = 0; j < 3; j++ ) lst[3*i+j] = PyLong_AsLong( PyList_GetItem( PyList_GetItem( otmp, i ), j ) );
         Py_DECREF( otmp );
 
-		nat  = PyLong_AsLong( PyObject_GetAttrString( object, "natm" ) );
-		otmp = PyObject_GetAttrString( object, "conn" );
-		con  = (long**) malloc( nat * sizeof( long* ) );
-		nel  = (long*) malloc( nat * sizeof( long ) );
-		for( i = 0 ; i < nat; i++ ) {
-		    olst = PyList_GetItem( otmp, i );
-		    nel[i] = PyList_Size( olst );
-		    con[i] = (long*) malloc( nel[i] * sizeof( long ) );
-		    for( j = 0; j < nel[i]; j++ ) con[i][j] = PyLong_AsLong( PyList_GetItem( olst, j ) );
-		}
-		Py_DECREF( otmp );
-		out = PyList_New( 0 );
+        nat  = PyLong_AsLong( PyObject_GetAttrString( object, "natm" ) );
+        otmp = PyObject_GetAttrString( object, "conn" );
+        con  = (long**) malloc( nat * sizeof( long* ) );
+        nel  = (long*) malloc( nat * sizeof( long ) );
+        for( i = 0 ; i < nat; i++ ) {
+            olst = PyList_GetItem( otmp, i );
+            nel[i] = PyList_Size( olst );
+            con[i] = (long*) malloc( nel[i] * sizeof( long ) );
+            for( j = 0; j < nel[i]; j++ ) con[i][j] = PyLong_AsLong( PyList_GetItem( olst, j ) );
+        }
+        Py_DECREF( otmp );
+        out = PyList_New( 0 );
         for( i = 0; i < siz - 1; i++ ) {
             for( j = i + 1; j < siz; j++ ) {
                 ii = -1; jj = -1; kk = -1; ll = -1;
-		        if( lst[3*i+1] == lst[3*j] && lst[3*i+2] == lst[3*j+1] ) {
-		            ii = lst[3*i];
-		            jj = lst[3*i+1];
-		            kk = lst[3*i+2];
-		            ll = lst[3*j+2];
-	        	} else if( lst[3*i+1] == lst[3*j+2] && lst[3*i+2] == lst[3*j+1] ) {
-		            ii = lst[3*i];
-		            jj = lst[3*i+1];
-		            kk = lst[3*i+2];
-		            ll = lst[3*j];
-		        } else if( lst[3*i+1] == lst[3*j] && lst[3*i] == lst[3*j+1] ) {
-		            ii = lst[3*i+2];
-		            jj = lst[3*i+1];
-		            kk = lst[3*i];
-		            ll = lst[3*j+2];
-		        } else if( lst[3*i+1] == lst[3*j+2] && lst[3*i] == lst[3*j+1] ) {
-		            ii = lst[3*i+2];
-		            jj = lst[3*i+1];
-		            kk = lst[3*i];
-		            ll = lst[3*j];
-		        }
+                if( lst[3*i+1] == lst[3*j] && lst[3*i+2] == lst[3*j+1] ) {
+                    ii = lst[3*i];
+                    jj = lst[3*i+1];
+                    kk = lst[3*i+2];
+                    ll = lst[3*j+2];
+                } else if( lst[3*i+1] == lst[3*j+2] && lst[3*i+2] == lst[3*j+1] ) {
+                    ii = lst[3*i];
+                    jj = lst[3*i+1];
+                    kk = lst[3*i+2];
+                    ll = lst[3*j];
+                } else if( lst[3*i+1] == lst[3*j] && lst[3*i] == lst[3*j+1] ) {
+                    ii = lst[3*i+2];
+                    jj = lst[3*i+1];
+                    kk = lst[3*i];
+                    ll = lst[3*j+2];
+                } else if( lst[3*i+1] == lst[3*j+2] && lst[3*i] == lst[3*j+1] ) {
+                    ii = lst[3*i+2];
+                    jj = lst[3*i+1];
+                    kk = lst[3*i];
+                    ll = lst[3*j];
+                }
                 if( ii != -1 && jj != -1 && kk != -1 && ll != -1 ) {
                     cnt = 0; for( k = 0; k < nel[ii]; k++ ) cnt += ( ll == con[ii][k] );
                     if( cnt == 0 ) PyList_Append( out, Py_BuildValue( "[l,l,l,l]", ii, jj, kk, ll ) );
                 }
-			}
-		}
-		free( nel ); for( i = 0; i < nat; i++ ) free( con[i] ); free( con );
+            }
+        }
+        free( nel ); for( i = 0; i < nat; i++ ) free( con[i] ); free( con );
         return( out );
     } else { Py_INCREF( Py_None ); return( Py_None ); }
 }
@@ -148,13 +151,68 @@ static PyObject* w_guess_dihedrals( PyObject *self, PyObject *args ) {
 // ####################################################################################################################
 
 
+void* __update_non_bonded( void *args ) {
+    nbn_arg     *arg = (nbn_arg*) args;
+    long        i, j, k, i3, j3, f;
+    double      r2, dr;
+    con_bnd     *p;
+
+    p = arg->nbn;
+    for( i = arg->_i0; i < arg->_if; i++ ) {
+		for( j = i + 1; j < arg->siz; j++ ) {
+        	if( arg->qms[i] == 1 && arg->qms[j] == 1 ) { continue; }
+	        i3  = 3 * i;
+	        j3  = 3 * j;
+	        r2 = 0.0;
+	        for( k = 0; k < 3; k++ ) {
+	            dr  = arg->xyz[i3+k] - arg->xyz[j3+k];
+	            dr -= arg->box[k] * round( dr / arg->box[k] );
+	            r2 += dr * dr;
+	        }
+	        if( r2 <= arg->cut ) {
+	            f = 0;
+	            k = 0;
+	            while( k < arg->n_bnd && f == 0 ) {
+	                f |= ( ( i == arg->bnd[2*k] && j == arg->bnd[2*k+1] ) || ( i == arg->bnd[2*k+1] && j == arg->bnd[2*k] ) );
+	                k++;
+	            }
+	            k = 0;
+	            while( k < arg->n_ang && f == 0 ) {
+	                f |= ( ( i == arg->ang[2*k] && j == arg->ang[2*k+1] ) || ( i == arg->ang[2*k+1] && j == arg->ang[2*k] ) );
+	                k++;
+	            }
+	            k = 0;
+	            while( k < arg->n_dih && f == 0 ) {
+	                f |= ( ( i == arg->dih[2*k] && j == arg->dih[2*k+1] ) || ( i == arg->dih[2*k+1] && j == arg->dih[2*k] ) );
+	                k++;
+	            }
+	            if( f == 0 ) {
+	                arg->nbn->i++;
+	                p->n    = (con_bnd*) malloc( sizeof( con_bnd ) );
+	                p->n->i = i;
+	                p->n->j = j;
+	                p->n->n = NULL;
+	                p       = p->n;
+	            }
+	        }
+		}
+	}
+    return( NULL );
+}
+
 static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
     PyObject    *out, *object, *molecule, *otmp;
     double      *xyz, cut, box[3], r2, dr;
     long        *bnd, *ang, *dih, n_bnd, n_ang, n_dih;
-   	long		i, j, k, i3, j3, n3, n, f, *qms;
+    long        i, j, k, i3, j3, n3, n, f, *qms;
+	long		cpu, nit, *rng;
+    pthread_t	*pid;
+    nbn_arg		*arg;
+    con_bnd		*ptr;
 
     if( PyArg_ParseTuple( args, "OO", &object, &molecule ) ) {
+
+    	cpu  = PyLong_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
 
         otmp = PyObject_GetAttrString( object, "cut_list" );
         cut = PyFloat_AsDouble( otmp );
@@ -205,48 +263,94 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
         Py_DECREF( otmp );
 
 // ======================================================================================================================
-/* crear una versión con threads en la que se paralelice solo el primer bucle (i), pero que el reparto
- * sea lo más equitativo posible entre las cpus... i,j > i*n+j-i*(i-1)/2
- * los chunks en i serán menores cuando menor sea i, ya que tendrá que hacer más ciclos en j
- */
+    	nit = n - 1;
+        rng = (long*) malloc( cpu * sizeof( long ) );
+        for( i = 0; i < cpu; i++ ) rng[i] = 0;
+		// -- range should be more equitative: lower I's have larger number of J's
+		// i,j >> i*n+j-i*(i-1)/2
+        for( i = 0; i < nit; i++ ) rng[i%cpu]++;
+
+    	pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
+    	arg = (nbn_arg*) malloc( cpu * sizeof( nbn_arg ) );
+    	for( j = 0, i = 0; i < cpu; j += rng[i], i++ ) {
+    		arg[i].siz    = n;
+    		arg[i]._i0    = j;
+    		arg[i]._if    = j + rng[i];
+    		arg[i].cut    = cut;
+    		arg[i].xyz    = xyz;
+    		arg[i].box    = box;
+    		arg[i].qms    = qms;
+    		arg[i].bnd    = bnd;
+    		arg[i].ang    = ang;
+    		arg[i].dih    = dih;
+    		arg[i].n_bnd  = n_bnd;
+    		arg[i].n_ang  = n_ang;
+    		arg[i].n_dih  = n_dih;
+    		arg[i].nbn    = (con_bnd*) malloc( sizeof( con_bnd ) ); 
+    		arg[i].nbn->i = 0;
+    		arg[i].nbn->j = 0;
+    		arg[i].nbn->n = NULL;
+    		pthread_create( &pid[i], NULL, __update_non_bonded, (void*) &arg[i] );
+    	}
+    	for( i = 0; i < cpu; i++ ) pthread_join( pid[i], NULL );
+
+    	out = PyList_New( 0 );
+    	for( i = 0; i < cpu; i++ ) {
+    		ptr = arg[i].nbn->n;
+    		while( ptr != NULL ) {
+    			PyList_Append( out, Py_BuildValue( "[l,l,d]", ptr->i, ptr->j, 1.0 ) );
+    			ptr = ptr->n;
+    		}
+    	}
+    	for( i = 0; i < cpu; i++ ) {
+    		ptr = arg[i].nbn;
+    		while( ptr != NULL ) {
+    			ptr = ptr->n;
+    			free( arg[i].nbn );
+    			arg[i].nbn = ptr;
+    		}
+    	}
+    	free( arg ); free( rng ); free( pid );
 // ======================================================================================================================
+/*
         out = PyList_New( 0 );
-		for( i = 0; i < n - 1; i++ ) {
-			for( j = i + 1; j < n; j++ ) {
-        		if( qms[i] == 1 && qms[j] == 1 ) { continue; }
-		        i3  = 3 * i;
-		        j3  = 3 * j;
-		        r2 = 0.0;
-		        for( k = 0; k < 3; k++ ) {
-		            dr  = xyz[i3+k] - xyz[j3+k];
-		            dr -= box[k] * round( dr / box[k] );
-		            r2 += dr * dr;
-		        }
-		        if( r2 <= cut ) {
-		            f = 0;
-		            k = 0;
-		            while( k < n_bnd && f == 0 ) {
-		                f |= ( ( i == bnd[2*k] && j == bnd[2*k+1] ) || ( i == bnd[2*k+1] && j == bnd[2*k] ) );
-		                k++;
-		            }
-		            k = 0;
-		            while( k < n_ang && f == 0 ) {
-		                f |= ( ( i == ang[2*k] && j == ang[2*k+1] ) || ( i == ang[2*k+1] && j == ang[2*k] ) );
-		                k++;
-		            }
-		            k = 0;
-		            while( k < n_dih && f == 0 ) {
-		                f |= ( ( i == dih[2*k] && j == dih[2*k+1] ) || ( i == dih[2*k+1] && j == dih[2*k] ) );
-		                k++;
-		            }
-		            if( f == 0 ) { PyList_Append( out, Py_BuildValue( "[l,l,d]", i, j, 1.0 ) ); }
-		        }
-			}
-		}
-		for( i = 0; i < n_dih; i++ ) {
-			PyList_Append( out, Py_BuildValue( "[l,l,d]", dih[2*i], dih[2*i+1], 0.5 ) );
-		}
+        for( i = 0; i < n - 1; i++ ) {
+            for( j = i + 1; j < n; j++ ) {
+                if( qms[i] == 1 && qms[j] == 1 ) { continue; }
+                i3  = 3 * i;
+                j3  = 3 * j;
+                r2 = 0.0;
+                for( k = 0; k < 3; k++ ) {
+                    dr  = xyz[i3+k] - xyz[j3+k];
+                    dr -= box[k] * round( dr / box[k] );
+                    r2 += dr * dr;
+                }
+                if( r2 <= cut ) {
+                    f = 0;
+                    k = 0;
+                    while( k < n_bnd && f == 0 ) {
+                        f |= ( ( i == bnd[2*k] && j == bnd[2*k+1] ) || ( i == bnd[2*k+1] && j == bnd[2*k] ) );
+                        k++;
+                    }
+                    k = 0;
+                    while( k < n_ang && f == 0 ) {
+                        f |= ( ( i == ang[2*k] && j == ang[2*k+1] ) || ( i == ang[2*k+1] && j == ang[2*k] ) );
+                        k++;
+                    }
+                    k = 0;
+                    while( k < n_dih && f == 0 ) {
+                        f |= ( ( i == dih[2*k] && j == dih[2*k+1] ) || ( i == dih[2*k+1] && j == dih[2*k] ) );
+                        k++;
+                    }
+                    if( f == 0 ) { PyList_Append( out, Py_BuildValue( "[l,l,d]", i, j, 1.0 ) ); }
+                }
+            }
+        }
+*/
 // ======================================================================================================================
+        for( i = 0; i < n_dih; i++ ) {
+            PyList_Append( out, Py_BuildValue( "[l,l,d]", dih[2*i], dih[2*i+1], 0.5 ) );
+        }
         free( qms ); free( bnd ); free( ang ); free( dih ); free( xyz );
         return( out );
     } else { Py_INCREF( Py_None ); return( Py_None ); }
@@ -329,8 +433,8 @@ static PyObject* w_energy_bond( PyObject *self, PyObject *args ) {
         nit = n_lst;
 
         rng = (long*) malloc( cpu * sizeof( long ) );
-		for( i = 0; i < cpu; i++ ) rng[i] = 0;
-		for( i = 0; i < nit; i++ ) rng[i%cpu]++;
+        for( i = 0; i < cpu; i++ ) rng[i] = 0;
+        for( i = 0; i < nit; i++ ) rng[i%cpu]++;
 
         pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
         arg = (ene_arg*) malloc( cpu * sizeof( ene_arg ) );
@@ -459,8 +563,8 @@ static PyObject* w_energy_angle( PyObject *self, PyObject *args ) {
         nit = n_lst;
 
         rng = (long*) malloc( cpu * sizeof( long ) );
-		for( i = 0; i < cpu; i++ ) rng[i] = 0;
-		for( i = 0; i < nit; i++ ) rng[i%cpu]++;
+        for( i = 0; i < cpu; i++ ) rng[i] = 0;
+        for( i = 0; i < nit; i++ ) rng[i%cpu]++;
 
         pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
         arg = (ene_arg*) malloc( cpu * sizeof( ene_arg ) );
@@ -658,8 +762,8 @@ static PyObject* w_energy_dihedral( PyObject *self, PyObject *args ) {
         nit = n_lst;
 
         rng = (long*) malloc( cpu * sizeof( long ) );
-		for( i = 0; i < cpu; i++ ) rng[i] = 0;
-		for( i = 0; i < nit; i++ ) rng[i%cpu]++;
+        for( i = 0; i < cpu; i++ ) rng[i] = 0;
+        for( i = 0; i < nit; i++ ) rng[i%cpu]++;
 
         pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
         arg = (ene_arg*) malloc( cpu * sizeof( ene_arg ) );
@@ -869,8 +973,8 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
     
         nit = n_lst;
         rng = (long*) malloc( cpu * sizeof( long ) );
-		for( i = 0; i < cpu; i++ ) rng[i] = 0;
-		for( i = 0; i < nit; i++ ) rng[i%cpu]++;
+        for( i = 0; i < cpu; i++ ) rng[i] = 0;
+        for( i = 0; i < nit; i++ ) rng[i%cpu]++;
 
         pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
         arg = (int_arg*) malloc( cpu * sizeof( int_arg ) );
