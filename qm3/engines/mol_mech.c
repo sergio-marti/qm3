@@ -250,9 +250,9 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
 
 
 void* __energy_bond( void *args ) {
-    ene_arg        *arg = (ene_arg*) args;
+    ene_arg     *arg = (ene_arg*) args;
     long        i, j, ai, aj;
-    double        vec[3], val, dif, tmp;
+    double      vec[3], val, dif, tmp;
 
     for( i = arg->_i0; i < arg->_if; i++ ) {
         if( arg->fre[arg->lst[2*i]] || arg->fre[arg->lst[2*i+1]] ) {
@@ -277,13 +277,13 @@ void* __energy_bond( void *args ) {
 
 static PyObject* w_energy_bond( PyObject *self, PyObject *args ) {
     PyObject    *gradient, *object, *molecule, *otmp;
-    double        *xyz, *grd, tmp;
+    double      *xyz, *grd, tmp;
     long        i, j, n3, cpu;
     long        *lst, n_lst, n_dat, *ind;
-    double        *dat, out = 0.0;
-    long        *rng, *fre, dsp, nit;
-    pthread_t    *pid;
-    ene_arg        *arg;
+    double      *dat, out = 0.0;
+    long        *rng, *fre, nit;
+    pthread_t   *pid;
+    ene_arg     *arg;
 
     if( PyArg_ParseTuple( args, "OOO", &object, &molecule, &gradient ) ) {
 //        cpu  = PyInt_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
@@ -321,18 +321,17 @@ static PyObject* w_energy_bond( PyObject *self, PyObject *args ) {
         Py_DECREF( otmp );
         nit = n_lst;
 
-        dsp = (long) ((float)nit / (float)cpu);
-        rng = (long*) malloc( (cpu+1) * sizeof( long ) );
-        if( dsp == 0 ) { for( i = 0; i < cpu+1; i++ ) rng[i] = 0;  for( i = 0; i < nit + 1; i++ ) rng[i] = i; }
-        else { for( i = 0; i < cpu; i++ ) rng[i] = i * dsp; rng[cpu] = nit; }
+        rng = (long*) malloc( cpu * sizeof( long ) );
+		for( i = 0; i < cpu; i++ ) rng[i] = 0;
+		for( i = 0; i < nit; i++ ) rng[i%cpu]++;
 
         pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
         arg = (ene_arg*) malloc( cpu * sizeof( ene_arg ) );
-        for( i = 0; i < cpu; i++ ) {
+        for( j = 0, i = 0; i < cpu; j += rng[i], i++ ) {
             arg[i].ene   = 0.0;
             arg[i].who   = i * n3; 
-            arg[i]._i0   = rng[i];
-            arg[i]._if   = rng[i+1];
+            arg[i]._i0   = j;
+            arg[i]._if   = j + rng[i];
             arg[i].xyz   = xyz;
             arg[i].grd   = grd;
             arg[i].lst   = lst;
@@ -367,9 +366,9 @@ static PyObject* w_energy_bond( PyObject *self, PyObject *args ) {
 
 
 void* __energy_angle( void *args ) {
-    ene_arg        *arg = (ene_arg*) args;
+    ene_arg     *arg = (ene_arg*) args;
     long        i, j, ai, aj, ak;
-    double        dij[3], rij, dkj[3], rkj, val, dif, tmp, fac, dti[3], dtj[3], dtk[3];
+    double      dij[3], rij, dkj[3], rkj, val, dif, tmp, fac, dti[3], dtj[3], dtk[3];
 
     for( i = arg->_i0; i < arg->_if; i++ ) {
         if( arg->fre[arg->lst[3*i]] || arg->fre[arg->lst[3*i+1]] || arg->fre[arg->lst[3*i+2]] ) {
@@ -408,13 +407,13 @@ void* __energy_angle( void *args ) {
 
 static PyObject* w_energy_angle( PyObject *self, PyObject *args ) {
     PyObject    *gradient, *object, *molecule, *otmp;
-    double        *xyz, *grd, tmp;
+    double      *xyz, *grd, tmp;
     long        i, j, n3, cpu;
     long        *lst, n_lst, n_dat, *ind;
-    double        *dat, out = 0.0;
-    long        *rng, *fre, dsp, nit;
-    pthread_t    *pid;
-    ene_arg        *arg;
+    double      *dat, out = 0.0;
+    long        *rng, *fre, nit;
+    pthread_t   *pid;
+    ene_arg     *arg;
 
     if( PyArg_ParseTuple( args, "OOO", &object, &molecule, &gradient ) ) {
 //        cpu  = PyInt_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
@@ -452,18 +451,17 @@ static PyObject* w_energy_angle( PyObject *self, PyObject *args ) {
         Py_DECREF( otmp );
         nit = n_lst;
 
-        dsp = (long) ((float)nit / (float)cpu);
-        rng = (long*) malloc( (cpu+1) * sizeof( long ) );
-        if( dsp == 0 ) { for( i = 0; i < cpu+1; i++ ) rng[i] = 0;  for( i = 0; i < nit + 1; i++ ) rng[i] = i; }
-        else { for( i = 0; i < cpu; i++ ) rng[i] = i * dsp; rng[cpu] = nit; }
+        rng = (long*) malloc( cpu * sizeof( long ) );
+		for( i = 0; i < cpu; i++ ) rng[i] = 0;
+		for( i = 0; i < nit; i++ ) rng[i%cpu]++;
 
         pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
         arg = (ene_arg*) malloc( cpu * sizeof( ene_arg ) );
-        for( i = 0; i < cpu; i++ ) {
+        for( j = 0, i = 0; i < cpu; j += rng[i], i++ ) {
             arg[i].ene   = 0.0;
             arg[i].who   = i * n3;
-            arg[i]._i0   = rng[i];
-            arg[i]._if   = rng[i+1];
+            arg[i]._i0   = j;
+            arg[i]._if   = j + rng[i];
             arg[i].xyz   = xyz;
             arg[i].grd   = grd;
             arg[i].lst   = lst;
@@ -498,12 +496,12 @@ static PyObject* w_energy_angle( PyObject *self, PyObject *args ) {
 
 
 void* __energy_dihedral( void *args ) {
-    ene_arg        *arg = (ene_arg*) args;
+    ene_arg     *arg = (ene_arg*) args;
     long        i, j, ai, aj, ak, al;
-    double        rkj, rt2, ru2, rtu, cd, sd, dph;
-    double        dji[3], dkj[3], dlk[3], vt[3], vu[3], vtu[3], dki[3], dlj[3], dvt[3], dvu[3];
-    double        cs1, cs2, cs3, cs4, cs5, cs6;
-    double        sn1, sn2, sn3, sn4, sn5, sn6;
+    double      rkj, rt2, ru2, rtu, cd, sd, dph;
+    double      dji[3], dkj[3], dlk[3], vt[3], vu[3], vtu[3], dki[3], dlj[3], dvt[3], dvu[3];
+    double      cs1, cs2, cs3, cs4, cs5, cs6;
+    double      sn1, sn2, sn3, sn4, sn5, sn6;
 
     for( i = arg->_i0; i < arg->_if; i++ ) {
         if( arg->fre[arg->lst[4*i]] || arg->fre[arg->lst[4*i+1]] || arg->fre[arg->lst[4*i+2]] || arg->fre[arg->lst[4*i+3]] ) {
@@ -606,13 +604,13 @@ void* __energy_dihedral( void *args ) {
 
 static PyObject* w_energy_dihedral( PyObject *self, PyObject *args ) {
     PyObject    *gradient, *object, *molecule, *otmp;
-    double        *xyz, *grd, tmp;
+    double      *xyz, *grd, tmp;
     long        i, j, n3, cpu;
     long        *lst, n_lst, n_dat, *ind;
-    double        *dat, out = 0.0;
-    long        *rng, *fre, dsp, nit;
-    pthread_t    *pid;
-    ene_arg        *arg;
+    double      *dat, out = 0.0;
+    long        *rng, *fre, nit;
+    pthread_t   *pid;
+    ene_arg     *arg;
 
     if( PyArg_ParseTuple( args, "OOO", &object, &molecule, &gradient ) ) {
 //        cpu  = PyInt_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
@@ -652,18 +650,17 @@ static PyObject* w_energy_dihedral( PyObject *self, PyObject *args ) {
         Py_DECREF( otmp );
         nit = n_lst;
 
-        dsp = (long) ((float)nit / (float)cpu);
-        rng = (long*) malloc( (cpu+1) * sizeof( long ) );
-        if( dsp == 0 ) { for( i = 0; i < cpu+1; i++ ) rng[i] = 0;  for( i = 0; i < nit + 1; i++ ) rng[i] = i; }
-        else { for( i = 0; i < cpu; i++ ) rng[i] = i * dsp; rng[cpu] = nit; }
+        rng = (long*) malloc( cpu * sizeof( long ) );
+		for( i = 0; i < cpu; i++ ) rng[i] = 0;
+		for( i = 0; i < nit; i++ ) rng[i%cpu]++;
 
         pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
         arg = (ene_arg*) malloc( cpu * sizeof( ene_arg ) );
-        for( i = 0; i < cpu; i++ ) {
+        for( j = 0, i = 0; i < cpu; j += rng[i], i++ ) {
             arg[i].ene   = 0.0;
             arg[i].who   = i * n3;
-            arg[i]._i0   = rng[i];
-            arg[i]._if   = rng[i+1];
+            arg[i]._i0   = j;
+            arg[i]._if   = j + rng[i];
             arg[i].xyz   = xyz;
             arg[i].grd   = grd;
             arg[i].lst   = lst;
@@ -698,11 +695,11 @@ static PyObject* w_energy_dihedral( PyObject *self, PyObject *args ) {
 
 
 void* __energy_non_bonded( void *args ) {
-    int_arg        *arg = (int_arg*) args;
-    double        epsf = 1389.35484620709144110151 / arg->eps;
+    int_arg     *arg = (int_arg*) args;
+    double      epsf = 1389.35484620709144110151 / arg->eps;
     long        i, j, ii, jj, ai, aj;
-    double        dr[3], r2, eij, sij, qij, r, s6, tmp, df;
-    double        c2on, c2of, _g, _a, _b, _c, _d, _el1, _el2, k6, k12, _lj1, _lj2, r3, r5, s, s3, s12;
+    double      dr[3], r2, eij, sij, qij, r, s6, tmp, df;
+    double      c2on, c2of, _g, _a, _b, _c, _d, _el1, _el2, k6, k12, _lj1, _lj2, r3, r5, s, s3, s12;
 
     if( arg->con > 0.0 && arg->cof > arg->con ) {
         // atom-based force-switched
@@ -796,13 +793,13 @@ void* __energy_non_bonded( void *args ) {
 
 static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
     PyObject    *gradient, *object, *molecule, *otmp, *ptmp, *qtmp;
-    double        *grd, *xyz, *dat, *scl, tmp, *qms;
+    double      *grd, *xyz, *dat, *scl, tmp, *qms;
     long        i, j, n3, cpu;
     long        *lst, n_lst, n_dat;
-    double        oel = 0.0, olj = 0.0, con, cof, box[3], epsi;
-    long        *rng, *fre, dsp, nit;
-    pthread_t    *pid;
-    int_arg        *arg;
+    double      oel = 0.0, olj = 0.0, con, cof, box[3], epsi;
+    long        *rng, *fre, nit;
+    pthread_t   *pid;
+    int_arg     *arg;
 
     if( PyArg_ParseTuple( args, "OOOd", &object, &molecule, &gradient, &epsi ) ) {
 //        cpu  = PyInt_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
@@ -864,23 +861,21 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
         Py_DECREF( otmp );
     
         nit = n_lst;
-
-        dsp = (long) ((float)nit / (float)cpu);
-        rng = (long*) malloc( (cpu+1) * sizeof( long ) );
-        if( dsp == 0 ) { for( i = 0; i < cpu+1; i++ ) rng[i] = 0;  for( i = 0; i < nit + 1; i++ ) rng[i] = i; }
-        else { for( i = 0; i < cpu; i++ ) rng[i] = i * dsp; rng[cpu] = nit; }
+        rng = (long*) malloc( cpu * sizeof( long ) );
+		for( i = 0; i < cpu; i++ ) rng[i] = 0;
+		for( i = 0; i < nit; i++ ) rng[i%cpu]++;
 
         pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
         arg = (int_arg*) malloc( cpu * sizeof( int_arg ) );
-        for( i = 0; i < cpu; i++ ) {
+        for( j = 0, i = 0; i < cpu; j += rng[i], i++ ) {
             arg[i].ele   = 0.0;
             arg[i].vdw   = 0.0;
             arg[i].con   = con;
             arg[i].cof   = cof;
             arg[i].eps   = epsi;
             arg[i].who   = i * n3;
-            arg[i]._i0   = rng[i];
-            arg[i]._if   = rng[i+1];
+            arg[i]._i0   = j;
+            arg[i]._if   = j + rng[i];
             arg[i].box   = box;
             arg[i].xyz   = xyz;
             arg[i].grd   = grd;
