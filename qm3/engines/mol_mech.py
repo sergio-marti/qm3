@@ -512,9 +512,9 @@ class simple_force_field( object ):
                                 k += 1
                             if( not f ):
                                 self.nbnd.append( [ i, j, 1.0 ] )
-        for i,j,k,l in self.dihe:
-            if( not ( self.qmat[i] and self.qmat[l] ) ):
-                self.nbnd.append( [ i, l, 0.5 ] )
+            for i,j,k,l in self.dihe:
+                if( not ( self.qmat[i] and self.qmat[l] ) ):
+                    self.nbnd.append( [ i, l, 0.5 ] )
                         
 
     def x__enonbonded( self, mol, gradient = False, epsilon = 1.0 ):
