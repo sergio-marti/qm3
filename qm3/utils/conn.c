@@ -44,7 +44,6 @@ void* __connectivity( void *args ) {
 	    			( arg->xyz[i3+1] - arg->xyz[j3+1] ) * ( arg->xyz[i3+1] - arg->xyz[j3+1] ) +
 	    			( arg->xyz[i3+2] - arg->xyz[j3+2] ) * ( arg->xyz[i3+2] - arg->xyz[j3+2] );
 	    	if( dr <= r2 ) {
-	    		arg->bnd->i++;
 	    		p->n    = (con_bnd*) malloc( sizeof( con_bnd ) );
 	    		p->n->i = i;
 	    		p->n->j = j;
@@ -60,7 +59,7 @@ void* __connectivity( void *args ) {
 static PyObject* w_connectivity( PyObject *self, PyObject *args ) {
     PyObject	*out, *object, *anum, *coor;
     double		*xyz;
-    long		*num, i, j, n3, n, cpu, *rng, nit;
+    long		*num, i, j, n3, nat, cpu, *rng, nit;
     pthread_t	*pid;
     con_arg		*arg;
     con_bnd		*ptr;
@@ -69,17 +68,17 @@ static PyObject* w_connectivity( PyObject *self, PyObject *args ) {
 
     	coor = PyObject_GetAttrString( object, "coor" );
     	n3   = PyList_Size( coor );
-    	n    = n3 / 3;
+    	nat  = n3 / 3;
     	xyz  = (double*) malloc( n3 * sizeof( double ) );
     	for( i = 0; i < n3; i++ ) xyz[i] = PyFloat_AsDouble( PyList_GetItem( coor, i ) );
     	Py_DECREF( coor );
 
     	anum = PyObject_GetAttrString( object, "anum" );
-    	num  = (long*) malloc( n * sizeof( long ) );
-    	for( i = 0; i < n; i++ ) num[i] = PyLong_AsLong( PyList_GetItem( anum, i ) );
+    	num  = (long*) malloc( nat * sizeof( long ) );
+    	for( i = 0; i < nat; i++ ) num[i] = PyLong_AsLong( PyList_GetItem( anum, i ) );
     	Py_DECREF( anum );
 
-    	nit = n - 1;
+    	nit = nat - 1;
         rng = (long*) malloc( cpu * sizeof( long ) );
         for( i = 0; i < cpu; i++ ) rng[i] = 0;
 		// -- range should be more equitative: lower I's have larger number of J's
@@ -89,14 +88,12 @@ static PyObject* w_connectivity( PyObject *self, PyObject *args ) {
     	pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
     	arg = (con_arg*) malloc( cpu * sizeof( con_arg ) );
     	for( j = 0, i = 0; i < cpu; j += rng[i], i++ ) {
-    		arg[i].siz    = n;
+    		arg[i].siz    = nat;
     		arg[i]._i0    = j;
     		arg[i]._if    = j + rng[i];
     		arg[i].num    = num;
     		arg[i].xyz    = xyz;
     		arg[i].bnd    = (con_bnd*) malloc( sizeof( con_bnd ) ); 
-    		arg[i].bnd->i = 0;
-    		arg[i].bnd->j = 0;
     		arg[i].bnd->n = NULL;
     		pthread_create( &pid[i], NULL, __connectivity, (void*) &arg[i] );
     	}

@@ -209,7 +209,7 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
     long        i, j, k, i3, j3, n3, nat, f, *qms, cpu;
     pthread_t   *pid;
     nbn_arg     *arg;
-    one_lst     *lst, *pt1, *tt1;
+    one_lst     *lst, *pt1;
     two_lst     *pt2;
 
     if( PyArg_ParseTuple( args, "OO", &object, &molecule ) ) {
@@ -326,11 +326,10 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
 
             for( i = 0; i < cpu; i++ ) {
                 pt1 = lst[i].n;
-                tt1 = pt1;
                 while( pt1 != NULL ) {
                     pt1 = pt1->n;
-                    free( tt1 );
-                    tt1 = pt1;
+                    free( lst[i].n );
+                    lst[i].n = pt1;
                 }
             }
             free( lst );
