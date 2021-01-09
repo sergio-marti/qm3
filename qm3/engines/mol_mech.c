@@ -9,9 +9,10 @@
 #define max(a,b) (((a)>(b))?(a):(b))
 
 
-typedef struct con_bnd_node { long i,j; struct con_bnd_node *n; } con_bnd;
-typedef struct { long siz, _i0, _if; long n_bnd, n_ang, n_dih; long *qms, *bnd, *ang, *dih;
-    			double cut, *xyz, *box; con_bnd *nbn; } nbn_arg;
+typedef struct one_lst_node { long   i; struct one_lst_node *n; } one_lst;
+typedef struct two_lst_node { long i,j; struct two_lst_node *n; } two_lst;
+typedef struct { one_lst *idx; long siz, n_bnd, n_ang, n_dih;
+                 long *qms, *bnd, *ang, *dih; double cut, *xyz, *box; two_lst *nbn; } nbn_arg;
 
 typedef struct { long who, _i0, _if, n_lst, *lst, n_dat, *ind, *fre; double *xyz, *grd, ene, *dat; } ene_arg;
 
@@ -155,48 +156,49 @@ void* __update_non_bonded( void *args ) {
     nbn_arg     *arg = (nbn_arg*) args;
     long        i, j, k, i3, j3, f;
     double      r2, dr;
-    con_bnd     *p;
+    two_lst     *pt2;
+    one_lst     *pt1;
 
-    p = arg->nbn;
-    for( i = arg->_i0; i < arg->_if; i++ ) {
-		for( j = i + 1; j < arg->siz; j++ ) {
-        	if( arg->qms[i] == 1 && arg->qms[j] == 1 ) { continue; }
-	        i3  = 3 * i;
-	        j3  = 3 * j;
-	        r2 = 0.0;
-	        for( k = 0; k < 3; k++ ) {
-	            dr  = arg->xyz[i3+k] - arg->xyz[j3+k];
-	            dr -= arg->box[k] * round( dr / arg->box[k] );
-	            r2 += dr * dr;
-	        }
-	        if( r2 <= arg->cut ) {
-	            f = 0;
-	            k = 0;
-	            while( k < arg->n_bnd && f == 0 ) {
-	                f |= ( ( i == arg->bnd[2*k] && j == arg->bnd[2*k+1] ) || ( i == arg->bnd[2*k+1] && j == arg->bnd[2*k] ) );
-	                k++;
-	            }
-	            k = 0;
-	            while( k < arg->n_ang && f == 0 ) {
-	                f |= ( ( i == arg->ang[2*k] && j == arg->ang[2*k+1] ) || ( i == arg->ang[2*k+1] && j == arg->ang[2*k] ) );
-	                k++;
-	            }
-	            k = 0;
-	            while( k < arg->n_dih && f == 0 ) {
-	                f |= ( ( i == arg->dih[2*k] && j == arg->dih[2*k+1] ) || ( i == arg->dih[2*k+1] && j == arg->dih[2*k] ) );
-	                k++;
-	            }
-	            if( f == 0 ) {
-	                arg->nbn->i++;
-	                p->n    = (con_bnd*) malloc( sizeof( con_bnd ) );
-	                p->n->i = i;
-	                p->n->j = j;
-	                p->n->n = NULL;
-	                p       = p->n;
-	            }
-	        }
-		}
-	}
+    pt2 = arg->nbn;
+    for( pt1 = arg->idx; pt1 != NULL ; pt1 = pt1->n ) {
+        i = pt1->i;
+        for( j = i + 1; j < arg->siz; j++ ) {
+            if( arg->qms[i] == 1 && arg->qms[j] == 1 ) { continue; }
+            i3  = 3 * i;
+            j3  = 3 * j;
+            r2 = 0.0;
+            for( k = 0; k < 3; k++ ) {
+                dr  = arg->xyz[i3+k] - arg->xyz[j3+k];
+                dr -= arg->box[k] * round( dr / arg->box[k] );
+                r2 += dr * dr;
+            }
+            if( r2 <= arg->cut ) {
+                f = 0;
+                k = 0;
+                while( k < arg->n_bnd && f == 0 ) {
+                    f |= ( ( i == arg->bnd[2*k] && j == arg->bnd[2*k+1] ) || ( i == arg->bnd[2*k+1] && j == arg->bnd[2*k] ) );
+                    k++;
+                }
+                k = 0;
+                while( k < arg->n_ang && f == 0 ) {
+                    f |= ( ( i == arg->ang[2*k] && j == arg->ang[2*k+1] ) || ( i == arg->ang[2*k+1] && j == arg->ang[2*k] ) );
+                    k++;
+                }
+                k = 0;
+                while( k < arg->n_dih && f == 0 ) {
+                    f |= ( ( i == arg->dih[2*k] && j == arg->dih[2*k+1] ) || ( i == arg->dih[2*k+1] && j == arg->dih[2*k] ) );
+                    k++;
+                }
+                if( f == 0 ) {
+                    pt2->n    = (two_lst*) malloc( sizeof( two_lst ) );
+                    pt2->n->i = i;
+                    pt2->n->j = j;
+                    pt2->n->n = NULL;
+                    pt2       = pt2->n;
+                }
+            }
+        }
+    }
     return( NULL );
 }
 
@@ -204,15 +206,15 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
     PyObject    *out, *object, *molecule, *otmp;
     double      *xyz, cut, box[3], r2, dr;
     long        *bnd, *ang, *dih, n_bnd, n_ang, n_dih;
-    long        i, j, k, i3, j3, n3, n, f, *qms;
-	long		cpu, nit, *rng;
-    pthread_t	*pid;
-    nbn_arg		*arg;
-    con_bnd		*ptr;
+    long        i, j, k, i3, j3, n3, nat, f, *qms, cpu;
+    pthread_t   *pid;
+    nbn_arg     *arg;
+    one_lst     *lst, *pt1, *tt1;
+    two_lst     *pt2;
 
     if( PyArg_ParseTuple( args, "OO", &object, &molecule ) ) {
 
-    	cpu  = PyLong_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
+        cpu  = PyLong_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
 
         otmp = PyObject_GetAttrString( object, "cut_list" );
         cut = PyFloat_AsDouble( otmp );
@@ -225,14 +227,14 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
 
         otmp = PyObject_GetAttrString( molecule, "coor" );
         n3   = PyList_Size( otmp );
-        n    = n3 / 3;
+        nat  = n3 / 3;
         xyz  = (double*) malloc( n3 * sizeof( double ) );
         for( i = 0; i < n3; i++ ) xyz[i] = PyFloat_AsDouble( PyList_GetItem( otmp, i ) );
         Py_DECREF( otmp );
 
         otmp = PyObject_GetAttrString( object, "qmat" );
-        qms  = (long*) malloc( n * sizeof( long ) );
-        for( i = 0; i < n; i++ ) qms[i] = ( Py_True == PyList_GetItem( otmp, i ) );
+        qms  = (long*) malloc( nat * sizeof( long ) );
+        for( i = 0; i < nat; i++ ) qms[i] = ( Py_True == PyList_GetItem( otmp, i ) );
         Py_DECREF( otmp );
 
         otmp  = PyObject_GetAttrString( object, "bond" );
@@ -262,92 +264,125 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
         }
         Py_DECREF( otmp );
 
-// ======================================================================================================================
-    	nit = n - 1;
-        rng = (long*) malloc( cpu * sizeof( long ) );
-        for( i = 0; i < cpu; i++ ) rng[i] = 0;
-		// -- range should be more equitative: lower I's have larger number of J's
-		// i,j >> i*n+j-i*(i-1)/2
-        for( i = 0; i < nit; i++ ) rng[i%cpu]++;
+        if( nat >= cpu * 2 ) {
+            // ======================================================================
+            // threaded version
+            lst = (one_lst*) malloc( cpu * sizeof( one_lst ) );
+            for( i = 0; i < cpu; i++ ) lst[i].n = NULL;
+            i = 0;
+            j = nat - 2;
+            k = 0;
+            while( i < j ) {
+                pt1 = &lst[k%cpu];
+                while( pt1->n != NULL ) pt1 = pt1->n;
+                pt1->n = (one_lst*) malloc( sizeof( one_lst ) );
+                pt1->n->i = i;
+                pt1->n->n = NULL;
+                pt1 = pt1->n;
+                pt1->n = (one_lst*) malloc( sizeof( one_lst ) );
+                pt1->n->i = j;
+                pt1->n->n = NULL;
+                i++; j--; k++;
+            }
+            if( i == j ) {
+                pt1 = &lst[k%cpu];
+                while( pt1->n != NULL ) pt1 = pt1->n;
+                pt1->n = (one_lst*) malloc( sizeof( one_lst ) );
+                pt1->n->i = i;
+                pt1->n->n = NULL;
+            }
 
-    	pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
-    	arg = (nbn_arg*) malloc( cpu * sizeof( nbn_arg ) );
-    	for( j = 0, i = 0; i < cpu; j += rng[i], i++ ) {
-    		arg[i].siz    = n;
-    		arg[i]._i0    = j;
-    		arg[i]._if    = j + rng[i];
-    		arg[i].cut    = cut;
-    		arg[i].xyz    = xyz;
-    		arg[i].box    = box;
-    		arg[i].qms    = qms;
-    		arg[i].bnd    = bnd;
-    		arg[i].ang    = ang;
-    		arg[i].dih    = dih;
-    		arg[i].n_bnd  = n_bnd;
-    		arg[i].n_ang  = n_ang;
-    		arg[i].n_dih  = n_dih;
-    		arg[i].nbn    = (con_bnd*) malloc( sizeof( con_bnd ) ); 
-    		arg[i].nbn->i = 0;
-    		arg[i].nbn->j = 0;
-    		arg[i].nbn->n = NULL;
-    		pthread_create( &pid[i], NULL, __update_non_bonded, (void*) &arg[i] );
-    	}
-    	for( i = 0; i < cpu; i++ ) pthread_join( pid[i], NULL );
+//j = 0; for( i = 0; i < cpu; i++ ) { printf( "[%2ld]: ", i ); k = 0; pt1 = lst[i].n; while( pt1 != NULL ) { k += nat - 1 - pt1->i; pt1 = pt1->n; } printf( "%ld\n", k ); j += k; } printf( ">> %ld vs %ld\n", j, nat * ( nat - 1 ) / 2 );
 
-    	out = PyList_New( 0 );
-    	for( i = 0; i < cpu; i++ ) {
-    		ptr = arg[i].nbn->n;
-    		while( ptr != NULL ) {
-    			PyList_Append( out, Py_BuildValue( "[l,l,d]", ptr->i, ptr->j, 1.0 ) );
-    			ptr = ptr->n;
-    		}
-    	}
-    	for( i = 0; i < cpu; i++ ) {
-    		ptr = arg[i].nbn;
-    		while( ptr != NULL ) {
-    			ptr = ptr->n;
-    			free( arg[i].nbn );
-    			arg[i].nbn = ptr;
-    		}
-    	}
-    	free( arg ); free( rng ); free( pid );
-// ======================================================================================================================
-/*
-        out = PyList_New( 0 );
-        for( i = 0; i < n - 1; i++ ) {
-            for( j = i + 1; j < n; j++ ) {
-                if( qms[i] == 1 && qms[j] == 1 ) { continue; }
-                i3  = 3 * i;
-                j3  = 3 * j;
-                r2 = 0.0;
-                for( k = 0; k < 3; k++ ) {
-                    dr  = xyz[i3+k] - xyz[j3+k];
-                    dr -= box[k] * round( dr / box[k] );
-                    r2 += dr * dr;
+            pid = (pthread_t*) malloc( cpu * sizeof( pthread_t ) );
+            arg = (nbn_arg*) malloc( cpu * sizeof( nbn_arg ) );
+            for( i = 0; i < cpu; i++ ) {
+                arg[i].siz    = nat;
+                arg[i].idx    = lst[i].n;
+                arg[i].cut    = cut;
+                arg[i].xyz    = xyz;
+                arg[i].box    = box;
+                arg[i].qms    = qms;
+                arg[i].bnd    = bnd;
+                arg[i].ang    = ang;
+                arg[i].dih    = dih;
+                arg[i].n_bnd  = n_bnd;
+                arg[i].n_ang  = n_ang;
+                arg[i].n_dih  = n_dih;
+                arg[i].nbn    = (two_lst*) malloc( sizeof( two_lst ) ); 
+                arg[i].nbn->n = NULL;
+                pthread_create( &pid[i], NULL, __update_non_bonded, (void*) &arg[i] );
+            }
+            for( i = 0; i < cpu; i++ ) pthread_join( pid[i], NULL );
+    
+            out = PyList_New( 0 );
+            for( i = 0; i < cpu; i++ ) {
+                pt2 = arg[i].nbn->n;
+                while( pt2 != NULL ) {
+                    PyList_Append( out, Py_BuildValue( "[l,l,d]", pt2->i, pt2->j, 1.0 ) );
+                    pt2 = pt2->n;
                 }
-                if( r2 <= cut ) {
-                    f = 0;
-                    k = 0;
-                    while( k < n_bnd && f == 0 ) {
-                        f |= ( ( i == bnd[2*k] && j == bnd[2*k+1] ) || ( i == bnd[2*k+1] && j == bnd[2*k] ) );
-                        k++;
+            }
+
+            for( i = 0; i < cpu; i++ ) {
+                pt1 = lst[i].n;
+                tt1 = pt1;
+                while( pt1 != NULL ) {
+                    pt1 = pt1->n;
+                    free( tt1 );
+                    tt1 = pt1;
+                }
+            }
+            free( lst );
+
+            for( i = 0; i < cpu; i++ ) {
+                pt2 = arg[i].nbn;
+                while( pt2 != NULL ) {
+                    pt2 = pt2->n;
+                    free( arg[i].nbn );
+                    arg[i].nbn = pt2;
+                }
+            }
+            free( arg );
+
+        } else {
+            // ======================================================================
+            // serial version
+            out = PyList_New( 0 );
+            for( i = 0; i < nat - 1; i++ ) {
+                for( j = i + 1; j < nat; j++ ) {
+                    if( qms[i] == 1 && qms[j] == 1 ) { continue; }
+                    i3  = 3 * i;
+                    j3  = 3 * j;
+                    r2 = 0.0;
+                    for( k = 0; k < 3; k++ ) {
+                        dr  = xyz[i3+k] - xyz[j3+k];
+                        dr -= box[k] * round( dr / box[k] );
+                        r2 += dr * dr;
                     }
-                    k = 0;
-                    while( k < n_ang && f == 0 ) {
-                        f |= ( ( i == ang[2*k] && j == ang[2*k+1] ) || ( i == ang[2*k+1] && j == ang[2*k] ) );
-                        k++;
+                    if( r2 <= cut ) {
+                        f = 0;
+                        k = 0;
+                        while( k < n_bnd && f == 0 ) {
+                            f |= ( ( i == bnd[2*k] && j == bnd[2*k+1] ) || ( i == bnd[2*k+1] && j == bnd[2*k] ) );
+                            k++;
+                        }
+                        k = 0;
+                        while( k < n_ang && f == 0 ) {
+                            f |= ( ( i == ang[2*k] && j == ang[2*k+1] ) || ( i == ang[2*k+1] && j == ang[2*k] ) );
+                            k++;
+                        }
+                        k = 0;
+                        while( k < n_dih && f == 0 ) {
+                            f |= ( ( i == dih[2*k] && j == dih[2*k+1] ) || ( i == dih[2*k+1] && j == dih[2*k] ) );
+                            k++;
+                        }
+                        if( f == 0 ) { PyList_Append( out, Py_BuildValue( "[l,l,d]", i, j, 1.0 ) ); }
                     }
-                    k = 0;
-                    while( k < n_dih && f == 0 ) {
-                        f |= ( ( i == dih[2*k] && j == dih[2*k+1] ) || ( i == dih[2*k+1] && j == dih[2*k] ) );
-                        k++;
-                    }
-                    if( f == 0 ) { PyList_Append( out, Py_BuildValue( "[l,l,d]", i, j, 1.0 ) ); }
                 }
             }
         }
-*/
-// ======================================================================================================================
+
         for( i = 0; i < n_dih; i++ ) {
             PyList_Append( out, Py_BuildValue( "[l,l,d]", dih[2*i], dih[2*i+1], 0.5 ) );
         }
