@@ -152,7 +152,7 @@ static PyObject* w_connectivity( PyObject *self, PyObject *args ) {
                     arg[i].bnd = pt2;
                 }
             }
-            free( arg );
+            free( arg ); free( pid );
 
         } else {
             // ======================================================================

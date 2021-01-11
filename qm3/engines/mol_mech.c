@@ -342,7 +342,7 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
                     arg[i].nbn = pt2;
                 }
             }
-            free( arg );
+            free( arg ); free( pid );
 
         } else {
             // ======================================================================
