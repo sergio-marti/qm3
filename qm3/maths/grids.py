@@ -185,7 +185,7 @@ class grid( object ):
         qm3.fio.close( f, fname )
 
 
-    def plot( self ):
+    def plot3d( self, levels = 20 ):
         if( has_mplot3d ):
             def __orthogonal_proj(zfront, zback):
                 a = (zfront+zback)/(zfront-zback)
@@ -207,7 +207,7 @@ class grid( object ):
                 lz.append( rz[i*nx:(i+1)*nx][:] )
             z_min = min( self.z )
             z_max = max( self.z )
-            z_lvl = [ z_min + ( z_max - z_min ) / 30. * float( i ) for i in range( 31 ) ]
+            z_lvl = [ z_min + ( z_max - z_min ) / float( levels ) * float( i ) for i in range( levels + 1 ) ]
             lx = numpy.array( lx, dtype=float )
             ly = numpy.array( ly, dtype=float )
             lz = numpy.array( lz, dtype=float )
@@ -215,6 +215,29 @@ class grid( object ):
 #            axs.contour( lx, ly, lz, zdir = "z", levels = z_lvl, linewidths = 2, cmap = "coolwarm" )
             axs.contour( lx, ly, lz, zdir = "z", offset = z_min, levels = z_lvl, linewidths = 2, cmap = "coolwarm" )
             axs.view_init( 90, -89 )
+            matplotlib.pyplot.show()
+        else:
+            return
+
+
+    def plot2d( self, levels = 20 ):
+        if( has_mplot3d ):
+            rz  = self.rotate()
+            nx  = len( self.x )
+            ny  = len( self.y )
+            lx  = []
+            ly  = []
+            lz  = []
+            for i in range( ny ):
+                lx.append( self.x[:] )
+                ly.append( nx * [ self.y[i] ] )
+                lz.append( rz[i*nx:(i+1)*nx][:] )
+            z_min = min( self.z )
+            z_max = max( self.z )
+            z_lvl = [ z_min + ( z_max - z_min ) / float( levels ) * float( i ) for i in range( levels + 1 ) ]
+            matplotlib.pyplot.contourf( lx, ly, lz, levels = z_lvl, cmap = "coolwarm" )
+            cntr = matplotlib.pyplot.contour( lx, ly, lz, levels = z_lvl, colors = "black", linewidths = 2 )
+            matplotlib.pyplot.clabel( cntr, inline = True, levels = z_lvl, fontsize = 7, fmt = "%.1lf" )
             matplotlib.pyplot.show()
         else:
             return
