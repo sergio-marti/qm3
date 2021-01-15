@@ -20,7 +20,7 @@ DFTB XTB DFTD4 DFTD4_INC AMBER
 
     make
 
-4) edit "setup/plumed" and "setup/sander"files, and change the paths of the external programs
+4) edit "setup/plumed" and "setup/sander" files, and change the paths of the external programs
 
 5) optionally, compile additional stuff:
 
