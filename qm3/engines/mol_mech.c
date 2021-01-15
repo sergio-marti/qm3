@@ -16,7 +16,7 @@ typedef struct { one_lst *idx; long siz, n_bnd, n_ang, n_dih;
 
 typedef struct { long who, _i0, _if, n_lst, *lst, n_dat, *ind, *fre; double *xyz, *grd, ene, *dat; } ene_arg;
 
-typedef struct { long who, _i0, _if, n_lst, *lst, n_dat, *fre; double *box, *xyz, *grd, ele, vdw,
+typedef struct { long who, _i0, _if, n_lst, *lst, n_dat; double *box, *xyz, *grd, ele, vdw,
                 *dat, *scl, con, cof, eps, *qms; } int_arg;
 
 
@@ -218,7 +218,7 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
 
         otmp = PyObject_GetAttrString( object, "cut_list" );
         cut = PyFloat_AsDouble( otmp );
-        if( cut> 0.0 ) { cut *= cut; } else { cut = 1.0e99; }
+        if( cut > 0.0 ) { cut *= cut; } else { cut = 1.0e99; }
         Py_DECREF( otmp );
 
         otmp = PyObject_GetAttrString( molecule, "boxl" );
@@ -876,7 +876,7 @@ void* __energy_non_bonded( void *args ) {
             if( r2 > c2of ) { continue; }
             eij =   arg->dat[3*ii] * arg->dat[3*jj];
             sij = arg->dat[3*ii+1] + arg->dat[3*jj+1];
-            qij = arg->dat[3*ii+2] * arg->dat[3*jj+2] * epsf * ( ! arg->qms[arg->lst[2*i]] ) * ( ! arg->qms[arg->lst[2*i+1]] );
+            qij = arg->dat[3*ii+2] * arg->dat[3*jj+2] * epsf * arg->qms[ii] * arg->qms[jj];
             r   = sqrt( r2 );
             s   = 1.0 / r;
             s3  = pow( sij * s, 3.0 );
@@ -919,7 +919,7 @@ void* __energy_non_bonded( void *args ) {
             r2  = dr[0]*dr[0] + dr[1]*dr[1] + dr[2]*dr[2];
             eij =   arg->dat[3*ii] * arg->dat[3*jj];
             sij = arg->dat[3*ii+1] + arg->dat[3*jj+1];
-            qij = arg->dat[3*ii+2] * arg->dat[3*jj+2] * epsf * ( ! arg->qms[arg->lst[2*i]] ) * ( ! arg->qms[arg->lst[2*i+1]] );
+            qij = arg->dat[3*ii+2] * arg->dat[3*jj+2] * epsf * arg->qms[ii] * arg->qms[jj];
             s   = 1.0 / sqrt( r2 );
             s6  = pow( sij * s, 6.0 );
             tmp = qij * s;
@@ -944,7 +944,7 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
     long        i, j, n3, cpu;
     long        *lst, n_lst, n_dat;
     double      oel = 0.0, olj = 0.0, con, cof, box[3], epsi;
-    long        *rng, *fre, nit;
+    long        *rng, nit;
     pthread_t   *pid;
     int_arg     *arg;
 
@@ -960,11 +960,6 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
         n3   = PyList_Size( otmp );
         xyz  = (double*) malloc( n3 * sizeof( double ) );
         for( i = 0; i < n3; i++ ) xyz[i] = PyFloat_AsDouble( PyList_GetItem( otmp, i ) );
-        Py_DECREF( otmp );
-
-        otmp = PyObject_GetAttrString( object, "free" );
-        fre  = (long*) malloc( n3 / 3 * sizeof( long ) );
-        for( i = 0; i < n3 / 3; i++ ) fre[i] = ( Py_True == PyList_GetItem( otmp, i ) );
         Py_DECREF( otmp );
 
         otmp = PyObject_GetAttrString( object, "qmat" );
@@ -1027,7 +1022,6 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
             arg[i].xyz   = xyz;
             arg[i].grd   = grd;
             arg[i].lst   = lst;
-            arg[i].fre   = fre;
             arg[i].qms   = qms;
             arg[i].scl   = scl;
             arg[i].n_lst = n_lst;
@@ -1037,7 +1031,7 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
         }
         for( i = 0; i < cpu; i++ ) pthread_join( pid[i], NULL );
         for( i = 0; i < cpu; i++ ) { oel += arg[i].ele; olj += arg[i].vdw; }
-        free( rng ); free( pid ); free ( lst ); free( scl ); free( fre ); free( qms ); free( arg );
+        free( rng ); free( pid ); free ( lst ); free( scl ); free( qms ); free( arg );
     
         if( grd != NULL ) {
             otmp = PyObject_GetAttrString( molecule, "grad" );
