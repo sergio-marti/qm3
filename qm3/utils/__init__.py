@@ -665,7 +665,7 @@ def manage_hessian( coor, grad, hess, should_update = False, update_func = updat
 def connectivity( molec, ncpu = os.sysconf( 'SC_NPROCESSORS_ONLN' ) ):
     # searches only by chain on current residue and with the next one ( m * n * (n-1) / 2 )
     if( len( molec.res_lim ) > 2 ):
-        print( ">> connectivity: python residue based search..." )
+        print( ">> connectivity: Python residue based search" )
         bond = []
         x = len( molec.res_lim )
         for l in range( len( molec.seg_lim ) - 1 ):
@@ -693,10 +693,10 @@ def connectivity( molec, ncpu = os.sysconf( 'SC_NPROCESSORS_ONLN' ) ):
     # all atoms: N * (N-1) / 2
     else:
         if( conn_so ):
-            print( ">> connectivity: binary threaded search..." )
+            print( ">> connectivity: binary threaded search" )
             bond = qm3.utils._conn.connectivity( ncpu, molec )
         else:
-            print( ">> connectivity: python sequential search..." )
+            print( ">> connectivity: Python sequential search" )
             bond = []
             for i in range( molec.natm - 1 ):
                 i3 = i * 3

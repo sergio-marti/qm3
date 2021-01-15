@@ -12,7 +12,7 @@
 typedef struct one_lst_node { long   i; struct one_lst_node *n; } one_lst;
 typedef struct two_lst_node { long i,j; struct two_lst_node *n; } two_lst;
 typedef struct { one_lst *idx; long siz, n_bnd, n_ang, n_dih;
-                 long *qms, *bnd, *ang, *dih; double cut, *xyz, *box; two_lst *nbn; } nbn_arg;
+                 long *fre, *qms, *bnd, *ang, *dih; double cut, *xyz, *box; two_lst *nbn; } nbn_arg;
 
 typedef struct { long who, _i0, _if, n_lst, *lst, n_dat, *ind, *fre; double *xyz, *grd, ene, *dat; } ene_arg;
 
@@ -163,7 +163,7 @@ void* __update_non_bonded( void *args ) {
     for( pt1 = arg->idx; pt1 != NULL ; pt1 = pt1->n ) {
         i = pt1->i;
         for( j = i + 1; j < arg->siz; j++ ) {
-            if( arg->qms[i] == 1 && arg->qms[j] == 1 ) { continue; }
+            if( ( arg->qms[i] == 1 && arg->qms[j] == 1 ) || ( arg->fre[i] == 0 && arg->fre[j] == 0 ) ) { continue; }
             i3  = 3 * i;
             j3  = 3 * j;
             r2 = 0.0;
@@ -206,7 +206,7 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
     PyObject    *out, *object, *molecule, *otmp;
     double      *xyz, cut, box[3], r2, dr;
     long        *bnd, *ang, *dih, n_bnd, n_ang, n_dih;
-    long        i, j, k, i3, j3, n3, nat, f, *qms, cpu;
+    long        i, j, k, i3, j3, n3, nat, f, *qms, *fre, cpu;
     pthread_t   *pid;
     nbn_arg     *arg;
     one_lst     *lst, *pt1;
@@ -235,6 +235,11 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
         otmp = PyObject_GetAttrString( object, "qmat" );
         qms  = (long*) malloc( nat * sizeof( long ) );
         for( i = 0; i < nat; i++ ) qms[i] = ( Py_True == PyList_GetItem( otmp, i ) );
+        Py_DECREF( otmp );
+
+        otmp = PyObject_GetAttrString( object, "free" );
+        fre  = (long*) malloc( nat * sizeof( long ) );
+        for( i = 0; i < nat; i++ ) fre[i] = ( Py_True == PyList_GetItem( otmp, i ) );
         Py_DECREF( otmp );
 
         otmp  = PyObject_GetAttrString( object, "bond" );
@@ -302,6 +307,7 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
                 arg[i].cut    = cut;
                 arg[i].xyz    = xyz;
                 arg[i].box    = box;
+                arg[i].fre    = fre;
                 arg[i].qms    = qms;
                 arg[i].bnd    = bnd;
                 arg[i].ang    = ang;
@@ -350,7 +356,7 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
             out = PyList_New( 0 );
             for( i = 0; i < nat - 1; i++ ) {
                 for( j = i + 1; j < nat; j++ ) {
-                    if( qms[i] == 1 && qms[j] == 1 ) { continue; }
+            		if( ( qms[i] == 1 && qms[j] == 1 ) || ( fre[i] == 0 && fre[j] == 0 ) ) { continue; }
                     i3  = 3 * i;
                     j3  = 3 * j;
                     r2 = 0.0;
@@ -385,7 +391,7 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
         for( i = 0; i < n_dih; i++ ) {
             PyList_Append( out, Py_BuildValue( "[l,l,d]", dih[2*i], dih[2*i+1], 0.5 ) );
         }
-        free( qms ); free( bnd ); free( ang ); free( dih ); free( xyz );
+        free( fre ); free( qms ); free( bnd ); free( ang ); free( dih ); free( xyz );
         return( out );
     } else { Py_INCREF( Py_None ); return( Py_None ); }
 }
@@ -860,7 +866,7 @@ void* __energy_non_bonded( void *args ) {
         k6   = ( arg->cof * c2of ) / ( arg->cof * c2of - arg->con * c2on );
         k12  = pow( c2of, 3.0 ) / ( pow( c2of, 3.0 ) - pow( c2on, 3.0 ) );
         for( i = arg->_i0; i < arg->_if; i++ ) {
-            if( arg->fre[arg->lst[2*i]] || arg->fre[arg->lst[2*i+1]] ) {
+//            if( arg->fre[arg->lst[2*i]] || arg->fre[arg->lst[2*i+1]] ) {
                 ii = arg->lst[2*i];
                 jj = arg->lst[2*i+1];
                 ai = 3 * ii;
@@ -900,13 +906,13 @@ void* __energy_non_bonded( void *args ) {
                         arg->grd[arg->who+aj+j] -= arg->scl[i] * df * dr[j];
                     }
                 }
-            }
+//            }
         }
 
     } else {
         // atom-based all-atoms
         for( i = arg->_i0; i < arg->_if; i++ ) {
-            if( arg->fre[arg->lst[2*i]] || arg->fre[arg->lst[2*i+1]] ) {
+//            if( arg->fre[arg->lst[2*i]] || arg->fre[arg->lst[2*i+1]] ) {
                 ii = arg->lst[2*i];
                 jj = arg->lst[2*i+1];
                 ai = 3 * ii;
@@ -916,7 +922,7 @@ void* __energy_non_bonded( void *args ) {
                 r2  = dr[0]*dr[0] + dr[1]*dr[1] + dr[2]*dr[2];
                 eij =   arg->dat[3*ii] * arg->dat[3*jj];
                 sij = arg->dat[3*ii+1] + arg->dat[3*jj+1];
-                qij = arg->dat[3*ii+2] * arg->dat[3*jj+2] * epsf * arg->qms[arg->lst[2*i]] * arg->qms[arg->lst[2*i+1]];
+                qij = arg->dat[3*ii+2] * arg->dat[3*jj+2] * epsf * ( ! arg->qms[arg->lst[2*i]] ) * ( ! arg->qms[arg->lst[2*i+1]] );
                 s   = 1.0 / sqrt( r2 );
                 s6  = pow( sij * s, 6.0 );
                 tmp = qij * s;
@@ -929,7 +935,7 @@ void* __energy_non_bonded( void *args ) {
                         arg->grd[arg->who+aj+j] -= df * dr[j];
                     }
                 }
-            }
+//            }
         }
 
     }

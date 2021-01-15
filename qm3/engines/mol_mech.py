@@ -6,6 +6,7 @@ if( sys.version_info[0] == 2 ):
     range = xrange
 import math
 import os
+import pickle
 import inspect
 import qm3.elements
 import qm3.maths.matrix
@@ -18,10 +19,10 @@ import qm3.fio
 try:
     import qm3.engines._mol_mech
     mol_mech_so = True
-    print( ">> mol_mech: C version" )
+    print( ">> mol_mech: binary threaded version" )
 except:
     mol_mech_so = False
-    print( ">> mol_mech: PYTHON version" )
+    print( ">> mol_mech: Python version" )
 
 
 
@@ -488,7 +489,7 @@ class simple_force_field( object ):
                 i3 = 3 * i
                 i_crd = [ mol.coor[i3+k] - mol.boxl[k] * round( mol.coor[i3+k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2 ] ]
                 for j in range( i+1, mol.natm ):
-                    if( not ( self.qmat[i] and self.qmat[j] ) ):
+                    if( not ( self.qmat[i] and self.qmat[j] ) and ( self.free[i] or self.free[j] ) ):
                         j_crd = [ mol.coor[j*3+k] - mol.boxl[k] * round( mol.coor[j*3+k] / mol.boxl[k], 0 ) for k in [ 0, 1, 2 ] ]
                         if( qm3.utils.distanceSQ( i_crd, j_crd ) <= c2l ):
                             f = False
@@ -624,3 +625,57 @@ class simple_force_field( object ):
             print( "ETot:", e_bond + e_angl + e_dihe + e_impr + e_elec + e_vdwl, "_kJ/mol" )
             print( "   Bond:%18.4lf   Angl:%18.4lf   Dihe:%18.4lf"%( e_bond, e_angl, e_dihe ) )
             print( "   Impr:%18.4lf   Elec:%18.4lf   VdWl:%18.4lf"%( e_impr, e_elec, e_vdwl ) )
+
+
+    # use before calling "qm_atoms" method: store pure MM system
+    def system_write( self, fname, mol = None ):
+        f = open( fname, "wb" )
+        pickle.dump( self.natm, f )
+        pickle.dump( self.bond, f )
+        pickle.dump( self.conn, f )
+        pickle.dump( self.angl, f )
+        pickle.dump( self.dihe, f )
+        pickle.dump( self.impr, f )
+        pickle.dump( self.bond_data, f )
+        pickle.dump( self.bond_indx, f )
+        pickle.dump( self.angl_data, f )
+        pickle.dump( self.angl_indx, f )
+        pickle.dump( self.dihe_data, f )
+        pickle.dump( self.dihe_indx, f )
+        pickle.dump( self.impr_data, f )
+        pickle.dump( self.impr_indx, f )
+        if( mol != None ):
+            if( mol.natm == self.natm ):
+                pickle.dump( mol.anum, f )
+                pickle.dump( mol.type, f )
+                pickle.dump( mol.chrg, f )
+                pickle.dump( mol.epsi, f )
+                pickle.dump( mol.rmin, f )
+        f.close()
+
+
+    # use before calling "qm_atoms" method: store pure MM system
+    def system_read( self, fname, mol = None ):
+        f = open( fname, "rb" )
+        self.natm = pickle.load( f )
+        self.bond = pickle.load( f )
+        self.conn = pickle.load( f )
+        self.angl = pickle.load( f )
+        self.dihe = pickle.load( f )
+        self.impr = pickle.load( f )
+        self.bond_data = pickle.load( f )
+        self.bond_indx = pickle.load( f )
+        self.angl_data = pickle.load( f )
+        self.angl_indx = pickle.load( f )
+        self.dihe_data = pickle.load( f )
+        self.dihe_indx = pickle.load( f )
+        self.impr_data = pickle.load( f )
+        self.impr_indx = pickle.load( f )
+        if( mol != None ):
+            if( mol.natm == self.natm ):
+                mol.anum = pickle.load( f )
+                mol.type = pickle.load( f )
+                mol.chrg = pickle.load( f )
+                mol.epsi = pickle.load( f )
+                mol.rmin = pickle.load( f )
+        f.close()
