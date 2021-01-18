@@ -220,7 +220,7 @@ class grid( object ):
             return
 
 
-    def plot2d( self, levels = 20 ):
+    def plot2d( self, levels = 20, fname = None ):
         if( has_mplot3d ):
             rz  = self.rotate()
             nx  = len( self.x )
@@ -238,6 +238,8 @@ class grid( object ):
             matplotlib.pyplot.contourf( lx, ly, lz, levels = z_lvl, cmap = "coolwarm" )
             cntr = matplotlib.pyplot.contour( lx, ly, lz, levels = z_lvl, colors = "black", linewidths = 2 )
             matplotlib.pyplot.clabel( cntr, inline = True, levels = z_lvl, fontsize = 7, fmt = "%.1lf" )
+            if( fname != None ):
+                matplotlib.pyplot.savefig( fname )
             matplotlib.pyplot.show()
         else:
             return

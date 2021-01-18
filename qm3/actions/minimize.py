@@ -215,13 +215,18 @@ def fire( obj,
             step_size = 0.1,
             print_frequency = 10,
             gradient_tolerance = 1.5,
-            log_function = default_log, mixing_alpha = 0.1, delay_step = 5, fire2 = False ):
+            exit_uphill = False,
+            log_function = default_log,
+            mixing_alpha = 0.1,
+            delay_step = 5,
+            fire2 = False ):
     log_function( "---------------------------------------- Minimization (FIRE)\n" )
     log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
     log_function( "Step Number:        %20d"%( step_number ) )
     log_function( "Step Size:          %20.10lg"%( step_size ) )
     log_function( "Print Frequency:    %20d"%( print_frequency ) )
     log_function( "Gradient Tolerance: %20.10lg"%( gradient_tolerance ) )
+    log_function( "Checking UpHill:    %20s"%( exit_uphill ) )
     log_function( "Version 2.0:        %20s\n"%( fire2 ) )
     log_function( "%10s%20s%20s%20s"%( "Step", "Function", "Gradient", "Displacement" ) )
     log_function( "-" * 70 )
@@ -231,10 +236,11 @@ def fire( obj,
     velo = [ 0.0 for i in range( obj.size ) ]
     step = [ 0.0 for i in range( obj.size ) ]
     obj.get_grad()
+    qfun = True
     norm, grms = __grms( obj.grad )
     log_function( "%10s%20.5lf%20.8lf%20.10lf"%( "", obj.func, grms, ssiz ) )
     i = 0
-    while( i < step_number and grms > gradient_tolerance ):
+    while( i < step_number and grms > gradient_tolerance and qfun ):
         if( - sum( [ velo[j] * obj.grad[j] for j in range( obj.size ) ] ) > 0.0 ):
             if( not fire2 ):
                 vsiz = math.sqrt( sum( [ velo[j] * velo[j] for j in range( obj.size ) ] ) )
@@ -270,8 +276,15 @@ def fire( obj,
         for j in range( obj.size ):
             obj.coor[j] += step[j]
 
+        lfun = obj.func
         obj.get_grad()
         norm, grms = __grms( obj.grad )
+        if( exit_uphill ):
+            if( lfun < obj.func ):
+                log_function( ">> search become uphill!" )
+                qfun = False
+                for j in range( obj.size ):
+                    obj.coor[j] -= step[j]
 
         i = i + 1
         if( i%print_frequency == 0 ):
@@ -308,6 +321,7 @@ def l_bfgs( obj,
             print_frequency = 10,
             gradient_tolerance = 1.5,
             history = 9,
+            exit_uphill = False,
             log_function = default_log ):
     log_function( "---------------------------------------- Minimization (L-BFGS)\n" )
     log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
@@ -315,7 +329,8 @@ def l_bfgs( obj,
     log_function( "Step Size:          %20.10lg"%( step_size ) )
     log_function( "Print Frequency:    %20d"%( print_frequency ) )
     log_function( "Gradient Tolerance: %20.10lg"%( gradient_tolerance ) )
-    log_function( "Number of Updates:  %20d\n"%( history ) )
+    log_function( "Number of Updates:  %20d"%( history ) )
+    log_function( "Checking UpHill:    %20s\n"%( exit_uphill ) )
     log_function( "%10s%20s%20s"%( "Step", "Function", "Gradient" ) )
     log_function( "-" * 50 )
     aux  = [ 0.0 for i in range( history ) ]
@@ -330,9 +345,10 @@ def l_bfgs( obj,
         dg.append( [ 0.0 for ii in range( obj.size ) ] )
     obj.get_grad()
     norm, grms = __grms( obj.grad )
+    qfun = True
     log_function( "%10s%20.5lf%20.8lf"%( "", obj.func, grms ) )
     i = 0
-    while( i < step_number and grms > gradient_tolerance ):
+    while( i < step_number and grms > gradient_tolerance and qfun ):
         if( i > history ):
             tmp =  dx.pop( 0 );  dx.append( tmp[:] )
             tmp =  dg.pop( 0 );  dg.append( tmp[:] )
@@ -371,8 +387,16 @@ def l_bfgs( obj,
         for j in range( obj.size ):
             obj.coor[j] += step[j]
 
+        lfun = obj.func
         obj.get_grad()
         norm, grms = __grms( obj.grad )
+        if( exit_uphill ):
+            if( lfun < obj.func ):
+                log_function( ">> search become uphill!" )
+                qfun = False
+                for j in range( obj.size ):
+                    obj.coor[j] -= step[j]
+
         i = i + 1
         if( i%print_frequency == 0 ):
             log_function( "%10d%20.5lf%20.10lf"%( i, obj.func, grms ) )
