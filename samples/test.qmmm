@@ -2,6 +2,8 @@ import    qm3.mol
 import    qm3.problem
 import    qm3.engines.mol_mech
 import    qm3.engines.sqm
+import    qm3.engines.xtb
+import    qm3.engines.dftb
 import    qm3.actions.minimize
 import    pickle
 import    os
@@ -13,6 +15,15 @@ except:
 
 #qm3.engines.mol_mech.mol_mech_so = False
 os.environ["QM3_LIBSQM"] = "./bin/sqm.so"
+os.environ["QM3_LIBXTB"] = "./bin/xtb.so"
+os.environ["QM3_LIBDFTB"] = "./bin/dftb.so"
+
+
+def kind( idx, lst ):
+    if( idx in lst ):
+        return( "qm" )
+    else:
+        return( "mm" )
 
 
 class my_problem( qm3.problem.template ):
@@ -90,9 +101,11 @@ O.2     -0.5100
         f.close()
 
         self.eMM = qm3.engines.mol_mech.simple_force_field( self.mol )
+        self.eMM.cut_on   = -1
+        self.eMM.cut_off  = -1
+        self.eMM.cut_list = -1
         self.eMM.topology( self.mol, bond = bnd, qtyp = False, qchg = False )
         self.eMM.parameters( self.mol )
-        self.eMM.update_non_bonded( self.mol )
 
         sqm = [ 11-1, 12-1, 13-1, 14-1, 15-1, 16-1, 17-1, 18-1, 19-1, 20-1 ]
         smm = list( set( list( range( self.mol.natm ) ) ).difference( set( sqm ) ) )
@@ -109,10 +122,80 @@ verbosity = 4
 qm3_atoms
 qm3_charges
 """ )
-        self.eQM = qm3.engines.sqm.dl_sqm( self.mol, f, sqm, smm, [ [ 11-1, 8-1 ] ] )
+#        self.eQM = qm3.engines.sqm.dl_sqm( self.mol, f, sqm, smm, [ [ 11-1, 8-1 ] ] )
+
+        f = io.StringIO( """
+Driver = {}
+Geometry = GenFormat {
+qm3_atoms
+}
+Hamiltonian = DFTB {
+  SCC = Yes
+  MaxSCCIterations = 1000
+  Mixer = DIIS {}
+  SlaterKosterFiles = Type2FileNames {
+    Prefix = "bin/3ob-3-1/"
+    Separator = "-"
+    Suffix = ".skf"
+  }
+  MaxAngularMomentum { H = "s"; C = "p"; N = "p" }
+  Charge = 1
+  ThirdOrderFull = Yes
+  HubbardDerivs = { 
+    H = -0.1857
+    C = -0.1492
+    N = -0.1535
+  }
+  HCorrection = Damping { Exponent = 4.0 }
+  Dispersion = DftD3 {
+    Damping = BeckeJohnson {
+      a1 = 0.746
+      a2 = 4.191
+    }
+    s6 = 1.0
+    s8 = 3.209
+  }
+qm3_guess
+  ElectricField = {
+    PointCharges = {
+      CoordsAndCharges [Angstrom] = DirectRead {
+        Records = qm3_nchg
+        File = "charges.dat"
+      }
+    }
+  }
+}
+Options { WriteDetailedOut = Yes }
+Analysis {
+  MullikenAnalysis = Yes
+  WriteBandOut = No
+qm3_job
+}
+ParserOptions { WriteHSDInput = No }
+""" )
+#        self.eQM = qm3.engines.dftb.dl_dftb( self.mol, f, sqm, smm, [ [ 11-1, 8-1 ] ] )
+
         f.close()
 
+        self.eQM = qm3.engines.xtb.dl_xtb( self.mol, 1, 0, sqm, smm, [ [ 11-1, 8-1 ] ] )
+
         self.eMM.qm_atoms( sqm )
+        for i,j in self.eMM.bond:
+            if( i in sqm or j in sqm ):
+                print( "bond: %-6d%-6d %s-%s"%( i, j,
+                       kind( i, sqm ), kind( j, sqm ) ) )
+        for i,j,k in self.eMM.angl:
+            if( i in sqm or j in sqm or k in sqm ):
+                print( "angl: %-6d%-6d%-6d %s-%s-%s"%( i, j, k,
+                       kind( i, sqm ), kind( j, sqm ), kind( k, sqm ) ) )
+        for i,j,k,l in self.eMM.dihe:
+            if( i in sqm or j in sqm or k in sqm or l in sqm ):
+                print( "dihe: %-6d%-6d%-6d%-6d %s-%s-%s-%s"%( i, j, k, l,
+                        kind( i, sqm ), kind( j, sqm ), kind( k, sqm ), kind( l, sqm ) ) )
+        self.eMM.update_non_bonded( self.mol )
+        for i,j,s in self.eMM.nbnd:
+            print( "nbnd: %-6d%-6d %s-%s"%( i, j,
+                   kind( i, sqm ), kind( j, sqm ) ) )
 
         self.sel = list( range( self.mol.natm ) )
 
@@ -141,7 +224,10 @@ qm3_charges
         self.update_coor()
         self.mol.func = 0.0
         self.eQM.get_func( self.mol )
-        self.eMM.get_func( self.mol, qprint = True )
+        print( "eQM: ", self.mol.func )
+        t = self.mol.func
+        self.eMM.get_func( self.mol, True )
+        print( "eMM: ", self.mol.func - t )
         self.func = self.mol.func
 
 
@@ -160,9 +246,10 @@ qm3_charges
 
 
 obj = my_problem()
-qm3.actions.minimize.l_bfgs( obj, print_frequency = 1, step_number = 1000, gradient_tolerance = 1.0, step_size = 0.1 )
+qm3.actions.minimize.l_bfgs( obj, print_frequency = 1, step_number = 1000, gradient_tolerance = 1., step_size = 0.1 )
 obj.fd.close()
-obj.get_grad()
+obj.get_func()
 print( obj.func )
+obj.get_grad()
 import qm3.maths.matrix
 qm3.maths.matrix.mprint( obj.grad, obj.mol.natm, 3 )

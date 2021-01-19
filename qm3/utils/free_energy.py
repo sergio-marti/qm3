@@ -244,7 +244,8 @@ class umbint( object ):
         print( "#%19s%20s%20s"%( "Reference", "PMF", "Stdev" ) )
         x = max( self.pmf )
         for i in range( self.__nb ):
-            print( "%20.10lf%20.10lf%20.10lf"%( self.crd[i], self.pmf[i] - x, math.sqrt( self.rms[i] ) ) )
+            self.rms[i] = math.sqrt( self.rms[i] )
+            print( "%20.10lf%20.10lf%20.10lf"%( self.crd[i], self.pmf[i] - x, self.rms[i] ) )
 
 
 
