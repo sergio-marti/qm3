@@ -89,6 +89,7 @@ static PyObject* w_lsfe_2d( PyObject *self, PyObject *args ) {
     	norm = sqrt( norm );
 
     	step_number = 100000;
+    	step_number = 10000;
     	print_frequency = 100;
     	tolerance = 0.01;
 

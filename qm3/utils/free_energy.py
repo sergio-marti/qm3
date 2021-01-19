@@ -486,7 +486,10 @@ class umbint_2d( object ):
                     dt     = math.pow( self.__ss[2*k] * self.__ss[2*k+1], 2.0 ) - self.__cx[k] * self.__cx[k]
                     pk[0] += p * ( __rt / dt * ( self.__ss[2*k+1] * self.__ss[2*k+1] * ( self.crx[i] - self.__mm[2*k] ) - self.__cx[k] * ( self.cry[j] - self.__mm[2*k+1] ) ) - self.__fc[2*k] * ( self.crx[i] - self.__rf[2*k] ) )
                     pk[1] += p * ( __rt / dt * ( self.__ss[2*k] * self.__ss[2*k] * ( self.cry[j] - self.__mm[2*k+1] ) - self.__cx[k] * ( self.crx[i] - self.__mm[2*k] ) ) - self.__fc[2*k+1] * ( self.cry[j] - self.__rf[2*k+1] ) )
-                dAdz.append( [ pk[0] / pt, pk[1] / pt ] )
+                if( math.fabs( pt ) > 0.0 ):
+                    dAdz.append( [ pk[0] / pt, pk[1] / pt ] )
+                else:
+                    dAdz.append( [ 0.0, 0.0 ] )
         self.pmf = qm3.maths.ode.least_squares_finite_elements_2d( self.__nb[0], self.__db[0], self.__nb[1], self.__db[1], dAdz )
         x = min( self.pmf )
         k = 0
