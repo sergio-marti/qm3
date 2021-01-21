@@ -10,11 +10,12 @@ class Plumed( mol, time_step = 0.001, PBC = False )
 
 \footnotesize
 \begin{pyglist}[language=python,fvset={frame=single}]
-#SOURCE@../samples/test.plumed.meta
+#SOURCE@../samples/oxy-cope/06-mdyn.py
 \end{pyglist}
-\includegraphics[width=.5\textwidth]{21.png}
-\includegraphics[width=.5\textwidth]{22.png}
 
-%\begin{pyglist}[fvset={frame=single}]
-%#SOURCE@../samples/logs/test..log
-%\end{pyglist}
+\begin{pyglist}[language=shell,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/06-mdyn-post.sh
+\end{pyglist}
+
+\includegraphics[width=.4\textwidth]{21.png}
+\includegraphics[width=.4\textwidth]{22.png}

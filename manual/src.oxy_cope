@@ -1,0 +1,115 @@
+%----------------------------------------------------------------------------
+\normalsize
+\subsection[Setup of the model]{Setup of the model}
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/01-build.py
+\end{pyglist}
+%----------------------------------------------------------------------------
+\normalsize
+\subsection[Quick relaxation]{Quick relaxation}
+Rough optimization of the model (remove all Lennard-Jones contacts on the boundaries), followed by a short molecular dynamics @ 300 K (NVT, $\delta t = 1 fs$). The potential energy is obtained using the internal mol\_mech force field combined with xTB for the quantum atoms.
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/02-dynamics-prev.py
+\end{pyglist}
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/02-dynamics.py
+\end{pyglist}
+\begin{center}
+\includegraphics[width=.3\textwidth]{24.png}
+\end{center}
+%----------------------------------------------------------------------------
+\normalsize
+\subsection[Potential Energy Surface (I)]{Potential Energy Surface (I)}
+Parallel scan (uses qm3.utlis.\_mpi) of the potential energy surface.
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/03-scan.py
+\end{pyglist}
+\begin{pyglist}[language=shell,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/03-scan-post.sh
+\end{pyglist}
+\begin{center}
+\includegraphics[width=.5\textwidth]{25.png}
+\end{center}
+%----------------------------------------------------------------------------
+\normalsize
+\subsection[Potential Energy Surface (II)]{Potential Energy Surface (II)}
+Parallel Nudged Elastic Band (uses qm3.utlis.\_mpi).
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/03-pneb.py
+\end{pyglist}
+\begin{pyglist}[language=shell,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/03-pneb-post.sh
+\end{pyglist}
+\begin{center}
+\includegraphics[width=.5\textwidth]{26.png}
+\end{center}
+%----------------------------------------------------------------------------
+\normalsize
+\subsection[Saddle point localization]{Saddle point localization}
+Saddle point localization followed by normal mode analysis.
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/03-saddle.py
+\end{pyglist}
+\begin{center}
+\includegraphics[width=.5\textwidth]{27.png}
+\end{center}
+%----------------------------------------------------------------------------
+\normalsize
+\subsection[Free Energy Surface (I)]{Free Energy Surface (I)}
+Bi-dimensional Potential of Mean Force traced on the Minimum Energy Path of the PES.
+\footnotesize
+\begin{pyglist}[language=shell,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/04-pmf2d-prev.sh
+\end{pyglist}
+\begin{center}
+\includegraphics[width=.5\textwidth]{28.png}
+\end{center}
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/04-pmf2d.py
+\end{pyglist}
+\begin{pyglist}[language=shell,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/04-pmf2d-post.sh
+\end{pyglist}
+\begin{center}
+\includegraphics[width=.4\textwidth]{29.png}
+\includegraphics[width=.4\textwidth]{30.png}
+\end{center}
+%----------------------------------------------------------------------------
+\normalsize
+\subsection[Free Energy Surface (II)]{Free Energy Surface (II)}
+Short String based on the NEB,
+\footnotesize
+\begin{pyglist}[language=shell,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/04-string-prev.sh
+\end{pyglist}
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/04-string.py
+\end{pyglist}
+\begin{pyglist}[language=shell,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/04-string-post.sh
+\end{pyglist}
+\begin{center}
+\includegraphics[width=.4\textwidth]{31.png}
+\includegraphics[width=.4\textwidth]{32.png}
+\end{center}
+\normalsize
+followed by a regular PMF on the s coordinate.
+\footnotesize
+\begin{pyglist}[language=shell,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/05-pmf_s-prev.sh
+\end{pyglist}
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/05-pmf_s.py
+\end{pyglist}
+\begin{pyglist}[language=shell,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/05-pmf_s-post.sh
+\end{pyglist}
+\begin{center}
+\includegraphics[width=.4\textwidth]{33.png}
+\includegraphics[width=.4\textwidth]{34.png}
+\end{center}
