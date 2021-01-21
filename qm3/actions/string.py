@@ -269,8 +269,9 @@ kumb ~ 5000
         grad = qm3.maths.matrix.mult( diff, 1, self.ncrd, jaco, self.ncrd, self.jcol )
         for i in range( len( self.jidx ) ):
             i3 = i * 3
+            j3 = self.idxj[i] * 3
             for j in [0, 1, 2]:
-                molec.grad[3*self.idxj[i]+j] += grad[i3+j]
+                molec.grad[j3+j] += grad[i3+j]
         # flush current colective variables
         self.fcvs.write( "".join( [ "%20.10lf"%( i ) for i in self.ccrd ] ) + "\n" )
         self.fcvs.flush()

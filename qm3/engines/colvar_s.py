@@ -26,6 +26,7 @@ dist      atom_i    atom_j
 ...
 dist      atom_i    atom_j
 ------------------------------------------------------------------------
+kumb units: kJ / ( mol Angs^2 AMU )
 """
         self.xref = xref
         self.kumb = kumb
@@ -72,7 +73,7 @@ dist      atom_i    atom_j
             mat = qm3.maths.matrix.mult( mat, self.ncrd, self.ncrd, tmp, self.ncrd, 1 )
             arc.append( math.sqrt( sum( [ tmp[j] * mat[j] for j in range( self.ncrd ) ] ) ) )
         self.delz = sum( arc ) / float( self.nwin - 1.0 )
-        print( "Colective variable s range: [%.3lf, %.3lf]"%( 0.0, sum( arc ) ) )
+        print( "Colective variable s range: [%.3lf, %.3lf] _AMU^0.5 * Ang"%( 0.0, sum( arc ) ) )
         # store inverse metrics from references...
         tmp = []
         for i in range( self.nwin ):
@@ -136,8 +137,9 @@ dist      atom_i    atom_j
                 sder[i] += diff * jder[j][i] * ( cval / self.delz - j ) * cexp[j] / sumd
         for i in range( len( self.jidx ) ):
             i3 = i * 3
+            j3 = self.idxj[i] * 3
             for j in [0, 1, 2]:
-                molec.grad[3*self.idxj[i]+j] += sder[i3+j]
+                molec.grad[j3+j] += sder[i3+j]
         return( cval )
 
 

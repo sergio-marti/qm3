@@ -2,9 +2,9 @@ cwd=/Users/smarti/Devel/qm3
 
 export PYTHONPATH=$cwd:$PYTHONPATH
 
-export QM3_OPENMM=/Users/smarti/Devel/openmm/dist_gnu/python
-export QM3_LAMMPS=/Users/smarti/Devel/lammps
-export QM3_PSI4=/Users/smarti/Devel/psi4/dist_gnu.py2/lib
+export QM3_OPENMM=$cwd/EXTERNAL/openmm/dist/python
+export QM3_LAMMPS=$cwd/EXTERNAL/lammps
+export QM3_PSI4=$cwd/EXTERNAL/psi4/dist/lib
 
 export QM3_LIBSQM=$cwd/EXTERNAL/sqm/sqm.so
 export QM3_LIBDFTD3=$cwd/EXTERNAL/dftd3/dftd3.so

@@ -1,6 +1,6 @@
 from distutils.core import setup, Extension
 
-plumed = "/Users/smarti/Devel/plumed2/dist_gnu"
+plumed = "EXTERNAL/plumed_build"
 
 setup( 
 	name = "Plumed hooks", 
