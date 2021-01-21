@@ -37,6 +37,6 @@ dist      atom_i    atom_j
 \begin{pyglist}[language=python,fvset={frame=single}]
 #SOURCE@../samples/test.colvar_s.integrate
 \end{pyglist}
-\includegraphics[width=.33\textwidth]{24.png}
-\includegraphics[width=.33\textwidth]{25.png}
-\includegraphics[width=.33\textwidth]{26.png}
+\includegraphics[width=.33\textwidth]{24a.png}
+\includegraphics[width=.33\textwidth]{25a.png}
+\includegraphics[width=.33\textwidth]{26a.png}

@@ -154,7 +154,8 @@ def take_step( distrib = True ):
             tmp_i = qm3.maths.matrix.inverse( [ tmp_m[i*ncrd2+j] for j in range( ncrd2 ) ], ncrd, ncrd )
             tmp_a += [ tmp_c[i*ncrd+j] - obj[0].cvs.icrd[i*ncrd+j] for j in range( ncrd ) ]
             tmp_b += qm3.maths.matrix.mult( tmp_i, ncrd, ncrd, tmp_a[i*ncrd:(i+1)*ncrd], ncrd, 1 )
-        obj[0].cvs.fcnv.write( "%20.10lf\n"%( math.sqrt( sum( [ tmp_a[i] * tmp_b[i] for i in range( ncrd * nwin ) ] ) / float( nwin ) ) ) )
+        obj[0].cvs.fcnv.write( "%20.10lf\n"%( math.sqrt( sum( [ tmp_a[i] * tmp_b[i]
+            for i in range( ncrd * nwin ) ] ) / float( nwin ) ) ) )
         obj[0].cvs.fcnv.flush()
     else:
         for j in range( size ):

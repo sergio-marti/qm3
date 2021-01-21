@@ -17,7 +17,7 @@ Rough optimization of the model (remove all Lennard-Jones contacts on the bounda
 #SOURCE@../samples/oxy-cope/02-dynamics.py
 \end{pyglist}
 \begin{center}
-\includegraphics[width=.3\textwidth]{24.png}
+\includegraphics[width=.5\textwidth]{24.png}
 \end{center}
 %----------------------------------------------------------------------------
 \normalsize
@@ -56,7 +56,7 @@ Saddle point localization followed by normal mode analysis.
 #SOURCE@../samples/oxy-cope/03-saddle.py
 \end{pyglist}
 \begin{center}
-\includegraphics[width=.5\textwidth]{27.png}
+\includegraphics[width=.3\textwidth]{27.png}
 \end{center}
 %----------------------------------------------------------------------------
 \normalsize
