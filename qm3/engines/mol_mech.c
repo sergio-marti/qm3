@@ -77,7 +77,7 @@ static PyObject* w_guess_angles( PyObject *self, PyObject *args ) {
             }
         }
 
-        free( nel ); for( i = 0; i < nat; i++ ) free( con[i] ); free( con );
+        free( lst ); free( nel ); for( i = 0; i < nat; i++ ) free( con[i] ); free( con );
 
         return( out );
     } else { Py_INCREF( Py_None ); return( Py_None ); }
@@ -143,7 +143,7 @@ static PyObject* w_guess_dihedrals( PyObject *self, PyObject *args ) {
                 }
             }
         }
-        free( nel ); for( i = 0; i < nat; i++ ) free( con[i] ); free( con );
+        free( lst ); free( nel ); for( i = 0; i < nat; i++ ) free( con[i] ); free( con );
         return( out );
     } else { Py_INCREF( Py_None ); return( Py_None ); }
 }
@@ -1031,7 +1031,8 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
         }
         for( i = 0; i < cpu; i++ ) pthread_join( pid[i], NULL );
         for( i = 0; i < cpu; i++ ) { oel += arg[i].ele; olj += arg[i].vdw; }
-        free( rng ); free( pid ); free ( lst ); free( scl ); free( qms ); free( arg );
+        free( xyz ); free( dat );
+		free( rng ); free( pid ); free ( lst ); free( scl ); free( qms ); free( arg );
     
         if( grd != NULL ) {
             otmp = PyObject_GetAttrString( molecule, "grad" );
