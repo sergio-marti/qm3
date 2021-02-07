@@ -415,7 +415,7 @@ static struct PyModuleDef moddef = {
     methods
 };
 
-PyMODINIT_FUNC PyInit__colvar_v( void ) {
+PyMODINIT_FUNC PyInit__long_elec( void ) {
     PyObject    *my_module;
 
     my_module = PyModule_Create( &moddef );

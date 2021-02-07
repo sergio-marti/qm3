@@ -152,6 +152,8 @@ static void __invert( double *mat, long n ) {
     dgetri_( &dge_n, mat, &dge_n, dge_ipiv, dge_work, &dge_lwork, &dge_info );
     free( dge_ipiv ); 
     free( dge_work ); 
+	free( ila_name );
+	free( ila_opts );
     __transpose( mat, n, n );
 }
 
