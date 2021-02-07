@@ -366,7 +366,7 @@ static PyObject* ewald__calc( PyObject *self, PyObject *args ) {
     	}
     	Py_DECREF( o_grad );
 
-    	free( coor ); free( chrg ); free( grd );
+    	free( coor ); free( chrg ); free( grd ); free( sqm );
     }
     Py_INCREF( Py_None );
     return( Py_None );
