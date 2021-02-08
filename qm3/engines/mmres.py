@@ -804,6 +804,11 @@ class tether( object ):
 
 
 
+#xi[aD_, aT_, aA_] := Dot[aT - 0.5*(aD + aA), (aA - aD)/Sqrt[Dot[aA - aD, aA - aD]]];
+#xi[{d0, d1, d2}, {t0, t1, t2}, {a0, a1, a2}]
+#D[xi[{d0, d1, d2}, {t0, t1, t2}, {a0, a1, a2}], d0]
+#D[xi[{d0, d1, d2}, {t0, t1, t2}, {a0, a1, a2}], t0]
+#D[xi[{d0, d1, d2}, {t0, t1, t2}, {a0, a1, a2}], a0]
 class transfer( object ):
     def __init__( self, kumb, xref, indx ):
         """
@@ -840,6 +845,7 @@ class transfer( object ):
         iA = self.indx[2] * 3
         dr = [ k-i for i,k in zip( molec.coor[iD:iD+3], molec.coor[iA:iA+3] ) ]
         mm = math.sqrt( sum( [ i * i for i in dr ] ) )
+        m2 = sum( [ i * i for i in dr ] )
         dr = [ i / mm for i in dr ]
         xp = [ j - 0.5 * ( k + i ) for i,j,k in zip( molec.coor[iD:iD+3], molec.coor[iT:iT+3], molec.coor[iA:iA+3] ) ]
         vv = sum( [ i * j for i,j in zip( xp, dr ) ] )
