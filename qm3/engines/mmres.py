@@ -802,3 +802,52 @@ class tether( object ):
                 molec.grad[w3+i] += self.kumb * dr[i]
         return( None )
 
+
+
+class transfer( object ):
+    def __init__( self, kumb, xref, indx ):
+        """
+    indx = [ Donor, Transferred, Acceptor ]
+
+    multiple_distance = force_constant / 2 * ( value - reference )^2
+
+    value = dot_product( T - 0.5 * ( D + A ), ( A - D ) / | A - D | )
+
+    force_constant [kJ/mol.A^2]
+    reference [A]
+        """
+        self.kumb = kumb
+        self.xref = xref
+        self.indx = indx[:]
+
+
+    def get_func( self, molec ):
+        iD = self.indx[0] * 3
+        iT = self.indx[1] * 3
+        iA = self.indx[2] * 3
+        dr = [ k-i for i,k in zip( molec.coor[iD:iD+3], molec.coor[iA:iA+3] ) ]
+        mm = math.sqrt( sum( [ i * i for i in dr ] ) )
+        xp = [ j - 0.5 * ( k + i ) for i,j,k in zip( molec.coor[iD:iD+3], molec.coor[iT:iT+3], molec.coor[iA:iA+3] ) ]
+        vv = sum( [ i * j for i,j in zip( xp, dr ) ] ) / mm
+        df = self.kumb * ( vv - self.xref )
+        molec.func += 0.5 * df * ( vv - self.xref )
+        return( vv )
+
+
+    def get_grad( self, molec ):
+        iD = self.indx[0] * 3
+        iT = self.indx[1] * 3
+        iA = self.indx[2] * 3
+        dr = [ k-i for i,k in zip( molec.coor[iD:iD+3], molec.coor[iA:iA+3] ) ]
+        mm = math.sqrt( sum( [ i * i for i in dr ] ) )
+        dr = [ i / mm for i in dr ]
+        xp = [ j - 0.5 * ( k + i ) for i,j,k in zip( molec.coor[iD:iD+3], molec.coor[iT:iT+3], molec.coor[iA:iA+3] ) ]
+        vv = sum( [ i * j for i,j in zip( xp, dr ) ] )
+        df = self.kumb * ( vv - self.xref )
+        molec.func += 0.5 * df * ( vv - self.xref )
+        for j in [0, 1, 2]:
+            molec.grad[iT+j] += df * dr[j]
+            molec.grad[iA+j] += df * ( ( xp[j] - vv * dr[j] ) / mm - 0.5 * dr[j] )
+            molec.grad[iD+j] -= df * ( ( xp[j] - vv * dr[j] ) / mm + 0.5 * dr[j] )
+        return( vv )
+
