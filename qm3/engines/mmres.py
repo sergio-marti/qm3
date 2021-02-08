@@ -845,7 +845,6 @@ class transfer( object ):
         iA = self.indx[2] * 3
         dr = [ k-i for i,k in zip( molec.coor[iD:iD+3], molec.coor[iA:iA+3] ) ]
         mm = math.sqrt( sum( [ i * i for i in dr ] ) )
-        m2 = sum( [ i * i for i in dr ] )
         dr = [ i / mm for i in dr ]
         xp = [ j - 0.5 * ( k + i ) for i,j,k in zip( molec.coor[iD:iD+3], molec.coor[iT:iT+3], molec.coor[iA:iA+3] ) ]
         vv = sum( [ i * j for i,j in zip( xp, dr ) ] )
