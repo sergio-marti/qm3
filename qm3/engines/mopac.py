@@ -56,6 +56,10 @@ try:
                     ctypes.c_int( mult ),
                     ctypes.c_int( self.siz ), self.vec )
 
+
+        def stop( self ):
+            self.lib.qm3_mopac_clean_()
+
     
         def update_coor( self, mol ):
             j3 = 1

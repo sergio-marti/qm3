@@ -148,10 +148,14 @@ class molecule( object ):
             self.coor[3*t_sel[i]:3*t_sel[i]+3] = t_crd[i3:i3+3][:]
 
 
-    def prune( self, sele ):
+    def copy( self, sele = [] ):
+        if( len( sele ) > 0 ):
+            t_sel = sele[:]
+        else:
+            t_sel = range( self.natm )
         out = molecule()
         out.natm = len( sele )
-        for i in sele:
+        for i in t_sel:
             i3 = i * 3
             out.segn.append( self.segn[i] )
             out.resn.append( self.resn[i] )
