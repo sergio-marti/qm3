@@ -1,7 +1,7 @@
 include config
 
 
-all: matrix minimize cions volume colvar_v mmint mol_mech ode fitpack grids dynamo shm conn dcd
+all: matrix minimize cions volume colvar_v mmint mol_mech ode fitpack grids dynamo shm conn dcd mopac.so
 
 
 dcd:
@@ -105,6 +105,10 @@ ilaenv_fix.o:
 
 lapack_deps.o:
 	gfortran -c -w -O2 -fPIC qm3/maths/lapack_deps.f
+
+
+mopac.so:
+	gfortran $(SHD) -o mopac.so -fPIC -Ibuild -Jbuild -O2 qm3/engines/mopac.f90 $(MLB)
 
 
 dftb.so:
