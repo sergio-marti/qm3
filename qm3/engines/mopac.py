@@ -14,7 +14,7 @@ try:
 
     class dl_mopac:
     
-        def __init__( self, mol, meth, chrg, mult, sele, nbnd = [], link = [] ):
+        def __init__( self, mol, meth, chrg, mult, sele, nbnd = [], link = [], con = -1, cof = -1 ):
             self.sel = sorted( sele )
             self.lnk = link[:]
             self.nbn = sorted( set( nbnd ).difference( set( sele + sum( link, [] ) ) ) )
@@ -36,7 +36,8 @@ try:
             self.lib.qm3_mopac_setup_.argtypes = [ ctypes.POINTER( ctypes.c_int ),
                 ctypes.POINTER( ctypes.c_int ), ctypes.POINTER( ctypes.c_int ),
                 ctypes.POINTER( ctypes.c_int ), ctypes.POINTER( ctypes.c_int ),
-                ctypes.POINTER( ctypes.c_int ), ctypes.POINTER( ctypes.c_double ) ]
+                ctypes.POINTER( ctypes.c_int ), ctypes.POINTER( ctypes.c_double ),
+                ctypes.POINTER( ctypes.c_double ), ctypes.POINTER( ctypes.c_double ) ]
             self.lib.qm3_mopac_setup_.restype = None
 
             self.lib.qm3_mopac_calc_.argtypes = [ ctypes.POINTER( ctypes.c_int ),
@@ -54,7 +55,8 @@ try:
                     ctypes.c_int( hami[meth] ),
                     ctypes.c_int( chrg ),
                     ctypes.c_int( mult ),
-                    ctypes.c_int( self.siz ), self.vec )
+                    ctypes.c_int( self.siz ), self.vec,
+                    ctypes.c_double( con ), ctypes.c_double( cof ) )
 
 
         def stop( self ):

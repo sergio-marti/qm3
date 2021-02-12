@@ -6005,11 +6005,12 @@ CONTAINS
 END MODULE MOPAC
 
 
-subroutine qm3_mopac_setup( nqm, nmm, met, chg, mul, siz, dat )
+subroutine qm3_mopac_setup( nqm, nmm, met, chg, mul, siz, dat, con, cof )
     use mopac 
     implicit none
     integer, intent( in ) :: nqm, nmm, met, chg, mul, siz
-    real*8, dimension(0:siz-1), intent( inout ) :: dat
+    real*8, intent( in ) :: con, cof
+    real*8, dimension(0:siz-1), intent( in ) :: dat
     integer :: i, j
 
     naqm = nqm
@@ -6019,6 +6020,10 @@ subroutine qm3_mopac_setup( nqm, nmm, met, chg, mul, siz, dat )
     do i = 1, naqm
         atmchg(i) = dat(i)
     end do
+    if( con > .0d0 .and. cof > .0d0 .and. cof > con ) then
+        cut_on  = con
+        cut_off = cof
+    end if
     select case( met )
         case( 0 ) ; call mopac_setup( "MNDO", chg, mul )
         case( 1 ) ; call mopac_setup(  "AM1", chg, mul )
