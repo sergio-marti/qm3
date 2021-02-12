@@ -32,9 +32,12 @@ except:
 class simple_force_field( object ):
     def __init__( self, mol, ncpu = os.sysconf( 'SC_NPROCESSORS_ONLN' ) ):
         self.ncpu     = ncpu
-        self.cut_on   = 10.0
-        self.cut_off  = 12.0
-        self.cut_list = 14.0
+#        self.cut_on   = 10.0
+#        self.cut_off  = 12.0
+#        self.cut_list = 14.0
+        self.cut_on   = -1
+        self.cut_off  = -1
+        self.cut_list = -1
         self.natm     = mol.natm
         self.nbnd     = []
         self.qmat     = [ False for i in range( self.natm ) ]
