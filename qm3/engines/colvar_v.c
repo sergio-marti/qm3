@@ -218,11 +218,11 @@ static PyObject* coulomb__get_grad( PyObject *self, PyObject *args ) {
     	Py_DECREF( o_tmp );
     	PyObject_SetAttrString( o_mol, "func", PyFloat_FromDouble( tmp + 0.5 * obj->kmb * ( vv - obj->ref ) * ( vv - obj->ref ) ) );
 
-    	tmp   = obj->kmb * ( vv - obj->ref );
+    	tmp   = obj->kmb * ( vv - obj->ref ) * EC;
     	lst_i = obj->qm[0];
     	cur_i = 0;
     	for( i = 0; i < obj->ni; i++ ) {
-    		if( lst_i != obj->qm[i] ) { lst_i++; cur_i = obj->qm[i]; }
+    		if( lst_i != obj->qm[i] ) { cur_i++; lst_i = obj->qm[i]; }
 
     		r2 = 0.0;
     		for( k = 0; k < 3; k++ ) {
@@ -510,11 +510,11 @@ static PyObject* fswitch__get_grad( PyObject *self, PyObject *args ) {
     	Py_DECREF( o_tmp );
     	PyObject_SetAttrString( o_mol, "func", PyFloat_FromDouble( tmp + 0.5 * obj->kmb * ( vv - obj->ref ) * ( vv - obj->ref ) ) );
 
-    	tmp   = obj->kmb * ( vv - obj->ref );
+    	tmp   = obj->kmb * ( vv - obj->ref ) * EC;
     	lst_i = obj->qm[0];
     	cur_i = 0;
     	for( i = 0; i < obj->ni; i++ ) {
-    		if( lst_i != obj->qm[i] ) { lst_i++; cur_i = obj->qm[i]; }
+    		if( lst_i != obj->qm[i] ) { cur_i++; lst_i = obj->qm[i]; }
 //====================================
     		r2 = 0.0;
     		for( k = 0; k < 3; k++ ) {
