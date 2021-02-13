@@ -24,7 +24,7 @@ def Simpson( x, y ):
         o += ( ( d1 + d1 - d2 ) * y[i] + ( d3 * d3 * y[j] + d1 * ( d2 + d2 - d1 ) * y[k] ) / d2 ) * d3 / 6.0 / d1
     # fix odd intervals with a trapeizodal rule
     if( n%2 != 0 ):
-        o += ( y[-1] + y[-2] ) / ( x[-1] - x[-2] ) * 0.5
+        o += ( y[-1] + y[-2] ) * ( x[-1] - x[-2] ) * 0.5
     return( o )
 
 
