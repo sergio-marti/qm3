@@ -88,10 +88,11 @@ static PyObject* w_lsfe_2d( PyObject *self, PyObject *args ) {
     	}
     	norm = sqrt( norm );
 
-    	step_number = 100000;
+  //  	step_number = 100000;
     	step_number = 10000;
     	print_frequency = 100;
-    	tolerance = 0.01;
+ //   	tolerance = 0.01;
+    	tolerance = 5.e-6;
 
     	nstp = 0;
     	ssiz = step_size;
@@ -102,7 +103,8 @@ static PyObject* w_lsfe_2d( PyObject *self, PyObject *args ) {
     	printf( "----------------------------------------------------------------------\n" );
     	printf( "%10s%20s%20s%20s\n", "Iter", "Function", "Gradient", "Step Size" );
     	printf( "%10ld%20.5lf%20.10lf%20.10lf\n", it, func, grms, ssiz );
-    	while( it < step_number && ( func > tolerance || grms > tolerance ) ) {
+//    	while( it < step_number && ( func > tolerance || grms > tolerance ) ) {
+    	while( it < step_number && grms > tolerance ) {
     		vsiz = 0.0; vfac = 0.0;
     		for( k = 0; k < size; k++ ) { vsiz += velo[k] * velo[k]; vfac -= velo[k] * grad[k]; }
     		vsiz = sqrt( vsiz );
