@@ -221,6 +221,12 @@ class grid( object ):
 
 
     def plot2d( self, levels = 20, fname = None ):
+        """
+        For headless terminals (before any other matplotlib import):
+
+        import matplotlib
+        matplotlib.use( "Agg" )
+        """
         if( has_mplot3d ):
             rz  = self.rotate()
             nx  = len( self.x )
@@ -240,8 +246,7 @@ class grid( object ):
             matplotlib.pyplot.clabel( cntr, inline = True, levels = z_lvl, fontsize = 7, fmt = "%.1lf" )
             if( fname != None ):
                 matplotlib.pyplot.savefig( fname )
-            else:
-                matplotlib.pyplot.show()
+            matplotlib.pyplot.show()
         else:
             return
 
