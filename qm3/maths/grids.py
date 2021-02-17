@@ -240,7 +240,8 @@ class grid( object ):
             matplotlib.pyplot.clabel( cntr, inline = True, levels = z_lvl, fontsize = 7, fmt = "%.1lf" )
             if( fname != None ):
                 matplotlib.pyplot.savefig( fname )
-            matplotlib.pyplot.show()
+            else:
+                matplotlib.pyplot.show()
         else:
             return
 
