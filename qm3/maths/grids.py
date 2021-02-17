@@ -226,6 +226,8 @@ class grid( object ):
 
         import matplotlib
         matplotlib.use( "Agg" )
+
+        Alternatively, set the environment variable:
         """
         if( has_mplot3d ):
             rz  = self.rotate()
