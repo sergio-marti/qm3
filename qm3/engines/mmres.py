@@ -814,7 +814,7 @@ class transfer( object ):
         """
     indx = [ Donor, Transferred, Acceptor ]
 
-    multiple_distance = force_constant / 2 * ( value - reference )^2
+    transfer = force_constant / 2 * ( value - reference )^2
 
     value = dot_product( T - 0.5 * ( D + A ), ( A - D ) / | A - D | )
 

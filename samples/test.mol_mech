@@ -1,6 +1,7 @@
 import qm3.mol
 import qm3.engines.mol_mech
 import qm3.maths.matrix
+import qm3.actions.minimize
 
 try:
     import cStringIO as io
@@ -63,8 +64,35 @@ m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
 o.get_grad( m, qprint = True )
 qm3.maths.matrix.mprint( m.grad, m.natm, 3 )
 
+
 #################################################################################
-import qm3.actions.minimize
+# quick & dirty
+#
+m.size = 3 * m.natm
+
+def get_func():
+    m.func = 0.0
+    o.get_func( m, True )
+m.get_func = get_func
+
+def get_grad():
+    m.func = 0.0
+    m.grad = [ 0.0 for i in range( m.size ) ]
+    o.get_grad( m )
+m.get_grad = get_grad
+
+def current_step( istep ):
+    pass
+m.current_step = current_step
+
+qm3.actions.minimize.fire( m, step_number = 1000, print_frequency = 100, gradient_tolerance = 1.0 )
+m.get_func()
+print()
+
+
+#################################################################################
+# problem definition
+#
 import qm3.problem
 class my_obj( qm3.problem.template ):
     def __init__( self, mol, eng ):
