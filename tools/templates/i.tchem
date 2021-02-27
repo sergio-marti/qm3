@@ -1,4 +1,4 @@
-basis         6-31++g**
+basis         6-31+g**
 charge        0
 spinmult      1
 method        b3lyp
