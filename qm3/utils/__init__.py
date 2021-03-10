@@ -695,7 +695,7 @@ def connectivity( molec, ncpu = os.sysconf( 'SC_NPROCESSORS_ONLN' ) ):
                                 bond.append( [ j, k ] )
     # all atoms: N * (N-1) / 2
     else:
-        if( conn_so ):
+        if( conn_so and molec.natm > 200 ):
             print( ">> connectivity: binary threaded search" )
             bond = qm3.utils._conn.connectivity( ncpu, molec )
         else:

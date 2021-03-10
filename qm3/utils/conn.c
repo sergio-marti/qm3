@@ -60,7 +60,7 @@ void* __connectivity( void *args ) {
 
 
 static PyObject* w_connectivity( PyObject *self, PyObject *args ) {
-    PyObject	*out, *object, *anum, *coor;
+    PyObject	*out, *object, *anum, *coor, *otmp;
     double		*xyz, dr, r2;
     long		*num, i, j, k, n3, nat, cpu, i3, j3;
     pthread_t	*pid;
@@ -129,7 +129,9 @@ static PyObject* w_connectivity( PyObject *self, PyObject *args ) {
             for( i = 0; i < cpu; i++ ) {
                 pt2 = arg[i].bnd->n;
                 while( pt2 != NULL ) {
-                    PyList_Append( out, Py_BuildValue( "[l,l]", pt2->i, pt2->j ) );
+                    otmp = Py_BuildValue( "[l,l]", pt2->i, pt2->j );
+                    PyList_Append( out, otmp );
+    				Py_DECREF( otmp );
                     pt2 = pt2->n;
                 }
             }
@@ -168,7 +170,9 @@ static PyObject* w_connectivity( PyObject *self, PyObject *args ) {
 			    			( xyz[i3+1] - xyz[j3+1] ) * ( xyz[i3+1] - xyz[j3+1] ) +
 			    			( xyz[i3+2] - xyz[j3+2] ) * ( xyz[i3+2] - xyz[j3+2] );
 			    	if( dr <= r2 ) {
-                        PyList_Append( out, Py_BuildValue( "[l,l]", i, j ) );
+                    	otmp = Py_BuildValue( "[l,l]", i, j );
+	                    PyList_Append( out, otmp );
+	    				Py_DECREF( otmp );
                     }
                 }
             }

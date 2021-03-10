@@ -72,7 +72,11 @@ static PyObject* w_guess_angles( PyObject *self, PyObject *args ) {
                 }
                 if( ii != -1 && jj != -1 && kk != -1 ) {
                     cnt = 0; for( k = 0; k < nel[ii]; k++ ) cnt += ( kk == con[ii][k] );
-                    if( cnt == 0 ) PyList_Append( out, Py_BuildValue( "[l,l,l]", ii, jj, kk ) );
+                    if( cnt == 0 ) { 
+						otmp = Py_BuildValue( "[l,l,l]", ii, jj, kk );
+						PyList_Append( out, otmp );
+						Py_DECREF( otmp );
+					}
                 }
             }
         }
@@ -139,7 +143,11 @@ static PyObject* w_guess_dihedrals( PyObject *self, PyObject *args ) {
                 }
                 if( ii != -1 && jj != -1 && kk != -1 && ll != -1 ) {
                     cnt = 0; for( k = 0; k < nel[ii]; k++ ) cnt += ( ll == con[ii][k] );
-                    if( cnt == 0 ) PyList_Append( out, Py_BuildValue( "[l,l,l,l]", ii, jj, kk, ll ) );
+                    if( cnt == 0 ) {
+						otmp = Py_BuildValue( "[l,l,l,l]", ii, jj, kk, ll );
+						PyList_Append( out, otmp );
+        				Py_DECREF( otmp );
+					}
                 }
             }
         }
@@ -213,8 +221,9 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
     two_lst     *pt2;
 
     if( PyArg_ParseTuple( args, "OO", &object, &molecule ) ) {
-
-        cpu  = PyLong_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
+        otmp = PyObject_GetAttrString( object, "ncpu" );
+        cpu  = PyLong_AsLong( otmp );
+        Py_DECREF( otmp );
 
         otmp = PyObject_GetAttrString( object, "cut_list" );
         cut = PyFloat_AsDouble( otmp );
@@ -325,7 +334,9 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
             for( i = 0; i < cpu; i++ ) {
                 pt2 = arg[i].nbn->n;
                 while( pt2 != NULL ) {
-                    PyList_Append( out, Py_BuildValue( "[l,l,d]", pt2->i, pt2->j, 1.0 ) );
+					otmp = Py_BuildValue( "[l,l,d]", pt2->i, pt2->j, 1.0 );
+					PyList_Append( out, otmp );
+					Py_DECREF( otmp );
                     pt2 = pt2->n;
                 }
             }
@@ -382,14 +393,20 @@ static PyObject* w_update_non_bonded( PyObject *self, PyObject *args ) {
                             f |= ( ( i == dih[2*k] && j == dih[2*k+1] ) || ( i == dih[2*k+1] && j == dih[2*k] ) );
                             k++;
                         }
-                        if( f == 0 ) { PyList_Append( out, Py_BuildValue( "[l,l,d]", i, j, 1.0 ) ); }
+                        if( f == 0 ) { 
+							otmp = Py_BuildValue( "[l,l,d]", i, j, 1.0 );
+							PyList_Append( out, otmp );
+        					Py_DECREF( otmp );
+						}
                     }
                 }
             }
         }
 
         for( i = 0; i < n_dih; i++ ) {
-            PyList_Append( out, Py_BuildValue( "[l,l,d]", dih[2*i], dih[2*i+1], 0.5 ) );
+			otmp = Py_BuildValue( "[l,l,d]", dih[2*i], dih[2*i+1], 0.5 );
+			PyList_Append( out, otmp );
+			Py_DECREF( otmp );
         }
         free( fre ); free( qms ); free( bnd ); free( ang ); free( dih ); free( xyz );
         return( out );
@@ -437,8 +454,9 @@ static PyObject* w_energy_bond( PyObject *self, PyObject *args ) {
     ene_arg     *arg;
 
     if( PyArg_ParseTuple( args, "OOO", &object, &molecule, &gradient ) ) {
-//        cpu  = PyInt_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
-        cpu  = PyLong_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
+        otmp = PyObject_GetAttrString( object, "ncpu" );
+        cpu  = PyLong_AsLong( otmp );
+        Py_DECREF( otmp );
 
         otmp = PyObject_GetAttrString( molecule, "coor" );
         n3   = PyList_Size( otmp );
@@ -567,8 +585,9 @@ static PyObject* w_energy_angle( PyObject *self, PyObject *args ) {
     ene_arg     *arg;
 
     if( PyArg_ParseTuple( args, "OOO", &object, &molecule, &gradient ) ) {
-//        cpu  = PyInt_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
-        cpu  = PyLong_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
+        otmp = PyObject_GetAttrString( object, "ncpu" );
+        cpu  = PyLong_AsLong( otmp );
+        Py_DECREF( otmp );
 
         otmp = PyObject_GetAttrString( molecule, "coor" );
         n3   = PyList_Size( otmp );
@@ -764,8 +783,9 @@ static PyObject* w_energy_dihedral( PyObject *self, PyObject *args ) {
     ene_arg     *arg;
 
     if( PyArg_ParseTuple( args, "OOO", &object, &molecule, &gradient ) ) {
-//        cpu  = PyInt_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
-        cpu  = PyLong_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
+        otmp = PyObject_GetAttrString( object, "ncpu" );
+        cpu  = PyLong_AsLong( otmp );
+        Py_DECREF( otmp );
 
         otmp = PyObject_GetAttrString( molecule, "coor" );
         n3   = PyList_Size( otmp );
@@ -949,8 +969,9 @@ static PyObject* w_energy_non_bonded( PyObject *self, PyObject *args ) {
     int_arg     *arg;
 
     if( PyArg_ParseTuple( args, "OOOd", &object, &molecule, &gradient, &epsi ) ) {
-//        cpu  = PyInt_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
-        cpu  = PyLong_AsLong( PyObject_GetAttrString( object, "ncpu" ) );
+        otmp = PyObject_GetAttrString( object, "ncpu" );
+        cpu  = PyLong_AsLong( otmp );
+        Py_DECREF( otmp );
 
         otmp = PyObject_GetAttrString( molecule, "boxl" );
         for( i = 0; i < 3; i++ ) box[i] = PyFloat_AsDouble( PyList_GetItem( otmp, i ) );
