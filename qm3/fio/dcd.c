@@ -327,7 +327,6 @@ fprintf(stderr,"[%s] %ld\n", obj->fnam, obj->natm );
 		}
 
 		obj->buff = (char*) malloc( 4 * obj->natm * sizeof( char ) );
-    	bzero( obj->fnam, 2048 );
     }
     Py_INCREF( Py_None );
     return( Py_None );
@@ -393,6 +392,7 @@ static PyObject* __append( PyObject *self, PyObject *args ) {
             fwrite( buf, 1, 4, obj->fdes );
         }
 		Py_DECREF( o_crd );
+		obj->curr++;
 	}
     Py_INCREF( Py_True );
     return( Py_True );
