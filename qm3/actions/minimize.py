@@ -149,7 +149,6 @@ def steepest_descent( obj,
         # -- check new point
         obj.get_grad()
         norm, grms = __grms( obj.grad )
-        fcur = round( obj.func, 0 )
         if( norm > step_size ):
             ssiz = step_size
         elif( norm > gradient_tolerance ):

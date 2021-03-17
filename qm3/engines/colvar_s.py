@@ -73,7 +73,7 @@ kumb units: kJ / ( mol Angs^2 AMU )
             mat = qm3.maths.matrix.mult( mat, self.ncrd, self.ncrd, tmp, self.ncrd, 1 )
             arc.append( math.sqrt( sum( [ tmp[j] * mat[j] for j in range( self.ncrd ) ] ) ) )
         self.delz = sum( arc ) / float( self.nwin - 1.0 )
-        print( "Colective variable s range: [%.3lf, %.3lf] _AMU^0.5 * Ang"%( 0.0, sum( arc ) ) )
+        print( "Colective variable s range: [%.3lf - %.3lf: %.6lf] _AMU^0.5 * Ang"%( 0.0, sum( arc ), self.delz ) )
         # store inverse metrics from references...
         tmp = []
         for i in range( self.nwin ):

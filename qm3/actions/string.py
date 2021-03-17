@@ -196,7 +196,6 @@ tstp = dt / gamma ~ 1.e-5 (dyn) / 1.e-4 (min) / 0.0 (fix)
 kumb ~ 5000
 --------------------------------------------------------------------------
 """
-        self.metadyn = True
         self.node = node
         f = open( conf, "rt" )
         t = f.readline().strip().split()

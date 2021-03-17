@@ -95,7 +95,7 @@ def solvate( molec, solvnt, radii = qm3.elements.r_vdw, transform = True ):
     for i in Q.data:
         sel += range( solvnt.res_lim[i], solvnt.res_lim[i+1] )
     # ---------------------------------------------------------------------------------------
-    out = solvnt.prune( sel )
+    out = solvnt.copy( sel )
     out.norm_resid()
     out.settle()
     sys.stderr.write( "+ Time        : %ld sec\n"%( time.time() - t0 ) )
@@ -171,7 +171,7 @@ def ionic_strength( molec, temp = 300.0, conc = 0.15, chains = None, mdst = 5.0 
         sel += range( molec.res_lim[i], molec.res_lim[i+1] )
     iml.norm_resid()
     iml.settle()
-    out = molec.prune( list( set( list( range( molec.natm ) ) ).difference( set( sel ) ) ) )
+    out = molec.copy( list( set( list( range( molec.natm ) ) ).difference( set( sel ) ) ) )
     out.append( iml )
     sys.stderr.write( "+ Time        : %ld sec\n"%( time.time() - t0 ) )
     return( out )
