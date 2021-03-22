@@ -953,5 +953,5 @@ x_w,1  y_w,1  z_w,1  ...  x_w,r  y_w,r  z_w,r
             for k in [ 0, 1, 2 ]:
                 for i in range( self.nwin ):
                     if( math.fabs( cdst[i] ) > 0.0 ):
-                        molec.grad[J3+k] -= diff * ( cval / self.delz + i ) / sden * cexp[i] * sder[i*self.ncrd+j3+k] / cdst[i]
+                        molec.grad[J3+k] += diff * ( cval / self.delz - i ) / sden * cexp[i] * sder[i*self.ncrd+j3+k] / cdst[i]
         return( cval )
