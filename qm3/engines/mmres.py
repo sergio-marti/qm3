@@ -856,3 +856,102 @@ class transfer( object ):
             molec.grad[iD+j] -= df * ( ( xp[j] - vv * dr[j] ) / mm + 0.5 * dr[j] )
         return( vv )
 
+
+
+class path( object ):
+    def __init__( self, molec, kumb, xref, conf ):
+        """
+    rmsd = force_constant / 2 * ( value - reference )^2
+
+    value = SUM( i=0:N-1, i * dz * exp( - dst_i / dz ) / SUM( i=0:N-1, exp( - dst_i / dz ) )
+    dz    = L / ( N - 1 )
+    dst_i = SUM( j=0:N-1, k=xyz, m_j * ( x_k - r_i,k )^2 ) )^0.5
+
+    force_constant [kJ/mol.A^2.AMU]
+    reference [A.AMU^0.5]
+
+------------------------------------------------------------------------
+nref[r]      nwin[w]
+atm_1  ...    atm_r
+x_1,1  y_1,1  z_1,1  ...  x_1,r  y_1,r  z_1,r
+...    ...    ...    ...  ...    ...    ...
+x_w,1  y_w,1  z_w,1  ...  x_w,r  y_w,r  z_w,r
+------------------------------------------------------------------------
+"""
+        self.xref = xref
+        self.kumb = kumb
+        f = qm3.fio.open_r( conf )
+        t = f.readline().strip().split()
+        self.natm = int( t[0] )
+        self.nwin = int( t[1] )
+        self.atom = []
+        while( len( self.atom ) < self.natm ):
+            self.atom += [ int( i ) for i in f.readline().strip().split() ]
+        self.mass = []
+        for i in range( self.natm ):
+            self.mass.append( molec.mass[self.atom[i]] )
+        self.rcrd = [ float( i ) for i in f.read().split() ]
+        qm3.fio.close( f, conf )
+        self.ncrd = self.natm * 3
+        arc = 0.0
+        for i in range( 1, self.nwin ):
+            tmp = 0.0
+            for j in range( self.natm ):
+                j3 = j * 3
+                for k in [0, 1, 2]:
+                    dif = self.rcrd[i*self.ncrd+j3+k] - self.rcrd[(i-1)*self.ncrd+j3+k]
+                    tmp += self.mass[j] * dif * dif
+            arc += math.sqrt( tmp )
+        self.delz = arc / float( self.nwin - 1.0 )
+        print( "Path range: [%.3lf - %.3lf: %.6lf] _AMU^0.5 * Ang"%( 0.0, arc, self.delz ) )
+
+
+    def get_func( self, molec ):
+        snum = 0.0
+        sden = 0.0
+        for i in range( self.nwin ):
+            acc = 0.0
+            for j in range( self.natm ):
+                j3 = j * 3
+                J3 = self.atom[j] * 3
+                for k in [ 0, 1, 2 ]:
+                    cdif = molec.coor[J3+k] - self.rcrd[i*self.ncrd+j3+k] 
+                    acc += self.mass[j] * cdif * cdif
+            cexp = math.exp( - math.sqrt( acc ) / self.delz )
+            snum += i * self.delz * cexp
+            sden += cexp
+        cval = snum / sden
+        molec.func += 0.5 * self.kumb * math.pow( cval - self.xref, 2.0 )
+        return( cval )
+
+
+    def get_grad( self, molec ):
+        snum = 0.0
+        sden = 0.0
+        sder = []
+        cexp = []
+        cdst = []
+        for i in range( self.nwin ):
+            acc = 0.0
+            for j in range( self.natm ):
+                j3 = j * 3
+                J3 = self.atom[j] * 3
+                for k in [ 0, 1, 2 ]:
+                    cdif = molec.coor[J3+k] - self.rcrd[i*self.ncrd+j3+k] 
+                    sder.append( self.mass[j] * cdif )
+                    acc += sder[-1] * cdif
+            cdst.append( math.sqrt( acc ) )
+            cexp.append( math.exp( - cdst[-1] / self.delz ) )
+            snum += i * self.delz * cexp[-1]
+            sden += cexp[-1]
+        cval = snum / sden
+        diff = self.kumb * ( cval - self.xref )
+        molec.func += 0.5 * diff * ( cval - self.xref )
+        for j in range( self.natm ):
+            j3 = j * 3
+            J3 = self.atom[j] * 3
+            for k in [ 0, 1, 2 ]:
+                for i in range( self.nwin ):
+                    if( math.fabs( cdst[i] ) > 0.0 ):
+                        molec.grad[J3+k] -= diff * ( cval / self.delz + i ) / sden * cexp[i] * sder[i*self.ncrd+j3+k] / cdst[i]
+        return( cval )
