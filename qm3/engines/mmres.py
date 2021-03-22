@@ -858,6 +858,10 @@ class transfer( object ):
 
 
 
+# -- not working --
+# coordinates are not kept in place, use tether followed by rmsd calculation on the
+# initial geometry for post-building all the dat infos...
+# -----------------
 class path( object ):
     def __init__( self, molec, kumb, xref, conf ):
         """
@@ -950,6 +954,7 @@ x_w,1  y_w,1  z_w,1  ...  x_w,r  y_w,r  z_w,r
         for j in range( self.natm ):
             j3 = j * 3
             J3 = self.atom[j] * 3
+            tmp = [ .0, .0, .0 ]
             for k in [ 0, 1, 2 ]:
                 for i in range( self.nwin ):
                     if( math.fabs( cdst[i] ) > 0.0 ):
