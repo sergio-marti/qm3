@@ -507,7 +507,7 @@ class umbint_2d( object ):
 
 try:
     import matplotlib.pyplot
-    def plot_data( data, dsigma = 2.0 ):
+    def plot_data( data, dsigma = 2.0, name = "overlap" ):
         __mm = []
         __ss = []
         __dd = []
@@ -540,7 +540,7 @@ try:
             x = [ float( j ) for j in range( len( __dd[i] ) ) ]
             matplotlib.pyplot.plot( x, __dd[i] )
         matplotlib.pyplot.tight_layout()
-        matplotlib.pyplot.savefig( "overlap_coor.pdf" )
+        matplotlib.pyplot.savefig( name + "_coor.pdf" )
         matplotlib.pyplot.clf()
         matplotlib.pyplot.xlim( __mm[__mw] - 2.0 * __ss[__mw], __mm[__Mw] + 2.0 * __ss[__Mw] )
         f = 1.0 / math.sqrt( 2.0 * math.pi )
@@ -552,7 +552,7 @@ try:
             y = [ f / __ss[i] * math.exp( - 0.5 * math.pow( ( x[j] - __mm[i] ) / __ss[i], 2.0 ) ) for j in range( nx + 1 ) ]
             matplotlib.pyplot.plot( x, y )
         matplotlib.pyplot.tight_layout()
-        matplotlib.pyplot.savefig( "overlap_gaus.pdf" )
+        matplotlib.pyplot.savefig( name + "_gaus.pdf" )
 except:
         pass
 

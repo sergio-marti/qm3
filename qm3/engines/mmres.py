@@ -897,7 +897,7 @@ x_w,1  y_w,1  z_w,1  ...  x_w,r  y_w,r  z_w,r
         self.rcrd = [ float( i ) for i in f.read().split() ]
         qm3.fio.close( f, conf )
         self.ncrd = self.natm * 3
-        arc = 0.0
+        self.arcl = []
         for i in range( 1, self.nwin ):
             tmp = 0.0
             for j in range( self.natm ):
@@ -905,9 +905,9 @@ x_w,1  y_w,1  z_w,1  ...  x_w,r  y_w,r  z_w,r
                 for k in [0, 1, 2]:
                     dif = self.rcrd[i*self.ncrd+j3+k] - self.rcrd[(i-1)*self.ncrd+j3+k]
                     tmp += self.mass[j] * dif * dif
-            arc += math.sqrt( tmp )
-        self.delz = arc / float( self.nwin - 1.0 )
-        print( "Path range: [%.3lf - %.3lf: %.6lf] _AMU^0.5 * Ang"%( 0.0, arc, self.delz ) )
+            self.arcl.append( math.sqrt( tmp ) )
+        self.delz = sum( self.arcl ) / float( self.nwin - 1.0 )
+        print( "Path range: [%.3lf - %.3lf: %.6lf] _AMU^0.5 * Ang"%( 0.0, sum( self.arcl ), self.delz ) )
 
 
     def get_func( self, molec ):

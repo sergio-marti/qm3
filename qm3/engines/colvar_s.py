@@ -66,14 +66,14 @@ kumb units: kJ / ( mol Angs^2 AMU )
         qm3.fio.close( f, conf )
         nc2 = self.ncrd * self.ncrd
         # get the arc length of the current string...
-        arc = []
+        self.arcl = []
         for i in range( 1, self.nwin ):
             tmp = [ self.rcrd[i*self.ncrd+j] - self.rcrd[(i-1)*self.ncrd+j] for j in range( self.ncrd ) ]
             mat = qm3.maths.matrix.inverse( [ 0.5 * ( self.rmet[i*nc2+j] + self.rmet[(i-1)*nc2+j] ) for j in range( nc2 ) ], self.ncrd, self.ncrd )
             mat = qm3.maths.matrix.mult( mat, self.ncrd, self.ncrd, tmp, self.ncrd, 1 )
-            arc.append( math.sqrt( sum( [ tmp[j] * mat[j] for j in range( self.ncrd ) ] ) ) )
-        self.delz = sum( arc ) / float( self.nwin - 1.0 )
-        print( "Colective variable s range: [%.3lf - %.3lf: %.6lf] _AMU^0.5 * Ang"%( 0.0, sum( arc ), self.delz ) )
+            self.arcl.append( math.sqrt( sum( [ tmp[j] * mat[j] for j in range( self.ncrd ) ] ) ) )
+        self.delz = sum( self.arcl ) / float( self.nwin - 1.0 )
+        print( "Colective variable s range: [%.3lf - %.3lf: %.6lf] _AMU^0.5 * Ang"%( 0.0, sum( self.arcl ), self.delz ) )
         # store inverse metrics from references...
         tmp = []
         for i in range( self.nwin ):
