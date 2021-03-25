@@ -858,10 +858,9 @@ class transfer( object ):
 
 
 
-# -- not working --
-# coordinates are not kept in place, use tether followed by rmsd calculation on the
-# initial geometry for post-building all the dat infos...
-# -----------------
+# The main problem is the rotation/translation of the atoms during the
+# dynamics: at each step the sustrate (or a part containing the atoms
+# of the coordinate) should be aligned to the reference...
 class path( object ):
     def __init__( self, molec, kumb, xref, conf ):
         """
