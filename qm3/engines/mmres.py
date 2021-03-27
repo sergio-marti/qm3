@@ -6,6 +6,8 @@ if( sys.version_info[0] == 2 ):
     range = xrange
 import math
 import qm3.constants
+import qm3.utils
+import qm3.maths.matrix
 
 
 
@@ -858,9 +860,6 @@ class transfer( object ):
 
 
 
-# The main problem is the rotation/translation of the atoms during the
-# dynamics: at each step the sustrate (or a part containing the atoms
-# of the coordinate) should be aligned to the reference...
 class path( object ):
     def __init__( self, molec, kumb, xref, conf ):
         """
@@ -910,15 +909,20 @@ x_w,1  y_w,1  z_w,1  ...  x_w,r  y_w,r  z_w,r
 
 
     def get_func( self, molec ):
+        ccrd = []
+        for j in range( self.natm ):
+            j3 = self.atom[j] * 3
+            ccrd += molec.coor[j3:j3+3][:]
         snum = 0.0
         sden = 0.0
         for i in range( self.nwin ):
+            scrd = ccrd[:]
+            mx, mc, mm = qm3.utils.superimpose_quaternion( self.mass, scrd, self.rcrd[i*self.ncrd:(i+1)*self.ncrd] )
             acc = 0.0
             for j in range( self.natm ):
                 j3 = j * 3
-                J3 = self.atom[j] * 3
                 for k in [ 0, 1, 2 ]:
-                    cdif = molec.coor[J3+k] - self.rcrd[i*self.ncrd+j3+k] 
+                    cdif = scrd[j3+k] - self.rcrd[i*self.ncrd+j3+k] 
                     acc += self.mass[j] * cdif * cdif
             cexp = math.exp( - math.sqrt( acc ) / self.delz )
             snum += i * self.delz * cexp
@@ -929,20 +933,30 @@ x_w,1  y_w,1  z_w,1  ...  x_w,r  y_w,r  z_w,r
 
 
     def get_grad( self, molec ):
+        ccrd = []
+        for j in range( self.natm ):
+            j3 = self.atom[j] * 3
+            ccrd += molec.coor[j3:j3+3][:]
         snum = 0.0
         sden = 0.0
         sder = []
         cexp = []
         cdst = []
         for i in range( self.nwin ):
+            scrd = ccrd[:]
+            mx, mc, mm = qm3.utils.superimpose_quaternion( self.mass, scrd, self.rcrd[i*self.ncrd:(i+1)*self.ncrd] )
+            mm = qm3.maths.matrix.inverse( mm, 3, 3 )
             acc = 0.0
             for j in range( self.natm ):
                 j3 = j * 3
-                J3 = self.atom[j] * 3
+                t  = []
                 for k in [ 0, 1, 2 ]:
-                    cdif = molec.coor[J3+k] - self.rcrd[i*self.ncrd+j3+k] 
-                    sder.append( self.mass[j] * cdif )
-                    acc += sder[-1] * cdif
+                    cdif = scrd[j3+k] - self.rcrd[i*self.ncrd+j3+k] 
+                    t.append( cdif - mc[k] )
+                    acc += self.mass[j] * cdif * cdif
+                sder.append( self.mass[j] * ( mm[0] * t[0] + mm[3] * t[1] + mm[6] * t[2] + mx[0] ) )
+                sder.append( self.mass[j] * ( mm[1] * t[0] + mm[4] * t[1] + mm[7] * t[2] + mx[1] ) )
+                sder.append( self.mass[j] * ( mm[2] * t[0] + mm[5] * t[1] + mm[8] * t[2] + mx[2] ) )
             cdst.append( math.sqrt( acc ) )
             cexp.append( math.exp( - cdst[-1] / self.delz ) )
             snum += i * self.delz * cexp[-1]

@@ -53,8 +53,6 @@ class md_template:
         self.grad = []
         self.velo = []
 
-        self.get_grad = self.get_grad_aver
-
 
 
     def current_step( self, istep ):
@@ -133,7 +131,7 @@ class md_template:
 
 
 
-    def get_grad_aver( self ):
+    def get_grad( self ):
         # ---------------------------------------------
         for i in range( len( self.sele ) ):
             i3 = 3 * i
@@ -175,6 +173,7 @@ class md_template:
 
 
 
+    # In this version classical atoms are not affected by the beads of the RP
     def get_grad_splt( self ):
         # ---------------------------------------------
         for i in range( len( self.sele ) ):
