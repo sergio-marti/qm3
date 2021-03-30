@@ -952,11 +952,11 @@ x_w,1  y_w,1  z_w,1  ...  x_w,r  y_w,r  z_w,r
                 t  = []
                 for k in [ 0, 1, 2 ]:
                     cdif = scrd[j3+k] - self.rcrd[i*self.ncrd+j3+k] 
-                    t.append( cdif - mc[k] )
+                    t.append( cdif )
                     acc += self.mass[j] * cdif * cdif
-                sder.append( self.mass[j] * ( mm[0] * t[0] + mm[3] * t[1] + mm[6] * t[2] + mx[0] ) )
-                sder.append( self.mass[j] * ( mm[1] * t[0] + mm[4] * t[1] + mm[7] * t[2] + mx[1] ) )
-                sder.append( self.mass[j] * ( mm[2] * t[0] + mm[5] * t[1] + mm[8] * t[2] + mx[2] ) )
+                sder.append( self.mass[j] * ( mm[0] * t[0] + mm[3] * t[1] + mm[6] * t[2] ) )
+                sder.append( self.mass[j] * ( mm[1] * t[0] + mm[4] * t[1] + mm[7] * t[2] ) )
+                sder.append( self.mass[j] * ( mm[2] * t[0] + mm[5] * t[1] + mm[8] * t[2] ) )
             cdst.append( math.sqrt( acc ) )
             cexp.append( math.exp( - cdst[-1] / self.delz ) )
             snum += i * self.delz * cexp[-1]
