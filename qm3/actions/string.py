@@ -231,10 +231,12 @@ kumb ~ 5000
         self.rcrd = tmp[self.node*self.ncrd:(self.node+1)*self.ncrd]
         if( self.node == 0 ):
             self.icrd = tmp[:]
+        # -- skip masses from metric tensor --
         self.mass = []
         for i in range( len( self.jidx ) ):
             for j in [0, 1, 2]:
-                self.mass.append( 1.0 / molec.mass[self.idxj[i]] )
+#                self.mass.append( 1.0 / molec.mass[self.idxj[i]] )
+                self.mass.append( 1.0 )
         self.jcol = 3 * len( self.jidx )
         self.jaco = []
         self.ccrd = []

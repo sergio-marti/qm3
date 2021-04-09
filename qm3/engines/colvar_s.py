@@ -50,12 +50,6 @@ kumb units: kJ / ( mol Angs^2 AMU )
         self.jidx = { jj: ii for ii,jj in zip( range( len( self.jidx ) ), sorted( self.jidx ) ) }
         self.idxj = { self.jidx[ii]: ii for ii in iter( self.jidx ) }
         self.jcol = 3 * len( self.jidx )
-## -- constant metrics...
-##        self.mass = []
-##        for i in range( len( self.jidx ) ):
-##            for j in [0, 1, 2]:
-##                self.mass.append( 1.0 / molec.mass[self.idxj[i]] )
-## ------------------------------------------------------------------
         # load (previous) equi-destributed string
         f = qm3.fio.open_r( str_crd )
         self.rcrd = [ float( i ) for i in f.read().split() ]
@@ -73,7 +67,8 @@ kumb units: kJ / ( mol Angs^2 AMU )
             mat = qm3.maths.matrix.mult( mat, self.ncrd, self.ncrd, tmp, self.ncrd, 1 )
             self.arcl.append( math.sqrt( sum( [ tmp[j] * mat[j] for j in range( self.ncrd ) ] ) ) )
         self.delz = sum( self.arcl ) / float( self.nwin - 1.0 )
-        print( "Colective variable s range: [%.3lf - %.3lf: %.6lf] _AMU^0.5 * Ang"%( 0.0, sum( self.arcl ), self.delz ) )
+#        print( "Colective variable s range: [%.3lf - %.3lf: %.6lf] _AMU^0.5 * Ang"%( 0.0, sum( self.arcl ), self.delz ) )
+        print( "Colective variable s range: [%.3lf - %.3lf: %.6lf] _Ang"%( 0.0, sum( self.arcl ), self.delz ) )
         # store inverse metrics from references...
         tmp = []
         for i in range( self.nwin ):
@@ -86,21 +81,10 @@ kumb units: kJ / ( mol Angs^2 AMU )
         jaco = [ 0.0 for i in range( self.ncrd * self.jcol ) ]
         for i in range( self.ncrd ):
             ccrd.append( self.func[i]( i, molec, jaco ) )
-## -- constant metrics...
-##        cmet = [ 0.0 for i in range( self.ncrd * self.ncrd ) ]
-##        for i in range( self.ncrd ):
-##            for j in range( i, self.ncrd ):
-##                cmet[i*self.ncrd+j] = sum( [ jaco[i*self.jcol+k] * self.mass[k] * jaco[j*self.jcol+k] for k in range( self.jcol ) ] )
-##                cmet[j*self.ncrd+i] = cmet[i*self.ncrd+j]
-## ------------------------------------------------------------------
         nc2  = self.ncrd * self.ncrd
         cdst = []
         for i in range( self.nwin ):
             vec = [ ccrd[j] - self.rcrd[i*self.ncrd+j] for j in range( self.ncrd ) ]
-## -- constant metrics...
-##            mat = qm3.maths.matrix.inverse( [ 0.5 * ( cmet[j] + self.rmet[i*nc2+j] ) for j in range( nc2 ) ], self.ncrd, self.ncrd )
-##            mat = qm3.maths.matrix.mult( mat, self.ncrd, self.ncrd, vec, self.ncrd, 1 )
-## ------------------------------------------------------------------
             mat = qm3.maths.matrix.mult( self.rmet[i*nc2:(i+1)*nc2], self.ncrd, self.ncrd, vec, self.ncrd, 1 )
             cdst.append( math.sqrt( sum( [ vec[j] * mat[j] for j in range( self.ncrd ) ] ) ) )
         cexp = [ math.exp( - cdst[i] / self.delz ) for i in range( self.nwin ) ]
