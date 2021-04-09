@@ -7,6 +7,7 @@ if( sys.version_info[0] == 2 ):
 import math
 import qm3.fio
 import qm3.maths.matrix
+import qm3.maths.interpolation
 
 
 #
@@ -18,7 +19,7 @@ import qm3.maths.matrix
 
 class colvar_s( object ):
 
-    def __init__( self, kumb, xref, conf, str_crd, str_met, molec ):
+    def __init__( self, kumb, xref, conf, str_crd, str_met ):
         """
 ------------------------------------------------------------------------
 ncrd      nwin
@@ -26,7 +27,7 @@ dist      atom_i    atom_j
 ...
 dist      atom_i    atom_j
 ------------------------------------------------------------------------
-kumb units: kJ / ( mol Angs^2 AMU )
+kumb units: kJ / ( mol Angs^2 )
 """
         self.xref = xref
         self.kumb = kumb
@@ -53,12 +54,21 @@ kumb units: kJ / ( mol Angs^2 AMU )
         # load (previous) equi-destributed string
         f = qm3.fio.open_r( str_crd )
         self.rcrd = [ float( i ) for i in f.read().split() ]
-        qm3.fio.close( f, conf )
+        qm3.fio.close( f, str_crd )
         # load (previous) string metrics
-        f = qm3.fio.open_r( str_met )
-        self.rmet = [ float( i ) for i in f.read().split() ]
-        qm3.fio.close( f, conf )
         nc2 = self.ncrd * self.ncrd
+        if( str_met != None ):
+            f = qm3.fio.open_r( str_met )
+            self.rmet = [ float( i ) for i in f.read().split() ]
+            qm3.fio.close( f, str_met )
+        # use identity for the metrics
+        else:
+            tmp = [ 0.0 for i in range( nc2 ) ]
+            for i in range( self.ncrd ):
+                tmp[i*self.ncrd+i] = 1.0
+            self.rmet = []
+            for i in range( self.nwin ):
+                self.rmet += tmp[:]
         # get the arc length of the current string...
         self.arcl = []
         for i in range( 1, self.nwin ):
@@ -67,7 +77,6 @@ kumb units: kJ / ( mol Angs^2 AMU )
             mat = qm3.maths.matrix.mult( mat, self.ncrd, self.ncrd, tmp, self.ncrd, 1 )
             self.arcl.append( math.sqrt( sum( [ tmp[j] * mat[j] for j in range( self.ncrd ) ] ) ) )
         self.delz = sum( self.arcl ) / float( self.nwin - 1.0 )
-#        print( "Colective variable s range: [%.3lf - %.3lf: %.6lf] _AMU^0.5 * Ang"%( 0.0, sum( self.arcl ), self.delz ) )
         print( "Colective variable s range: [%.3lf - %.3lf: %.6lf] _Ang"%( 0.0, sum( self.arcl ), self.delz ) )
         # store inverse metrics from references...
         tmp = []
@@ -136,3 +145,43 @@ kumb units: kJ / ( mol Angs^2 AMU )
             jacob[icrd*self.jcol+3*self.jidx[ai]+k] -= dd[k] / vv
             jacob[icrd*self.jcol+3*self.jidx[aj]+k] += dd[k] / vv
         return( vv )
+
+
+
+#
+# Phys. Rev. Lett. v109, p20601 (2012) [10.1103/PhysRevLett.109.020601]
+#
+
+
+class colvar_gs( object ):
+
+    def __init__( self, kumb, xref, conf, strn ):
+        self.xref = xref
+        self.kumb = kumb
+        self.atom = []
+        f = qm3.fio.open_r( conf )
+        t = f.readline().strip().split()
+        self.ncrd = int( t[0] )
+        self.nwin = int( t[1] )
+        for i in range( self.ncrd ):
+            t = [ int( i ) for i in f.readline().split() ]
+            self.atom.append( ( t[0], t[1] ) )
+        qm3.fio.close( f, conf )
+        f = qm3.fio.open_r( strn )
+        self.rcrd = [ float( i ) for i in f.read().split() ]
+        qm3.fio.close( f, strn )
+        # get the arc length of the current string...
+        self.arcl = []
+        for i in range( 1, self.nwin ):
+            tmp = [ self.rcrd[i*self.ncrd+j] - self.rcrd[(i-1)*self.ncrd+j] for j in range( self.ncrd ) ]
+            self.arcl.append( math.sqrt( sum( [ tmp[j] * tmp[j] for j in range( self.ncrd ) ] ) ) )
+        self.delz = sum( self.arcl ) / float( self.nwin - 1.0 )
+        print( "Colective variable gs range: [%.3lf - %.3lf: %.6lf] _Ang"%( 0.0, sum( self.arcl ), self.delz ) )
+
+
+    def get_func( self, molec ):
+        pass
+
+
+    def get_grad( self, molec ):
+        pass

@@ -180,7 +180,7 @@ def string_integrate( ncrd, nwin, i_from = 0, i_to = -1, interpolant = qm3.maths
 
 class string( object ):
 
-    def __init__( self, node, conf, molec, tstp = 1.e-5 ):
+    def __init__( self, node, conf, tstp = 1.e-5 ):
         """
 String config:
 --------------------------------------------------------------------------
@@ -231,12 +231,12 @@ kumb ~ 5000
         self.rcrd = tmp[self.node*self.ncrd:(self.node+1)*self.ncrd]
         if( self.node == 0 ):
             self.icrd = tmp[:]
-        # -- skip masses from metric tensor --
-        self.mass = []
-        for i in range( len( self.jidx ) ):
-            for j in [0, 1, 2]:
+# -- not using mass-weigthed cartesians: skip masses from metric tensor
+#        self.mass = []
+#        for i in range( len( self.jidx ) ):
+#            for j in [0, 1, 2]:
 #                self.mass.append( 1.0 / molec.mass[self.idxj[i]] )
-                self.mass.append( 1.0 )
+# ----------------------------------------------------------------------
         self.jcol = 3 * len( self.jidx )
         self.jaco = []
         self.ccrd = []
@@ -283,7 +283,10 @@ kumb ~ 5000
         self.cmet = [ 0.0 for i in range( self.ncrd * self.ncrd ) ]
         for i in range( self.ncrd ):
             for j in range( i, self.ncrd ):
-                self.cmet[i*self.ncrd+j] = sum( [ jaco[i*self.jcol+k] * self.mass[k] * jaco[j*self.jcol+k] for k in range( self.jcol ) ] )
+# -- not using mass-weigthed cartesians: skip masses from metric tensor
+#                self.cmet[i*self.ncrd+j] = sum( [ jaco[i*self.jcol+k] * self.mass[k] * jaco[j*self.jcol+k] for k in range( self.jcol ) ] )
+# ----------------------------------------------------------------------
+                self.cmet[i*self.ncrd+j] = sum( [ jaco[i*self.jcol+k] * jaco[j*self.jcol+k] for k in range( self.jcol ) ] )
                 self.cmet[j*self.ncrd+i] = self.cmet[i*self.ncrd+j]
         # flush current metric
         self.fmet.write( "".join( [ "%20.10lf"%( i ) for i in self.cmet ] ) + "\n" )

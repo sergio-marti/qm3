@@ -51,7 +51,7 @@ class my_problem( qm3.problem.template ):
 
         self.eqm = qm3.engines.xtb.dl_xtb( self.mol, 0, 0, sqm, smm )
 
-        self.cvs = qm3.actions.string.string( node, "../04.string.def", self.mol, 0.0 )
+        self.cvs = qm3.actions.string.string( node, "../04.string.def", 0.0 )
 
         self.size = len( self.sele ) * 3
         self.coor = []

@@ -58,7 +58,7 @@ class my_problem( qm3.problem.template ):
         kb = 2000
         rx = node * 0.110703125  # s: 7.602 / 0-63 windows
         self.umb = qm3.engines.colvar_s.colvar_s( kb, rx,
-                "../05.pmf_s.cnf", "../05.pmf_s.str", "../05.pmf_s.met", self.mol )
+                "../05.pmf_s.cnf", "../05.pmf_s.str", "../05.pmf_s.met" )
 
         self.fdat = open( "../05.dat_s.%02d"%( node ), "wt" )
         self.fdat.write( "%20.10lf%20.10lf\n"%( kb, rx ) )
