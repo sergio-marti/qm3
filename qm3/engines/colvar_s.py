@@ -154,8 +154,16 @@ kumb units: kJ / ( mol Angs^2 )
 
 
 class colvar_gs( object ):
-
-    def __init__( self, kumb, xref, conf, strn ):
+    def __init__( self, kumb, xref, conf, str_crd ):
+        """
+------------------------------------------------------------------------
+ncrd      nwin
+atom_i    atom_j
+...
+atom_i    atom_j
+------------------------------------------------------------------------
+kumb units: kJ / ( mol Angs^2 )
+"""
         self.xref = xref
         self.kumb = kumb
         self.atom = []
@@ -165,23 +173,87 @@ class colvar_gs( object ):
         self.nwin = int( t[1] )
         for i in range( self.ncrd ):
             t = [ int( i ) for i in f.readline().split() ]
-            self.atom.append( ( t[0], t[1] ) )
+            self.atom.append( [ t[0] * 3, t[1] * 3 ] )
         qm3.fio.close( f, conf )
-        f = qm3.fio.open_r( strn )
+        self.indx = list( set( sum( self.atom, [] ) ) )
+        f = qm3.fio.open_r( str_crd )
         self.rcrd = [ float( i ) for i in f.read().split() ]
-        qm3.fio.close( f, strn )
+        qm3.fio.close( f, str_crd )
         # get the arc length of the current string...
         self.arcl = []
+        self.dcrd = []
+        self.mcrd = []
         for i in range( 1, self.nwin ):
             tmp = [ self.rcrd[i*self.ncrd+j] - self.rcrd[(i-1)*self.ncrd+j] for j in range( self.ncrd ) ]
             self.arcl.append( math.sqrt( sum( [ tmp[j] * tmp[j] for j in range( self.ncrd ) ] ) ) )
-        self.delz = sum( self.arcl ) / float( self.nwin - 1.0 )
-        print( "Colective variable gs range: [%.3lf - %.3lf: %.6lf] _Ang"%( 0.0, sum( self.arcl ), self.delz ) )
+            self.dcrd += tmp[:]
+            self.mcrd.append( sum( [ j * j for j in tmp ] ) )
+        print( "Colective variable gs arc length: %.3lf _Ang"%( sum( self.arcl ) ) )
+
+
+    def __get_ccrd( self, molec ):
+        ccrd = []
+        for i,j in self.atom:
+            dr = []
+            for k in [0, 1, 2]:
+                dr.append( molec.coor[j+k] - molec.coor[i+k] )
+            ccrd.append( math.sqrt( dr[0] * dr[0] + dr[1] * dr[1] + dr[2] * dr[2] ) )
+        return( ccrd )
+
+    def __get_sele( self, ccrd ):
+        tmp = []
+        for i in range( self.nwin - 1 ):
+            ix  = i * self.ncrd
+            dst = 0.0
+            for j in range( self.ncrd ):
+                dst += ( ccrd[j] - self.rcrd[ix+j] ) * ( ccrd[j] - self.rcrd[ix+j] )
+            tmp.append( ( dst, i ) )
+        tmp.sort()
+        return( tmp[0][1] )
+
+
+    def __get_colv( self, sele, ccrd, sign = None ):
+        vcur = []
+        vprv = []
+        vmix = 0.0
+        icur = sele * self.ncrd
+        iprv = ( sele - 1 ) * self.ncrd
+        for j in range( self.ncrd ):
+            vcur.append( self.rcrd[icur+j] - ccrd[j] )
+            vprv.append( ccrd[j] - self.rcrd[iprv+j] )
+            vmix += vcur[-1] * self.dcrd[icur+j]
+        mcur = sum( [ i * i for i in vcur ] )
+        mprv = sum( [ i * i for i in vprv ] )
+        fact = ( math.sqrt( vmix * vmix - self.mcrd[sele] * ( mcur - mprv ) ) - vmix ) / self.mcrd[sele]
+        if( sign == None ):
+            sign = 0.5
+            if( vmix >= 0 ):
+                sign = -0.5
+        return( ( sele + sign * ( fact - 1.0 ) ) / ( self.nwin - 1 ), sign )
 
 
     def get_func( self, molec ):
-        pass
+        ccrd = self.__get_ccrd( molec )
+        sele = self.__get_sele( ccrd )
+        cval = self.__get_colv( sele, ccrd )[0]
+        molec.func += 0.5 * self.kumb * math.pow( cval - self.xref, 2.0 )
+        return( cval )
 
 
-    def get_grad( self, molec ):
-        pass
+    def get_grad( self, molec, rdsp = 1.e-4 ):
+        ccrd = self.__get_ccrd( molec )
+        sele = self.__get_sele( ccrd )
+        cval, sign = self.__get_colv( sele, ccrd )
+        diff = self.kumb * ( cval - self.xref )
+        molec.func += 0.5 * diff * ( cval - self.xref )
+        # -- numerical derivative -- (sorry)
+        for w in self.indx:
+            for a in [0, 1, 2]:
+                back = molec.coor[w+a]
+                molec.coor[w+a] = back + rdsp
+                cvsf = self.__get_colv( sele, self.__get_ccrd( molec ), sign )[0]
+                molec.coor[w+a] = back - rdsp
+                cvsb = self.__get_colv( sele, self.__get_ccrd( molec ), sign )[0]
+                molec.grad[w+a] += diff * ( cvsf - cvsb ) / ( 2.0 * rdsp )
+                molec.coor[w+a] = back
+        return( cval )
