@@ -11,7 +11,7 @@ export QM3_LIBDFTD3=$cwd/EXTERNAL/dftd3/dftd3.so
 export QM3_LIBDFTD4=$cwd/EXTERNAL/dftd4/dftd4.so
 export QM3_LIBDFTB=$cwd/EXTERNAL/dftb/dftb.so
 export QM3_LIBXTB=$cwd/EXTERNAL/xtb/xtb.so
-export QM3_LIBMOPAC=$cwd/EXTERNAL/mopac.so
+export QM3_LIBMOPAC=$cwd/EXTERNAL/mopac/mopac.so
 
 export QM3_MPLOT3D=/usr/lib/python3/dist-packages/mpl_toolkits
 export QM3_MPLOT3D=/Users/smarti/Library/Python/3.9/lib/python/site-packages/mpl_toolkits

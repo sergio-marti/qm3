@@ -152,7 +152,9 @@ kumb units: kJ / ( mol Angs^2 )
 # Phys. Rev. Lett. v109, p20601 (2012) [10.1103/PhysRevLett.109.020601]
 #
 
-
+# ------------------------------------------------------------------------
+# not widely tested with umbrella sampling... metadynamics seems better
+#
 class colvar_gs( object ):
     def __init__( self, kumb, xref, conf, str_crd ):
         """
