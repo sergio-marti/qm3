@@ -186,3 +186,5 @@ crd = qm3.actions.neb.distribute( 24, crd )
 obj = qm3.actions.neb.parall_neb( core_problem(), sel, 200., node, ncpu, crd )
 qm3.actions.minimize.fire( obj, step_number = 1000, print_frequency = 1, step_size = 0.1,
         gradient_tolerance = 0.1, log_function = gen_log, fire2 = True, exit_uphill = True )
+
+qm3.utils._mpi.barrier()
