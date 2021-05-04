@@ -25,7 +25,10 @@ def sdf_read( fname = None ):
     mol.natm = int( l.strip().split()[0] )
     for i in range( mol.natm ):
         t = f.readline().split()
-        mol.labl.append( t[3] )
+        if( type( t[3] ) == bytes ):
+            mol.labl.append( t[3].decode( "ascii" ) )
+        else:
+            mol.labl.append( t[3] )
         mol.resi.append( 1 )
         mol.resn.append( "XXX" )
         mol.segn.append( "X" )

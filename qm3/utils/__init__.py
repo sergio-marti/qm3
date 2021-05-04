@@ -508,7 +508,7 @@ def gibbs_rrho( mass, coor, freq, temp = 298.15, press = 1.0, symm = 1.0, fcut =
         zz += mass[i] * ( coor[i3+2] - mc[2] ) * ( coor[i3+2] - mc[2] )
     val, vec = qm3.maths.matrix.diag( qm3.maths.matrix.from_upper_diagonal_rows( [ yy + zz, -xy, -xz, xx + zz, -yz, xx + yy ], 3 ), 3 )
     t = ( 8.0 * math.pi * math.pi * qm3.constants.KB * temp ) / ( qm3.constants.H * qm3.constants.H * qm3.constants.NA ) * 1.0e-23
-    if( math.fabs( val[0] ) < 1.e-20 ):
+    if( math.fabs( val[0] ) < 1.e-10 ):
         qr = t * 0.5 * ( val[1] + val[2] ) / symm
     else:
         qr = math.sqrt( math.pi * t * t * t * val[0] * val[1] * val[2] ) / symm
