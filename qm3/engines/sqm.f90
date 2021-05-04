@@ -111,11 +111,6 @@ subroutine qm3_sqm_calc( siz, dat )
       i3 = i3 + 3
    end do
    if(qmmm_struct%qm_mm_first_call) call qm2_load_params_and_allocate(.false.)
-!----------------------------------------------------------------
-!-- qm3_sqm_0scf( siz, dat )
-!--     read density from sqm_dens
-!--     perform no-scf, but calcualte things... (see qm2_scf.F90)
-!----------------------------------------------------------------
    call qm2_calc_rij_and_eqns(qmmm_struct%qm_coords, qmmm_struct%nquant_nlink, &
           qmmm_struct%qm_xcrd, natom, qmmm_struct%qm_mm_pairs)
    call qm2_energy(escf, qm2_struct%scf_mchg, natom, born_radii, one_born_radii)
