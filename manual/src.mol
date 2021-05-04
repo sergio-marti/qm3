@@ -14,7 +14,7 @@ several methods for performing IO or actions with the molecule:
 \item[\func{chrg}] list of atomic partial charges ([0,...,natm-1], a.u.)
 \item[\func{mass}] list of atomic masses ([0,...,natm-1], g/mol)
 \item[\func{indx}] list of atomic numbers for all the atoms ([0,...,(natm-1)])
-\item[\func{epsi}] list of the epsilon values (Lennard-Jones\footnote{https://en.wikipedia.org/wiki/Lennard-Jones\_potential}, kJ/mol)
+\item[\func{epsi}] list of the $\sqrt{\epsilon}$ values (Lennard-Jones\footnote{https://en.wikipedia.org/wiki/Lennard-Jones\_potential}, $\sqrt{kJ/mol}$)
 \item[\func{rmin}] list of $R_{min}/2$ values (Lennard-Jones, Å, $R_{min} = \sigma \cdot 2^{\frac{1}{6}}$)
 \item[\func{type}] list of atomic types ([0,...,natm-1])
 
