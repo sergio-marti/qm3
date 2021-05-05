@@ -27,7 +27,7 @@ program de_mierda
     open( unit = 999, file = "data", action = "write", form = "unformatted" )
     write( 999 ) atmchg
     ! - ATMEPS(I)   = 2.0_DP * SQRT ( TYPES(MM)%EPSILON )
-    write( 999 ) ( atmeps * 0.5d0 ) ** 2
+    write( 999 ) atmeps * 0.5d0
 ! - HACK_AMBER -----------------------------------------------
 !    ! - ATMSIG(I)   = 0.5_DP * TYPES(MM)%SIGMA
 !    write( 999 ) ( atmsig * 2.0d0 ) * 0.5612310241546865d0
