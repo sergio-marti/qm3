@@ -1,0 +1,4464 @@
+!===============================================================================
+!             AMBER MM Definition File for Proteins and Nucleic Acid
+!===============================================================================
+!Source of datas - parm99.dat - Amber-v.9 /atom types and parameters/
+!                - all_amino02.in - charges and definition of atom types for AA, 
+!                  neutral form of aminoacids, impropers
+!                - all_nuc02.in - charges and definition of atom types for RNA 
+!                - topology_amber99.rtp (Gromacs) - definition of bonds      
+!
+! Note : charges cc-pvtz esp iterated, dft/cc-pvtz, polarization corrected
+!===============================================================================
+! Version 1.1 made by K.Swiderek 09/01/2012
+!===============================================================================
+MM_Definitions OPLS_AA 1.0                                        
+
+! . Atom Type Definitions.
+Types
+! Atom Name     Atomic Number       Sigma       Epsilon                                   
+C  		        6    	3.399670       0.0860   ! sp2 C carbonyl group                       
+CA 		        6    	3.399670       0.0860   ! sp2 C pure aromatic (benzene)                        
+CB 		        6    	3.399670       0.0860   ! sp2 aromatic C, 5&6 membered ring junction 
+CC 		        6    	3.399670       0.0860   ! sp2 aromatic C, 5 memb. ring HIS           
+CD 		        6    	3.399670       0.0860   ! sp2 C atom in the middle of: C=CD-CD=C     
+CK 		        6    	3.399670       0.0860   ! sp2 C 5 memb.ring in purines               
+CM 		        6    	3.399670       0.0860   ! sp2 C  pyrimidines in pos. 5 & 6           
+CN 		        6    	3.399670       0.0860   ! sp2 C aromatic 5&6 memb.ring junct.(TRP)   
+CQ 		        6    	3.399670       0.0860   ! sp2 C in 5 mem.ring of purines between 2 N 
+CR 		        6    	3.399670       0.0860   ! sp2 arom as CQ but in HIS                  
+CT 		        6    	3.399670       0.1094   ! sp3 aliphatic C                            
+CV 		        6    	3.399670       0.0860   ! sp2 arom. 5 memb.ring w/1 N and 1 H (HIS)  
+CW 		        6    	3.399670       0.0860   ! sp2 arom. 5 memb.ring w/1 N-H and 1 H (HIS)
+C* 		        6    	3.399670       0.0860   ! sp2 arom. 5 memb.ring w/1 subst. (TRP)     
+CY 		        6    	3.399670       0.0860   ! nitrile C (Howard et al.JCC,16,243,1995)   
+CZ 		        6    	3.399670       0.0860   ! sp C (Howard et al.JCC,16,243,1995)        
+C0 		       20       3.052397       0.459789  ! Ca2+ Aqvist JPC 1990,94,8021.(adapted)                                                                  
+H  		        1    	1.069078       0.0157   ! H bonded to nitrogen atoms                 
+HC 		        1    	2.649533       0.0157   ! H aliph. bond. to C without electrwd.group 
+H1 		        1    	2.471353       0.0157   ! H aliph. bond. to C with 1 electrwd. group (Veenstra et al JCC,8,(1992),963)
+H2 		        1    	2.293173       0.0157   ! H aliph. bond. to C with 2 electrwd.groups (Veenstra et al JCC,8,(1992),963)
+H3 		        1    	2.114994       0.0157   ! H aliph. bond. to C with 3 eletrwd.groups  (Veenstra et al JCC,8,(1992),963) 
+HA 		        1    	2.599642       0.0150   ! H arom. bond. to C without elctrwd. groups (Spellmeyer)
+H4 		        1    	2.510553       0.0150   ! H arom. bond. to C with 1 electrwd. group  (Spellmeyer, one electrowithdr. neighbor)
+H5 		        1    	2.421463       0.0150   ! H arom.at C with 2 elctrwd. gr,+HCOO group (Spellmeyer, two electrowithdr. neighbor)
+HO 		        1    	0.000000       0.0000   ! hydroxyl group  (OPLS Jorgensen, JACS,110,(1988),1657)                           
+HS 		        1    	1.069078       0.0157   ! hydrogen bonded to sulphur (pol?) (W. Cornell CH3SH --> CH3OH FEP)         
+HW 		        1    	0.000000       0.0000   ! H in TIP3P water                         
+HP 		        1    	1.959977       0.0157   ! H bonded to C next to positively charged gr (Veenstra et al JCC,8,(1992),963)
+HZ 		        1    	2.599642       0.0150   ! H bond sp C (Howard et al.JCC,16,243,1995)                             
+F  		        9    	3.118146       0.061    ! fluorine ( Gough et al. JCC 13,(1992),963.)                                  
+Cl 		       17    	3.470941       0.265    ! chlorine (Applequist)(Fox, JPCB,102,8070,(98),flex.mdl CHCl3)                     
+Br 		       35    	3.955590       0.320    ! bromine  (Applequist)(Junmei(?))                       
+I  		       53    	4.187224       0.40     ! iodine   (Applequist) (JCC,7,(1986),230;)                     
+IM 	           17    	4.401040       0.1      ! assumed to be Cl- (ion minus) (Cl- Smith & Dang, JCP 1994,100:5,3757)             
+IB 		      131    	8.908987       0.1      ! 'big ion w/ waters' for vacuum (Na+, 6H2O) 
+MG 		       12    	1.412253       0.8947   ! magnesium  (Mg2+ Aqvist JPC 1990,94,8021.(adapted))                                
+N  		        7    	3.249999       0.1700   ! sp2 nitrogen in amide groups               
+NA 		        7    	3.249999       0.1700   ! sp2 N in 5 memb.ring w/H atom (HIS)        
+NB 		        7    	3.249999       0.1700   ! sp2 N in 5 memb.ring w/LP (HIS,ADE,GUA)    
+NC 		        7    	3.249999       0.1700   ! sp2 N in 6 memb.ring w/LP (ADE,GUA)        
+N2 		        7    	3.249999       0.1700   ! sp2 N in amino groups                      
+N3 		        7    	3.249999       0.1700   ! sp3 N for charged amino groups (Lys, etc)  
+NT 		        7    	3.249999       0.1700   ! sp3 N for amino groups amino groups        
+N* 		        7    	3.249999       0.1700   ! sp2 N                                      
+NY 		        7    	3.249999       0.1700   ! nitrile N (Howard et al.JCC,16,243,1995)   
+O  		        8    	2.959922       0.2100   ! carbonyl group oxygen
+OHC                     8       3.00000        0.17000  ! OH in COOH from OPLS                    
+O2 		        8       2.959922       0.2100   ! carboxyl and phosphate group oxygen    
+O3                      8       2.959922       0.2100   
+OW 		        8       3.150752       0.1520   ! oxygen in TIP3P water                      
+OH 		        8       3.066473       0.2104   ! oxygen in hydroxyl group                   
+OS 		        8       3.000012       0.1700   ! ether and ester oxygen (OPLS)                    
+P  		       15    	3.741775       0.2000   ! phosphate,pol:JACS,112,8543,90,K.J.Miller (JCC,7,(1986),230;) 
+S  		       16    	3.563595       0.2500   ! S in disulfide linkage,pol:JPC,102,2399,98 (W. Cornell CH3SH and CH3SCH3 FEP's)
+SH 		       16    	3.563595       0.2500   ! S in cystine ( W. Cornell CH3SH and CH3SCH3 FEP's)                              
+CU 		       29                                         ! copper                                     
+FE 	               26                                 ! iron                                       
+Li 		        3    	2.025904       0.0183    ! Li+ Aqvist JPC 1990,94,8021. (adapted))   
+IP 		       11    	3.328398       0.00277   ! Na+, Aqvist JPC 1990,94,8021.(adapted)               
+SOD 		       11    	3.328398       0.00277   ! Na(old symbol) Na+, Aqvist JPC 1990,94,8021.(adapted)      
+K  		       19    	4.736018       0.000328  ! K+  Aqvist JPC 1990,94,8021. (adapted)                                
+Rb 		       37    	5.266993       0.00017   ! Rb+ Aqvist JPC 1990,94,8021. (adapted)                                  
+Cs 	               55    	6.049202       0.0000806 ! Cs+ Aqvist JPC 1990,94,8021. (adapted)                                     
+Zn 		       30    	1.959977       0.0125    ! Zn2+, Merz,PAK, JACS,113,8262,(1991)                                       
+LP 		        3    	0.000000       0.0000    ! lone pair   
+                                                                              
+End
+
+! . Electrostatics and Lennard-Jones Options.
+Electrostatics Scale 0.8333
+Lennard_Jones  Scale 0.5000
+
+
+! . Units specification.
+Units kcal/mole
+
+
+!===============================================================================
+! . Residue Definitions.
+!===============================================================================
+Residues
+
+!-------------------------------------------------------------------------------
+Residue ATP  ! (http://sites.pharmacy.manchester.ac.uk/bryce/amber#cof)
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.
+ 43  45  5
+  O1G   O3   -0.9526
+  PG    P     1.2650
+  O2G   O3   -0.9526
+  O3G   O3   -0.9526
+  O3B   OS   -0.5322
+  PB    P     1.3852
+  O1B   O2   -0.8894
+  O2B   O2   -0.8894
+  O3A   OS   -0.5689
+  PA    P     1.2532
+  O1A   O2   -0.8799
+  O2A   O2   -0.8799
+  O5'   OS   -0.5987
+  C5'   CT    0.0558
+  H50   H1    0.0679
+  H51   H1    0.0679
+  C4'   CT    0.1065
+  H40   H1    0.1174
+  O4'   OS   -0.3548
+  C1'   CT    0.0394
+  H10   H2    0.2007
+  N9    N*   -0.0251
+  C8    CK    0.2006
+  H80   H5    0.1553
+  N7    NB   -0.6073
+  C5    CB    0.0515
+  C6    CA    0.7009
+  N6    N2   -0.9019
+  H60   H     0.4115
+  H61   H     0.4115
+  N1    NC   -0.7615
+  C2    CQ    0.5875
+  H2    H5    0.0473
+  N3    NC   -0.6997
+  C4    CB    0.3053
+  C3'   CT    0.2022
+  H30   H1    0.0615
+  O3'   OH   -0.6541
+  H3'   HO    0.4376
+  C2'   CT    0.0670
+  H20   H1    0.0972
+  O2'   OH   -0.6139
+  H2'   HO    0.4186
+  
+  PG  O1G ; PG  O2G ; PG  O3G ; PG  O3B ; O3B  PB ; PB  O2B ; PB  O1B ; PB  O3A ; O3A  PA ; PA O1A ;
+  PA  O5' ; O5' C5' ; C5' H50 ; C5' H51 ; C5'  C4'; C4' H40 ; C4' O4' ; O4' C1' ; C1' H10 ; C1' N9 ;
+  N9  C8  ; C8  H80 ; C8   N7 ; N7   C5 ; C5   C6 ; C6  N6  ; N6  H60 ; N6  H61 ; C6  N1  ; N1  C2 ;
+  C2  H2  ; C2  N3  ; N3   C4 ; C4'  C3'; C3'  H30; C3' O3' ; O3' H3' ; C3' C2' ; C2' H20 ; C2' O2';
+  O2' H2' ; C5  C4  ; C4   N9 ; PA  O2A ; C1'  C2'; 
+  
+ C8   C4   N9   C1'  ; C6   H60  N6   H61  ; N7   N9   C8   H80 ;
+ N1   N3   C2   H2   ; C5   N1   C6   N6  ;
+  
+! Citation: Meagher KL, Redman LT, Carlson HA
+! Journal of Computational Chemistry 2003,24,1016
+! Development of polyphosphate parameters for use with the AMBER force field 
+
+!-------------------------------------------------------------------------------
+Residue KAN ! (generated by antechamber with AMBER11)         
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 69  71  0   
+ C1   CT      0.113 
+ C2   CT     -0.021 
+ C3   CT     -0.029 
+ C4   CT      0.012 
+ C5   CT     -0.051 
+ C6   CT     -0.067 
+ C7   CT     -0.043 
+ C8   CT      0.012 
+ C9   CT     -0.004 
+ C10  CT      0.006 
+ C11  CT     -0.056 
+ C12  CT     -0.196 
+ C13  CT      0.119 
+ C14  CT     -0.018 
+ C15  CT     -0.094 
+ C16  CT      0.006 
+ C17  CT     -0.040 
+ C18  CT     -0.014 
+ N1   N2     -0.335 
+ N2   N2     -0.330 
+ N3   N2     -0.339 
+ N4   N2     -0.328 
+ O5   OS     -0.282 
+ O6   OH     -0.321 
+ O7   OH     -0.310 
+ O8   OH     -0.311 
+ O9   OS     -0.307
+ O10  OH     -0.332 
+ O11  OS     -0.308 
+ O12  OS     -0.291 
+ O13  OH     -0.320 
+ O14  OH     -0.320 
+ O15  OH     -0.322 
+ H1   H2      0.133 
+ H2   H1      0.147 
+ H3   H1      0.087 
+ H4   H1      0.139 
+ H5   H1      0.115 
+ H6   H1      0.103 
+ H7   H1      0.092 
+ H8   H1      0.118 
+ H9   H1      0.102 
+ H10  H1      0.115 
+ H11  H1      0.127 
+ H12  H1      0.108 
+ H13  HC      0.084 
+ H14  HC      0.108 
+ H15  H2      0.132 
+ H16  H1      0.127 
+ H17  H1      0.115 
+ H18  H1      0.135 
+ H19  H1      0.092 
+ H20  H1      0.119 
+ H21  H1      0.088 
+ H22  H       0.165 
+ H23  H       0.140 
+ H24  H       0.144 
+ H25  H       0.159 
+ H26  H       0.144 
+ H27  H       0.156 
+ H28  H       0.149 
+ H29  H       0.163 
+ H30  HO      0.213 
+ H31  HO      0.214 
+ H32  HO      0.204 
+ H33  HO      0.223 
+ H34  HO      0.232 
+ H35  HO      0.217 
+ H36  HO      0.217 
+ 
+ C1   C2 ; C1   O5 ; C1   O9 ; C1   H1 ; C2   C3 ; C2   O6 ; C2   H2 ; C3   C4 ; C3   O7 ; C3   H3 ;
+ C4   C5 ; C4   O8 ; C4   H4 ; C5   C6 ; C5   O5 ; C5   H5 ; C6   N1 ; C6   H6 ; C6   H7 ; C7   C8 ;
+ C7  C12 ; C7   N3 ; C7   H8 ; C8   C9 ; C8  O11 ; C8   H9 ; C9  C10 ; C9  O10 ; C9  H10 ; C10  C11;
+ C10   O9; C10  H11; C11  C12; C11   N2; C11  H12; C12  H13; C12  H14; C13  C14; C13  O11; C13  O12;
+ C13  H15; C14  C15; C14  O13; C14  H16; C15  C16; C15   N4; C15  H17; C16  C17; C16  O14; C16  H18;
+ C17  C18; C17  O12; C17  H19; C18  O15; C18  H20; C18  H21; N1  H22 ; N1  H23 ; N2  H24 ; N2  H25 ;
+ N3  H26 ; N3  H27 ; N4  H28 ; N4  H29 ; O6  H30 ; O7  H31 ; O8  H32 ; O10  H33; O13  H34 ; O14  H35;
+ O15  H36;
+ 
+!------------------------------------------------------------------------------- 
+Residue MG 
+!-------------------------------------------------------------------------------
+! # Atoms, Bonds and Impropers.
+  1  0  0
+MG    MG    2.0
+
+!-------------------------------------------------------------------------------
+Residue SOD 
+!-------------------------------------------------------------------------------
+! # Atoms, Bonds and Impropers.
+  1  0  0
+SOD    SOD    1.0
+
+
+!-------------------------------------------------------------------------------
+Residue CL 
+!-------------------------------------------------------------------------------
+! # Atoms, Bonds and Impropers.
+  1  0  0
+CL    Cl    -1.0
+
+
+!-------------------------------------------------------------------------------
+Residue WAT
+!-------------------------------------------------------------------------------
+! # Atoms, Bonds and Impropers.
+  3  3  0
+O        OW      -0.834
+H1       HW       0.417
+H2       HW       0.417
+
+O  H1 ; O H2 ; H1 H2
+
+
+!-------------------------------------------------------------------------------
+Residue T3P
+!-------------------------------------------------------------------------------
+! # Atoms, Bonds and Impropers.
+  3  3  0
+O        OW      -0.834
+H1       HW       0.417
+H2       HW       0.417
+
+O  H1 ; O H2 ; H1 H2
+
+!-------------------------------------------------------------------------------
+Residue HOH
+!-------------------------------------------------------------------------------
+! # Atoms, Bonds and Impropers.
+  3  3  0
+O        OW      -0.834
+H1       HW       0.417
+H2       HW       0.417
+
+O  H1 ; O H2 ; H1 H2
+
+
+!-------------------------------------------------------------------------------   
+Residue PHA                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 11  0  0
+N    N  
+H1   H  
+H2   H 
+CA   CT 
+HA   H1 
+CB   CT 
+HB1  HC 
+HB2  HC 
+HB3  HC 
+C    C  
+O    O 
+
+!-------------------------------------------------------------------------------   
+Residue PHA-old                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 21 22  7                                                                       
+ N    N3   0.173700
+ H1   H    0.28815
+ H2   H    0.28815
+ CA   CT   0.073300
+ HA   HP   0.104100
+ CB   CT   0.033000
+ HB1  HC   0.010400
+ HB2  HC   0.010400
+ CG   CA   0.003100
+ CD1  CA  -0.139200
+ HD1  HA   0.137400
+ CE1  CA  -0.160200
+ HE1  HA   0.143300
+ CZ   CA  -0.120800
+ HZ   HA   0.132900
+ CE2  CA  -0.160300
+ HE2  HA   0.143300
+ CD2  CA  -0.139100
+ HD2  HA   0.137400
+ C    C    0.612300
+ O    O   -0.571300
+
+N   H1; N  H2  ; N    CA ; CA   HA  ; CA   CB  ; CA   C                    
+CB   HB1 ; CB   HB2 ; CB   CG ; CG   CD1 ; CD1  HD1 ; CD1  CE1                  
+CE1  HE1 ; CE1  CZ  ; CZ   HZ ; CZ   CE2 ; CE2  HE2 ; CE2  CD2                  
+CD2  HD2 ; CD2  CG  ; C    O  ; C    -R                                         
+                                                                                
+ CA   -R   C    O   ; CG   CE2  CD2  HD2 ; CD2  CZ   CE2  HE2
+CE1  CE2  CZ   HZ ; CD1  CZ   CE1  HE1 ; CG   CE1  CD1  HD1 ; CD1  CD2  CG   CB
+
+
+!-------------------------------------------------------------------------------
+!Residue PHA
+!-------------------------------------------------------------------------------
+! # Atoms, Bonds and Impropers.
+!  11  0  0
+!  N     N    0.000    
+!  H1    H    0.000
+!  H2    H    0.000
+!  CA    C    0.000
+!  HA    H    0.000
+!  CB    C    0.000
+!  HB1   H    0.000
+!  HB2   H    0.000
+!  C     C    0.000
+!  O     O    0.000
+!  HB3   H    0.000
+
+!------------------------------------------------------------------------------
+Residue ACE
+!------------------------------------------------------------------------------
+ 6 6 1 
+C      C      0.597200              
+O      O     -0.567900                   
+CH3    CT    -0.366200                         
+HH31   HC     0.112300                           
+HH32   HC     0.112300                           
+HH33   HC     0.112300                    
+                                       
+CH3   C ; CH3   HH31 ; CH3   HH32 ; CH3   HH33 ; C    O 
+C    +R
+
+CH3   +R   C    O
+
+!-------------------------------------------------------------------------------
+Residue NME
+!-------------------------------------------------------------------------------
+ 6 6 0 
+N      N      -0.415700
+H      H       0.271900
+CH3    CT     -0.149000
+HH31   H1      0.097600
+HH32   H1      0.097600
+HH33   H1      0.097600
+
+-R   N ; N     H ; N     CH3 ; CH3   HH31 ; CH3   HH32 
+ CH3   HH33 ;
+
+!-------------------------------------------------------------------------------
+Residue ALA                                                                    
+!-------------------------------------------------------------------------------
+ 10 11 2
+N      N      -0.4157         
+H      H       0.2719         
+CA     CT      0.0337         
+HA     H1      0.0823         
+CB     CT     -0.1825         
+HB1    HC      0.0603         
+HB2    HC      0.0603         
+HB3    HC      0.0603         
+C      C       0.5973         
+O      O      -0.5679         
+
+-R   N   ; N    H   ; N    CA  ; CA   HA ; CA   CB ; CA   C
+CB   HB1 ; CB   HB2 ; CB   HB3 ; C    O  ; C    +R
+
+-R   CA   N    H ; CA   +R   C    O  
+
+!-------------------------------------------------------------------------------
+Residue CALA                                                                    
+!-------------------------------------------------------------------------------
+ 11 11 2
+N    N    -0.382100
+H    H     0.268100
+CA   CT   -0.174700
+HA   H1    0.106700
+CB   CT   -0.209300
+HB1  HC    0.076400
+HB2  HC    0.076400
+HB3  HC    0.076400
+C    C     0.773100
+O    O2   -0.805500
+OXT  O2   -0.805500
+
+-R   N   ; N    H   ; N    CA  ; CA   HA ; CA   CB ; CA   C
+CB   HB1 ; CB   HB2 ; CB   HB3 ; C    O  ; C   OXT
+
+-R   CA   N    H ; CA  OXT  C  O 
+
+!-------------------------------------------------------------------------------
+Residue NALA                                                                    
+!-------------------------------------------------------------------------------
+12 12 1
+N    N3  0.141400
+H1   H   0.199700
+H2   H   0.199700
+H3   H   0.199700
+CA   CT  0.096200
+HA   HP  0.088900
+CB   CT -0.059700
+HB1  HC  0.030000
+HB2  HC  0.030000
+HB3  HC  0.030000
+C    C   0.616300
+O    O  -0.572200
+
+H1   N   ; N    H2 ; N    H3  ; N    CA  ; CA   HA ; CA   CB ; CA   C
+CB   HB1 ; CB   HB2 ; CB   HB3 ; C    O  ; C    +R
+
+CA   +R   C    O
+
+!-------------------------------------------------------------------------------
+Residue ARG
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.
+ 24 25 6
+ N       N	    -0.347900           
+ H       H	     0.274700           
+ CA      CT    -0.263700            
+ HA      H1     0.156000             
+ CB      CT    -0.000700            
+ HB3     HC     0.032700            
+ HB2     HC     0.032700             
+ CG      CT     0.039000             
+ HG3     HC     0.028500             
+ HG2     HC     0.028500             
+ CD      CT     0.048600             
+ HD3     H1     0.068700             
+ HD2     H1     0.068700            
+ NE      N2    -0.529500            
+ HE      H	     0.345600             
+ CZ      CA     0.807600             
+ NH1     N2    -0.862700            
+ HH11    H	     0.447800             
+ HH12    H	     0.447800             
+ NH2     N2    -0.862700            
+ HH21    H	     0.447800             
+ HH22    H	     0.447800             
+ C       C	     0.734100            
+ O       O	    -0.589400            
+ 
+ -R   N   ; N    H    ; N    CA   ; CA   HA   ; CA   CB   ; CA   C       
+ CB   HB3 ; CB   HB2  ; CB   CG   ; CG   HG3  ; CG   HG2  ; CG   CD          
+ CD   HD3 ; CD   HD2  ; CD   NE   ; NE   HE   ; NE   CZ   ; CZ   NH1     
+ CZ   NH2 ; NH1  HH11 ; NH1  HH12 ; NH2  HH21 ; NH2  HH22 ; C    O       
+ C    +R                                                                 
+                                                                         
+ -R   CA   N    H    ; CA   +R   C    O                                  
+ NE   NH1  CZ   NH2  ; CZ   CD   NE   HE                                 
+ CZ   HH11 NH1  HH12 ; CZ   HH21 NH2  HH22                     
+
+!-------------------------------------------------------------------------------
+Residue NARG
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.
+ 26 26 5
+ N     N3     0.130500 
+ H1    H      0.208300 
+ H2    H      0.208300 
+ H3    H      0.208300 
+ CA    CT    -0.022300
+ HA    HP     0.124200 
+ CB    CT     0.011800 
+ HB3   HC     0.022600 
+ HB2   HC     0.022600 
+ CG    CT     0.023600 
+ HG3   HC     0.030900 
+ HG2   HC     0.030900 
+ CD    CT     0.093500 
+ HD3   H1     0.052700 
+ HD2   H1     0.052700 
+ NE    N2    -0.565000
+ HE    H      0.359200 
+ CZ    CA     0.828100 
+ NH1   N2    -0.869300
+ HH11   H     0.449400 
+ HH12   H     0.449400 
+ NH2   N2    -0.869300
+ HH21   H     0.449400 
+ HH22   H     0.449400 
+ C     C      0.721400 
+ O     O     -0.601300
+
+ N    H1  ; N    H2   ; N    H3   ; N    CA   ; CA   HA   ; CA   CB   ; CA   C       
+ CB   HB3 ; CB   HB2  ; CB   CG   ; CG   HG3  ; CG   HG2  ; CG   CD          
+ CD   HD3 ; CD   HD2  ; CD   NE   ; NE   HE   ; NE   CZ   ; CZ   NH1     
+ CZ   NH2 ; NH1  HH11 ; NH1  HH12 ; NH2  HH21 ; NH2  HH22 ; C    O       
+ C    +R                                                                 
+                                                                         
+ CA   +R   C    O                                  
+ NE   NH1  CZ   NH2  ; CZ   CD   NE   HE                                 
+ CZ   HH11 NH1  HH12 ; CZ   HH21 NH2  HH22  
+
+!-------------------------------------------------------------------------------
+Residue CARG
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.
+ 25 25 6
+ N     N    -0.348100
+ H     H     0.276400 
+ CA    CT   -0.306800
+ HA    H1    0.144700 
+ CB    CT   -0.037400
+ HB3   HC    0.037100 
+ HB2   HC    0.037100 
+ CG    CT    0.074400 
+ HG3   HC    0.018500 
+ HG2   HC    0.018500 
+ CD    CT    0.111400 
+ HD3   H1    0.046800 
+ HD2   H1    0.046800 
+ NE    N2   -0.556400
+ HE    H     0.347900 
+ CZ    CA    0.836800 
+ NH1   N2   -0.873700
+ HH11  H     0.449300 
+ HH12  H     0.449300 
+ NH2   N2    -0.873700
+ HH21  H     0.449300 
+ HH22  H     0.449300 
+ C     C     0.855700 
+ O     O2   -0.826600
+ OXT   O2   -0.826600
+
+ -R   N   ; N    H    ; N    CA   ; CA   HA   ; CA   CB   ; CA   C       
+ CB   HB3 ; CB   HB2  ; CB   CG   ; CG   HG3  ; CG   HG2  ; CG   CD          
+ CD   HD3 ; CD   HD2  ; CD   NE   ; NE   HE   ; NE   CZ   ; CZ   NH1     
+ CZ   NH2 ; NH1  HH11 ; NH1  HH12 ; NH2  HH21 ; NH2  HH22 ; C    O  
+  C    OXT                                                                
+                                                                         
+ -R   CA   N    H    ;                                  
+ NE   NH1  CZ   NH2  ; CZ   CD   NE   HE                                 
+ CZ   HH11 NH1  HH12 ; CZ   HH21 NH2  HH22  ; CA  OXT  C  O 
+
+!-------------------------------------------------------------------------------
+Residue ASN                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 14 15  4   
+ N       N       -0.4157  ! amber99_34                                          
+ H       H        0.2719  ! amber99_17
+ CA      CT       0.0143  ! amber99_11
+ HA      H1       0.1048  ! amber99_19
+ CB      CT      -0.2041  ! amber99_11
+ HB3     HC       0.0797  ! amber99_18
+ HB2     HC       0.0797  ! amber99_18
+ CG      C        0.7130  ! amber99_2 
+ OD1     O       -0.5931  ! amber99_41
+ ND2     N       -0.9191  ! amber99_34
+ HD21    H        0.4196  ! amber99_17
+ HD22    H        0.4196  ! amber99_17
+ C       C        0.5973  ! amber99_2 
+ O       O       -0.5679  ! amber99_41
+ 
+ -R   N    ; N    H   ; N    CA ; CA   HA  ; CA   CB  ; CA   C        
+ CB   HB3  ; CB   HB2 ; CB   CG ; CG   OD1 ; CG   ND2 ; ND2  HD21     
+ ND2  HD22 ; C    O   ; C    +R                                       
+                                                                      
+ -R   CA   N    H   ; CA   +R   C    O                                
+ CB   ND2  CG   OD1 ; CG   HD21 ND2  HD22  
+
+!-------------------------------------------------------------------------------
+Residue NASN                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 16 16  3  
+ N     N3    0.180100
+ H1    H     0.192100
+ H2    H     0.192100
+ H3    H     0.192100
+ CA    CT    0.036800
+ HA    HP    0.123100
+ CB    CT   -0.028300
+ HB3   HC    0.051500
+ HB2   HC    0.051500
+ CG    C     0.583300
+ OD1   O    -0.574400
+ ND2   N    -0.863400
+ HD21  H     0.409700
+ HD22  H     0.409700
+ C     C     0.616300
+ O     O    -0.572200
+
+ N    H1   ; N    H2  ; N    H3 ; N    CA ; CA   HA  ; CA   CB  ; CA   C        
+ CB   HB3  ; CB   HB2 ; CB   CG ; CG   OD1 ; CG   ND2 ; ND2  HD21     
+ ND2  HD22 ; C    O   ; C    +R                                       
+                                                                      
+ CA   +R   C    O                                
+ CB   ND2  CG   OD1 ; CG   HD21 ND2  HD22  
+
+!-------------------------------------------------------------------------------
+Residue CASN                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 15 15  4  
+ N    N     -0.382100
+ H    H      0.268100
+ CA   CT    -0.208000
+ HA   H1     0.135800
+ CB   CT    -0.229900
+ HB3  HC     0.102300
+ HB2  HC     0.102300
+ CG   C      0.715300
+ OD1  O     -0.601000
+ ND2  N     -0.908400
+ HD21 H      0.415000
+ HD22 H      0.415000
+ C    C      0.805000
+ O    O2    -0.814700
+ OXT  O2    -0.814700
+
+ -R   N    ; N    H   ; N    CA ; CA   HA  ; CA   CB  ; CA   C        
+ CB   HB3  ; CB   HB2 ; CB   CG ; CG   OD1 ; CG   ND2 ; ND2  HD21     
+ ND2  HD22 ; C    O   ; C  OXT                                       
+                                                                      
+ -R   CA   N    H                                  
+ CB   ND2  CG   OD1 ; CG   HD21 ND2  HD22  ; CA  OXT  C  O 
+
+!-------------------------------------------------------------------------------
+Residue ASP                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 12 13  3 
+ N      N      -0.516300                                          
+ H      H       0.293600     
+ CA     CT      0.038100     
+ HA     H1      0.088000     
+ CB     CT     -0.030300    
+ HB3    HC     -0.012200    
+ HB2    HC     -0.012200    
+ CG     C       0.799400     
+ OD1    O2     -0.801400    
+ OD2    O2     -0.801400    
+ C      C       0.536600     
+ O      O      -0.581900    
+ 
+ -R   N   ; N    H   ; N    CA ; CA   HA  ; CA   CB  ; CA   C
+ CB   HB3 ; CB   HB2 ; CB   CG ; CG   OD1 ; CG   OD2 ; C    O
+ C    +R                                                     
+                                                             
+ -R   CA   N    H ; CA   +R   C    O ; CB   OD1  CG   OD2    
+
+!-------------------------------------------------------------------------------
+Residue NASP                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 14 14  2 
+ N    N3     0.078200 
+ H1   H      0.220000 
+ H2   H      0.220000 
+ H3   H      0.220000 
+ CA   CT     0.029200 
+ HA   HP     0.114100 
+ CB   CT    -0.023500
+ HB3  HC    -0.016900
+ HB2  HC    -0.016900
+ CG   C      0.819400 
+ OD1  O2    -0.808400
+ OD2  O2    -0.808400
+ C    C      0.562100 
+ O    O     -0.588900
+ 
+  N   H1  ; N    H2  ; N    H3  ; N    CA ; CA   HA  ; CA   CB  ; CA   C
+ CB   HB3 ; CB   HB2 ; CB   CG ; CG   OD1 ; CG   OD2 ; C    O
+ C    +R                                                     
+                                                             
+ CA   +R   C    O ; CB   OD1  CG   OD2    
+
+!-------------------------------------------------------------------------------
+Residue CASP                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 13 13  3
+ N    N    -0.519200
+ H    H     0.305500 
+ CA   CT   -0.181700
+ HA   H1    0.104600 
+ CB   CT   -0.067700
+ HB3  HC   -0.021200
+ HB2  HC   -0.021200
+ CG   C     0.885100 
+ OD1  O2   -0.816200
+ OD2  O2   -0.816200
+ C    C     0.725600 
+ O    O2   -0.788700
+ OXT  O2   -0.788700
+
+-R   N   ; N    H   ; N    CA ; CA   HA  ; CA   CB  ; CA   C
+ CB   HB3 ; CB   HB2 ; CB   CG ; CG   OD1 ; CG   OD2 ; C    O ; C    OXT                                                     
+                                                             
+ -R   CA   N    H ;  CB   OD1  CG   OD2  ; CA  OXT  C  O 
+
+!-------------------------------------------------------------------------------
+Residue ASH                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+  13 14  3
+  N     N    -0.415700
+  H     H     0.271900  
+  CA    CT    0.034100 
+  HA    H1    0.086400 
+  CB    CT   -0.031600
+  HB3   HC    0.048800 
+  HB2   HC    0.048800 
+  CG    C     0.646200 
+  OD1   O    -0.555400
+  OD2   OH   -0.637600
+  HD2   HO    0.474700 
+  C     C     0.597300 
+  O     O    -0.567900
+
+ -R   N   ; N    H   ; N    CA ; CA   HA  ; CA   CB  ; CA   C
+ CB   HB3 ; CB   HB2 ; CB   CG ; CG   OD1 ; CG   OD2 ; OD2  HD2 ; C    O
+ C    +R                                                    
+                                                             
+-R   CA   N    H ; CA   +R   C    O ; CB   OD1  CG   OD2 
+
+!-------------------------------------------------------------------------------
+Residue CYS                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 11 12  2       
+ N    N       -0.4157       ! amber99_34                                        
+ H    H        0.2719       ! amber99_17
+ CA   CT       0.0213       ! amber99_11
+ HA   H1       0.1124       ! amber99_19
+ CB   CT      -0.1231       ! amber99_11
+ HB3  H1       0.1112       ! amber99_19
+ HB2  H1       0.1112       ! amber99_19
+ SG   SH      -0.3119       ! amber99_48
+ HG   HS       0.1933       ! amber99_26
+ C    C        0.5973       ! amber99_2 
+ O    O       -0.5679       ! amber99_41
+ 
+ -R   N   ; N    H   ; N    CA ; CA   HA ; CA   CB ; CA   C        
+ CB   HB3 ; CB   HB2 ; CB   SG ; SG   HG ; C    O  ; C    +R
+                                                            
+ -R   CA   N    H ; CA   +R   C    O  
+
+!-------------------------------------------------------------------------------
+Residue NCYS                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 13 13  1 
+ N    N3    0.132500
+ H1   H     0.202300
+ H2   H     0.202300
+ H3   H     0.202300
+ CA   CT    0.092700
+ HA   HP    0.141100
+ CB   CT   -0.119500
+ HB3  H1    0.118800
+ HB2  H1    0.118800
+ SG   SH   -0.329800
+ HG   HS    0.197500
+ C    C     0.612300
+ O    O    -0.571300
+
+ N    H1  ; N    H2   ; N    H3 ; N    CA ; CA   HA ; CA   CB ; CA   C        
+ CB   HB3 ; CB   HB2 ; CB   SG ; SG   HG ; C    O  ; C    +R
+                                                            
+ CA   +R   C    O  
+
+!-------------------------------------------------------------------------------
+Residue CCYS                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 12 12  2 
+ N   N     -0.382100
+ H   H      0.268100
+ CA  CT    -0.163500
+ HA  H1     0.139600
+ CB  CT    -0.199600
+ HB1 H1     0.143700
+ HB2 H1     0.143700
+ SG  SH    -0.310200
+ HG  HS     0.206800
+ C   C      0.749700
+ O   O2    -0.798100
+ OXT O2    -0.798100
+
+ -R   N   ; N    H   ; N    CA ; CA   HA ; CA   CB ; CA   C        
+ CB   HB1 ; CB   HB2 ; CB   SG ; SG   HG ; C    O  ; C    OXT
+                                                            
+ -R   CA   N    H ; CA  OXT  C  O 
+
+!-------------------------------------------------------------------------------
+Residue GLN                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 17 18  4  
+ N     N      -0.4157      ! amber99_34                                         
+ H     H       0.2719      ! amber99_17
+ CA    CT     -0.0031      ! amber99_11
+ HA    H1      0.0850      ! amber99_19
+ CB    CT     -0.0036      ! amber99_11
+ HB3   HC      0.0171      ! amber99_18
+ HB2   HC      0.0171      ! amber99_18
+ CG    CT     -0.0645      ! amber99_11
+ HG3   HC      0.0352      ! amber99_18
+ HG2   HC      0.0352      ! amber99_18
+ CD    C       0.6951      ! amber99_2 
+ OE1   O      -0.6086      ! amber99_41
+ NE2   N      -0.9407      ! amber99_34
+ HE21  H       0.4251      ! amber99_17
+ HE22  H       0.4251      ! amber99_17
+ C     C       0.5973      ! amber99_2 
+ O     O      -0.5679      ! amber99_41
+ 
+ -R   N   ; N    H   ; N    CA   ; CA   HA   ; CA   CB  ; CA   C       
+ CB   HB3 ; CB   HB2 ; CB   CG   ; CG   HG3  ; CG   HG2 ; CG   CD      
+ CD   OE1 ; CD   NE2 ; NE2  HE21 ; NE2  HE22 ; C    O   ; C    +R      
+                                                                       
+ -R   CA   N    H   ; CA   +R   C    O                                 
+ CG   NE2  CD   OE1 ; CD   HE21 NE2  HE22  
+
+!-------------------------------------------------------------------------------
+Residue NGLN                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 19 19  3  
+ N    N3    0.149300
+ H1   H     0.199600
+ H2   H     0.199600
+ H3   H     0.199600
+ CA   CT    0.053600
+ HA   HP    0.101500
+ CB   CT    0.065100
+ HB3  HC    0.005000
+ HB2  HC    0.005000
+ CG   CT   -0.090300
+ HG3  HC    0.033100
+ HG2  HC    0.033100
+ CD   C     0.735400
+ OE1  O    -0.613300
+ NE2  N    -1.003100
+ HE21 H     0.442900
+ HE22 H     0.442900
+ C    C     0.612300
+ O    O    -0.571300       
+
+ N   H1   ; N    H2  ; N    H3  ;N    CA   ; CA   HA   ; CA   CB  ; CA   C       
+ CB   HB3 ; CB   HB2 ; CB   CG   ; CG   HG3  ; CG   HG2 ; CG   CD      
+ CD   OE1 ; CD   NE2 ; NE2  HE21 ; NE2  HE22 ; C    O   ; C    +R      
+                                                                       
+ CA   +R   C    O                                 
+ CG   NE2  CD   OE1 ; CD   HE21 NE2  HE22 
+!-------------------------------------------------------------------------------
+Residue CGLN                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 18 18  4  
+ N     N     -0.382100
+ H     H      0.268100
+ CA    CT    -0.224800
+ HA    H1     0.123200
+ CB    CT    -0.066400
+ HB3   HC     0.045200
+ HB2   HC     0.045200
+ CG    CT    -0.021000
+ HG3   HC     0.020300
+ HG2   HC     0.020300
+ CD    C      0.709300
+ OE1   O     -0.609800
+ NE2   N     -0.957400
+ HE21  H      0.430400
+ HE22  H      0.430400
+ C     C      0.777500
+ O     O2    -0.804200
+ OXT   O2    -0.804200
+
+ -R   N   ; N    H   ; N    CA   ; CA   HA   ; CA   CB  ; CA   C       
+ CB   HB3 ; CB   HB2 ; CB   CG   ; CG   HG3  ; CG   HG2 ; CG   CD      
+ CD   OE1 ; CD   NE2 ; NE2  HE21 ; NE2  HE22 ; C    O   ; C    OXT      
+                                                                       
+ -R   CA   N    H                                   
+ CG   NE2  CD   OE1 ; CD   HE21 NE2  HE22 ; CA  OXT  C  O 
+
+!------------------------------------------------------------------------------- 
+Residue GLU                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 15 16  3     
+ N      N     -0.516300                                            
+ H      H      0.293600  
+ CA     CT     0.039700
+ HA     H1     0.110500  
+ CB     CT     0.056000  
+ HB3    HC    -0.017300 
+ HB2    HC    -0.017300 
+ CG     CT     0.013600  
+ HG3    HC    -0.042500 
+ HG2    HC    -0.042500 
+ CD     C      0.805400  
+ OE1    O2    -0.818800 
+ OE2    O2    -0.818800 
+ C      C      0.536600  
+ O      O     -0.581900 
+ 
+ -R   N   ; N    H   ; N    CA ; CA   HA  ; CA   CB  ; CA   C  
+ CB   HB3 ; CB   HB2 ; CB   CG ; CG   HG3 ; CG   HG2 ; CG   CD 
+ CD   OE1 ; CD   OE2 ; C    O  ; C    +R                       
+                                                               
+ -R   CA   N    H ; CA   +R   C    O ; CG   OE1  CD   OE2   
+
+!------------------------------------------------------------------------------- 
+Residue NGLU                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 17 17  2     
+ N    N3    0.001700 
+ H1   H     0.239100 
+ H2   H     0.239100 
+ H3   H     0.239100 
+ CA   CT    0.058800 
+ HA   HP    0.120200 
+ CB   CT    0.090900 
+ HB3  HC   -0.023200
+ HB2  HC   -0.023200
+ CG   CT   -0.023600
+ HG3  HC   -0.031500
+ HG2  HC   -0.031500
+ CD   C     0.808700 
+ OE1  O2   -0.818900
+ OE2  O2   -0.818900
+ C    C     0.562100 
+ O    O    -0.588900 
+
+ N    H1  ; N    H2   ; N    H3   ; N    CA ; CA   HA  ; CA   CB  ; CA   C  
+ CB   HB3 ; CB   HB2 ; CB   CG ; CG   HG3 ; CG   HG2 ; CG   CD 
+ CD   OE1 ; CD   OE2 ; C    O  ; C    +R                       
+                                                               
+ CA   +R   C    O ; CG   OE1  CD   OE2   
+
+!------------------------------------------------------------------------------- 
+Residue CGLU                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 16 16  3     
+ N    N      -0.519200
+ H    H       0.305500 
+ CA   CT     -0.205900
+ HA   H1      0.139900 
+ CB   CT      0.007100 
+ HB3  HC     -0.007800
+ HB2  HC     -0.007800
+ CG   CT      0.067500 
+ HG3  HC     -0.054800
+ HG2  HC     -0.054800
+ CD   C       0.818300 
+ OE1  O2     -0.822000
+ OE2  O2     -0.822000
+ C    C       0.742000 
+ O    O2     -0.793000
+ OXT  O2     -0.793000
+
+ -R   N   ; N    H   ; N    CA ; CA   HA  ; CA   CB  ; CA   C  
+ CB   HB3 ; CB   HB2 ; CB   CG ; CG   HG3 ; CG   HG2 ; CG   CD 
+ CD   OE1 ; CD   OE2 ; C    O  ; C    OXT                      
+                                                               
+ -R   CA   N    H ;  CG   OE1  CD   OE2 ; CA  OXT  C  O 
+
+!------------------------------------------------------------------------------- 
+Residue GLH                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 16 17  3     
+   N     N    -0.4157
+   H     H     0.2719
+   CA    CT    0.0145
+   HA    H1    0.0779
+   CB    CT   -0.0071
+   HB3   HC    0.0256 
+   HB2   HC    0.0256
+   CG    CT   -0.0174
+   HG3   HC    0.0430
+   HG2   HC    0.0430
+   CD    C     0.6801 
+   OE1   O    -0.5838
+   OE2   OH   -0.6511
+   HE2   HO    0.4641
+   C     C     0.5973
+   O     O    -0.5679 
+
+ -R   N   ; N    H   ; N    CA ; CA   HA  ; CA   CB  ; CA   C  
+ CB   HB3 ; CB   HB2 ; CB   CG ; CG   HG3 ; CG   HG2 ; CG   CD 
+ CD   OE1 ; CD   OE2 ; OE2  HE2 ; C    O  ; C    +R                       
+                                                               
+ -R   CA   N    H ; CA   +R   C    O ; CG   OE1  CD   OE2 
+
+!-------------------------------------------------------------------------------
+Residue GLY                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+  7  8  2  
+ N     N      -0.4157                                            
+ H     H       0.2719     
+ CA    CT     -0.0252     
+ HA3   H1      0.0698     
+ HA2   H1      0.0698     
+ C     C       0.5973     
+ O     O      -0.5679     
+ 
+ -R   N   ; N    H ; N    CA ; CA   HA3 
+ CA   HA2 ; CA   C ; C    O  ; C    +R  
+                                        
+ -R   CA   N    H ; CA   +R   C    O    
+  
+!-------------------------------------------------------------------------------
+Residue NGLY                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+  9  9  1  
+ N    N3   0.294300
+ H1   H    0.164200
+ H2   H    0.164200
+ H3   H    0.164200
+ CA   CT  -0.010000
+ HA3  HP   0.089500
+ HA2  HP   0.089500
+ C    C    0.616300
+ O    O   -0.572200
+
+ N    H1   ; N    H2 ; N    H3 ; N    CA ; CA   HA3 
+ CA   HA2 ; CA   C ; C    O  ; C    +R  
+                                        
+ CA   +R   C    O 
+
+!-------------------------------------------------------------------------------
+Residue CGLY                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+  8  8  2  
+ N   N    -0.382100
+ H   H     0.268100
+ CA  CT   -0.249300
+ HA3 H1    0.105600
+ HA2 H1    0.105600
+ C   C     0.723100
+ O   O2   -0.785500
+ OXT O2   -0.785500
+
+
+ -R   N   ; N    H ; N    CA ; CA   HA3
+ CA   HA2 ; CA   C ; C    O  ; C    OXT  
+                                        
+ -R   CA   N    H  ;  CA  OXT  C  O   
+
+!-------------------------------------------------------------------------------
+Residue HID                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 17 19  6                                                                       
+N     N        -0.4157     ! amber99_34                                         
+H     H         0.2719     ! amber99_17                                         
+CA    CT        0.0188     ! amber99_11                                         
+HA    H1        0.0881     ! amber99_19                                         
+CB    CT       -0.0462     ! amber99_11                                         
+HB3   HC        0.0402     ! amber99_18                                         
+HB2   HC        0.0402     ! amber99_18                                         
+CG    CC       -0.0266     ! amber99_5                                          
+ND1   NA       -0.3811     ! amber99_35                                         
+HD1   H         0.3649     ! amber99_17                                         
+CE1   CR        0.2057     ! amber99_10                                         
+HE1   H5        0.1392     ! amber99_24                                         
+NE2   NB       -0.5727     ! amber99_36                                         
+CD2   CV        0.1292     ! amber99_12                                         
+HD2   H4        0.1147     ! amber99_23                                         
+C     C         0.5973     ! amber99_2                                          
+O     O        -0.5679     ! amber99_41                                         
+                                                                                
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB3 ; CB   HB2 ; CB   CG  ; CG   ND1 ; ND1  HD1 ; ND1  CE1                 
+CE1  HE1 ; CE1  NE2 ; NE2  CD2 ; CD2  HD2 ; CD2  CG  ; C    O                   
+C    +R                                                                         
+                                                                                
+-R   CA   N    H   ; CA   +R   C    O   ;  CG   CE1  ND1  HD1                    
+ CG   NE2  CD2  HD2 ; ND1  NE2  CE1  HE1  ; ND1  CG  CD2   CB  
+
+!-------------------------------------------------------------------------------
+Residue NHID                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 19 20  5  
+ N     N3    0.154200
+ H1    H     0.196300
+ H2    H     0.196300
+ H3    H     0.196300
+ CA    CT    0.096400
+ HA    HP    0.095800
+ CB    CT    0.025900
+ HB1   HC    0.020900
+ HB2   HC    0.020900
+ CG    CC   -0.039900
+ ND1   NA   -0.381900
+ HD1   H     0.363200
+ CE1   CR    0.212700
+ HE1   H5    0.138500
+ NE2   NB   -0.571100
+ CD2   CV    0.104600
+ HD2   H4    0.129900
+ C     C     0.612300
+ O     O    -0.571300
+
+N     H1 ; N    H2 ; N    H3 ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB1 ; CB   HB2 ; CB   CG  ; CG   ND1 ; ND1  HD1 ; ND1  CE1                 
+CE1  HE1 ; CE1  NE2 ; NE2  CD2 ; CD2  HD2 ; CD2  CG  ; C    O                   
+C    +R                                                                         
+                                                                                
+ CA   +R   C    O   ; CG   CE1  ND1  HD1                    
+ CG   NE2  CD2  HD2 ; ND1  NE2  CE1  HE1  ; ND1  CG  CD2   CB 
+
+!-------------------------------------------------------------------------------
+Residue CHID                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 18 19  6  
+ N     N     -0.382100
+ H     H      0.268100
+ CA    CT    -0.173900
+ HA    H1     0.110000
+ CB    CT    -0.104600
+ HB1   HC     0.056500
+ HB2   HC     0.056500
+ CG    CC     0.029300
+ ND1   NA    -0.389200
+ HD1   H      0.375500
+ CE1   CR     0.192500
+ HE1   H5     0.141800
+ NE2   NB    -0.562900
+ CD2   CV     0.100100
+ HD2   H4     0.124100
+ C     C      0.761500
+ O     O2    -0.801600
+ OXT   O2    -0.801600
+
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB1 ; CB   HB2 ; CB   CG  ; CG   ND1 ; ND1  HD1 ; ND1  CE1                 
+CE1  HE1 ; CE1  NE2 ; NE2  CD2 ; CD2  HD2 ; CD2  CG  ; C    O ; C   OXT                                                                         
+                                                                                
+-R   CA   N    H   ;  CG   CE1  ND1  HD1                    
+CG   NE2  CD2  HD2 ; ND1  NE2  CE1  HE1  ; ND1  CG  CD2   CB ; CA  OXT  C  O 
+
+!-------------------------------------------------------------------------------   
+Residue HIE                                                                        
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 17 19  6                                                                       
+N    N         -0.4157    ! amber99_34                                            
+H    H          0.2719    ! amber99_17                                             
+CA   CT        -0.0581    ! amber99_11                                             
+HA   H1         0.1360    ! amber99_19                                             
+CB   CT        -0.0074    ! amber99_11                                             
+HB3  HC         0.0367    ! amber99_18                                             
+HB2  HC         0.0367    ! amber99_18                                             
+CG   CC         0.1868    ! amber99_5                                              
+ND1  NB        -0.5432    ! amber99_36                                             
+CE1  CR         0.1635    ! amber99_10                                             
+HE1  H5         0.1435    ! amber99_24                                             
+NE2  NA        -0.2795    ! amber99_35                                             
+HE2  H          0.3339    ! amber99_17                                             
+CD2  CW        -0.2207    ! amber99_13                                             
+HD2  H4         0.1862    ! amber99_23                                             
+C    C          0.5973    ! amber99_2                                              
+O    O         -0.5679    ! amber99_41                                             
+                                                                                
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB3 ; CB   HB2 ; CB   CG  ; CG   ND1 ; ND1  CE1 ;CE1  HE1                  
+CE1  NE2 ; NE2  HE2 ; NE2  CD2 ; CD2  HD2 ; CD2  CG  ; C    O                   
+C    +R                                                                         
+                                                                                
+-R   CA   N    H   ; CA   +R   C    O   ;  CE1  CD2  NE2  HE2 ;
+ CG   NE2  CD2  HD2 ;  ND1  NE2  CE1  HE1 ; CB  CD2  CG   ND1
+! original angle ND1  CG  CD2   CB   
+
+!-------------------------------------------------------------------------------   
+Residue NHIE                                                                        
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 19 20  5
+ N   N3   0.147200
+ H1  H    0.201600
+ H2  H    0.201600
+ H3  H    0.201600
+ CA  CT   0.023600
+ HA  HP   0.138000
+ CB  CT   0.048900
+ HB1 HC   0.022300
+ HB2 HC   0.022300
+ CG  CC   0.174000
+ ND1 NB  -0.557900
+ CE1 CR   0.180400
+ HE1 H5   0.139700
+ NE2 NA  -0.278100
+ HE2 H    0.332400
+ CD2 CW  -0.234900
+ HD2 H4   0.196300
+ C   C    0.612300
+ O   O   -0.571300
+
+N  H1 ; N    H2   ; N    H3 ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB1 ; CB   HB2 ; CB   CG  ; CG   ND1 ; ND1  CE1 ;CE1  HE1                  
+CE1  NE2 ; NE2  HE2 ; NE2  CD2 ; CD2  HD2 ; CD2  CG  ; C    O                   
+C    +R                                                                         
+                                                                                
+CA   +R   C    O   ;  CE1  CD2  NE2  HE2 ;
+CG   NE2  CD2  HD2 ;  ND1  NE2  CE1  HE1 ; ND1  CG  CD2   CB  
+
+!-------------------------------------------------------------------------------   
+Residue CHIE                                                                        
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 18 19  6
+ N     N    -0.382100
+ H     H     0.268100
+ CA    CT   -0.269900
+ HA    H1    0.165000
+ CB    CT   -0.106800
+ HB1   HC    0.062000
+ HB2   HC    0.062000
+ CG    CC    0.272400
+ ND1   NB   -0.551700
+ CE1   CR    0.155800
+ HE1   H5    0.144800
+ NE2   NA   -0.267000
+ HE2   H     0.331900
+ CD2   CW   -0.258800
+ HD2   H4    0.195700
+ C     C     0.791600
+ O     O2   -0.806500
+ OXT   O2   -0.806500
+
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB1 ; CB   HB2 ; CB   CG  ; CG   ND1 ; ND1  CE1 ;CE1  HE1                  
+CE1  NE2 ; NE2  HE2 ; NE2  CD2 ; CD2  HD2 ; CD2  CG  ; C    O                   
+C    OXT                                                                         
+                                                                                
+-R   CA   N    H   ;  CE1  CD2  NE2  HE2 ;
+ CG   NE2  CD2  HD2 ;  ND1  NE2  CE1  HE1 ; ND1  CG  CD2   CB ; CA  OXT  C  O  
+
+!-------------------------------------------------------------------------------   
+Residue HIP                                                                        
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 18 20  7
+  N     N     -0.3479
+  H     H      0.2747
+  CA    CT    -0.1354 
+  HA    H1     0.1212
+  CB    CT    -0.0414
+  HB3   HC     0.0810
+  HB2   HC     0.0810
+  CG    CC    -0.0012 
+  ND1   NA    -0.1513
+  HD1   H      0.3866
+  CE1   CR    -0.0170
+  HE1   H5     0.2681
+  NE2   NA    -0.1718
+  HE2   H      0.3911
+  CD2   CW    -0.1141 
+  HD2   H4     0.2317
+  C     C      0.7341
+  O     O     -0.5894
+
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB3 ; CB   HB2 ; CB   CG  ; CG   ND1 ; ND1 HD1 ; ND1  CE1 ;CE1  HE1                  
+CE1  NE2 ; NE2  HE2 ;  NE2 CD2 ; CD2  HD2 ; CD2  CG  ; C    O                   
+C    +R  
+
+-R   CA   N    H   ; CA   +R   C    O   ; CG   CE1  ND1  HD1 
+CE1  CD2  NE2  HE2 ;  CG   NE2  CD2  HD2 ;  ND1  CG  CD2   CB 
+ ND1  CD2  CG   CB 
+
+!-------------------------------------------------------------------------------   
+Residue NHIP                                                                        
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 20 21  6
+ N    N3    0.256000
+ H1   H     0.170400
+ H2   H     0.170400
+ H3   H     0.170400
+ CA   CT    0.058100
+ HA   HP    0.104700
+ CB   CT    0.048400
+ HB1  HC    0.053100
+ HB2  HC    0.053100
+ CG   CC   -0.023600
+ ND1  NA   -0.151000
+ HD1  H     0.382100
+ CE1  CR   -0.001100
+ HE1  H5    0.264500
+ NE2  NA   -0.173900
+ HE2  H     0.392100
+ CD2  CW   -0.143300
+ HD2  H4    0.249500
+ C    C     0.721400
+ O    O    -0.601300                                                     
+
+N   H1   ; N    H2 ; N    H3   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB1 ; CB   HB2 ; CB   CG  ; CG   ND1 ; ND1 HD1 ; ND1  CE1 ;CE1  HE1                  
+CE1  NE2 ; NE2  HE2 ;  NE2 CD2 ; CD2  HD2 ; CD2  CG  ; C    O                   
+C    +R  
+
+ CA   +R   C    O   ; CG   CE1  ND1  HD1 
+CE1  CD2  NE2  HE2 ;  CG   NE2  CD2  HD2 ;  ND1  CG  CD2   CB 
+ ND1  CD2  CG   CB 
+
+!-------------------------------------------------------------------------------   
+Residue CHIP                                                                        
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 19 20  7
+ N    N    -0.348100
+ H    H     0.276400
+ CA   CT   -0.144500
+ HA   H1    0.111500
+ CB   CT   -0.080000
+ HB1  HC    0.086800
+ HB2  HC    0.086800
+ CG   CC    0.029800
+ ND1  NA   -0.150100
+ HD1  H     0.388300
+ CE1  CR   -0.025100
+ HE1  H5    0.269400
+ NE2  NA   -0.168300
+ HE2  H     0.391300
+ CD2  CW   -0.125600
+ HD2  H4    0.233600
+ C    C     0.803200
+ O    O2   -0.817700
+ OXT  O2   -0.817700
+
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB1 ; CB   HB2 ; CB   CG  ; CG   ND1 ; ND1 HD1 ; ND1  CE1 ;CE1  HE1                  
+CE1  NE2 ; NE2  HE2 ;  NE2 CD2 ; CD2  HD2 ; CD2  CG  ; C    O                   
+C    OXT  
+
+-R   CA   N    H   ; CG   CE1  ND1  HD1 
+CE1  CD2  NE2  HE2 ;  CG   NE2  CD2  HD2 ;  ND1  NE2  CE1  HE1 
+ ND1  CD2  CG   CB ;  CA  OXT  C  O 
+
+!---------------------------------------------------------------------------     
+Residue ILE                                                                      
+!---------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                             
+ 19 20  2                                                                   
+N     N       -0.4157  ! amber99_34                                              
+H     H        0.2719  ! amber99_17                                              
+CA    CT      -0.0597  ! amber99_11                                              
+HA    H1       0.0869  ! amber99_19                                              
+CB    CT       0.1303  ! amber99_11                                              
+HB    HC       0.0187  ! amber99_18                                              
+CG2   CT      -0.3204  ! amber99_11                                              
+HG21  HC       0.0882  ! amber99_18                                              
+HG22  HC       0.0882  ! amber99_18                                              
+HG23  HC       0.0882  ! amber99_18                                              
+CG1   CT      -0.0430  ! amber99_11                                              
+HG13  HC       0.0236   ! amber99_18                                             
+HG12  HC       0.0236  ! amber99_18                                              
+CD1   CT      -0.0660  ! amber99_11                                              
+HD11  HC       0.0186  ! amber99_18                                              
+HD12  HC       0.0186  ! amber99_18                                              
+HD13  HC       0.0186   ! amber99_18                                             
+C     C        0.5973  ! amber99_2                                               
+O     O       -0.5679  ! amber99_41                                              
+                                                                            
+-R   N    ; N    H    ; N    CA   ; CA   HA   ; CA   CB   ; CA   C          
+CB   HB   ; CB   CG1  ; CB   CG2  ; CG1  HG13 ; CG1  HG12 ; CG1  CD1        
+CG2  HG21 ; CG2  HG22 ; CG2  HG23 ; CD1  HD11 ; CD1  HD12 ; CD1  HD13       
+C    O    ; C    +R                                                         
+                                                                            
+-R   CA   N    H ; CA   +R   C    O  
+
+!---------------------------------------------------------------------------     
+Residue NILE                                                                      
+!---------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                             
+ 21 21  1  
+ N     N3     0.031100
+ H1    H      0.232900
+ H2    H      0.232900
+ H3    H      0.232900
+ CA    CT     0.025700
+ HA    HP     0.103100
+ CB    CT     0.188500
+ HB    HC     0.021300
+ CG2   CT    -0.372000
+ HG21  HC     0.094700
+ HG22  HC     0.094700
+ HG23  HC     0.094700
+ CG1   CT    -0.038700
+ HG11  HC     0.020100
+ HG12  HC     0.020100
+ CD1   CT    -0.090800
+ HD1  HC     0.022600
+ HD2  HC     0.022600
+ HD3  HC     0.022600
+ C     C      0.612300
+ O     O     -0.571300
+
+N   H1; N   H2;  N    H3    ; N    CA   ; CA   HA   ; CA   CB   ; CA   C          
+CB   HB   ; CB   CG1  ; CB   CG2  ; CG1  HG11 ; CG1  HG12 ; CG1  CD1        
+CG2  HG21 ; CG2  HG22 ; CG2  HG23 ; CD1  HD1  ; CD1  HD2  ; CD1  HD3        
+C    O    ; C    +R                                                         
+                                                                            
+CA   +R   C    O 
+
+!---------------------------------------------------------------------------     
+Residue CILE                                                                      
+!---------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                             
+ 20 20  2 
+ N     N    -0.382100
+ H     H     0.268100
+ CA    CT   -0.310000
+ HA    H1    0.137500
+ CB    CT    0.036300
+ HB    HC    0.076600
+ CG2   CT   -0.349800
+ HG21  HC    0.102100
+ HG22  HC    0.102100
+ HG23  HC    0.102100
+ CG1   CT   -0.032300
+ HG13  HC    0.032100
+ HG12  HC    0.032100
+ CD1   CT   -0.069900
+ HD11  HC    0.019600
+ HD12  HC    0.019600
+ HD13  HC    0.019600
+ C     C     0.834300
+ O     O2   -0.819000
+ OXT   O2   -0.819000
+
+-R   N    ; N    H    ; N    CA   ; CA   HA   ; CA   CB   ; CA   C          
+CB   HB   ; CB   CG1  ; CB   CG2  ; CG1  HG13 ; CG1  HG12 ; CG1  CD1        
+CG2  HG21 ; CG2  HG22 ; CG2  HG23 ; CD1  HD11  ; CD1  HD12  ; CD1  HD13        
+C    O    ; C    OXT                                                         
+                                                                            
+-R   CA   N    H ; CA  OXT  C  O 
+
+!----------------------------------------------------------------------   
+Residue LEU                                                            
+!----------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                        
+ 19 20  2                                                              
+N      N     -0.4157   ! amber99_34                                       
+H      H      0.2719   ! amber99_17                                       
+CA     CT    -0.0518   ! amber99_11                                       
+HA     H1     0.0922   ! amber99_19                                       
+CB     CT    -0.1102   ! amber99_11                                       
+HB3    HC     0.0457   ! amber99_18                                       
+HB2    HC     0.0457   ! amber99_18                                       
+CG     CT     0.3531   ! amber99_11                                       
+HG     HC    -0.0361   ! amber99_18                                       
+CD1    CT    -0.4121   ! amber99_11                                       
+HD11   HC     0.1000   ! amber99_18                                       
+HD12   HC     0.1000   ! amber99_18                                       
+HD13   HC     0.1000   ! amber99_18                                       
+CD2    CT    -0.4121   ! amber99_11                                       
+HD21   HC     0.1000   ! amber99_18                                       
+HD22   HC     0.1000   ! amber99_18                                       
+HD23   HC     0.1000   ! amber99_18                                       
+C      C      0.5973   ! amber99_2                                        
+O      O     -0.5679   ! amber99_41                                       
+                                                                        
+-R   N    ; N    H    ; N    CA   ; CA   HA   ; CA   CB   ; CA   C     
+CB   HB3  ; CB   HB2  ; CB   CG   ; CG   HG   ; CG   CD1  ; CG   CD2   
+CD1  HD11 ; CD1  HD12 ; CD1  HD13 ; CD2  HD21 ; CD2  HD22 ; CD2  HD23  
+C    O    ; C    +R                                                    
+                                                                       
+-R   CA   N    H ; CA   +R   C    O  
+
+
+!----------------------------------------------------------------------   
+Residue NLEU                                                            
+!----------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                        
+ 21 21  1   
+ N     N3   0.101000
+ H1    H    0.214800
+ H2    H    0.214800
+ H3    H    0.214800
+ CA    CT   0.010400
+ HA    HP    0.105300
+ CB    CT   -0.024400
+ HB1   HC   0.025600
+ HB2   HC   0.025600
+ CG    CT    0.342100
+ HG    HC   -0.038000
+ CD1   CT   -0.410600
+ HD11  HC   0.098000
+ HD12  HC   0.098000
+ HD13  HC    0.098000
+ CD2   CT    -0.410400
+ HD21  HC    0.098000
+ HD22  HC    0.098000
+ HD23  HC    0.098000
+ C     C      0.612300
+ O     O     -0.571300 
+
+N   H1   ; N    H2 ; N  H3; N    CA   ; CA   HA   ; CA   CB   ; CA   C     
+CB   HB1  ; CB   HB2  ; CB   CG   ; CG   HG   ; CG   CD1  ; CG   CD2   
+CD1  HD11 ; CD1  HD12 ; CD1  HD13 ; CD2  HD21 ; CD2  HD22 ; CD2  HD23  
+C    O    ; C    +R                                                    
+                                                                       
+ CA   +R   C    O  
+
+!----------------------------------------------------------------------   
+Residue CLEU                                                            
+!----------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                        
+ 20 20  2
+ N    N    -0.382100
+ H    H     0.268100
+ CA   CT   -0.284700
+ HA   H1    0.134600
+ CB   CT   -0.246900
+ HB3  HC    0.097400
+ HB2  HC    0.097400
+ CG   CT    0.370600
+ HG   HC   -0.037400
+ CD1  CT   -0.416300
+ HD11 HC    0.103800
+ HD12 HC    0.103800
+ HD13 HC    0.103800
+ CD2  CT   -0.416300
+ HD21 HC    0.103800
+ HD22 HC    0.103800
+ HD23 HC    0.103800
+ C    C     0.832600
+ O    O2   -0.819900
+ OXT  O2   -0.819900 
+
+-R   N    ; N    H    ; N    CA   ; CA   HA   ; CA   CB   ; CA   C     
+CB   HB3  ; CB   HB2  ; CB   CG   ; CG   HG   ; CG   CD1  ; CG   CD2   
+CD1  HD11 ; CD1  HD12 ; CD1  HD13 ; CD2  HD21 ; CD2  HD22 ; CD2  HD23  
+C    O    ; C    OXT                                                    
+                                                                       
+-R   CA   N    H ; CA  OXT  C  O 
+
+!-------------------------------------------------------------------------------
+Residue LYS                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 22 23  2                                                                       
+ N    N       -0.347900                                     
+ H    H        0.274700                                      
+ CA   CT      -0.240000                                     
+ HA   H1       0.142600                                      
+ CB   CT      -0.009400                                     
+ HB3  HC       0.036200                                      
+ HB2  HC       0.036200                                      
+ CG   CT       0.018700                                      
+ HG3  HC       0.010300                                      
+ HG2  HC       0.010300                                      
+ CD   CT      -0.047900                                     
+ HD3  HC       0.062100                                      
+ HD2  HC       0.062100                                      
+ CE   CT      -0.014300                                     
+ HE3  HP       0.113500                                      
+ HE2  HP       0.113500                                      
+ NZ   N3      -0.385400                                     
+ HZ1  H        0.340000                                      
+ HZ2  H        0.340000                                      
+ HZ3  H        0.340000                                      
+ C    C        0.734100                                      
+ O    O       -0.589400                                     
+                                                                                
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB3 ; CB   HB2 ; CB   CG  ; CG   HG3 ; CG   HG2 ; CG   CD                  
+CD   HD3 ; CD   HD2 ; CD   CE  ; CE   HE3 ; CE   HE2 ; CE   NZ                  
+NZ   HZ1 ; NZ   HZ2 ; NZ   HZ3 ; C    O   ; C    +R                             
+                                                                                
+-R   CA   N    H ; CA   +R   C    O  
+
+!-------------------------------------------------------------------------------
+Residue NLYS                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 24 24  1  
+ N    N3   0.096600 
+ H1   H    0.216500 
+ H2   H    0.216500 
+ H3   H    0.216500 
+ CA   CT  -0.001500
+ HA   HP   0.118000 
+ CB   CT   0.021200 
+ HB3  HC   0.028300 
+ HB2  HC   0.028300 
+ CG   CT  -0.004800
+ HG3  HC   0.012100 
+ HG2  HC   0.012100 
+ CD   CT  -0.060800
+ HD3  HC   0.063300 
+ HD2  HC   0.063300 
+ CE   CT  -0.018100
+ HE3  HP   0.117100 
+ HE2  HP   0.117100 
+ NZ   N3  -0.376400
+ HZ1  H    0.338200 
+ HZ2  H    0.338200 
+ HZ3  H    0.338200 
+ C    C    0.721400 
+ O    O   -0.601300
+
+N   H1; N   H2; N    H3   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB3 ; CB   HB2 ; CB   CG  ; CG   HG3 ; CG   HG2 ; CG   CD                  
+CD   HD3 ; CD   HD2 ; CD   CE  ; CE   HE3 ; CE   HE2 ; CE   NZ                  
+NZ   HZ1 ; NZ   HZ2 ; NZ   HZ3 ; C    O   ; C    +R                             
+                                                                                
+ CA   +R   C    O   
+
+!-------------------------------------------------------------------------------
+Residue CLYS                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 23 23  2    
+ N     N     -0.348100
+ H     H      0.276400 
+ CA    CT    -0.290300
+ HA    H1     0.143800 
+ CB    CT    -0.053800
+ HB3   HC     0.048200
+ HB2   HC     0.048200 
+ CG    CT     0.022700 
+ HG3   HC     0.013400 
+ HG2   HC     0.013400 
+ CD    CT    -0.039200
+ HD3   HC     0.061100 
+ HD2   HC     0.061100 
+ CE    CT    -0.017600
+ HE3   HP     0.112100 
+ HE2   HP     0.112100 
+ NZ    N3    -0.374100
+ HZ1   H      0.337400 
+ HZ2   H      0.337400 
+ HZ3   H      0.337400 
+ C     C      0.848800 
+ O     O2    -0.825200
+ OXT   O2    -0.825200
+ 
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB3 ; CB   HB2 ; CB   CG  ; CG   HG3 ; CG   HG2 ; CG   CD                  
+CD   HD3 ; CD   HD2 ; CD   CE  ; CE   HE3 ; CE   HE2 ; CE   NZ                  
+NZ   HZ1 ; NZ   HZ2 ; NZ   HZ3 ; C    O   ; C    OXT                             
+                                                                                
+-R   CA   N    H  ; CA  OXT  C  O 
+
+!-------------------------------------------------------------------------------
+Residue LYN                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 21 22  2     
+   N     N   -0.415700
+   H     H    0.271900 
+   CA    CT  -0.072060
+   HA    H1   0.099400 
+   CB    CT  -0.048450
+   HB3   HC   0.034000 
+   HB2   HC   0.034000 
+   CG    CT   0.066120 
+   HG3   HC   0.010410 
+   HG2   HC   0.010410 
+   CD    CT  -0.037680
+   HD3   HC   0.011550 
+   HD2   HC   0.011550 
+   CE    CT   0.326040 
+   HE3   H1  -0.033580
+   HE2   H1  -0.033580
+   NZ    NT  -1.035810
+   HZ3   H    0.386040 
+   HZ2   H    0.386040 
+   C     C    0.597300 
+   O     O   -0.567900
+
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB3 ; CB   HB2 ; CB   CG  ; CG   HG3 ; CG   HG2 ; CG   CD                  
+CD   HD3 ; CD   HD2 ; CD   CE  ; CE   HE3 ; CE   HE2 ; CE   NZ                  
+ NZ   HZ2 ; NZ   HZ3 ; C    O   ; C    +R                             
+                                                                                
+-R   CA   N    H ; CA   +R   C    O  
+
+!------------------------------------------------------------------------------
+ Residue MET                                                                    
+!------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                
+ 17 18  2                                                                      
+N    N        -0.415700                                                         
+H    H         0.271900                                                          
+CA   CT       -0.023700                                                         
+HA   H1        0.088000                                                         
+CB   CT        0.034200                                                            
+HB3  HC        0.024100                                                            
+HB2  HC        0.024100                                                            
+CG   CT        0.001800                                                            
+HG3  H1        0.044000                                                            
+HG2  H1        0.044000                                                            
+SD   S        -0.273700                                                           
+CE   CT       -0.053600                                                           
+HE1  H1        0.068400                                                            
+HE2  H1        0.068400                                                            
+HE3  H1        0.068400                                                            
+C    C         0.597300                                                            
+O    O        -0.567900                                                           
+                                                                               
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                  
+CB   HB3 ; CB   HB2 ; CB   CG  ; CG   HG3 ; CG   HG2 ; CG   SD                 
+SD   CE  ; CE   HE1 ; CE   HE2 ; CE   HE3 ; C    O   ; C    +R                 
+                                                                               
+-R   CA   N    H ; CA   +R   C    O                                             
+
+!------------------------------------------------------------------------------
+Residue NMET                                                                    
+!------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                
+ 19 19  1    
+ N     N3    0.159200 
+ H1    H     0.198400 
+ H2    H     0.198400 
+ H3    H     0.198400 
+ CA    CT    0.022100 
+ HA    HP    0.111600 
+ CB    CT    0.086500 
+ HB3   HC    0.012500 
+ HB2   HC    0.012500 
+ CG    CT    0.033400 
+ HG3   H1    0.029200 
+ HG2   H1    0.029200 
+ SD    S    -0.277400
+ CE    CT   -0.034100
+ HE1   H1    0.059700 
+ HE2   H1    0.059700 
+ HE3   H1    0.059700 
+ C     C     0.612300 
+ O     O    -0.571300
+
+N  H1 ; N   H2 ; N H3;   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                  
+CB   HB3 ; CB   HB2 ; CB   CG  ; CG   HG3 ; CG   HG2 ; CG   SD                 
+SD   CE  ; CE   HE1 ; CE   HE2 ; CE   HE3 ; C    O   ; C    +R                 
+                                                                               
+CA   +R   C    O   
+
+!------------------------------------------------------------------------------
+Residue CMET                                                                    
+!------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                
+ 18 18  2
+ N    N    -0.382100
+ H    H    	0.268100 
+ CA   CT   -0.259700
+ HA   H1   	0.127700 
+ CB   CT   -0.023600
+ HB1  HC   	0.048000 
+ HB2  HC   	0.048000 
+ CG   CT   	0.049200 
+ HG1  H1   	0.031700 
+ HG2  H1   	0.031700 
+ SD   S    -0.269200 
+ CE   CT   -0.037600 
+ HE1  H1   	0.062500 
+ HE2  H1   	0.062500 
+ HE3  H1   	0.062500 
+ C    C    	0.801300 
+ O    O2   -0.810500
+ OXT  O2   -0.810500
+
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                  
+CB   HB1 ; CB   HB2 ; CB   CG  ; CG   HG1 ; CG   HG2 ; CG   SD                 
+SD   CE  ; CE   HE1 ; CE   HE2 ; CE   HE3 ; C    O   ; C    OXT                 
+                                                                               
+-R   CA   N    H  ; CA  OXT  C  O 
+
+!-------------------------------------------------------------------------------   
+Residue PHE                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 20 22  8                                                                       
+N    N        -0.4157    ! amber99_34                                              
+H    H         0.2719    ! amber99_17                                              
+CA   CT       -0.0024    ! amber99_11                                              
+HA   H1        0.0978    ! amber99_19                                              
+CB   CT       -0.0343    ! amber99_11                                              
+HB3  HC        0.0295    ! amber99_18                                              
+HB2  HC        0.0295    ! amber99_18                                              
+CG   CA        0.0118    ! amber99_3                                               
+CD1  CA       -0.1256    ! amber99_3                                               
+HD1  HA        0.1330    ! amber99_22                                              
+CE1  CA       -0.1704    ! amber99_3                                               
+HE1  HA        0.1430    ! amber99_22                                              
+CZ   CA       -0.1072    ! amber99_3                                               
+HZ   HA        0.1297    ! amber99_22                                              
+CE2  CA       -0.1704    ! amber99_3                                               
+HE2  HA        0.1430    ! amber99_22                                              
+CD2  CA       -0.1256    ! amber99_3                                               
+HD2  HA        0.1330    ! amber99_22                                              
+C    C         0.5973    ! amber99_2                                               
+O    O        -0.5679    ! amber99_41                                              
+                                                                 
+-R   N   ; N    H   ; N    CA ; CA   HA  ; CA   CB  ; CA   C                    
+CB   HB3 ; CB   HB2 ; CB   CG ; CG   CD1 ; CD1  HD1 ; CD1  CE1                  
+CE1  HE1 ; CE1  CZ  ; CZ   HZ ; CZ   CE2 ; CE2  HE2 ; CE2  CD2                  
+CD2  HD2 ; CD2  CG  ; C    O  ; C    +R                                         
+                                                                                
+-R   CA   N    H  ; CA   +R   C    O   ; CG   CE2  CD2  HD2 ; CD2  CZ   CE2  HE2
+CE1  CE2  CZ   HZ ; CD1  CZ   CE1  HE1 ; CG   CE1  CD1  HD1 ; CD1  CD2  CG   CB 
+  
+!-------------------------------------------------------------------------------   
+Residue NPHE                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 22 23  7                                                                       
+ N    N3   0.173700
+ H1   H    0.192100
+ H2   H    0.192100
+ H3   H    0.192100
+ CA   CT   0.073300
+ HA   HP   0.104100
+ CB   CT   0.033000
+ HB3  HC   0.010400
+ HB2  HC   0.010400
+ CG   CA   0.003100
+ CD1  CA  -0.139200
+ HD1  HA   0.137400
+ CE1  CA  -0.160200
+ HE1  HA   0.143300
+ CZ   CA  -0.120800
+ HZ   HA   0.132900
+ CE2  CA  -0.160300
+ HE2  HA   0.143300
+ CD2  CA  -0.139100
+ HD2  HA   0.137400
+ C    C    0.612300
+ O    O   -0.571300
+
+N   H1; N  H2  ; N    H3   ; N    CA ; CA   HA  ; CA   CB  ; CA   C                    
+CB   HB3 ; CB   HB2 ; CB   CG ; CG   CD1 ; CD1  HD1 ; CD1  CE1                  
+CE1  HE1 ; CE1  CZ  ; CZ   HZ ; CZ   CE2 ; CE2  HE2 ; CE2  CD2                  
+CD2  HD2 ; CD2  CG  ; C    O  ; C    +R                                         
+                                                                                
+ CA   +R   C    O   ; CG   CE2  CD2  HD2 ; CD2  CZ   CE2  HE2
+CE1  CE2  CZ   HZ ; CD1  CZ   CE1  HE1 ; CG   CE1  CD1  HD1 ; CD1  CD2  CG   CB 
+
+!-------------------------------------------------------------------------------   
+Residue CPHE                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 21 22  8
+ N      N       -0.382100
+ H      H        0.268100
+ CA     CT      -0.182500
+ HA     H1       0.109800
+ CB     CT      -0.095900
+ HB3    HC       0.044300
+ HB2    HC       0.044300
+ CG     CA       0.055200
+ CD1    CA      -0.130000
+ HD1    HA       0.140800
+ CE1    CA      -0.184700
+ HE1    HA       0.146100
+ CZ     CA      -0.094400
+ HZ     HA       0.128000
+ CE2    CA      -0.184700
+ HE2    HA       0.146100
+ CD2    CA      -0.130000
+ HD2    HA       0.140800
+ C      C        0.766000
+ O      O2      -0.802600
+ OXT    O2      -0.802600
+
+-R   N   ; N    H   ; N    CA ; CA   HA  ; CA   CB  ; CA   C                    
+CB   HB3 ; CB   HB2 ; CB   CG ; CG   CD1 ; CD1  HD1 ; CD1  CE1                  
+CE1  HE1 ; CE1  CZ  ; CZ   HZ ; CZ   CE2 ; CE2  HE2 ; CE2  CD2                  
+CD2  HD2 ; CD2  CG  ; C    O  ; C    OXT                                       
+                                                                                
+-R   CA   N    H  ; CG   CE2  CD2  HD2 ; CD2  CZ   CE2  HE2
+CE1  CE2  CZ   HZ ; CD1  CZ   CE1  HE1 ; CG   CE1  CD1  HD1 ; CD1  CD2  CG   CB
+CA  OXT  C  O 
+ 
+!-------------------------------------------------------------------------------
+Residue PRO                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 14 16  2                                                                       
+N     N      -0.254800                                          
+CD    CT      0.019200                                           
+HD3   H1      0.039100                                           
+HD2   H1      0.039100                                           
+CG    CT      0.018900                                           
+HG3   HC      0.021300                                           
+HG2   HC      0.021300                                           
+CB    CT     -0.007000                                          
+HB3   HC      0.025300                                           
+HB2   HC      0.025300                                           
+CA    CT     -0.026600                                          
+HA    H1      0.064100                                           
+C     C       0.589600                                           
+O     O      -0.574800                                          
+                                                                                
+-R   N   ; N    CD  ; N    CA ; CA   HA  ; CA   CB  ; CA   C                    
+CB   HB3 ; CB   HB2 ; CB   CG ; CG   HG3 ; CG   HG2 ; CG   CD                   
+CD   HD3 ; CD   HD2 ; C    O  ; C    +R                                         
+                                                                                
+CA   +R   C    O ; -R   CA   N    CD      
+
+!-------------------------------------------------------------------------------
+Residue NPRO                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 16 17  1    
+ N    N3    -0.202000
+ H2   H      0.312000 
+ H3   H      0.312000 
+ CD   CT    -0.012000
+ HD1  HP     0.100000 
+ HD2  HP     0.100000 
+ CG   CT    -0.121000
+ HG1  HC     0.100000 
+ HG2  HC     0.100000 
+ CB   CT    -0.115000
+ HB1  HC     0.100000 
+ HB2  HC     0.100000 
+ CA   CT     0.100000 
+ HA   HP     0.100000 
+ C    C      0.526000 
+ O    O     -0.500000
+      
+N  H2 ; N  H3; N    CD  ; N    CA ; CA   HA  ; CA   CB  ; CA   C                    
+CB   HB1 ; CB   HB2 ; CB   CG ; CG   HG1 ; CG   HG2 ; CG   CD                   
+CD   HD1 ; CD   HD2 ; C    O  ; C    +R                                         
+                                                                                
+CA   +R   C    O  
+
+!-------------------------------------------------------------------------------
+Residue CPRO                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 15 16  2
+ N     N    -0.280200
+ CD    CT    0.043400 
+ HD3   H1    0.033100 
+ HD2   H1    0.033100 
+ CG    CT    0.046600 
+ HG3   HC    0.017200 
+ HG2   HC    0.017200 
+ CB    CT   -0.054300
+ HB3   HC    0.038100 
+ HB2   HC    0.038100 
+ CA    CT   -0.133600
+ HA    H1    0.077600 
+ C     C     0.663100 
+ O     O2   -0.769700
+ OXT   O2   -0.769700   
+
+-R   N   ; N    CD  ; N    CA ; CA   HA  ; CA   CB  ; CA   C                    
+CB   HB3 ; CB   HB2 ; CB   CG ; CG   HG3 ; CG   HG2 ; CG   CD                   
+CD   HD3 ; CD   HD2 ; C    O  ; C    OXT                                         
+                                                                                
+ -R   CA   N    CD  ; CA  OXT  C  O                                        
+
+!-------------------------------------------------------------------------------                                                                                
+Residue SER                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 11 12  2                                                                       
+N     N    -0.4157     !  amber99_34                                                          
+H     H     0.2719     !  amber99_17                                                          
+CA    CT   -0.02490    !  amber99_11                                                          
+HA    H1    0.08430    !  amber99_19                                                          
+CB    CT    0.2117     !  amber99_11                                                          
+HB3   H1    0.0352     !  amber99_19                                                          
+HB2   H1    0.0352     !  amber99_19                                                          
+OG    OH   -0.6546     !  amber99_43                                                          
+HG    HO    0.4275     !  amber99_25                                                          
+C     C     0.5973     !  amber99_2                                                           
+O     O    -0.5679     !  amber99_41                                                          
+                                                                                
+-R   N   ; N    H   ; N    CA ; CA   HA ; CA   CB ; CA   C                      
+CB   HB3 ; CB   HB2 ; CB   OG ; OG   HG ; C    O  ; C    +R                     
+                                                                                
+-R   CA   N    H ; CA   +R   C    O       
+
+!-------------------------------------------------------------------------------                                                                                
+Residue NSER                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 13 13  1 
+ N    N3    0.184900
+ H1   H     0.189800
+ H2   H     0.189800
+ H3   H     0.189800
+ CA   CT    0.056700
+ HA   HP    0.078200
+ CB   CT    0.259600
+ HB3  H1    0.027300
+ HB2  H1    0.027300
+ OG   OH   -0.671400
+ HG   HO    0.423900
+ C    C     0.616300
+ O    O    -0.572200
+
+N  H1;  N  H2  ; N    H3   ; N    CA ; CA   HA ; CA   CB ; CA   C                      
+CB   HB3 ; CB   HB2 ; CB   OG ; OG   HG ; C    O  ; C    +R                     
+                                                                                
+CA   +R   C    O 
+
+!-------------------------------------------------------------------------------                                                                                
+Residue CSER                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 12 12  2 
+ N    N   -0.382100
+ H    H    0.268100
+ CA   CT  -0.272200
+ HA   H1   0.130400
+ CB   CT   0.112300
+ HB3  H1   0.081300
+ HB2  H1   0.081300
+ OG   OH  -0.651400
+ HG   HO   0.447400
+ C    C    0.811300
+ O    O2  -0.813200
+ OXT  O2  -0.813200
+
+-R   N   ; N    H   ; N    CA ; CA   HA ; CA   CB ; CA   C                      
+CB   HB3 ; CB   HB2 ; CB   OG ; OG   HG ; C    O  ; C    OXT                     
+                                                                                
+-R   CA   N    H ; CA  OXT  C  O 
+
+!-------------------------------------------------------------------------------
+Residue MAR                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+54 57  6
+  C1    CT    0.123435
+  C20   CT   -0.098372
+  C5    CT   -0.166653
+  C6    C     0.694697
+  O7    O    -0.596331
+  N8    N    -0.553743
+  H7    H     0.335595
+  H6    HC    0.109731
+  H19   HC    0.074721
+  H20   HC    0.074721
+  H1    H1    0.059217
+  H2    H1    0.059217
+  O2    OS   -0.441475
+  C3    CT    0.165847
+  C4    CT   -0.101071
+  H3    HC    0.062718
+  H4    HC    0.062718
+  H5    HC    0.062718
+  C9    CT    0.026407
+  C10   CT    0.160145
+  C11   CT   -0.058483
+  C12   CM   -0.177150
+  C13   CM   -0.158155
+  C14   CT   -0.051186
+  C15   CT   -0.073379
+  C16   CT   -0.087375
+  H16   HC    0.051214
+  H17   HC    0.051214
+  H14   HC    0.044713
+  H15   HC    0.044713
+  H12   HC    0.050214
+  H13   HC    0.050214
+  H11   HA    0.125035
+  H10   HA    0.137039
+  H9    HC    0.064718
+  O17   OH   -0.595631
+  H18   HO    0.411116
+  H8    H1    0.103729
+  C18   C     0.646283
+  O19   O    -0.536848
+  O27   OS   -0.432777
+  C25   CT    0.110131
+  C26   CT   -0.118067
+  H26   HC    0.051715
+  H27   HC    0.051715
+  H28   HC    0.051715
+  H25   H1    0.091726
+  C22   CT    0.053515
+  N21   N3   -0.891547
+  H21   H     0.367904
+  H22   H     0.367904
+  H24   HP    0.078722
+  C23   C     0.573062
+  O24   O    -0.511955
+ 
+
+  C1   H1 ;  C1   H2 ;  C1  O2  ;  C1  C20 ;  O2   C3 ;  C3  C4 
+  C3   C5 ;  C3   C9 ;  C4  H3  ;  C4   H4 ;  C4   H5 ;  C5  H6
+  C5  C20 ;  C5   C6 ; C20  H19 ; C20  H20 ;  C6   O7 ;  C6  N8
+  N8   H7 ;  N8   C9 ;  C9  C18 ;  C9  C10 ; C18  O19 ; C18  O27
+ C10  O17 ; C10   H8 ; C10  C11 ; O17  H18 ; C11   H9 ; C11  C12
+ C11  C16 ; C12  H10 ; C12  C13 ; C13  H11 ; C13  C14 ; C14  H12
+ C14  H13 ; C14  C15 ; C15  H14 ; C15  H15 ; C15  C16 ; C16  H16 
+ C16  H17 ; O27  C25 ; C25  H25 ; C25  C26 ; C25  C22 ; C26  H26
+ C26  H27 ; C26  H28 ; C22  H24 ; C22  N21 ; C22  C23 ; N21  H21
+ N21  H22 ; C23  O24 ; C23  +R  
+
+
+  C5   N8   C6   O7  ;   C6   C9   N8   H7  ; C13  C11  C12  H10
+  C12  C14  C13  H11  ;  C9  O19  C18  O27  ; C22   +R  C23  O24  
+
+
+!-------------------------------------------------------------------------------
+Residue KET                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+93 96  19
+  C1    C    0.732381    
+  O2    O   -0.599770    
+  O3    OS  -0.436733    
+  C4    CT   0.195775    
+  C5    CA  -0.124252    
+  C6    CA  -0.105959    
+  C7    CA  -0.136948    
+  C8    CA  -0.119954    
+  C9    CA  -0.136948    
+  C10   CA  -0.105959    
+  H76   HA   0.144555    
+  H75   HA   0.131050    
+  H74   HA   0.128049    
+  H73   HA   0.131050    
+  H72   HA   0.144555    
+  H70   H1   0.069727    
+  H71   H1   0.069727    
+  N11   N   -0.496710    
+  H58   H    0.334628    
+  C12   CT   0.021708    
+  C15   CT  -0.082368    
+  C16   CT  -0.066674    
+  C17   CT  -0.093564    
+  H51   HC   0.034880    
+  H52   HC   0.034880    
+  H53   HC   0.034880    
+  C18   CT  -0.093564    
+  H54   HC   0.034880    
+  H55   HC   0.034880    
+  H56   HC   0.034880    
+  H50   HC   0.054721    
+  H48   HC   0.067726    
+  H49   HC   0.067726    
+  H57   H1   0.095737    
+  C13   C    0.625340    
+  O14   O   -0.616864    
+  N19   N   -0.529697    
+  H69   H    0.320623    
+  C20   CT   0.020708    
+  C23   CT  -0.077370    
+  C24   CT  -0.095663    
+  C25   CT  -0.081069    
+  H62   HC   0.028044    
+  H63   HC   0.028044    
+  H64   HC   0.028044    
+  C26   CT  -0.081069    
+  H65   HC   0.028044    
+  H66   HC   0.028044    
+  H67   HC   0.028044    
+  H61   HC   0.122747    
+  H59   HC   0.049219    
+  H60   HC   0.049219    
+  H68   H1   0.099738    
+  C21   C    0.622338    
+  O22   O   -0.661846    
+  N36   N   -0.479716    
+  H95   H    0.326625    
+  C35   CT   0.023709    
+  C30   CT  -0.023091    
+  C27   CA  -0.077270    
+  C28   CA  -0.098962    
+  C37   CA  -0.189427    
+  C38   CA   0.090135    
+  C29   CA  -0.189427    
+  C31   CA  -0.098962    
+  H81   HA   0.150057    
+  H78   HA   0.128049    
+  O39   OH  -0.514903    
+  H86   HO   0.408156    
+  H85   HA   0.128049    
+  H77   HA   0.150057    
+  H79   HC   0.062224    
+  H80   HC   0.062224    
+  H84   H1   0.074729    
+  C33   CT   0.527502    
+  O34   O   -0.823184    
+  C32   CT   0.286410    
+  O40   OH  -0.656548    
+  H87   HO   0.401154    
+  H82   H2   0.076729    
+  N41   NT  -0.803892    
+  H88   H    0.343932    
+  O46   OS  -0.524399    
+  C45   CT   0.171166    
+  C47   CT  -0.095064    
+  H92   HC   0.030379    
+  H93   HC   0.030379    
+  H94   HC   0.030379    
+  H91   H1   0.073728    
+  C42   CT   0.029511    
+  H89   H1   0.028711    
+  C43   C    0.583123    
+  O44   O   -0.575879    
+ 
+
+  C1   O2 ;  C1   O3 ;  C1  N11 ;  O3   C4 ;  C4   C5 ;  C4  H70  
+  C4  H71 ;  C5   C6 ;  C5  C10 ;  C6   C7 ;  C6  H72 ;  C7   C8  
+  C7  H73 ;  C8   C9 ;  C8  H74 ;  C9  C10 ;  C9  H75 ; C10  H76  
+ N11  C12 ; N11  H58 ; C12  C13 ; C12  C15 ; C12  H57 ; C13  O14  
+ C13  N19 ; C15  C16 ; C15  H48 ; C15  H49 ; C16  C17 ; C16  C18  
+ C16  H50 ; C17  H51 ; C17  H52 ; C17  H53 ; C18  H54 ; C18  H55  
+ C18  H56 ; N19  C20 ; N19  H69 ; C20  C21 ; C20  C23 ; C20  H68  
+ C21  O22 ; C21  N36 ; C23  C24 ; C23  H59 ; C23  H60 ; C24  C25  
+ C24  C26 ; C24  H61 ; C25  H62 ; C25  H63 ; C25  H64 ; C26  H65  
+ C26  H66 ; C26  H67 ; C27  C28 ; C27  C30 ; C27  C31 ; C28  C37  
+ C28  H77 ; C29  C31 ; C29  C38 ; C29  H78 ; C30  C35 ; C30  H79  
+ C30  H80 ; C31  H81 ; C32  C33 ; C32  O40 ; C32  N41 ; C32  H82  
+ C33  O34 ; C33  C35 ; C33  O46 ; C35  N36 ; C35  H84  
+ N36  H95 ; C37  C38 ; C37  H85 ; C38  O39 ; O39  H86 ; O40  H87  
+ N41  C42 ; N41  H88 ; C42  C43 ; C42  C45 ; C42  H89 ; C43  O44  
+ C43   +R ; C45  O46 ; C45  C47 ; C45  H91 ; C47  H92 ; C47  H93  
+ C47  H94 
+
+
+  N11   O2   C1   O3  ;  C10   C6   C5   C4  ;  C5   C7   C6  H72  
+   C8   C6   C7  H73  ;  C9   C7   C8  H74   ;  C8  C10   C9  H75  
+   C9   C5  C10  H76  ;  C1  C12  N11  H58   ;  C12  N19  C13  O14 
+  C13  C20  N19  H69  ;  C20  N36  C21  O22  ;  C21  C35  N36  H95 
+  C28  C31  C27  C30  ;  C27  C37  C28  H77  ;  C28  C38  C37  H85 
+  C37  C29  C38  O39  ;  C38  C31  C29  H78  ;  C27  C29  C31  H81 
+  C42   +R  C43  O44   
+
+
+
+!-------------------------------------------------------------------------------
+Residue THX                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+79 80 5      
+N1    NT      -0.816760
+C22   CT       0.133872
+C21   CT       0.073840
+C20   CT       0.346787
+O6    OS      -0.412378
+C5    CT       0.152182
+C7    CT      -0.103045
+H45   HC       0.044724
+H46   HC       0.041722
+H47   HC       0.066736
+H44   H1       0.075741
+C19   CT       0.107758
+N18   N       -0.545606
+C16   C        0.641445
+C13   CT      -0.020289
+N12   N       -0.547605
+C10   C        0.649449
+C8    CT      -0.153317
+C9    CT      -0.080357
+C30   CT      -0.079357
+C31   CT      -0.077358
+C32   CT      -0.067664
+C33   CT      -0.091051
+H73   HC       0.033718
+H74   HC       0.034719
+H75   HC       0.033718
+C34   CT      -0.090052
+H76   HC       0.034719
+H77   HC       0.033718
+H78   HC       0.033718
+H72   HC       0.047726
+H70   HC       0.041722
+H71   HC       0.038721
+H68   HC       0.045725
+H69   HC       0.045725
+H50   HC       0.047726
+H51   HC       0.053729
+H48   HC       0.067736
+H49   HC       0.082745
+O11   O       -0.594780
+H40   H        0.316670
+C14   CT       0.126468
+O15   OH      -0.590482
+H38   HO       0.411221
+H36   H1       0.040722
+H37   H1       0.081744
+H39   H1       0.116763
+O17   O       -0.630760
+H80   H        0.322674
+C26   CT      -0.082356
+C27   CT      -0.065665
+C28   CT      -0.090052
+H62   HC       0.032718
+H63   HC       0.031717
+H64   HC       0.034719
+C29   CT      -0.100046
+H65   HC       0.031717
+H66   HC       0.052728
+H67   HC       0.032718
+H61   HC       0.050727
+H59   HC       0.067736
+H60   HC       0.055730
+H52   H1       0.100754
+O25   OH      -0.623464
+H58   HO       0.436235
+O23   OH      -0.625463
+H55   HO       0.433233
+C24   CT       0.109459
+O35   OH      -0.607473
+H79   HO       0.412222
+H56   H1       0.067736
+H57   H1       0.093750
+H53   H1       0.060733
+H54   H1       0.038721
+H41   H        0.385007
+C2    CT       0.032517
+H42   H1       0.091749
+C3    C        0.540191
+O4    O       -0.523818
+
+ N1   C2  ;  N1  C22  ;  N1  H41  ;  C2   C3  ;  C2   C5  ;  C2  H42
+ C3   O4  ;  C3   +R  ;  C5   O6  ;  C5   C7  ;  C5  H44  ;  O6  C20
+ C7  H45  ;  C7  H46  ;  C7  H47  ;  C8   C9  ;  C8  C10  ;  C8  H48
+ C8  H49  ;  C9  C30  ;  C9  H50  ;  C9  H51  ; C10  O11  ; C10  N12
+ N12  C13 ; N12  H40  ; C13  C14  ; C13  C16  ; C13  H39  ; C14  O15
+ C14  H36 ; C14  H37  ; O15  H38  ; C16  O17  ; C16  N18  ; N18  C19
+ N18  H80 ; C19  C20  ; C19  C26  ; C19  H52  ; C20  C21  ; C20  O25
+ C21  C22 ; C21  O23  ; C21  C24  ; C22  H53  ; C22  H54  ; O23  H55
+ C24  O35 ; C24  H56  ; C24  H57  ; O25  H58  ; C26  C27  ; C26  H59
+ C26  H60 ; C27  C28  ; C27  C29  ; C27  H61  ; C28  H62  ; C28  H63
+ C28  H64 ; C29  H65  ; C29  H66  ; C29  H67  ; C30  C31  ; C30  H68
+ C30  H69 ; C31  C32  ; C31  H70  ; C31  H71  ; C32  C33  ; C32  C34
+ C32  H72 ; C33  H73  ; C33  H74  ; C33  H75  ; C34  H76  ; C34  H77
+ C34  H78 ; O35  H79
+
+  C16  C19  N18  H80 ;  C13  N18  C16  O17  ;   C10  C13  N12  H40 
+   C8  N12  C10  O11 ;  C2   +R   C3   O4
+    
+!-------------------------------------------------------------------------------
+Residue THR                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 14 15  2                                                                       
+N    N       -0.4157     ! amber99_34                                           
+H    H        0.2719     ! amber99_17                                           
+CA   CT      -0.0389     ! amber99_11                                           
+HA   H1       0.1007     ! amber99_19                                           
+CB   CT       0.3654     ! amber99_11                                           
+HB   H1       0.0043     ! amber99_19                                           
+CG2  CT      -0.2438     ! amber99_11                                           
+HG21 HC       0.0642     ! amber99_18                                           
+HG22 HC       0.0642     ! amber99_18                                           
+HG23 HC       0.0642     ! amber99_18                                           
+OG1  OH      -0.6761     ! amber99_43                                           
+HG1  HO       0.4102     ! amber99_25                                           
+C    C        0.5973     ! amber99_2                                            
+O    O       -0.5679     ! amber99_41                                           
+                                                                                
+-R   N    ; N    H   ; N    CA  ; CA   HA  ; CA   CB   ; CA   C                 
+CB   HB   ; CB   OG1 ; CB   CG2 ; OG1  HG1 ; CG2  HG21 ; CG2  HG22              
+CG2  HG23 ; C    O   ; C    +R                                                  
+                                                                                
+-R   CA   N    H ; CA   +R   C    O  
+
+!-------------------------------------------------------------------------------
+Residue NTHR                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 16 16  1
+ N    N3     0.181200
+ H1   H      0.193400
+ H2   H      0.193400
+ H3   H      0.193400
+ CA   CT     0.003400
+ HA   HP     0.108700
+ CB   CT     0.451400
+ HB   H1    -0.032300
+ CG2  CT    -0.255400
+ HG21 HC     0.062700
+ HG22 HC     0.062700
+ HG23 HC     0.062700
+ OG1  OH    -0.676400
+ HG1  HO     0.407000
+ C    C      0.616300
+ O    O     -0.572200
+
+N  H1; N  H2; N    H3   ; N    CA  ; CA   HA  ; CA   CB   ; CA   C                 
+CB   HB   ; CB   OG1 ; CB   CG2 ; OG1  HG1 ; CG2  HG21 ; CG2  HG22              
+CG2  HG23 ; C    O   ; C    +R                                                  
+                                                                                
+ CA   +R   C    O  
+
+!-------------------------------------------------------------------------------
+Residue CTHR                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 15 15  2
+ N    N     -0.382100
+ H    H      0.268100
+ CA   CT    -0.242000
+ HA   H1     0.120700
+ CB   CT     0.302500
+ HB   H1     0.007800
+ CG2  CT    -0.185300
+ HG21 HC     0.058600
+ HG22 HC     0.058600
+ HG23 HC     0.058600
+ OG1  OH    -0.649600
+ HG1  HO     0.411900
+ C    C      0.781000
+ O    O2    -0.804400
+ OXT  O2    -0.804400
+
+-R   N    ; N    H   ; N    CA  ; CA   HA  ; CA   CB   ; CA   C                 
+CB   HB   ; CB   OG1 ; CB   CG2 ; OG1  HG1 ; CG2  HG21 ; CG2  HG22              
+CG2  HG23 ; C    O   ; C    OXT                                                  
+                                                                                
+-R   CA   N    H  ; CA  OXT  C  O   
+
+!-------------------------------------------------------------------------------
+Residue TRP                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 24 27  9                                                                       
+N     N       -0.4157    ! amber99_34                                           
+H     H        0.2719    ! amber99_17                                           
+CA    CT      -0.0275    ! amber99_11                                           
+HA    H1       0.1123    ! amber99_19                                           
+CB    CT      -0.0050    ! amber99_11                                           
+HB3   HC       0.0339    ! amber99_18                                           
+HB2   HC       0.0339    ! amber99_18                                           
+CG    C*      -0.1415    ! amber99_14                                           
+CD1   CW      -0.1638    ! amber99_13                                           
+HD1   H4       0.2062    ! amber99_23                                           
+NE1   NA      -0.3418    ! amber99_35                                           
+HE1   H        0.3412    ! amber99_17                                           
+CE2   CN       0.1380    ! amber99_8                                            
+CZ2   CA      -0.2601    ! amber99_3                                            
+HZ2   HA       0.1572    ! amber99_22                                           
+CH2   CA      -0.1134    ! amber99_3                                            
+HH2   HA       0.1417    ! amber99_22                                           
+CZ3   CA      -0.1972    ! amber99_3                                            
+HZ3   HA       0.1447    ! amber99_22                                           
+CE3   CA      -0.2387    ! amber99_3                                            
+HE3   HA       0.1700    ! amber99_22                                           
+CD2   CB       0.1243     ! amber99_4                                           
+C     C        0.5973    ! amber99_2                                            
+O     O       -0.5679    ! amber99_41                                           
+                                                                                
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB3 ; CB   HB2 ; CB   CG  ; CG   CD1 ; CG   CD2 ; CD1  HD1                 
+CD1  NE1 ; NE1  HE1 ; NE1  CE2 ; CD2  CE2 ; CD2  CE3 ; CE3  HE3                 
+CE2  CZ2 ; CZ2  HZ2 ; CZ2  CH2 ; CH2  HH2 ; CH2  CZ3 ; CZ3  HZ3                 
+CE3  CZ3 ; C    O   ; C    +R                                                   
+                                                                                
+-R   CA   N    H   ; CA   +R   C    O   ; CD1  CE2  NE1  HE1                    
+ CE2  CH2  CZ2  HZ2 ;  CZ2  CZ3  CH2  HH2 ;  CH2  CE3  CZ3  HZ3 
+ CZ3  CD2  CE3  HE3 ;  CG   NE1  CD1  HD1 ;   CD2  CB  CG   CD1                      
+
+!-------------------------------------------------------------------------------
+Residue NTRP                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 26 28  8  
+ N     N3     0.191300
+ H1    H      0.188800
+ H2    H      0.188800
+ H3    H      0.188800
+ CA    CT     0.042100
+ HA    HP     0.116200
+ CB    CT     0.054300
+ HB1   HC     0.022200
+ HB2   HC     0.022200
+ CG    C*    -0.165400
+ CD1   CW    -0.178800
+ HD1   H4     0.219500
+ NE1   NA    -0.344400
+ HE1   H      0.341200
+ CE2   CN     0.157500
+ CZ2   CA    -0.271000
+ HZ2   HA     0.158900
+ CH2   CA    -0.108000
+ HH2   HA     0.141100
+ CZ3   CA    -0.203400
+ HZ3   HA     0.145800
+ CE3   CA    -0.226500
+ HE3   HA     0.164600
+ CD2   CB     0.113200
+ C     C      0.612300
+ O     O     -0.571300
+
+N H1; N  H2; N  H3   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB1 ; CB   HB2 ; CB   CG  ; CG   CD1 ; CG   CD2 ; CD1  HD1                 
+CD1  NE1 ; NE1  HE1 ; NE1  CE2 ; CD2  CE2 ; CD2  CE3 ; CE3  HE3                 
+CE2  CZ2 ; CZ2  HZ2 ; CZ2  CH2 ; CH2  HH2 ; CH2  CZ3 ; CZ3  HZ3                 
+CE3  CZ3 ; C    O   ; C    +R                                                   
+                                                                                
+CA   +R   C    O   ; CD1  CE2  NE1  HE1                    
+CE2  CH2  CZ2  HZ2 ;  CZ2  CZ3  CH2  HH2 ;  CH2  CE3  CZ3  HZ3 
+CZ3  CD2  CE3  HE3 ;  CG   NE1  CD1  HD1 ;   CD2  CB  CG   CD1     
+
+!-------------------------------------------------------------------------------
+Residue CTRP                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 25 27  9  
+ N     N     -0.382100
+ H     H      0.268100
+ CA    CT    -0.208400
+ HA    H1     0.127200
+ CB    CT    -0.074200
+ HB1   HC     0.049700
+ HB2   HC     0.049700
+ CG    C*    -0.079600
+ CD1   CW    -0.180800
+ HD1   H4     0.204300
+ NE1   NA    -0.331600
+ HE1   H      0.341300
+ CE2   CN     0.122200
+ CZ2   CA    -0.259400
+ HZ2   HA     0.156700
+ CH2   CA    -0.102000
+ HH2   HA     0.140100
+ CZ3   CA    -0.228700
+ HZ3   HA     0.150700
+ CE3   CA    -0.183700
+ HE3   HA     0.149100
+ CD2   CB     0.107800
+ C     C      0.765800
+ O     O2    -0.801100
+ OXT   O2    -0.801100
+       
+-R   N   ; N    H   ; N    CA  ; CA   HA  ; CA   CB  ; CA   C                   
+CB   HB1 ; CB   HB2 ; CB   CG  ; CG   CD1 ; CG   CD2 ; CD1  HD1                 
+CD1  NE1 ; NE1  HE1 ; NE1  CE2 ; CD2  CE2 ; CD2  CE3 ; CE3  HE3                 
+CE2  CZ2 ; CZ2  HZ2 ; CZ2  CH2 ; CH2  HH2 ; CH2  CZ3 ; CZ3  HZ3                 
+CE3  CZ3 ; C    O   ; C    OXT                                                  
+                                                                                
+-R   CA   N    H   ; CD1  CE2  NE1  HE1                    
+ CE2  CH2  CZ2  HZ2 ;  CZ2  CZ3  CH2  HH2 ;  CH2  CE3  CZ3  HZ3 
+ CZ3  CD2  CE3  HE3 ;  CG   NE1  CD1  HD1 ;  CD2  CB  CG   CD1 ; CA  OXT  C  O                       
+
+!-------------------------------------------------------------------------------    
+Residue TYR                                                                      
+!------------------------------------------------------------------------------- 
+! # Atoms, bonds and impropers.                                                  
+ 21 23  8                                                                        
+N     N         -0.4157    ! amber99_34                                             
+H     H          0.2719    ! amber99_17                                             
+CA    CT        -0.0014    ! amber99_11                                             
+HA    H1         0.0876    ! amber99_19                                             
+CB    CT        -0.0152    ! amber99_11                                             
+HB3   HC         0.0295    ! amber99_18                                             
+HB2   HC         0.0295    ! amber99_18                                             
+CG    CA        -0.0011    ! amber99_3                                              
+CD1   CA        -0.1906    ! amber99_3                                              
+HD1   HA         0.1699    ! amber99_22                                             
+CE1   CA        -0.2341    ! amber99_3                                              
+HE1   HA         0.1656    ! amber99_22                                             
+CZ    CA         0.3226    ! amber99_2                                              
+OH    OH        -0.5579    ! amber99_43                                             
+HH    HO         0.3992    ! amber99_25                                             
+CE2   CA        -0.2341    ! amber99_3                                              
+HE2   HA         0.1656    ! amber99_22                                             
+CD2   CA        -0.1906    ! amber99_3                                              
+HD2   HA         0.1699    ! amber99_22                                             
+C     C          0.5973    ! amber99_2                                              
+O     O         -0.5679    ! amber99_41                                             
+                                                                                 
+-R   N   ; N    H   ; N    CA ; CA   HA  ; CA   CB  ; CA   C                     
+CB   HB3 ; CB   HB2 ; CB   CG ; CG   CD1 ; CD1  HD1 ; CD1  CE1                   
+CE1  HE1 ; CE1  CZ  ; CZ   OH ; OH   HH  ; CZ   CE2 ; CE2  HE2                   
+CE2  CD2 ; CD2  HD2 ; CD2  CG ; C    O   ; C    +R                               
+                                                                                 
+-R   CA   N    H   ; CA   +R   C    O   ; CE2  CG   CD2  HD2 ; CD2  CZ   CE2  HE2
+CD1  CZ   CE1  HE1 ; CE1  CG   CD1  HD1 ; CD1  CD2  CG   CB  ; CE1  CE2  CZ   OH 
+
+!-------------------------------------------------------------------------------    
+Residue NTYR                                                                      
+!------------------------------------------------------------------------------- 
+! # Atoms, bonds and impropers.                                                  
+ 23 24  7  
+ N    N3   0.194000
+ H1   H    0.187300
+ H2   H    0.187300
+ H3   H    0.187300
+ CA   CT   0.057000
+ HA   HP   0.098300
+ CB   CT   0.065900
+ HB3  HC   0.010200
+ HB2  HC   0.010200
+ CG   CA  -0.020500
+ CD1  CA  -0.200200
+ HD1  HA   0.172000
+ CE1  CA  -0.223900
+ HE1  HA   0.165000
+ CZ   C    0.313900
+ OH   OH  -0.557800
+ HH   HO   0.400100
+ CE2  CA  -0.223900
+ HE2  HA   0.165000
+ CD2  CA  -0.200200
+ HD2  HA   0.172000
+ C    C    0.612300
+ O    O   -0.571300
+
+N   H1; N   H2 ; N    H3   ; N    CA ; CA   HA  ; CA   CB  ; CA   C                     
+CB   HB3 ; CB   HB2 ; CB   CG ; CG   CD1 ; CD1  HD1 ; CD1  CE1                   
+CE1  HE1 ; CE1  CZ  ; CZ   OH ; OH   HH  ; CZ   CE2 ; CE2  HE2                   
+CE2  CD2 ; CD2  HD2 ; CD2  CG ; C    O   ; C    +R                               
+                                                                                 
+ CA   +R   C    O   ; CE2  CG   CD2  HD2 ; CD2  CZ   CE2  HE2
+CD1  CZ   CE1  HE1 ; CE1  CG   CD1  HD1 ; CD1  CD2  CG   CB  ; CE1  CE2  CZ   OH 
+
+!-------------------------------------------------------------------------------    
+Residue CTYR                                                                      
+!------------------------------------------------------------------------------- 
+! # Atoms, bonds and impropers.                                                  
+ 22 23  8    
+ N     N    -0.382100
+ H     H     0.268100
+ CA    CT   -0.201500
+ HA    H1    0.109200
+ CB    CT   -0.075200
+ HB1   HC    0.049000
+ HB2   HC    0.049000
+ CG    CA    0.024300
+ CD1   CA   -0.192200
+ HD1   HA    0.178000
+ CE1   CA   -0.245800
+ HE1   HA    0.167300
+ CZ    C     0.339500
+ OH    OH   -0.564300
+ HH    HO    0.401700
+ CE2   CA   -0.245800
+ HE2   HA    0.167300
+ CD2   CA   -0.192200
+ HD2   HA    0.178000
+ C     C     0.781700
+ O     O2   -0.807000
+ OXT   O2   -0.807000
+
+-R   N   ; N    H   ; N    CA ; CA   HA  ; CA   CB  ; CA   C                     
+CB   HB1 ; CB   HB2 ; CB   CG ; CG   CD1 ; CD1  HD1 ; CD1  CE1                   
+CE1  HE1 ; CE1  CZ  ; CZ   OH ; OH   HH  ; CZ   CE2 ; CE2  HE2                   
+CE2  CD2 ; CD2  HD2 ; CD2  CG ; C    O   ; C    OXT                               
+                                                                                 
+-R   CA   N    H   ; CE2  CG   CD2  HD2 ; CD2  CZ   CE2  HE2
+CD1  CZ   CE1  HE1 ; CE1  CG   CD1  HD1 ; CD1  CD2  CG   CB  ; CE1  CE2  CZ   OH
+CA  OXT  C  O  
+
+!-------------------------------------------------------------------------------
+Residue VAL                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 16 17  2                                                                       
+N     N       -0.4157    ! amber99_34                                           
+H     H        0.2719    ! amber99_17                                           
+CA    CT      -0.0875    ! amber99_11                                           
+HA    H1       0.0969    ! amber99_19                                           
+CB    CT       0.2985    ! amber99_11                                           
+HB    HC      -0.0297    ! amber99_18                                           
+CG1   CT      -0.3192    ! amber99_11                                           
+HG11  HC       0.0791    ! amber99_18                                           
+HG12  HC       0.0791    ! amber99_18                                           
+HG13  HC       0.0791    ! amber99_18                                           
+CG2   CT      -0.3192    ! amber99_11                                           
+HG21  HC       0.0791    ! amber99_18                                           
+HG22  HC       0.0791    ! amber99_18                                           
+HG23  HC       0.0791    ! amber99_18                                           
+C     C        0.5973    ! amber99_2                                            
+O     O       -0.5679    ! amber99_41                                           
+                                                                                
+-R   N    ; N    H    ; N    CA   ; CA   HA   ; CA   CB   ; CA   C              
+CB   HB   ; CB   CG1  ; CB   CG2  ; CG1  HG11 ; CG1  HG12 ; CG1  HG13           
+CG2  HG21 ; CG2  HG22 ; CG2  HG23 ; C    O    ; C    +R                         
+                                                                               
+-R   CA   N    H ; CA   +R   C    O                                             
+
+!-------------------------------------------------------------------------------
+Residue NVAL                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 18 18  1
+ N      N3   0.057700
+ H1     H    0.227200
+ H2     H    0.227200
+ H3     H    0.227200
+ CA     CT  -0.005400
+ HA     HP   0.109300
+ CB     CT   0.319600
+ HB     HC  -0.022100
+ CG1    CT  -0.312900
+ HG11   HC   0.073500
+ HG12   HC   0.073500
+ HG13   HC   0.073500
+ CG2    CT  -0.312900
+ HG21   HC   0.073500
+ HG22   HC   0.073500
+ HG23   HC   0.073500
+ C      C    0.616300
+ O      O   -0.572200
+
+N H1; N H2; N  H3    ; N    CA   ; CA   HA   ; CA   CB   ; CA   C              
+CB   HB   ; CB   CG1  ; CB   CG2  ; CG1  HG11 ; CG1  HG12 ; CG1  HG13           
+CG2  HG21 ; CG2  HG22 ; CG2  HG23 ; C    O    ; C    +R                         
+                                                                                
+CA   +R   C    O                                             
+
+!-------------------------------------------------------------------------------
+Residue CVAL                                                                     
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+ 17 17  2                        
+ N    N     -0.382100
+ H    H      0.268100
+ CA   CT    -0.343800
+ HA   H1     0.143800
+ CB   CT     0.194000
+ HB   HC     0.030800
+ CG1  CT    -0.306400
+ HG11 HC     0.083600
+ HG12 HC     0.083600
+ HG13 HC     0.083600
+ CG2  CT    -0.306400
+ HG21 HC     0.083600
+ HG22 HC     0.083600
+ HG23 HC     0.083600
+ C    C      0.835000
+ O    O2    -0.817300
+ OXT  O2    -0.817300
+
+-R   N    ; N    H    ; N    CA   ; CA   HA   ; CA   CB   ; CA   C              
+CB   HB   ; CB   CG1  ; CB   CG2  ; CG1  HG11 ; CG1  HG12 ; CG1  HG13           
+CG2  HG21 ; CG2  HG22 ; CG2  HG23 ; C    O    ; C    OXT                         
+                                                                                
+-R   CA   N    H ; CA  OXT  C  O  
+
+!-------------------------------------------------------------------------------
+Residue RA5   ! R-Adenosine - with 5' - OH end group and 3' - O(minus)                                                                  
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+31 34  5
+ H5T   HO     0.429500
+ O5'   OH    -0.622300
+ C5'   CT     0.055800
+ H5'1  H1     0.067900
+ H5'2  H1     0.067900
+ C4'   CT     0.106500
+ H4'   H1     0.117400
+ O4'   OS    -0.354800 
+ C1'   CT     0.039400
+ H1'   H2     0.200700
+ N9    N*    -0.025100
+ C8    CK     0.200600
+ H8    H5     0.155300
+ N7    NB    -0.607300
+ C5    CB     0.051500 
+ C6    CA     0.700900
+ N6    N2    -0.901900 
+ H61   H      0.411500 
+ H62   H      0.411500 
+ N1    NC    -0.761500
+ C2    CQ     0.587500
+ H2    H5     0.047300
+ N3    NC    -0.699700
+ C4    CB     0.305300
+ C3'   CT     0.202200
+ H3'   H1     0.061500
+ C2'   CT     0.067000
+ H2'1  H1     0.097200
+ O2'   OH    -0.613900
+ HO'2  HO     0.418600
+ O3'   OS    -0.524600
+
+ H5T   O5' ; O5'   C5'; C5'  H5'1 ; C5'  H5'2 ; C5'   C4' ; C4'   H4'
+ C4'   O4' ; C4'   C3' ; O4'   C1' ; C1'   H1' ; C1'   N9 ; C1'   C2'
+ N9    C8  ; N9    C4 ; C8    H8  ; C8    N7  ; N7    C5  ; C5    C6
+ C5    C4  ; C6    N6 ; C6    N1  ; N6   H61  ; N6   H62  ; N1    C2
+ C2    H2  ; C2    N3 ; N3    C4  ; C3'   H3' ; C3'   C2' ; C3'   O3'
+ C2'  H2'1 ; C2'   O2' ; O2'  HO'2 ; O3' +R
+
+
+C4   C8   N9   C1' ; C6   H61  N6   H62 ; N9   N7   C8   H8  
+N1   N3   C2   H2  ; C5   N6   C6   N1  ; 
+
+!-------------------------------------------------------------------------------
+Residue RA   ! R-Adenosine - with 5' - phosphate group and 3' - O(minus)                                                                  
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+33 37  5
+P     P     1.166200
+OP1   O2   -0.776000 
+OP2   O2   -0.776000
+O5'   OS   -0.498900
+C5'   CT    0.055800
+H5'1  H1    0.067900 
+H5'2  H1    0.067900 
+C4'   CT    0.106500
+H4'   H1    0.117400
+O4'   OS   -0.354800
+C1'   CT    0.039400
+H1'   H2    0.200700 
+N9    N*   -0.025100
+C8    CK    0.200600
+H8    H5    0.155300
+N7    NB   -0.607300
+C5    CB    0.051500
+C6    CA    0.700900 
+N6    N2   -0.901900
+H61   H     0.411500  
+H62   H     0.411500
+N1    NC   -0.761500
+C2    CQ    0.587500
+H2    H5    0.047300
+N3    NC   -0.699700
+C4    CB    0.305300
+C3'   CT    0.202200
+H3'   H1    0.061500
+C2'   CT    0.067000
+H2'1  H1    0.097200
+O2'   OH   -0.613900
+HO'2  HO    0.418600
+O3'   OS   -0.524600
+
+ P     OP1 ; P     OP2 ; P     O5' ; O5'   C5' ; C5'  H5'1 ; C5'  H5'2
+ C5'   C4' ; C4'   H4' ; C4'   O4' ; C4'   C3' ; O4'   C1' ; C1'   H1'
+ C1'    N9 ; C1'   C2' ; N9    C8  ; N9    C4  ; C8    H8  ; C8    N7
+ N7    C5  ; C5    C6  ; C5    C4  ; C6    N6  ; C6    N1  ; N6   H61
+ N6   H62  ; N1    C2  ; C2    H2  ; C2    N3  ; N3    C4  ; C3'   H3'
+ C3'   C2' ; C3'   O3' ; C2'  H2'1 ; C2'   O2' ; O2'  HO'2 ; -R     P; 
+ O3' +R
+
+
+ C4   C8   N9   C1' ; C6   H61  N6   H62 ; N9   N7   C8   H8  
+ N1   N3   C2   H2  ; C5   N6   C6   N1
+
+ !-------------------------------------------------------------------------------
+Residue RY   ! R-Adenosine - with 5' - phosphate group and 3' - O(minus)                                                                  
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+34 37  5
+P     P     1.166200
+OP1   O2   -0.776000 
+OP2   O2   -0.776000
+O5'   OS   -0.498900
+C5'   CT    0.055800
+H5'1  H1    0.067900 
+H5'2  H1    0.067900 
+C4'   CT    0.106500
+H4'   H1    0.117400
+O4'   OS   -0.354800
+C1'   CT    0.039400
+H1'   H2    0.200700 
+N9    N*   -0.025100
+C8    CK    0.200600
+H8    H5    0.155300
+N7    NB   -0.607300
+C5    CB    0.051500
+C6    CA    0.700900 
+N6    N2   -0.901900
+H61   H     0.411500  
+H62   H     0.411500
+N1    NC   -0.761500
+C2    CQ    0.587500
+H2    H5    0.047300
+N3    NC   -0.699700
+C4    CB    0.305300
+C3'   CT    0.202200
+H3'   H1    0.061500
+C2'   CT    0.067000
+H2'1  H1    0.097200
+O2'   OH   -0.613900
+HO'2  HO    0.418600
+O3'   OS   -0.524600
+H3    H     0.00000
+
+ P     OP1 ; P     OP2 ; P     O5' ; O5'   C5' ; C5'  H5'1 ; C5'  H5'2
+ C5'   C4' ; C4'   H4' ; C4'   O4' ; C4'   C3' ; O4'   C1' ; C1'   H1'
+ C1'    N9 ; C1'   C2' ; N9    C8  ; N9    C4  ; C8    H8  ; C8    N7
+ N7    C5  ; C5    C6  ; C5    C4  ; C6    N6  ; C6    N1  ; N6   H61
+ N6   H62  ; N1    C2  ; C2    H2  ; C2    N3  ; N3    C4  ; C3'   H3'
+ C3'   C2' ; C3'   O3' ; C2'  H2'1 ; C2'   O2' ; O2'  HO'2 ; -R     P; 
+ O3' +R
+
+
+ C4   C8   N9   C1' ; C6   H61  N6   H62 ; N9   N7   C8   H8  
+ N1   N3   C2   H2  ; C5   N6   C6   N1
+
+ 
+ 
+!-------------------------------------------------------------------------------
+Residue RA3   ! R-Adenosine - with 5' - phosphate group and 3' - OH group                                                                  
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+34 37  5
+P     P     1.166200 
+OP1   O2   -0.776000  
+OP2   O2   -0.776000
+O5'   OS   -0.498900
+C5'   CT    0.055800
+H5'1  H1    0.067900
+H5'2  H1    0.067900
+C4'   CT    0.106500
+H4'   H1    0.117400
+O4'   OS   -0.354800 
+C1'   CT    0.039400
+H1'   H2    0.200700
+N9    N*   -0.025100
+C8    CK    0.200600
+H8    H5    0.155300
+N7    NB   -0.607300
+C5    CB    0.051500
+C6    CA    0.700900
+N6    N2   -0.901900
+H61   H     0.411500
+H62   H     0.411500
+N1    NC   -0.761500
+C2    CQ    0.587500
+H2    H5    0.047300
+N3    NC   -0.699700
+C4    CB    0.305300
+C3'   CT    0.202200
+H3'   H1    0.061500
+C2'   CT    0.067000
+H2'1  H1    0.097200
+O2'   OH   -0.613900
+HO'2  HO    0.418600
+O3'   OH   -0.654100 
+H3T   HO    0.437600
+
+ P     OP1 ; P     OP2 ; P     O5' ; O5'   C5' ; C5'  H5'1 ; C5'  H5'2
+ C5'   C4' ; C4'   H4' ; C4'   O4' ; C4'   C3' ; O4'   C1' ; C1'   H1'
+ C1'    N9 ; C1'   C2' ; N9    C8  ; N9    C4  ; C8    H8  ; C8    N7
+ N7    C5  ; C5    C6  ; C5    C4  ; C6    N6  ; C6    N1  ; N6   H61
+ N6   H62  ; N1    C2  ; C2    H2  ; C2    N3  ; N3    C4  ; C3'   H3'
+ C3'   C2' ; C3'   O3' ; C2'  H2'1 ; C2'   O2' ; O2'  HO'2 ; O3'   H3T
+ -R     P 
+
+ C4   C8   N9   C1'  ; C6   H61  N6   H62  ; N9   N7   C8   H8   
+ N1   N3   C2   H2  ;  C5   N6   C6   N1   
+ 
+!-------------------------------------------------------------------------------
+Residue RC5   ! R-Cytosine -  with 5' - OH end group and 3' - O(minus) group                                                                
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+29 31  6      
+H5T   HO     0.429500
+O5'   OH    -0.622300
+C5'   CT     0.055800
+H5'1  H1     0.067900
+H5'2  H1     0.067900
+C4'   CT     0.106500
+H4'   H1     0.117400
+O4'   OS    -0.354800
+C1'   CT     0.006600
+H1'   H2     0.202900
+N1    N*    -0.048400
+C6    CM     0.005300
+H6    H4     0.195800
+C5    CM    -0.521500
+H5    HA     0.192800
+C4    CA     0.818500
+N4    N2    -0.953000
+H41   H      0.423400
+H42   H      0.423400
+N3    NC    -0.758400
+C2    C      0.753800
+O2    O     -0.625200
+C3'   CT     0.202200
+H3'   H1     0.061500
+C2'   CT     0.067000
+H2'1  H1     0.097200
+O2'   OH    -0.613900
+HO'2  HO     0.418600 
+O3'   OS    -0.524600
+
+
+H5T   O5'  ;  O5'   C5'  ;   C5'  H5'1  ;   C5'  H5'2   ;   C5'   C4'
+C4'   H4'  ;  C4'   O4'  ;   C4'   C3'  ;   O4'   C1'   ;   C1'   H1'
+C1'    N1  ;  C1'   C2'  ;   N1    C6   ;   N1    C2    ;   C6    H6
+C6    C5   ;  C5    H5   ;   C5    C4   ;   C4    N4    ;   C4    N3
+N4   H41   ;  N4   H42   ;   N3    C2   ;   C2    O2    ;   C3'   H3'
+C3'   C2'  ;  C3'   O3'  ;   C2'  H2'1  ;   C2'   O2'   ;   O2'  HO'2
+O3' +R
+
+ C2   C6   N1   C1'   ;  N1   N3   C2   O2   ;  C4   H41  N4   H42  
+ N1   C5   C6   H6    ;  C6   C4   C5   H5   ;  C5   N4   C4   N3    
+ 
+!-------------------------------------------------------------------------------
+Residue RC   ! R-Cytosine -  with 5' - phosphate group and 3' - O(minus) group                                                               
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+31 34  6 
+P     P        1.166200
+OP1   O2      -0.776000
+OP2   O2      -0.776000
+O5'   OS      -0.498900
+C5'   CT       0.055800
+H5'1  H1       0.067900
+H5'2  H1       0.067900
+C4'   CT       0.106500
+H4'   H1       0.117400
+O4'   OS      -0.354800
+C1'   CT       0.006600
+H1'   H2       0.202900
+N1    N*      -0.048400
+C6    CM       0.005300
+H6    H4       0.195800
+C5    CM      -0.521500
+H5    HA       0.192800
+C4    CA       0.818500
+N4    N2      -0.953000
+H41   H        0.423400
+H42   H        0.423400
+N3    NC      -0.758400
+C2    C        0.753800
+O2    O       -0.625200
+C3'   CT       0.202200
+H3'   H1       0.061500
+C2'   CT       0.067000
+H2'1  H1       0.097200
+O2'   OH      -0.613900
+HO'2  HO       0.418600
+O3'   OS      -0.524600
+
+  P   OP1   ;   P   OP2   ;   P   O5'   ;  O5'   C5'   ;  C5'  H5'1
+C5'  H5'2   ;  C5'   C4'  ;  C4'   H4'  ;  C4'   O4'   ;  C4'   C3'
+O4'   C1'   ;  C1'   H1'  ;  C1'    N1  ;  C1'   C2'   ;  N1    C6 
+N1    C2    ;  C6    H6   ;   C6    C5  ;  C5    H5    ;  C5    C4
+C4    N4    ;  C4    N3   ;   N4   H41  ;  N4   H42    ;  N3    C2
+C2    O2    ;  C3'   H3'  ;   C3'   C2' ;  C3'   O3'   ;  C2'  H2'1
+C2'   O2'   ;  O2'  HO'2  ;  -R     P   ; O3' +R
+
+ C2   C6   N1   C1'  ;   N1   N3   C2   O2  ; C4   H41  N4   H42 
+ N1   C5   C6   H6   ;   C6   C4   C5   H5  ; C5   N4   C4   N3    
+
+!-------------------------------------------------------------------------------
+Residue RC3   ! R-Cytosine -  with 5' - phosphate group and 3' - OH group                                                               
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+32 34  6 
+P     P       1.166200
+OP1   O2     -0.776000
+OP2   O2     -0.776000
+O5'   OS     -0.498900
+C5'   CT      0.055800
+H5'1  H1      0.067900
+H5'2  H1      0.067900
+C4'   CT      0.106500
+H4'   H1      0.117400
+O4'   OS     -0.354800
+C1'   CT      0.006600
+H1'   H2      0.202900
+N1    N*     -0.048400
+C6    CM      0.005300
+H6    H4      0.195800
+C5    CM     -0.521500
+H5    HA      0.192800
+C4    CA      0.818500
+N4    N2     -0.953000
+H41   H       0.423400
+H42   H       0.423400
+N3    NC     -0.758400
+C2    C       0.753800
+O2    O      -0.625200
+C3'   CT      0.202200
+H3'   H1      0.061500
+C2'   CT      0.067000
+H2'1  H1      0.097200
+O2'   OH     -0.613900
+HO'2  HO      0.418600
+O3'   OH     -0.654100
+H3T   HO      0.437600
+
+P   OP1   ;  P   OP2   ;   P   O5'  ;  O5'   C5' ;  C5'  H5'1
+C5'  H5'2 ;  C5'   C4' ;  C4'   H4' ;  C4'   O4' ;  C4'   C3'
+O4'   C1' ;  C1'   H1' ;  C1'    N1 ;  C1'   C2' ;  N1    C6
+N1    C2  ;  C6    H6  ;  C6    C5  ;  C5    H5  ;  C5    C4
+C4    N4  ;  C4    N3  ;  N4   H41  ;  N4   H42  ;  N3    C2
+C2    O2  ;  C3'   H3' ;  C3'   C2' ;  C3'   O3' ;  C2'  H2'1
+C2'   O2' ;  O2'  HO'2 ;  O3'   H3T ; -R     P
+
+ C2   C6   N1   C1'   ;   N1   N3   C2   O2   ;  C4   H41  N4   H42  
+ N1   C5   C6   H6    ;   C6   C4   C5   H5   ;  C5   N4   C4   N3     
+                     
+!-------------------------------------------------------------------------------
+Residue RG5   ! R-Guanosine -  with 5' - OH end group and 3' - O(minus) group                                                                
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+32 35  6      
+H5T   HO      0.429500
+O5'   OH     -0.622300
+C5'   CT      0.055800
+H5'1  H1      0.067900
+H5'2  H1      0.067900
+C4'   CT      0.106500
+H4'   H1      0.117400
+O4'   OS     -0.354800
+C1'   CT      0.019100
+H1'   H2      0.200600
+N9    N*      0.049200
+C8    CK      0.137400
+H8    H5      0.164000
+N7    NB     -0.570900
+C5    CB      0.174400
+C6    C       0.477000
+O6    O      -0.559700
+N1    NA     -0.478700
+H1    H       0.342400
+C2    CA      0.765700
+N2    N2     -0.967200
+H21   H       0.436400
+H22   H       0.436400
+N3    NC     -0.632300
+C4    CB      0.122200
+C3'   CT      0.202200
+H3'   H1      0.061500
+C2'   CT      0.067000
+H2'1  H1      0.097200
+O2'   OH     -0.613900
+HO'2  HO      0.418600
+O3'   OS     -0.524600
+
+ H5T   O5' ;  O5'   C5'  ;  C5'  H5'1  ;  C5'  H5'2  ;  C5'   C4'
+ C4'   H4' ;  C4'   O4'  ;  C4'   C3'  ;  O4'   C1'  ;  C1'   H1'
+ C1'    N9 ;  C1'   C2'  ;  N9    C8   ;  N9    C4   ;  C8    H8
+ C8    N7  ;  N7    C5   ;  C5    C6   ;  C5    C4   ;  C6    O6   
+ C6    N1  ;  N1    H1   ;  N1    C2   ;  C2    N2   ;  C2    N3
+ N2   H21  ;  N2   H22   ;  N3    C4   ;  C3'   H3'  ;  C3'   C2'
+ C3'   O3' ;  C2'  H2'1  ;  C2'   O2'  ;  O2'  HO'2  ; +R     O3'
+
+ C4   C8   N9   C1'  ;  C5   N1   C6   O6  ; C6   C2   N1   H1                                            
+ C2   H21  N2   H22  ;  N9   N7   C8   H8  ; N2   N1   C2   N3   
+
+!-------------------------------------------------------------------------------
+Residue RG   ! R-Guanosine -  with 5' - phosphate group and 3' - O(minus) group                                                                
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+34 38  6    
+P     P      1.166200
+OP1   O2    -0.776000
+OP2   O2    -0.776000
+O5'   OS    -0.498900
+C5'   CT     0.055800
+H5'1  H1     0.067900
+H5'2  H1     0.067900
+C4'   CT     0.106500
+H4'   H1     0.117400
+O4'   OS    -0.354800
+C1'   CT     0.019100
+H1'   H2     0.200600
+N9    N*     0.049200
+C8    CK     0.137400
+H8    H5     0.164000
+N7    NB    -0.570900
+C5    CB     0.174400
+C6    C      0.477000
+O6    O     -0.559700
+N1    NA    -0.478700
+H1    H      0.342400
+C2    CA     0.765700 
+N2    N2    -0.967200
+H21   H      0.436400
+H22   H      0.436400
+N3    NC    -0.632300
+C4    CB     0.122200
+C3'   CT     0.202200
+H3'   H1     0.061500
+C2'   CT     0.067000
+H2'1  H1     0.097200
+O2'   OH    -0.613900
+HO'2  HO     0.418600
+O3'   OS    -0.524600
+
+  P   OP1  ;  P   OP2   ;   P   O5'   ;   O5'   C5'   ; C5'  H5'1
+C5'  H5'2  ;  C5'   C4' ;  C4'   H4'  ;   C4'   O4'   ; C4'   C3'
+O4'   C1'  ;  C1'   H1' ;  C1'    N9  ;   C1'   C2'   ; N9    C8
+N9    C4   ;  C8    H8  ;  C8    N7   ;   N7    C5    ; C5    C6
+C5    C4   ;  C6    O6  ;  C6    N1   ;   N1    H1    ; N1    C2
+C2    N2   ;  C2    N3  ;  N2   H21   ;   N2   H22    ; N3    C4
+C3'   H3'  ;  C3'   C2' ;  C3'   O3'  ;   C2'  H2'1   ; C2'   O2'
+O2'  HO'2  ; O3'   +R   ;  -R     P
+
+ C4   C8   N9   C1'  ;  C5   N1   C6   O6  ; C6   C2   N1   H1                                            
+ C2   H21  N2   H22  ;  N9   N7   C8   H8  ; N2   N1   C2   N3 
+ 
+ 
+!-------------------------------------------------------------------------------
+Residue RX   ! R-Guanosine -  with 5' - phosphate group and 3' - O(minus) group                                                                
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+33 37  5    
+P     P      1.166200
+OP1   O2    -0.776000
+OP2   O2    -0.776000
+O5'   OS    -0.498900
+C5'   CT     0.055800
+H5'1  H1     0.067900
+H5'2  H1     0.067900
+C4'   CT     0.106500
+H4'   H1     0.117400
+O4'   OS    -0.354800
+C1'   CT     0.019100
+H1'   H2     0.200600
+N9    N*     0.049200
+C8    CK     0.137400
+H8    H5     0.164000
+N7    NB    -0.570900
+C5    CB     0.174400
+C6    C      0.477000
+O6    O     -0.559700
+N1    NA    -0.478700
+!H1    H      0.342400
+C2    CA     0.765700 
+N2    N2    -0.967200
+H21   H      0.436400
+H22   H      0.436400
+N3    NC    -0.632300
+C4    CB     0.122200
+C3'   CT     0.202200
+H3'   H1     0.061500
+C2'   CT     0.067000
+H2'1  H1     0.097200
+O2'   OH    -0.613900
+HO'2  HO     0.418600
+O3'   OS    -0.524600
+
+  P   OP1  ;  P   OP2   ;   P   O5'   ;   O5'   C5'   ; C5'  H5'1
+C5'  H5'2  ;  C5'   C4' ;  C4'   H4'  ;   C4'   O4'   ; C4'   C3'
+O4'   C1'  ;  C1'   H1' ;  C1'    N9  ;   C1'   C2'   ; N9    C8
+N9    C4   ;  C8    H8  ;  C8    N7   ;   N7    C5    ; C5    C6
+C5    C4   ;  C6    O6  ;  C6    N1   ;   N1    C2
+C2    N2   ;  C2    N3  ;  N2   H21   ;   N2   H22    ; N3    C4
+C3'   H3'  ;  C3'   C2' ;  C3'   O3'  ;   C2'  H2'1   ; C2'   O2'
+O2'  HO'2  ; O3'   +R   ;  -R     P
+
+ C4   C8   N9   C1'  ;  C5   N1   C6   O6  ;                                            
+ C2   H21  N2   H22  ;  N9   N7   C8   H8  ; N2   N1   C2   N3  
+ 
+!-------------------------------------------------------------------------------
+Residue RG3   ! R-Guanosine -  with 5' - phosphate group and 3' - OH group                                                                
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.                                                 
+35 38  6 
+P     P          1.166200
+OP1   O2        -0.776000
+OP2   O2        -0.776000
+O5'   OS        -0.498900
+C5'   CT         0.055800
+H5'1  H1         0.067900
+H5'2  H1         0.067900
+C4'   CT         0.106500
+H4'   H1         0.117400
+O4'   OS        -0.354800
+C1'   CT         0.019100
+H1'   H2         0.200600
+N9    N*         0.049200
+C8    CK         0.137400
+H8    H5         0.164000
+N7    NB        -0.570900
+C5    CB         0.174400
+C6    C          0.477000
+O6    O         -0.559700
+N1    NA        -0.478700
+H1    H          0.342400
+C2    CA         0.765700
+N2    N2        -0.967200
+H21   H          0.436400
+H22   H          0.436400
+N3    NC        -0.632300
+C4    CB         0.122200
+C3'   CT         0.202200
+H3'   H1         0.061500
+C2'   CT         0.067000
+H2'1  H1         0.097200
+O2'   OH        -0.613900
+HO'2  HO         0.418600
+O3'   OH        -0.654100
+H3T   HO         0.437600
+
+  P   OP1  ;  P   OP2  ;  P   O5'   ;  O5'   C5'  ;  C5'  H5'1
+ C5'  H5'2 ; C5'   C4' ;  C4'   H4' ;  C4'   O4'  ;  C4'   C3'
+ O4'   C1' ; C1'   H1' ;  C1'    N9 ;  C1'   C2'  ;  N9    C8
+ N9    C4  ; C8    H8  ;  C8    N7  ;  N7    C5   ;  C5    C6
+ C5    C4  ; C6    O6  ;  C6    N1  ;  N1    H1   ;  N1    C2
+ C2    N2  ; C2    N3  ;  N2   H21  ;  N2   H22   ;  N3    C4
+ C3'   H3' ; C3'   C2' ;  C3'   O3' ;  C2'  H2'1  ;  C2'   O2'
+ O2'  HO'2 ; O3'   H3T ; -R     P
+
+ C4   C8   N9   C1'  ;  C5   N1   C6   O6  ; C6   C2   N1   H1                                            
+ C2   H21  N2   H22  ;  N9   N7   C8   H8  ; N2   N1   C2   N3 
+ 
+!-------------------------------------------------------------------------------
+Residue RU5   ! R-Uracil -  with 5' - OH end group and 3' - O(minus)                                                                
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.  
+28 30  6 
+H5T   HO     0.429500
+O5'   OH    -0.622300
+C5'   CT     0.055800
+H5'1  H1     0.067900
+H5'2  H1     0.067900
+C4'   CT     0.106500
+H4'   H1     0.117400
+O4'   OS    -0.354800
+C1'   CT     0.067400
+H1'   H2     0.182400
+N1    N*     0.041800
+C6    CM    -0.112600
+H6    H4     0.218800
+C5    CM    -0.363500
+H5    HA     0.181100
+C4    C      0.595200
+O4    O     -0.576100
+N3    NA    -0.354900
+H3    H      0.315400
+C2    C      0.468700
+O2    O     -0.547700
+C3'   CT     0.202200
+H3'   H1     0.061500
+C2'   CT     0.067000
+H2'1  H1     0.097200
+O2'   OH    -0.613900
+HO'2  HO     0.418600
+O3'   OS    -0.524600
+
+H5T   O5'  ;  O5'   C5'  ;  C5'  H5'1  ;  C5'  H5'2  ;  C5'   C4'
+C4'   H4'  ;  C4'   O4'  ;  C4'   C3'  ;  O4'   C1'  ;  C1'   H1'
+C1'    N1  ;  C1'   C2'  ;  N1    C6   ;  N1    C2   ;  C6    H6
+C6    C5   ;  C5    H5   ;  C5    C4   ;  C4    O4   ;  C4    N3
+N3    H3   ;  N3    C2   ;  C2    O2   ;  C3'   H3'  ;  C3'   C2'
+C3'   O3'  ;  C2'  H2'1  ;  C2'   O2'  ;  O2'  HO'2  ; +R     O3'
+
+ C2   C6   N1   C1'  ;  C6   C4   C5   H5  ;  N1   N3   C2   O2 
+ C5   N3   C4   O4   ;  C4   C2   N3   H3  ;  N1   C5   C6   H6   
+ 
+!-------------------------------------------------------------------------------
+Residue RU  ! R-Uracil -  with 5' - phosphate group and 3' - O(minus) group                                                                 
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.  
+30 33  6 
+P     P       1.166200
+OP1   O2     -0.776000
+OP2   O2     -0.776000
+O5'   OS     -0.498900
+C5'   CT      0.055800
+H5'1  H1      0.067900
+H5'2  H1      0.067900
+C4'   CT      0.106500
+H4'   H1      0.117400
+O4'   OS     -0.354800
+C1'   CT      0.067400
+H1'   H2      0.182400
+N1    N*      0.041800
+C6    CM     -0.112600
+H6    H4      0.218800
+C5    CM     -0.363500
+H5    HA      0.181100
+C4    C       0.595200
+O4    O      -0.576100
+N3    NA     -0.354900
+H3    H       0.315400
+C2    C       0.468700
+O2    O      -0.547700
+C3'   CT      0.202200
+H3'   H1      0.061500
+C2'   CT      0.067000
+H2'1  H1      0.097200
+O2'   OH     -0.613900
+HO'2  HO      0.418600
+O3'   OS     -0.524600
+
+   P   OP1  ;  P   OP2   ;  P   O5'   ;  O5'   C5'  ;  C5'  H5'1
+ C5'  H5'2  ;  C5'   C4' ;  C4'   H4' ;  C4'   O4'  ;  C4'   C3'
+ O4'   C1'  ;  C1'   H1' ;  C1'    N1 ;  C1'   C2'  ;  N1    C6
+ N1    C2   ;  C6    H6  ;  C6    C5  ;  C5    H5   ;  C5    C4
+ C4    O4   ;  C4    N3  ;  N3    H3  ;  N3    C2   ;  C2    O2
+ C3'   H3'  ;  C3'   C2' ;  C3'   O3' ;  C2'  H2'1  ;  C2'   O2'
+ O2'  HO'2  ; -R     P   ;  +R    O3'
+
+ C2   C6   N1   C1'  ;  C6   C4   C5   H5  ;  N1   N3   C2   O2 
+ C5   N3   C4   O4   ;  C4   C2   N3   H3  ;  N1   C5   C6   H6   
+ 
+!-------------------------------------------------------------------------------
+Residue RU3   ! R-Uracil -  with 5' - phosphate group and 3' - OH group                                                                 
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.  
+31 33  6  
+P     P       1.166200
+OP1   O2     -0.776000
+OP2   O2     -0.776000
+O5'   OS     -0.498900
+C5'   CT      0.055800
+H5'1  H1      0.067900
+H5'2  H1      0.067900
+C4'   CT      0.106500
+H4'   H1      0.117400
+O4'   OS     -0.354800
+C1'   CT      0.067400
+H1'   H2      0.182400
+N1    N*      0.041800
+C6    CM     -0.112600
+H6    H4      0.218800
+C5    CM     -0.363500
+H5    HA      0.181100
+C4    C       0.595200
+O4    O      -0.576100
+N3    NA     -0.354900
+H3    H       0.315400
+C2    C       0.468700
+O2    O      -0.547700
+C3'   CT      0.202200
+H3'   H1      0.061500
+C2'   CT      0.067000
+H2'1  H1      0.097200
+O2'   OH     -0.613900
+HO'2  HO      0.418600
+O3'   OH     -0.654100
+H3T   HO      0.437600
+
+  P   OP1   ;  P   OP2    ;  P   O5'   ;   O5'   C5'   ;  C5'  H5'1
+C5'  H5'2   ;  C5'   C4'  ; C4'   H4'  ;   C4'   O4'   ;  C4'   C3'
+O4'   C1'   ;  C1'   H1'  ; C1'    N1  ;   C1'   C2'   ;  N1    C6
+N1    C2    ;  C6    H6   ; C6    C5   ;   C5    H5    ;  C5    C4
+C4    O4    ;  C4    N3   ; N3    H3   ;   N3    C2    ;  C2    O2
+C3'   H3'   ;  C3'   C2'  ; C3'   O3'  ;   C2'  H2'1   ;  C2'   O2'
+O2'  HO'2   ; O3'   H3T   ;   -R     P
+
+ C2   C6   N1   C1'  ;  C6   C4   C5   H5  ;  N1   N3   C2   O2 
+ C5   N3   C4   O4   ;  C4   C2   N3   H3  ;  N1   C5   C6   H6   
+
+!-------------------------------------------------------------------------------
+Residue DA   ! D-Adenosine -  with 5' - phosphate group and 3' - O(minus) group                                                                 
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.  
+32 36  5  
+P     P      1.165900    
+OP1   O2     -0.776100   
+OP2   O2     -0.776100   
+O5'   OS     -0.495400   
+C5'   CT     -0.006900   
+H5'1  H1     0.075400  
+H5'2  H1     0.075400  
+C4'   CT     0.162900    
+H4'   H1     0.117600    
+O4'   OS      -0.369100  
+C1'   CT      0.043100   
+H1'   H2      0.183800   
+N9    N*     -0.026800   
+C8    CK     0.160700    
+H8    H5     0.187700    
+N7    NB     -0.617500   
+C5    CB     0.072500    
+C6    CA     0.689700    
+N6    N2     -0.912300   
+H61   H      0.416700    
+H62   H      0.416700    
+N1    NC     -0.762400   
+C2    CQ     0.571600    
+H2    H5     0.059800    
+N3    NC     -0.741700   
+C4    CB     0.380000    
+C3'   CT      0.071300   
+H3'   H1      0.098500   
+C2'   CT      -0.085400  
+H2'1  HC     0.071800    
+H2'2  HC     0.071800    
+O3'   OS      -0.523200  
+
+P   OP1   ;    P   OP2   ;    P   O5'   ;  O5'   C5'  ;  C5'  H5'1
+C5'  H5'2 ;   C5'   C4'  ;   C4'   H4'  ;  C4'   O4'  ;  C4'   C3'
+O4'   C1' ;   C1'   H1'  ;   C1'    N9  ;  C1'   C2'  ;  N9    C8
+N9    C4  ;   C8    H8   ;   C8    N7   ;  N7    C5   ;  C5    C6
+C5    C4  ;   C6    N6   ;   C6    N1   ;  N6   H61   ;  N6   H62
+N1    C2  ;   C2    H2   ;   C2    N3   ;  N3    C4   ;  C3'   H3'
+C3'   C2' ;   C3'   O3'  ;   C2'  H2'1  ;  C2'  H2'2  ; -R     P 
++R     O3'
+  
+ 
+   C4   C8   N9   C1' ; C6   H61  N6   H62 ; N7   N9   C8   H8
+   N1   N3   C2   H2 ; C5   N6   C6   N1
+
+ ! original version
+ ! C8   C4   N9   C1' ; C6   H61  N6   H62 ; N7   N9   C8   H8
+ ! N1   N3   C2   H2  ; C5   N1   C6   N6
+ 
+!-------------------------------------------------------------------------------
+Residue DC5   ! D-Cytosine -  with 5' - OH end group and 3' - O(minus) group                                                                 
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.  
+28 30  6  
+H5T   HO    0.4422 
+O5'   OH    -0.6318
+C5'   CT    -0.0069
+H5'1  H1    0.0754 
+H5'2  H1    0.0754 
+C4'   CT    0.1629 
+H4'   H1    0.1176 
+O4'   OS    -0.3691
+C1'   CT    -0.0116
+H1'   H2    0.1963 
+N1    N*    -0.0339
+C6    CM    -0.0183
+H6    H4    0.2293 
+C5    CM    -0.5222
+H5    HA    0.1863 
+C4    CA    0.8439 
+N4    N2    -0.9773
+H41   H     0.4314 
+H42   H     0.4314 
+N3    NC    -0.7748
+C2    C     0.7959 
+O2    O     -0.6548
+C3'   CT    0.0713 
+H3'   H1    0.0985 
+C2'   CT    -0.0854
+H2'1  HC    0.0718 
+H2'2  HC    0.0718 
+O3'   OS    -0.5232
+
+H5T   O5' ;  O5'   C5' ;  C5'  H5'1  ; C5'  H5'2 ; C5'   C4'
+C4'   H4' ;  C4'   O4' ;  C4'   C3'  ; O4'   C1' ; C1'   H1'
+C1'    N1 ;  C1'   C2' ;  N1    C6   ; N1    C2  ; C6    H6
+C6    C5  ;  C5    H5  ;  C5    C4   ; C4    N4  ; C4    N3
+N4   H41  ;  N4   H42  ;  N3    C2   ; C2    O2  ; C3'   H3'
+C3'   C2' ;  C3'   O3' ;  C2'  H2'1  ; C2'  H2'2 ; +R    O3'
+
+
+  C2   C6   N1   C1' ; N1   N3   C2   O2 ; C4   H41  N4   H42
+  N1   C5   C6   H6  ; C6   C4   C5   H5 ; C5   N4   C4   N3
+
+ ! original version
+  !C6   C2   N1   C1' ; N1   N3   C2   O2 ; C4   H41  N4   H42 
+  !N1   C5   C6   H6   ; C6   C4   C5   H5 ; N3   C5   C4   N4
+
+!-------------------------------------------------------------------------------
+Residue DC   ! D-Cytosine -  with 5' - phosphate group and 3' - O(minus) group                                                                
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.  
+30 33  6  
+P     P        1.165900  
+OP1   O2       -0.776100 
+OP2   O2       -0.776100 
+O5'   OS       -0.495400 
+C5'   CT       -0.006900 
+H5'1  H1       0.075400  
+H5'2  H1       0.075400  
+C4'   CT        0.162900 
+H4'   H1        0.117600 
+O4'   OS        -0.369100
+C1'   CT        -0.011600
+H1'   H2        0.196300 
+N1    N*        -0.033900
+C6    CM        -0.018300
+H6    H4        0.229300 
+C5    CM        -0.522200
+H5    HA        0.186300 
+C4    CA        0.843900 
+N4    N2        -0.977300
+H41   H         0.431400 
+H42   H         0.431400 
+N3    NC        -0.774800
+C2    C         0.795900 
+O2    O         -0.654800
+C3'   CT        0.071300 
+H3'   H1        0.098500 
+C2'   CT        -0.085400
+H2'1  HC        0.071800 
+H2'2  HC        0.071800 
+O3'   OS        -0.523200
+
+ P   OP1   ;  P   OP2   ;   P   O5'   ;  O5'   C5'   ;  C5'  H5'1
+C5'  H5'2  ;  C5'   C4' ;  C4'   H4'  ;  C4'   O4'   ;  C4'   C3'
+O4'   C1'  ;  C1'   H1' ;  C1'    N1  ;  C1'   C2'   ;  N1    C6
+N1    C2   ;  C6    H6  ;  C6    C5   ;  C5    H5    ;  C5    C4
+C4    N4   ;  C4    N3  ;  N4   H41   ;  N4   H42    ;  N3    C2
+C2    O2   ;  C3'   H3' ;  C3'   C2'  ;  C3'   O3'   ;  C2'  H2'1
+C2'  H2'2  ;  -R     P  ; +R     O3'
+ 
+ 
+  C2   C6   N1   C1' ; N1   N3   C2   O2 ; C4   H41  N4   H42 
+  N1   C5   C6   H6  ; C6   C4   C5   H5 ; C5   N4   C4   N3
+  
+! original version
+ !C6   C2   N1   C1'  ; N1   N3   C2   O2   ; C4   H41  N4   H42 
+ !N1   C5   C6   H6    ; C6   C4   C5   H5  ; N3   C5   C4   N4 
+
+!-------------------------------------------------------------------------------
+Residue DG   ! D-Guanosine -  with 5' - phosphate group and 3' - O(minus) group                                                                
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.  
+33 37  6  
+P     P      1.165900  
+OP1   O2     -0.776100 
+OP2   O2     -0.776100 
+O5'   OS     -0.495400 
+C5'   CT     -0.006900 
+H5'1  H1     0.075400  
+H5'2  H1     0.075400  
+C4'   CT     0.162900  
+H4'   H1     0.117600  
+O4'   OS      -0.369100
+C1'   CT      0.035800 
+H1'   H2      0.174600 
+N9    N*      0.057700 
+C8    CK      0.073600 
+H8    H5      0.199700 
+N7    NB      -0.572500
+C5    CB      0.199100 
+C6    C       0.491800 
+O6    O       -0.569900
+N1    NA      -0.505300
+H1    H       0.352000 
+C2    CA      0.743200 
+N2    N2      -0.923000
+H21   H       0.423500 
+H22   H       0.423500 
+N3    NC      -0.663600
+C4    CB      0.181400 
+C3'   CT      0.071300 
+H3'   H1      0.098500 
+C2'   CT      -0.085400
+H2'1  HC      0.071800 
+H2'2  HC      0.071800 
+O3'   OS     -0.523200 
+
+   P   OP1  ;  P   OP1   ;  P   O5'  ;  O5'   C5'   ;  C5'  H5'1
+ C5'  H5'2  ;  C5'   C4' ;  C4'   H4' ;  C4'   O4'  ;  C4'   C3'
+ O4'   C1'  ;  C1'   H1' ;  C1'    N9 ;  C1'   C2'  ;  N9    C8
+ N9    C4   ;  C8    H8  ;  C8    N7  ;  N7    C5   ;  C5    C6
+ C5    C4   ;  C6    O6  ;  C6    N1  ;  N1    H1   ;  N1    C2
+ C2    N2   ;  C2    N3  ;  N2   H21  ;  N2   H22   ;  N3    C4
+ C3'   H3'  ;  C3'   C2' ;  C3'   O3' ;  C2'  H2'1  ; C2'  H2'2
+-R     P    ;  +R    O3'
+
+ C4   C8  N9  C1'    ;  C5   N1   C6   O6  ; C6   C2   N1   H1
+ C2   H21  N2   H22  ;  N7   N9   C8   H8  ; N2   N1   C2   N3
+
+ ! original version
+ !C8   C4   N9   C1'  ;  C5   N1   C6   O6   ;  C6   C2   N1   H1
+ !C2   H21  N2   H22  ;  N7   N9   C8   H8   ; N1   N3   C2   N2  
+
+!-------------------------------------------------------------------------------
+Residue DG3   ! D-Guanosine -  with 5' - phosphate group and 3' - OH group                                                                
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.  
+34 37  6 
+P     P        1.165900   
+OP1   O2       -0.776100  
+OP2   O2       -0.776100  
+O5'   OS       -0.495400  
+C5'   CT       -0.006900  
+H5'1  H1       0.075400   
+H5'2  H1       0.075400   
+C4'   CT       0.162900   
+H4'   H1       0.117600   
+O4'   OS       -0.369100 
+C1'   CT        0.035800  
+H1'   H2        0.174600  
+N9    N*        0.057700  
+C8    CK        0.073600  
+H8    H5        0.199700  
+N7    NB        -0.572500 
+C5    CB        0.199100  
+C6    C         0.491800  
+O6    O         -0.569900 
+N1    NA        -0.505300 
+H1    H         0.352000  
+C2    CA        0.743200  
+N2    N2        -0.923000 
+H21   H         0.423500  
+H22   H         0.423500  
+N3    NC        -0.663600 
+C4    CB        0.181400  
+C3'   CT        0.071300  
+H3'   H1        0.098500  
+C2'   CT        -0.085400 
+H2'1  HC        0.071800  
+H2'2  HC        0.071800  
+O3'   OH        -0.654900 
+H3T   HO        0.439600  
+
+    P   OP1   ;   P   OP2   ;   P   O5'  ;  O5'   C5'  ;  C5'  H5'1
+  C5'  H5'2   ;  C5'   C4'  ;  C4'   H4' ;  C4'   O4'  ;  C4'   C3'
+  O4'   C1'   ;  C1'   H1'  ;  C1'    N9  ;  C1'   C2' ;  N9    C8
+  N9    C4    ;  C8    H8   ;  C8    N7   ;  N7    C5  ;  C5    C6
+  C5    C4    ;  C6    O6   ;  C6    N1   ;  N1    H1  ;  N1    C2
+  C2    N2    ;  C2    N3   ;  N2   H21   ;  N2   H22  ;  N3    C4
+  C3'   H3'   ;  C3'   C2'  ;  C3'   O3'  ;  C2'  H2'1 ;  C2'  H2'2
+  O3'   H3T   ;  -R     P
+
+  C4   C8   N9   C1'  ; C5   N1   C6   O6 ; C6   C2   N1   H1
+  C2   H21  N2   H22  ; N7   N9   C8   H8 ; N2   N1   C2   N3
+
+ ! original version
+ !C8   C4   N9   C1' ; C5   N1   C6   O6 ; C6   C2   N1   H1
+ !C2   H21  N2   H22  ; N7   N9   C8   H8 ; N1   N3   C2   N2
+ 
+!-------------------------------------------------------------------------------
+Residue DT   ! D-Thymine -  with 5' - phosphate group and 3' - O(minus) group                                                                
+!-------------------------------------------------------------------------------
+! # Atoms, bonds and impropers.  
+32 35  6
+P     P       1.165900     
+OP1   O2      -0.776100    
+OP2   O2      -0.776100    
+O5'   OS      -0.495400    
+C5'   CT      -0.006900    
+H5'1  H1      0.075400     
+H5'2  H1      0.075400     
+C4'   CT      0.162900     
+H4'   H1      0.117600     
+O4'   OS       -0.369100   
+C1'   CT       0.068000    
+H1'   H2       0.180400    
+N1    N*      -0.023900    
+C6    CM      -0.220900    
+H6    H4       0.260700    
+C5    CM       0.002500    
+C7    CT       -0.226900   
+H71   HC       0.077000    
+H72   HC       0.077000    
+H73   HC       0.077000    
+C4    C        0.519400    
+O4    O        -0.556300   
+N3    NA       -0.434000   
+H3    H        0.342000    
+C2    C        0.567700    
+O2    O        -0.588100   
+C3'   CT       0.071300    
+H3'   H1       0.098500    
+C2'   CT       -0.085400   
+H2'1  HC       0.071800    
+H2'2  HC       0.071800    
+O3'   OS       -0.523200   
+                                    
+ P   OP1   ;   P   OP2   ;  P   O5'   ;  O5'   C5'   ;  C5'  H5'1
+C5'  H5'2  ;  C5'   C4'  ;  C4'   H4' ;  C4'   O4'   ;  C4'   C3'
+O4'   C1'  ;  C1'   H1'  ;  C1'    N1 ; C1'   C2'    ; N1    C6
+N1    C2   ;  C6    H6   ;  C6    C5  ; C5    C7     ; C5    C4
+C7   H71   ;  C7   H72   ;  C7   H73  ; C4    O4     ; C4    N3
+N3    H3   ;  N3    C2   ;  C2    O2  ; C3'   H3'    ; C3'   C2'
+C3'   O3'  ;  C2'  H2'1  ;  C2'  H2'2 ; -R     P    ;  +R    O3'
+
+
+  C2   C6   N1   C1'  ;  C4   C6   C5   C7  ; N1   N3   C2   O2
+  C5   N3   C4   O4   ; C2   C4   N3   H3   ; N1   C5   C6   H6
+
+! original version
+ !C6   C2   N1   C1'  ;  C4   C6   C5   C7  ; N1   N3   C2   O2
+ !C5   N3   C4   O4   ; C2   C4   N3   H3   ; N1   C5   C6   H6          
+End
+   
+!===============================================================================
+! .  Definitions.
+!===============================================================================
+Links
+
+!-------------------------------------------------------------------------------
+Link DISULPHIDE_BRIDGE
+!-------------------------------------------------------------------------------
+! # Deletes, adds, charges, bonds and impropers for residue 1.
+  2  1  1  2  0
+
+HG ; SG
+
+SG    S    -0.0893
+
+CB    0.0027
+
+CB   SG ; SG   *R
+
+! # Deletes, adds, charges, bonds and impropers for residue 2.
+  2  1  1  2  0
+
+HG ; SG
+
+SG    S    -0.0893
+
+CB    0.0027
+
+CB   SG ; SG   *R
+
+End
+                                                   
+!===============================================================================
+! . Parameter Definitions.
+!===============================================================================
+Parameters
+
+Bonds
+! Atoms     FC     Equil.
+OW   HW   553.0    0.9572   ! TIP3P water
+HW   HW   553.0    1.5136   ! TIP3P water
+C    C    310.0    1.525    ! Junmei et al, 1999
+C    CA   469.0    1.409    ! JCC,7,(1986),230; (not used any more in TYR)
+C    CB   447.0    1.419    ! JCC,7,(1986),230; GUA
+C    CM   410.0    1.444    ! JCC,7,(1986),230; THY,URA
+C    CT   317.0    1.522    ! JCC,7,(1986),230; AA
+C    N    490.0    1.335    ! JCC,7,(1986),230; AA
+C    N*   424.0    1.383    ! JCC,7,(1986),230; CYT,URA
+C    NA   418.0    1.388    ! JCC,7,(1986),230; GUA.URA
+C    NC   457.0    1.358    ! JCC,7,(1986),230; CYT
+C    O    570.0    1.229    ! JCC,7,(1986),230; AA,CYT,GUA,THY,URA
+C    O2   656.0    1.250    ! JCC,7,(1986),230; GLU,ASP
+C    OH   450.0    1.364    ! JCC,7,(1986),230; (not used any more for TYR) 
+C    OS   450.0    1.323    ! Junmei et al, 1999
+C    H4   367.0    1.080    ! Junmei et al, 1999
+C    H5   367.0    1.080    ! Junmei et al, 1999
+CA   CA   469.0    1.400    ! JCC,7,(1986),230; BENZENE,PHE,TRP,TYR
+CA   CB   469.0    1.404    ! JCC,7,(1986),230; ADE,TRP
+CA   CM   427.0    1.433    ! JCC,7,(1986),230; CYT
+CA   CN   469.0    1.400    ! JCC,7,(1986),230; TRP
+CA   CT   317.0    1.510    ! JCC,7,(1986),230; PHE,TYR
+CA   HA   367.0    1.080    ! changed from 340. bsd on C6H6 nmodes; PHE,TRP,TYR
+CA   H4   367.0    1.080    ! changed from 340. bsd on C6H6 nmodes; no assigned
+CA   N2   481.0    1.340    ! JCC,7,(1986),230; ARG,CYT,GUA
+CA   NA   427.0    1.381    ! JCC,7,(1986),230; GUA
+CA   NC   483.0    1.339    ! JCC,7,(1986),230; ADE,CYT,GUA
+CA   OH   450.0    1.364    ! substituted for C-OH in tyr 
+CB   CB   520.0    1.370    ! JCC,7,(1986),230; ADE,GUA
+CB   N*   436.0    1.374    ! JCC,7,(1986),230; ADE,GUA
+CB   NB   414.0    1.391    ! JCC,7,(1986),230; ADE,GUA
+CB   NC   461.0    1.354    ! JCC,7,(1986),230; ADE,GUA
+CD   HA   367.0    1.080    ! Junmei et al, 1999 
+CD   CD   469.0    1.400    ! Junmei et al, 1999
+CD   CM   549.0    1.350    ! Junmei et al, 1999
+CD   CT   317.0    1.510    ! Junmei et al, 1999
+CK   H5   367.0    1.080    ! changed from 340. bsd on C6H6 nmodes; ADE,GUA
+CK   N*   440.0    1.371    ! JCC,7,(1986),230; ADE,GUA
+CK   NB   529.0    1.304    ! JCC,7,(1986),230; ADE,GUA
+CM   CM   549.0    1.350    ! JCC,7,(1986),230; CYT,THY,URA
+CM   CT   317.0    1.510    ! JCC,7,(1986),230; THY
+CM   HA   367.0    1.080    ! changed from 340. bsd on C6H6 nmodes; CYT,URA
+CM   H4   367.0    1.080    ! changed from 340. bsd on C6H6 nmodes; CYT,URA
+CM   H5   367.0    1.080    ! changed from 340. bsd on C6H6 nmodes; not assigned
+CM   N*   448.0    1.365    ! JCC,7,(1986),230; CYT,THY,URA
+CM   OS   480.0    1.240    ! Junmei et al, 1999
+CQ   H5   367.0    1.080    ! changed from 340. bsd on C6H6 nmodes; ADE
+CQ   NC   502.0    1.324    ! JCC,7,(1986),230; ADE
+CT   CT   310.0    1.526    ! JCC,7,(1986),230; AA, SUGARS
+CT   HC   340.0    1.090    ! changed from 331 bsd on NMA nmodes; AA, SUGARS
+CT   H1   340.0    1.090    ! changed from 331 bsd on NMA nmodes; AA, RIBOSE
+CT   H2   340.0    1.090    ! changed from 331 bsd on NMA nmodes; SUGARS
+CT   H3   340.0    1.090    ! changed from 331 bsd on NMA nmodes; not assigned
+CT   HP   340.0    1.090    ! changed from 331; AA-lysine, methyl ammonium cation
+CT   N*   337.0    1.475    ! JCC,7,(1986),230; ADE,CYT,GUA,THY,URA
+CT   N2   337.0    1.463    ! JCC,7,(1986),230; ARG
+CT   OH   320.0    1.410    ! JCC,7,(1986),230; SUGARS
+CT   OS   320.0    1.410    ! JCC,7,(1986),230; NUCLEIC ACIDS
+C*   HC   367.0    1.080    ! changed from 340. bsd on C6H6 nmodes, not needed AA
+C*   CB   388.0    1.459    ! JCC,7,(1986),230; TRP
+C*   CT   317.0    1.495    ! JCC,7,(1986),230; TRP
+C*   CW   546.0    1.352    ! JCC,7,(1986),230; TRP
+CB   CN   447.0    1.419    ! JCC,7,(1986),230; TRP
+CC   CT   317.0    1.504    ! JCC,7,(1986),230; HIS
+CC   CV   512.0    1.375    ! JCC,7,(1986),230; HIS(delta)
+CC   CW   518.0    1.371    ! JCC,7,(1986),230; HIS(epsilon)
+CC   NA   422.0    1.385    ! JCC,7,(1986),230; HIS
+CC   NB   410.0    1.394    ! JCC,7,(1986),230; HIS
+CN   NA   428.0    1.380    ! JCC,7,(1986),230; TRP
+CR   H5   367.0    1.080    ! changed from 340. bsd on C6H6 nmodes;HIS
+CR   NA   477.0    1.343    ! JCC,7,(1986),230; HIS
+CR   NB   488.0    1.335    ! JCC,7,(1986),230; HIS
+CT   N    337.0    1.449    ! JCC,7,(1986),230; AA
+CT   N3   367.0    1.471    ! JCC,7,(1986),230; LYS
+CT   NT   367.0    1.471    ! for neutral amines 
+CT   S    227.0    1.810    ! changed from 222.0 based on dimethylS nmodes
+CT   SH   237.0    1.810    ! changed from 222.0 based on methanethiol nmodes
+CT   CY   400.0    1.458    ! Howard et al JCC.16,243,1995
+CT   CZ   400.0    1.459    ! Howard et al JCC,16,243,1995
+CV   H4   367.0    1.080    ! changed from 340. bsd on C6H6 nmodes; HIS
+CV   NB   410.0    1.394    ! JCC,7,(1986),230; HIS
+CW   H4   367.0    1.080    ! changed from 340. bsd on C6H6 nmodes;HIS(epsilon,+)
+CW   NA   427.0    1.381    ! JCC,7,(1986),230; HIS,TRP
+CY   NY   600.0    1.150    ! Howard et al JCC,16,243,1995
+CZ   CZ   600.0    1.206    ! Howard et al JCC,16,243,1995
+CZ   HZ   400.0    1.056    ! Howard et al JCC,16,243,1995
+O2   P    525.0    1.480    ! JCC,7,(1986),230; NA PHOSPHATES
+OH   P    230.0    1.610    ! JCC,7,(1986),230; NA PHOSPHATES
+OS   P    230.0    1.610    ! JCC,7,(1986),230; NA PHOSPHATES
+H    N2   434.0    1.010    ! JCC,7,(1986),230; ADE,CYT,GUA,ARG
+H    N*   434.0    1.010    ! for plain unmethylated bases ADE,CYT,GUA,ARG
+H    NA   434.0    1.010    ! JCC,7,(1986),230; GUA,URA,HIS
+H    N    434.0    1.010    ! JCC,7,(1986),230; AA
+H    N3   434.0    1.010    ! JCC,7,(1986),230; LYS    
+H    NT   434.0    1.010    ! for neutral amines 
+HO   OH   553.0    0.960    ! JCC,7,(1986),230; SUGARS,SER,TYR
+HO   OS   553.0    0.960    ! JCC,7,(1986),230; NUCLEOTIDE ENDS
+HS   SH   274.0    1.336    ! JCC,7,(1986),230; CYS
+S    S    166.0    2.038    ! JCC,7,(1986),230; CYX   (SCHERAGA)
+F    CT   367.0    1.380    ! JCC,13,(1992),963;CF4; R0=1.332 FOR CHF3
+Cl   CT   232.0    1.766    ! 6-31g* opt
+Br   CT   159.0    1.944    ! Junmei et al,99 
+I    CT   148.0    2.166    ! Junmei et al,99 
+F    CA   386.0    1.359    ! Junmei et al,99 
+Cl   CA   193.0    1.727    ! Junmei et al,99 
+I    CA   171.0    2.075    ! Junmei et al,99 
+Br   CA   172.0    1.890    ! Junmei et al,99
+LP   O    600.0    0.200    ! or 0.35
+LP   OH   600.0    0.200    ! or 0.35
+LP   OS   600.0    0.200    ! or 0.35
+LP   N3   600.0    0.200    ! or 0.35
+LP   NT   600.0    0.200    ! or 0.35
+LP   NB   600.0    0.200    ! or 0.35 histidines, nucleic acids
+LP   NC   600.0    0.200    ! or 0.35 nucleic acids
+LP   S    600.0    0.700    ! cys,cyx,met
+LP   SH   600.0    0.700    ! cys,cyx 
+O3   P    525.0    1.480    ! ATP by analogy to O2
+
+CT   O    449.90   1.317    ! added by Natalia for KET   same as c3-o 
+
+End
+
+Angles
+! Atoms          FC     Equil.                                             
+HW   OW   HW   100.0    104.52    ! TIP3P water
+HW   HW   OW     0.0    127.74    ! (found in crystallographic water with 3 bonds)
+C    C    O     80.0    120.00    ! Junmei et al, 1999 acrolein
+C    C    OH    80.0    120.00    ! Junmei et al, 1999
+CA   C    CA    63.0    120.00    ! changed from 85.0  bsd on C6H6 nmodes; AA
+CA   C    OH    70.0    120.00    ! AA (not used in tyr)
+CB   C    NA    70.0    111.30    ! NA
+CB   C    O     80.0    128.80    ! 
+CM   C    NA    70.0    114.10    ! 
+CM   C    O     80.0    125.30    ! 
+CT   C    O     80.0    120.40    ! 
+CT   C    O2    70.0    117.00    ! 
+CT   C    N     70.0    116.60    ! AA general
+CT   C    CT    63.0    117.00    ! Junmei et al, 1999
+CT   C    OS    80.0    115.00    ! Junmei et al, 1999
+CT   C    OH    80.0    110.00    ! Junmei et al, 1999
+N*   C    NA    70.0    115.40    ! 
+N*   C    NC    70.0    118.60    ! 
+N*   C    O     80.0    120.90    ! 
+NA   C    O     80.0    120.60    ! 
+NC   C    O     80.0    122.50    ! 
+N    C    O     80.0    122.90    ! AA general
+O    C    O     80.0    126.00    ! AA COO- terminal residues
+O    C    OH    80.0    120.00    ! (check with Junmei for: theta0:120.0?)
+O    C    OS    80.0    125.00    ! Junmei et al, 1999
+O2   C    O2    80.0    126.00    ! AA GLU            (SCH JPC 79,2379)
+H4   C    C     50.0    120.00    ! Junmei et al, 1999 
+H4   C    CM    50.0    115.00    ! Junmei et al, 1999 
+H4   C    CT    50.0    115.00    ! Junmei et al, 1999
+H4   C    O     50.0    120.00    ! Junmei et al, 1999
+H4   C    OH    50.0    120.00    ! Junmei et al, 1999
+H5   C    N     50.0    120.00    ! Junmei et al, 1999
+H5   C    O     50.0    119.00    ! Junmei et al, 1999
+H5   C    OH    50.0    107.00    ! Junmei et al, 1999
+H5   C    OS    50.0    107.00    ! Junmei et al, 1999
+C    CA   CA    63.0    120.00    ! changed from 85.0  bsd on C6H6 nmodes
+C    CA   HA    50.0    120.00    ! AA (not used in tyr)
+CA   CA   CA    63.0    120.00    ! changed from 85.0  bsd on C6H6 nmodes
+CA   CA   CB    63.0    120.00    ! changed from 85.0  bsd on C6H6 nmodes
+CA   CA   CT    70.0    120.00    ! 
+CA   CA   HA    50.0    120.00    ! 
+CA   CA   H4    50.0    120.00    ! 
+CA   CA   OH    70.0    120.00    ! replacement in tyr
+CA   CA   CN    63.0    120.00    ! changed from 85.0  bsd on C6H6 nmodes; AA trp
+CB   CA   HA    50.0    120.00    ! 
+CB   CA   H4    50.0    120.00    ! 
+CB   CA   N2    70.0    123.50    ! 
+CB   CA   NC    70.0    117.30    ! 
+CM   CA   N2    70.0    120.10    ! 
+CM   CA   NC    70.0    121.50    ! 
+CN   CA   HA    50.0    120.00    ! AA trp
+NA   CA   NC    70.0    123.30    ! 
+N2   CA   NA    70.0    116.00    ! 
+N2   CA   NC    70.0    119.30    ! 
+N2   CA   N2    70.0    120.00    ! AA arg
+F    CA   CA    70.0    121.00    ! Junmei et al,99 
+Cl   CA   CA    70.0    118.80    ! Junmei et al,99 
+Br   CA   CA    70.0    118.80    ! Junmei et al,99
+I    CA   CA    70.0    118.80    ! Junmei et al,99 
+C    CB   CB    63.0    119.20    ! changed from 85.0  bsd on C6H6 nmodes; NA gua
+C    CB   NB    70.0    130.00    ! 
+CA   CB   CB    63.0    117.30    ! changed from 85.0  bsd on C6H6 nmodes; NA ade
+CA   CB   NB    70.0    132.40    ! 
+CB   CB   N*    70.0    106.20    ! 
+CB   CB   NB    70.0    110.40    ! 
+CB   CB   NC    70.0    127.70    ! 
+C*   CB   CA    63.0    134.90    ! changed from 85.0  bsd on C6H6 nmodes; AA trp
+C*   CB   CN    63.0    108.80    ! changed from 85.0  bsd on C6H6 nmodes; AA trp
+CA   CB   CN    63.0    116.20    ! changed from 85.0  bsd on C6H6 nmodes; AA trp
+N*   CB   NC    70.0    126.20    ! 
+CD   CD   CM    63.0    120.00    ! Junmei et al, 1999
+CD   CD   CT    70.0    120.00    ! Junmei et al, 1999
+CM   CD   CT    70.0    120.00    ! Junmei et al, 1999
+HA   CD   HA    35.0    119.00    ! Junmei et al, 1999
+HA   CD   CD    50.0    120.00    ! Junmei et al, 1999
+HA   CD   CM    50.0    120.00    ! Junmei et al, 1999
+H5   CK   N*    50.0    123.05    ! 
+H5   CK   NB    50.0    123.05    ! 
+N*   CK   NB    70.0    113.90    ! 
+C    CM   CM    63.0    120.70    ! changed from 85.0  bsd on C6H6 nmodes; NA thy
+C    CM   CT    70.0    119.70    ! 
+C    CM   HA    50.0    119.70    ! 
+C    CM   H4    50.0    119.70    ! 
+CA   CM   CM    63.0    117.00    ! changed from 85.0  bsd on C6H6 nmodes; NA cyt
+CA   CM   HA    50.0    123.30    ! 
+CA   CM   H4    50.0    123.30    ! 
+CM   CM   CT    70.0    119.70    ! 
+CM   CM   HA    50.0    119.70    ! 
+CM   CM   H4    50.0    119.70    ! 
+CM   CM   N*    70.0    121.20    ! 
+CM   CM   OS    80.0    125.00    ! Junmei et al, 1999
+H4   CM   N*    50.0    119.10    ! 
+H4   CM   OS    50.0    113.00    ! Junmei et al, 1999
+HA   CM   HA    35.0    120.00    ! Junmei et al, 1999
+HA   CM   CD    50.0    120.00    ! Junmei et al, 1999
+HA   CM   CT    50.0    120.00    ! Junmei et al, 1999
+NC   CQ   NC    70.0    129.10    ! 
+H5   CQ   NC    50.0    115.45    ! 
+H1   CT   H1    35.0    109.50    ! 
+H1   CT   N*    50.0    109.50    ! changed based on NMA nmodes
+H1   CT   OH    50.0    109.50    ! changed based on NMA nmodes 
+H1   CT   OS    50.0    109.50    ! changed based on NMA nmodes 
+H1   CT   CM    50.0    109.50    ! Junmei et al, 1999 
+H1   CT   CY    50.0    110.00    ! Junmei et al, 1999
+H1   CT   CZ    50.0    110.00    ! Junmei et al, 1999
+H1   CT   N     50.0    109.50    ! AA general  changed based on NMA nmodes
+H1   CT   S     50.0    109.50    ! AA cys     changed based on NMA nmodes
+H1   CT   SH    50.0    109.50    ! AA cyx     changed based on NMA nmodes
+H1   CT   N2    50.0    109.50    ! AA arg     changed based on NMA nmodes
+H1   CT   NT    50.0    109.50    ! neutral amines 
+H2   CT   H2    35.0    109.50    ! AA lys
+H2   CT   N*    50.0    109.50    ! changed based on NMA nmodes
+H2   CT   OS    50.0    109.50    ! changed based on NMA nmodes
+HP   CT   HP    35.0    109.50    ! AA lys, ch3nh4+
+HP   CT   N3    50.0    109.50    ! AA lys, ch3nh3+, changed based on NMA nmodes
+HC   CT   HC    35.0    109.50    ! 
+HC   CT   CM    50.0    109.50    ! changed based on NMA nmodes
+HC   CT   CD    50.0    109.50    ! Junmei et al, 1999
+HC   CT   CZ    50.0    110.00    ! Junmei et al, 1999
+C    CT   H1    50.0    109.50    ! AA general  changed based on NMA nmodes
+C    CT   HP    50.0    109.50    ! AA zwitterion  changed based on NMA nmodes
+C    CT   HC    50.0    109.50    ! AA gln      changed based on NMA nmodes
+C    CT   N     63.0    110.10    ! AA general
+C    CT   N3    80.0    111.20    ! AA amino terminal residues
+C    CT   CT    63.0    111.10    ! AA general
+C    CT   OS    60.0    109.50    ! Junmei et al, 1999
+CA   CT   HC    50.0    109.50    ! AA tyr     changed based on NMA nmodes
+CC   CT   CT    63.0    113.10    ! AA his
+CC   CT   HC    50.0    109.50    ! AA his     changed based on NMA nmodes
+CM   CT   CT    63.0    111.00    ! Junmei et al, 1999 (last change: Mar24,99)
+CM   CT   OS    50.0    109.50    ! Junmei et al, 1999
+CT   CT   CT    40.0    109.50    ! 
+CT   CT   HC    50.0    109.50    ! changed based on NMA nmodes
+CT   CT   H1    50.0    109.50    ! changed based on NMA nmodes
+CT   CT   H2    50.0    109.50    ! changed based on NMA nmodes
+CT   CT   HP    50.0    109.50    ! changed based on NMA nmodes
+CT   CT   N*    50.0    109.50    ! 
+CT   CT   OH    50.0    109.50    ! 
+CT   CT   OS    50.0    109.50    ! 
+CT   CT   S     50.0    114.70    ! AA cyx            (SCHERAGA  JPC 79,1428)
+CT   CT   SH    50.0    108.60    ! AA cys
+CT   CT   CA    63.0    114.00    ! AA phe tyr          (SCH JPC  79,2379)
+CT   CT   N2    80.0    111.20    ! AA arg             (JCP 76, 1439)
+CT   CT   N     80.0    109.70    ! AA ala, general    (JACS 94, 2657)
+CT   CT   N3    80.0    111.20    ! AA lys             (JCP 76, 1439)
+CT   CT   NT    80.0    111.20    ! neutral amines 
+CT   CT   CY    63.0    110.00    ! Junmei et al, 1999    
+CT   CT   CZ    63.0    110.00    ! Junmei et al, 1999
+C*   CT   CT    63.0    115.60    ! AA trp
+C*   CT   HC    50.0    109.50    ! AA trp    changed based on NMA nmodes
+OS   CT   OS   160.0    101.00    ! Junmei et al, 1999
+OS   CT   CY    50.0    110.00    ! Junmei et al, 1999
+OS   CT   CZ    50.0    110.00    ! Junmei et al, 1999
+OS   CT   N*    50.0    109.50    ! 
+F    CT   F     77.0    109.10    ! JCC,13,(1992),963;
+F    CT   H1    50.0    109.50    ! JCC,13,(1992),963;
+F    CT   CT    50.0    109.00    ! 
+F    CT   H2    50.0    109.50    ! 
+Cl   CT   CT    50.0    108.50    ! (6-31g* opt value)
+Cl   CT   H1    50.0    108.50    ! (6-31g* opt value)  
+Br   CT   CT    50.0    108.00    ! Junmei et al 99 
+Br   CT   H1    50.0    106.50    ! Junmei et al 99 
+I    CT   CT    50.0    106.00    ! Junmei et al,99 
+CT   CC   NA    70.0    120.00    ! AA his
+CT   CC   CV    70.0    120.00    ! AA his
+CT   CC   NB    70.0    120.00    ! AA his
+CV   CC   NA    70.0    120.00    ! AA his
+CW   CC   NA    70.0    120.00    ! AA his
+CW   CC   NB    70.0    120.00    ! AA his
+CT   CC   CW    70.0    120.00    ! AA his
+H5   CR   NA    50.0    120.00    ! AA his
+H5   CR   NB    50.0    120.00    ! AA his
+NA   CR   NA    70.0    120.00    ! AA his
+NA   CR   NB    70.0    120.00    ! AA his
+CC   CV   H4    50.0    120.00    ! AA his
+CC   CV   NB    70.0    120.00    ! AA his
+H4   CV   NB    50.0    120.00    ! AA his
+CC   CW   H4    50.0    120.00    ! AA his
+CC   CW   NA    70.0    120.00    ! AA his
+C*   CW   H4    50.0    120.00    ! AA trp
+C*   CW   NA    70.0    108.70    ! AA trp
+H4   CW   NA    50.0    120.00    ! AA his
+CB   C*   CT    70.0    128.60    ! AA trp
+CB   C*   CW    63.0    106.40    ! changed from 85.0  bsd on C6H6 nmodes; AA trp
+CT   C*   CW    70.0    125.00    ! AA trp
+CA   CN   CB    63.0    122.70    ! changed from 85.0  bsd on C6H6 nmodes; AA trp
+CA   CN   NA    70.0    132.80    ! AA trp
+CB   CN   NA    70.0    104.40    ! AA trp
+CT   CY   NY    80.0    180.00    ! Junmei et al, 1999
+CT   CZ   CZ    80.0    180.00    ! Junmei et al, 1999
+CZ   CZ   HZ    50.0    180.00    ! Junmei et al, 1999
+C    N    CT    50.0    121.90    ! AA general
+C    N    H     50.0    120.00    ! AA general, gln, asn,changed based on NMA nmodes
+CT   N    H     50.0    118.04    ! AA general,     changed based on NMA nmodes
+CT   N    CT    50.0    118.00    ! AA pro             (DETAR JACS 99,1232)
+H    N    H     35.0    120.00    ! ade,cyt,gua,gln,asn     **
+C    N*   CM    70.0    121.60    ! 
+C    N*   CT    70.0    117.60    ! 
+C    N*   H     50.0    119.20    ! changed based on NMA nmodes
+CB   N*   CK    70.0    105.40    ! 
+CB   N*   CT    70.0    125.80    ! 
+CB   N*   H     50.0    125.80    ! for unmethylated n.a. bases,chngd bsd NMA nmodes
+CK   N*   CT    70.0    128.80    ! 
+CK   N*   H     50.0    128.80    ! for unmethylated n.a. bases,chngd bsd NMA nmodes
+CM   N*   CT    70.0    121.20    ! 
+CM   N*   H     50.0    121.20    ! for unmethylated n.a. bases,chngd bsd NMA nmodes
+CA   N2   H     50.0    120.00    ! 
+CA   N2   CT    50.0    123.20    ! AA arg
+CT   N2   H     50.0    118.40    ! AA arg
+H    N2   H     35.0    120.00    ! 
+CT   N3   H     50.0    109.50    ! AA lys,     changed based on NMA nmodes
+CT   N3   CT    50.0    109.50    ! AA pro/nt
+H    N3   H     35.0    109.50    ! AA lys, AA(end)
+CT   NT   H     50.0    109.50    ! neutral amines 
+CT   NT   CT    50.0    109.50    ! neutral amines 
+H    NT   H     35.0    109.50    ! neutral amines 
+C    NA   C     70.0    126.40    ! 
+C    NA   CA    70.0    125.20    ! 
+C    NA   H     50.0    116.80    ! changed based on NMA nmodes
+CA   NA   H     50.0    118.00    ! changed based on NMA nmodes
+CC   NA   CR    70.0    120.00    ! AA his
+CC   NA   H     50.0    120.00    ! AA his,    changed based on NMA nmodes
+CR   NA   CW    70.0    120.00    ! AA his
+CR   NA   H     50.0    120.00    ! AA his,    changed based on NMA nmodes
+CW   NA   H     50.0    120.00    ! AA his,    changed based on NMA nmodes
+CN   NA   CW    70.0    111.60    ! AA trp
+CN   NA   H     50.0    123.10    ! AA trp,    changed based on NMA nmodes
+CB   NB   CK    70.0    103.80    ! 
+CC   NB   CR    70.0    117.00    ! AA his
+CR   NB   CV    70.0    117.00    ! AA his
+C    NC   CA    70.0    120.50    ! 
+CA   NC   CB    70.0    112.20    ! 
+CA   NC   CQ    70.0    118.60    ! 
+CB   NC   CQ    70.0    111.00    ! 
+C    OH   HO    50.0    113.00    ! (not used in tyr anymore)
+CA   OH   HO    50.0    113.00    ! replacement in tyr
+CT   OH   HO    55.0    108.50    ! 
+HO   OH   P     45.0    108.50    ! 
+C    OS   CT    60.0    117.00    ! Junmei et al, 1999
+CM   OS   CT    60.0    117.00    ! Junmei et al, 1999
+CT   OS   CT    60.0    109.50    ! 
+CT   OS   P    100.0    120.50    ! 
+P    OS   P    100.0    120.50    ! 
+O2   P    OH    45.0    108.23    ! 
+O2   P    O2   140.0    119.90    ! 
+O2   P    OS   100.0    108.23    ! 
+OH   P    OS    45.0    102.60    ! 
+OS   P    OS    45.0    102.60    ! 
+CT   S    CT    62.0     98.90    ! AA met
+CT   S    S     68.0    103.70    ! AA cyx             (SCHERAGA  JPC 79,1428)
+CT   SH   HS    43.0     96.00    ! changed from 44.0 based on methanethiol nmodes
+HS   SH   HS    35.0     92.07    ! AA cys
+CB   NB   LP   150.0     126.0    ! NA
+CC   NB   LP   150.0     126.0    ! his,NA
+CK   NB   LP   150.0     126.0    ! NA
+CR   NB   LP   150.0     126.0    ! his,NA
+CV   NB   LP   150.0     126.0    ! his,NA
+C    NC   LP   150.0     120.0    ! NA
+CA   NC   LP   150.0     120.0    ! NA
+CB   NC   LP   150.0     120.0    ! NA
+CQ   NC   LP   150.0     120.0    ! NA
+CT   N3   LP   150.0     109.5    ! in neutral lysine
+H    N3   LP   150.0     109.5    ! in neutral lysine
+CT   NT   LP   150.0     109.5    ! 
+H    NT   LP   150.0     109.5    ! 
+C    O    LP   150.0     120.0    ! 
+LP   O    LP   150.0     120.0    ! 
+C    OH   LP   150.0     120.0    ! 
+CT   OH   LP   150.0     109.5    ! 
+HO   OH   LP   150.0     109.5    ! 
+LP   OH   LP   150.0     109.5    ! 
+C    OS   LP   150.0     109.5    ! 
+CM   OS   LP   150.0     109.5    ! methyl vinyl ether
+CT   OS   LP   150.0     109.5    ! 
+LP   OS   LP   150.0     109.5    ! 
+CT   S    LP   150.0      90.0    ! cys,cyx,met
+CT   SH   LP   150.0      90.0    ! cys,cyx,met
+P    OS   LP   150.0     109.5    ! NA
+LP   S    LP   150.0     180.0    ! cys,cyx,met
+LP   SH   LP   150.0     180.0    ! cys,cyx,met
+HS   SH   LP   150.0      90.0    ! cys  
+O3   P    O3   140.0     119.9    ! ATP by analogy to O2
+OS   P    O3   100.      108.2    ! ATP by analogy to O2
+OS   CT   CA    68.450   108.480  ! same as c2-c3-os
+NT   CT   C     66.590   111.140  ! same as c-c3-n3
+OS   C    N     76.680   109.280  ! same as n -c -os
+CA   CT   H1    47.030   110.490  ! same as c2-c3-hc
+OH   CT   OS    72.380   109.210  ! same as oh-c3-os
+OH   CT   H2    51.070   109.500  ! same as hc-c3-oh
+OH   CT   NT    70.710   110.630  ! same as n3-c3-oh
+H2   CT   NT    49.420   109.800  ! same as hc-c3-n3
+
+CT   CT    O    68.500   113.010  ! added by Natalia for KET same as c3-c3-o 
+O    CT   OS    73.189   115.295  ! added by Natalia for KET Calculated with empirical approach
+
+End
+
+Dihedrals
+! Atoms            		V0        V1        V2        V3     V4
+N	CT	C    N		3.40    -3.40	  4.00	    0.00    	0.0
+C    	N	CT   C		0.00	1.60	  1.70	    0.00 	0.0    
+CT   	CT  	N    C		0.30  	1.06	  0.00	   -0.30      1.00
+CT   	CT  	C    N		0.34 	0.00	 -0.14	    0.00     -0.20
+H    	N	C    O		0.00  	4.00	  5.00	    0.00 	0.0
+CT   	S	S    CT    	7.00 	0.00	 -7.00	    1.20  	0.0
+OH   	P	OS   CT		2.40  	0.00	 -2.40	    0.50  	0.0
+OS   	P	OS   CT		2.40  	0.00	 -2.40	    0.50  	0.0
+H1   	CT   	C    O		0.16  	1.60	  0.00	   -0.16 	0.0
+HC   	CT  	C     O		0.16  	1.60	  0.00	   -0.16 	0.0
+HC	 CT	  CT   HC	0.00  	0.00	  0.00	    0.30 	0.00
+HC 	 CT	  CT   CT	0.00  	0.00	  0.00	    0.32 	0.00
+HC	 CT	  CM   CM	0.76 	2.30	  0.00	   -0.76 	0.00
+HO	 OH	  CT   CT	0.00  	0.50	  0.00	    0.32 	0.00
+HO	 OH	  C    O	0.00  	3.80	  4.60	    0.00  	0.00
+CM	 CM	  C    O	0.00  	0.00	  4.35	    0.60   	0.00
+CT	 CM	  CM   CT	3.80	-3.80	 13.30	    0.00 	0.00
+CT	 CT	  CT   CT	0.40	-0.40	  0.50	    0.36 	0.00
+CT	 CT	  NT   CT	0.00	0.00	  0.96	    0.60  	0.00
+CT	 CT	  OS   CT	0.00	0.00	  0.20	    0.77 	0.00
+CT	 CT	  OS   C	1.60	-1.60	  0.00	    0.77 	0.00
+CT	 OS	  CT   OS	2.70	-2.70	  1.70	    0.20 	0.00
+CT	 OS	  CT   N*	1.30	0.00	 -1.30	    0.77  	0.00
+CT	 CZ	  CZ   HZ	0.00	0.00	  0.00	    0.00   	0.00
+O 	 C	  OS   CT	2.80	-2.80	  5.40	    0.00   	0.00
+OS	 CT      N*   CK	0.00	5.00	  0.00	    0.00  	0.00
+OS	 CT	  N*   CM	0.00	5.00	  0.00	    0.00   	0.00
+OS	 CT	  CT   OS	2.35	0.00	 -2.35	    0.29  	0.00
+OS	 CT	  CT   OH	2.35	0.00	 -2.35	    0.29  	0.00
+OH	 CT	  CT   OH	2.35	0.00	 -2.35	    0.29  	0.00
+F	 CT	  CT   F	2.40	-2.40	  0.00	    0.00    	0.00
+Cl 	 CT	  CT   Cl	0.90	-0.90	  0.00	    0.00 	0.00
+Br	 CT	  CT   Br	0.00	0.00	  0.00	    0.00   	0.00
+H1	 CT	  CT   OS	0.00	0.50	  0.00	    0.00   	0.00
+H1	 CT	  CT   OH	0.00	0.50	  0.00	    0.00   	0.00
+H1	 CT	  CT   F	0.00	0.38	  0.00	    0.00   	0.00
+H1	 CT	  CT   Cl	0.00	0.50	  0.00	    0.00   	0.00
+H1	 CT	  CT   Br	0.00	1.10	  0.00	    0.00   	0.00
+HC	 CT	  CT   OS	0.00	0.50	  0.00	    0.00  	0.00
+HC	 CT	  CT   OH	0.00	0.50	  0.00	    0.00   	0.00
+HC	 CT	  CT   F	0.00	0.38	  0.00	    0.00    	0.00
+HC	 CT	  CT   Cl	0.00	0.50	  0.00	    0.00   	0.00
+HC	 CT	  CT   Br	0.00	1.10	  0.00	    0.00   	0.00
+H1	 CT	  NT   LP	0.00	0.00	  0.00	    0.00   	0.00
+CT	 CT	  NT   LP	0.00	0.00	  0.00	    0.00   	0.00
+CT	 C	  N    LP	0.00	0.00	  0.00	    0.00     	0.00
+O	 C	  N    LP	0.00	0.00	  0.00	    0.00      0.00
+H1	 CT	  OH   LP	0.00	0.00	  0.00	    0.00   	0.00
+CT	 CT	  OH   LP	0.00	0.00	  0.00	    0.00   	0.00
+H1	 CT	  OS   LP	0.00	0.00	  0.00	    0.00   	0.00
+H2	 CT	  OS   LP	0.00	0.00	  0.00	    0.00   	0.00
+CT	 CT	  OS   LP	0.00	0.00	  0.00	    0.00   	0.00
+CM	 CM	  OS   LP	0.00	0.00	  0.00	    0.00   	0.00
+HA	 CM	  OS   LP	0.00	0.00	  0.00	    0.00   	0.00
+H4	 CM	  OS   LP	0.00	0.00	  0.00	    0.00   	0.00
+X	 C	  C    X	0.00	0.00	  7.25	    0.00      0.00
+X	 C	  CA   X	0.00	0.00	  7.25	    0.00      0.00
+X	 C	  CB   X	0.00	0.00	  6.00	    0.00      0.00
+X	 C	  CM   X	0.00	0.00	  4.35	    0.00      0.00
+X	 C	  CT   X	0.00	0.00	  0.00	    0.00      0.00
+X	 C	  N    X	0.00	0.00	  5.00	    0.00      0.00
+X	 C	  N*   X	0.00	0.00	  2.90	    0.00      0.00
+X	 C	  NA   X	0.00	0.00	  2.70	    0.00      0.00
+X	 C	  NC   X	0.00	0.00	  8.00	    0.00      0.00
+X	 C	  O    X	0.00	0.00	  5.60	    0.00      0.00
+X	 C	  OH   X	0.00	0.00	  4.60	    0.00      0.00
+X	 C	  OS   X	0.00	0.00	  5.40	    0.00      0.00
+X	 CA	  CA   X	0.00	0.00	  7.25	    0.00     	0.00
+X	 CA	  CB   X	0.00	0.00	  7.00	    0.00     	0.00
+X	 CA	  CM   X	0.00	0.00	  5.10	    0.00     	0.00
+X	 CA	  CN   X	0.00	0.00	  7.25	    0.00    	0.00
+X	 CA	  CT   X	0.00	0.00	  0.00	    0.00     	0.00
+X	 CA	  N2   X	0.00	0.00	  4.80	    0.00     	0.00
+X	 CA	  NA   X	0.00	0.00	  3.00	    0.00     	0.00
+X	 CA	  NC   X	0.00	0.00	  9.60	    0.00     	0.00
+X	 CA	  OH   X	0.00	0.00	  1.80	    0.00     	0.00
+X	 CB	  CB   X	0.00	0.00	 10.90	    0.00    	0.00
+X	 CB	  CN   X	0.00	0.00	  6.00	    0.00     	0.00
+X	 CB	  N*   X	0.00	0.00	  3.30	    0.00     	0.00
+X	 CB	  NB   X	0.00	0.00	  5.10	    0.00     	0.00
+X	 CB	  NC   X	0.00	0.00	  8.30	    0.00     	0.00
+X	 CC	  CT   X	0.00	0.00	  0.00	    0.00     	0.00
+X	 CC	  CV   X	0.00	0.00	 10.30	    0.00    	0.00
+X	 CC	  CW   X	0.00	0.00	 10.75	    0.00    	0.00
+X	 CC	  NA   X	0.00	0.00	  2.80	    0.00     	0.00
+X	 CC	  NB   X	0.00	0.00	  4.80	    0.00     	0.00
+X	 CD	  CD   X	0.00	0.00	  2.00	    0.00     	0.00
+X	 CD	  CT   X	0.00	0.00	  0.00	    0.00     	0.00
+X	 CD	  CM   X	0.00	0.00	 13.30	    0.00    	0.00
+X	 CK	  N*   X	0.00	0.00	  3.40	    0.00     	0.00
+X	 CK	  NB   X	0.00	0.00	 20.00	    0.00    	0.00
+X	 CM	  CM   X	0.00	0.00	 13.30	    0.00    	0.00
+X	 CM	  CT   X	0.00	0.00	  0.00	    0.00     	0.00
+X	 CM	  N*   X	0.00	0.00	  3.70	    0.00     	0.00
+X	 CM	  OS   X	0.00	0.00	  2.10	    0.00     	0.00
+X	 CN	  NA   X	0.00	0.00	  3.05	    0.00     	0.00
+X	 CQ	  NC   X	0.00	0.00	 13.60	    0.00    	0.00
+X	 CT	  CT   X	0.00	0.00	  0.00	    0.31     	0.00
+X	 CT	  CY   X	0.00	0.00	  0.00	    0.00     	0.00
+X	 CT	  CZ   X	0.00	0.00	  0.00	    0.00     	0.00
+X	 CT	  N    X	0.00	0.00	  0.00	    0.00      0.00
+X	 CT	  N*   X	0.00	0.00	  0.00	    0.00     	0.00
+X	 CT	  N2   X	0.00	0.00	  0.00	    0.00     	0.00
+X	 CT	  NT   X	0.00	0.00	  0.00	    0.60     	0.00
+X	 CT	  N3   X	0.00	0.00	  0.00	    0.31     	0.00
+X	 CT	  OH   X	0.00	0.00	  0.00	    0.33     	0.00
+X	 CT	  OS   X	0.00	0.00	  0.00	    0.77     	0.00
+X	 CT	  S    X	0.00	0.00	  0.00	    0.67      0.00
+X	 CT	  SH   X	0.00	0.00	  0.00	    0.50     	0.00
+X	 C*	  CB   X	3.35	0.00	  0.00	   -3.35    	0.00
+X	 C*	  CT   X	0.00	0.00	  0.00	    0.00     	0.00
+X	 C*	  CW   X	0.00	0.00	 13.50	    0.00    	0.00
+X	 CR	  NA   X	0.00	0.00	  4.65	    0.00     	0.00
+X	 CR	  NB   X	0.00	0.00	 10.00	    0.00    	0.00
+X	 CV	  NB   X	0.00	0.00	  4.80	    0.00     	0.00
+X	 CW	  NA   X	0.00	0.00	  3.00	    0.00     	0.00
+X	 OH	  P    X	0.00	0.00	  0.00	    0.50      0.00
+X	 OS	  P    X	0.00	0.00	  0.00	    0.50      0.00
+End                                                                     
+                                  
+Impropers                                                                                         
+X  X    C    O      0.000    0.000    21.0       0.000 0.00    !JCC,7,(1986),230              
+X  O2   C    O2     0.000    0.000    21.0       0.000 0.00    !JCC,7,(1986),230              
+X  X    N    H      0.000    0.000     2.0       0.000 0.00    !JCC,7,(1986),230              
+X  X    N2   H      0.000    0.000     2.0       0.000 0.00    !JCC,7,(1986),230              
+X  X    NA   H      0.000    0.000     2.0       0.000 0.00    !JCC,7,(1986),230              
+X  N2   CA   N2     0.000    0.000    21.0       0.000 0.00    !JCC,7,(1986),230              
+X  CT   N    CT     0.000    0.000     2.0       0.000 0.00    !JCC,7,(1986),230              
+X  X    CA   HA     0.000    0.000     2.2       0.000 0.00    !bsd.on C6H6 nmodes            
+X  X    CW   H4     0.000    0.000     2.2       0.000 0.00                                  
+X  X    CR   H5     0.000    0.000     2.2       0.000   0.00                                
+X  X    CV   H4     0.000    0.000     2.2       0.000  0.00                                 
+X  X    CQ   H5     0.000    0.000     2.2       0.000  0.00                                 
+X  X    CK   H5     0.000    0.000     2.2       0.000  0.00                                 
+X  X    CM   H4     0.000    0.000     2.2       0.000  0.00                                 
+X  X    CM   HA     0.000    0.000     2.2       0.000  0.00                                 
+X  X    CA   H4     0.000    0.000     2.2       0.000 0.00    !bsd.on C6H6 nmodes            
+X  X    CA   H5     0.000    0.000     2.2       0.000 0.00    !bsd.on C6H6 nmodes            
+CB CK   N*   CT     0.000    0.000     2.0       0.000 0.00 
+CK CB   N*   CT     0.000    0.000     2.0       0.000 0.00        ! ATP                                 
+C  CM   N*   CT     0.000    0.000     2.0       0.000 0.00    !dac guess, 9/94               
+C  CM   CM   CT     0.000    0.000     2.2       0.000   0.00                                
+CT  O    C    OH     0.000    0.000    21.0       0.000  0.00                                  
+CT CC   CV   NA     0.000    0.000     2.2       0.000  0.0
+NA  CC   CV   CT     0.000    0.000     2.2       0.000  0.0
+NA  CC   CW   CT     0.000    0.000     2.2       0.000  0.0   ! Kasia added
+NA  CV   CC   CT     0.000    0.000     2.2       0.000      0.0                             
+CT CW   CC   NB      0.000    0.000     2.2       0.000     0.0
+NB CW   CC   CT      0.000    0.000     2.2       0.000         0.0                 
+!CT CW   CC   NA     0.000    0.000     2.2       0.000     0.0
+NA  CW   CC   CT     0.000    0.000     2.2       0.000         0.0                     
+CB CT   C*   CW      0.000    0.000     2.2       0.000      0.0
+CW  CB  C*   CT      0.000    0.000     2.2       0.000    0.0  ! added                           
+CA CA   CA   CT      0.000    0.000     2.2       0.000     0.0                               
+!C  CM   CM   CT     0.000    0.000     2.2       0.000    0.0  !dac guess, 9/94               
+CM N2   CA   NC     0.000    0.000     2.2       0.000    0.0  !dac guess, 9/94               
+CB N2   CA   NC     0.000    0.000     2.2       0.000   0.0   !dac, 10/94                    
+CB NC   CA   N2     0.000    0.000     2.2       0.000   0.0   ! ATP 
+N2 NA   CA   NC     0.000    0.000     2.2       0.000    0.0  !dac, 10/94                    
+CA CA   C    OH     0.000    0.000     2.2       0.000    0.0  !(not used in tyr!)            
+CA CA   CA   OH     0.000    0.000     2.2       0.000     0.0 !in tyr                        
+!H5 O    C    OH     0.000    0.000     2.2       0.000    0.0  !Junmei et al.1999             
+!H5 O    C    OS     0.000    0.000     2.2       0.000     0.0                               
+!CM CT   CM   HA     0.000    0.000     2.2       0.000    0.0  !Junmei et al.1999             
+!Br CA   CA   CA     0.000    0.000     2.2       0.000    0.0  !Junmei et al.1999             
+!CM H4   C    O      0.000    0.000     2.2       0.000    0.0  !Junmei et al.1999             
+!C  CT   N    H      0.000    0.000     2.2       0.000     0.0 !Junmei et al.1999             
+C  CT   N    O      0.000     0.000     2.2       0.000    0.0  !Junmei et al.1999 
+N   O    C    OS     0.000    0.000     2.2       0.000    0.0  !Natalia added 
+CT  N    C    O      0.000    0.000     2.2       0.000    0.0  !Natalia Added 1.1          180.0         2.0          Using default value
+CT  O    C    OS     0.000    0.000     2.2       0.000    0.0  !Natalia Added 1.1          180.0         2.0          Using default value
+End
+
+End
+End                                                               
+                                                               
+                                                            
+                    
+            
+         
+              
+          
+          
+           
+             
+            
+            
+  
+
+            
+                       

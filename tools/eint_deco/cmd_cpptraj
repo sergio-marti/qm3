@@ -1,0 +1,6 @@
+parm prmtop
+trajin pro-interactions.crd 1 5000 5
+image familiar com :1-433
+trajout cent.dcd
+run
+quit
