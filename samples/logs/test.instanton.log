@@ -1,0 +1,137 @@
+[RP] bead: 64 33
+[RP] temp: 300.00 _K
+[RP] kumb: 493.64 _kJ/(mol A^2)
+[TS]dfunc:    -3.4888126487e+01 (87.02 _kJ/mol)
+[TS]l_rQR:     1.2445836221e+01
+[TS]l_tQR:     1.1662648999e+01
+[TS]rfreq: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 50.1 _cm^-1
+[TS]l_rQV:    -1.2569941612e+02
+[TS]tfreq: 1894.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 83.3 _cm^-1
+[RP] T_co: 433.83 _K
+[TS]l_tQV:    -1.2153039142e+02
+[TS] kcin:     1.3022015268e-01 _1/s
+---------------------------------------- Minimization (Baker)
+
+Degrees of Freedom:                 1485
+Following Mode:                        0
+Step Number:                         500
+Step Size:                           0.1
+Print Frequency:                       1
+Gradient Tolerance:                  0.1
+Allow Overlap:                     False
+
+      Step            Function            Gradient     Nneg,Fmode,Eval
+----------------------------------------------------------------------
+         1          -245.32736        7.9867596471    1    0     -3.49
+ * Hessian updated (combined Bofill, Phi = 0.000724)
+         2          -250.06588        8.1037894384    1    0     -3.49
+ * Hessian updated (combined Bofill, Phi = 0.000375)
+         3          -254.55020        7.8638984139    1    0     -3.49
+ * Hessian updated (combined Bofill, Phi = 0.000039)
+         4          -258.80279        7.4294826859    1    0     -3.49
+ * Hessian updated (combined Bofill, Phi = 0.000274)
+         5          -262.72024        6.8910132331    1    0     -3.49
+ * Hessian updated (combined Bofill, Phi = 0.000014)
+         6          -266.26693        6.2411680257    1    0     -3.49
+ * Hessian updated (combined Bofill, Phi = 0.000245)
+         7          -269.34436        5.5515718561    1    0     -3.49
+ * Hessian updated (combined Bofill, Phi = 0.000230)
+         8          -271.95982        4.7983243273    1    0     -3.49
+ * Hessian updated (combined Bofill, Phi = 0.000257)
+         9          -274.02270        4.0744013515    1    0     -3.49
+ * Hessian updated (combined Bofill, Phi = 0.000809)
+        10          -275.62744        3.3347956481    1    0     -3.49
+ * Hessian updated (combined Bofill, Phi = 0.000126)
+        11          -276.68966        2.7530517106    1    0     -3.49
+ * Hessian updated (combined Bofill, Phi = 0.001126)
+        12          -277.47970        2.1736060658    1    0     -3.50
+ * Hessian updated (combined Bofill, Phi = 0.000018)
+        13          -277.92054        1.8485055459    1    0     -3.50
+ * Hessian updated (combined Bofill, Phi = 0.000786)
+        14          -278.29104        1.4579714347    1    0     -3.50
+ * Hessian updated (combined Bofill, Phi = 0.000180)
+        15          -278.50255        1.2596157448    1    0     -3.50
+ * Hessian updated (combined Bofill, Phi = 0.000453)
+        16          -278.67133        1.0020242266    2    0     -3.50
+ * Hessian updated (combined Bofill, Phi = 0.000633)
+        17          -278.74036        0.9271969717    2    0     -3.50
+ * Hessian updated (combined Bofill, Phi = 0.000650)
+        18          -278.78843        0.8337498038    2    0     -3.51
+ * Hessian updated (combined Bofill, Phi = 0.000249)
+        19          -278.83197        0.7720855754    2    0     -3.51
+ * Hessian updated (combined Bofill, Phi = 0.000248)
+        20          -278.87099        0.6874651594    2    0     -3.51
+ * Hessian updated (combined Bofill, Phi = 0.000134)
+        21          -278.90292        0.6301823706    1    0     -3.52
+ * Hessian updated (combined Bofill, Phi = 0.000117)
+        22          -278.93152        0.5645046279    2    0     -3.52
+ * Hessian updated (combined Bofill, Phi = 0.000148)
+        23          -278.95571        0.5143043389    2    0     -3.52
+ * Hessian updated (combined Bofill, Phi = 0.000447)
+        24          -278.97676        0.4696397081    2    0     -3.52
+ * Hessian updated (combined Bofill, Phi = 0.006787)
+        25          -278.99386        0.4379614458    2    0     -3.52
+ * Hessian updated (combined Bofill, Phi = 0.013942)
+        26          -279.00969        0.4184091429    2    0     -3.52
+ * Hessian updated (combined Bofill, Phi = 0.010700)
+        27          -279.02493        0.3982792835    2    0     -3.52
+ * Hessian updated (combined Bofill, Phi = 0.005867)
+        28          -279.03972        0.3764606825    2    0     -3.52
+ * Hessian updated (combined Bofill, Phi = 0.002238)
+        29          -279.05447        0.3548807752    2    0     -3.52
+ * Hessian updated (combined Bofill, Phi = 0.001794)
+        30          -279.06860        0.3287786867    2    0     -3.52
+ * Hessian updated (combined Bofill, Phi = 0.001700)
+        31          -279.08171        0.3084588253    2    0     -3.53
+ * Hessian updated (combined Bofill, Phi = 0.004112)
+        32          -279.09358        0.2911958992    2    0     -3.53
+ * Hessian updated (combined Bofill, Phi = 0.004628)
+        33          -279.10573        0.2755228583    2    0     -3.53
+ * Hessian updated (combined Bofill, Phi = 0.001941)
+        34          -279.11758        0.2598692794    2    0     -3.53
+ * Hessian updated (combined Bofill, Phi = 0.000747)
+        35          -279.12931        0.2425407571    2    0     -3.53
+ * Hessian updated (combined Bofill, Phi = 0.000684)
+        36          -279.14063        0.2256664033    2    0     -3.53
+ * Hessian updated (combined Bofill, Phi = 0.000247)
+        37          -279.15169        0.2117408712    2    0     -3.53
+ * Hessian updated (combined Bofill, Phi = 0.000308)
+        38          -279.16232        0.1947497345    1    0     -3.53
+ * Hessian updated (combined Bofill, Phi = 0.000095)
+        39          -279.17272        0.1839288110    1    0     -3.53
+ * Hessian updated (combined Bofill, Phi = 0.000139)
+        40          -279.18264        0.1674902508    1    0     -3.53
+ * Hessian updated (combined Bofill, Phi = 0.000050)
+        41          -279.19231        0.1596650482    1    0     -3.53
+ * Hessian updated (combined Bofill, Phi = 0.000083)
+        42          -279.20149        0.1445919545    1    0     -3.54
+ * Hessian updated (combined Bofill, Phi = 0.000047)
+        43          -279.21038        0.1395005015    1    0     -3.54
+ * Hessian updated (combined Bofill, Phi = 0.000102)
+        44          -279.21875        0.1262880981    1    0     -3.54
+ * Hessian updated (combined Bofill, Phi = 0.000149)
+        45          -279.22666        0.1234651339    2    0     -3.54
+ * Hessian updated (combined Bofill, Phi = 0.000581)
+        46          -279.23397        0.1134169603    2    0     -3.54
+ * Hessian updated (combined Bofill, Phi = 0.001545)
+        47          -279.24076        0.1112569974    2    0     -3.54
+ * Hessian updated (combined Bofill, Phi = 0.003188)
+        48          -279.24723        0.1052937615    2    0     -3.54
+ * Hessian updated (combined Bofill, Phi = 0.003415)
+        49          -279.25330        0.1009827996    2    0     -3.54
+ * Hessian updated (combined Bofill, Phi = 0.001352)
+        50          -279.25915        0.0972431293    2    0     -3.54
+----------------------------------------------------------------------
+
+[RP]dfunc:    -3.0716396386e+01 (76.62 _kJ/mol)
+[RP]l_rQR:     2.4922485471e+01
+[RP]l_tQR:     2.4860612510e+01
+[RP]rfreq: 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 6.3 _cm^-1
+[RP]l_rQV:     5.8220533837e+03
+(RP_hess: 18.3 _seg)
+(RP_diaq: 50.0 _seg)
+[RP]tfreq: 86.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 8.7, 10.2 _cm^-1
+[RP]l_tQV:     5.8267999165e+03
+[RP]l_tQP:     5.3158761086e-01
+[RP] kcin:     5.2647109512e+01 _1/s
+    kappa:     4.0429310232e+02

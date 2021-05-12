@@ -1,14 +1,16 @@
 # -*- coding: iso-8859-1 -*-
 
 from __future__ import print_function, division
-import sys
+import  sys
 if( sys.version_info[0] == 2 ):
     range = xrange
-import math
-import qm3.maths.rand
-import qm3.utils
-import qm3.constants
-import time
+import  math
+import  qm3.maths.rand
+import  qm3.maths.matrix
+import  qm3.utils
+import  qm3.constants
+import  time
+import  os
 
 
 
@@ -23,39 +25,81 @@ class model:
         """
         define as much engines as needed based on the molec
         """
-        pass
+        self.sele = []
+        self.size = 3 * len( self.sele )
+
 
     def get_grad( self, molec ):
         """
         sequencially accumulate all the engines.get_grad
         """
-        pass
+        molec.func = 0
+        molec.grad = [ 0.0 for i in range( 3 * molec.natm ) ]
 
 
-
-class md_template:
-    def __init__( self ):
+    def get_hess( self, molec, nder = 1.0e-4 ):
         """
-        setup a molecule (with masses):     self.mole
-        setup a working model:              self.engn
-        setup the active atoms:             self.sele
-        setup the problem size:             self.size = 3 * len( self.sele )
-        map the active coordinates on:      self.coor
-        map the active masses on:           self.mass
+        defaults to numerical hessian
         """
-        self.mole = None
-        self.engn = None
-        self.sele = None
-        self.size = 0.0
-        self.coor = []
+        hh = []
+        for j in self.sele:
+            j3 = j * 3
+            for k in [0, 1, 2]:
+                bak = molec.coor[j3+k]
+                molec.coor[j3+k] = bak + nder
+                self.get_grad( molec )
+                gp = []
+                for l in self.sele:
+                    l3 = l * 3
+                    gp += molec.grad[l3:l3+3][:]
+                molec.coor[j3+k] = bak - nder
+                self.get_grad( molec )
+                gm = []
+                for l in self.sele:
+                    l3 = l * 3
+                    gm += molec.grad[l3:l3+3][:]
+                molec.coor[j3+k] = bak
+                hh.append( [ ( gp[l] - gm[l] ) / ( 2.0 * nder ) for l in range( self.size ) ] )
+        for j in range( self.size ):
+            for k in range( self.size ):
+                if( j != k ):
+                    t = 0.5 * ( hh[j][k] + hh[k][j] )
+                    hh[j][k] = t
+                    hh[k][j] = t
+        molec.hess = []
+        for j in range( self.size ):
+            molec.hess += hh[j]
+
+
+
+
+class rpmd( object ):
+    def __init__( self, mole, sele, engn ):
+        self.mole = mole
+        self.sele = sele[:]
+        self.engn = engn
+        self.size = 3 * len( sele )
         self.mass = []
-        self.func = 0.0
-        self.grad = []
-        self.velo = []
+        self.coor = []
+        for i in self.sele:
+            i3 = i * 3
+            self.mass.append( self.mole.mass[i] )
+            self.coor += self.mole.coor[i3:i3+3]
 
 
 
     def current_step( self, istep ):
+#        f = open( "output", "at" )
+#        f.write( "%d\n\n"%( self.mole.natm + ( self.rp_bead - 1 ) * self.rp_dime ) )
+#        for i in range( self.mole.natm ):
+#            if( not i in self.rp_atom ):
+#                f.write( "%-2s%20.10lf%20.10lf%20.10lf\n"%( self.mole.labl[i],
+#                    self.coor[3*i], self.coor[3*i+1], self.coor[3*i+2] ) )
+#        for i in self.rp_atom:
+#            for j in range( self.rp_bead ):
+#                f.write( "%-2s%20.10lf%20.10lf%20.10lf\n"%( self.mole.labl[i],
+#                    self.rp_coor[i][3*j], self.rp_coor[i][3*j+1], self.rp_coor[i][3*j+2] ) )
+#        f.close()
         pass
 
 
@@ -66,26 +110,19 @@ class md_template:
         self.__cc = 10.0 / ( qm3.constants.KB * qm3.constants.NA )
         # -- translational modes ----------------------
         self.prjT = [ [], [], [] ]
+        mt = math.sqrt( sum( self.mass ) )
         for i in range( len( self.sele ) ):
             sm = math.sqrt( self.mass[i] )
-            self.prjT[0] += [ sm, 0.0, 0.0 ]
-            self.prjT[1] += [ 0.0, sm, 0.0 ]
-            self.prjT[2] += [ 0.0, 0.0, sm ]
-        for i in [0, 1, 2]:
-            t = 0.0
-            for k in range( self.size ):
-                t += self.prjT[i][k] * self.prjT[i][k]
-            for k in range( self.size ):
-                self.prjT[i][k] /= t
+            self.prjT[0] += [ sm / mt, 0.0, 0.0 ]
+            self.prjT[1] += [ 0.0, sm / mt, 0.0 ]
+            self.prjT[2] += [ 0.0, 0.0, sm / mt ]
         # -- velocities -------------------------------
         self.velo = []
         for i in range( self.size // 3 ):
             SD = math.sqrt( self.__kt / self.mass[i] )
             self.velo += [ qm3.maths.rand.gauss( 0.0, SD ) * 1.0e-2 for j in [0, 1, 2] ]
         for i in [0, 1, 2]:
-            t = 0.0
-            for j in range( self.size ):
-                t += self.prjT[i][j] * self.velo[j]
+            t = qm3.maths.matrix.dot_product( self.prjT[i], self.velo )
             for j in range( self.size ):
                 self.velo[j] -= t * self.prjT[i][j]
         scl = math.sqrt( self.temp / self.current_temperature()[0] )
@@ -167,50 +204,8 @@ class md_template:
                     mm = 3 * ( j - 1 )
                     pp = 3 * ( j + 1 )
                 for k in [0, 1, 2]:
-                    self.func += self.rp_kumb[i] * ( self.rp_coor[i][j3+k] - self.rp_coor[i][mm+k] )
+                    self.func += self.rp_kumb[i] * math.pow( self.rp_coor[i][j3+k] - self.rp_coor[i][mm+k], 2.0 )
                     self.rp_grad[i][j3+k] = self.mole.grad[i3+k] / self.rp_bead + 2.0 * self.rp_kumb[i] * ( 
-                        2.0 * self.rp_coor[i][j3+k] - self.rp_coor[i][mm+k] - self.rp_coor[i][pp+k] )
-
-
-
-    # In this version classical atoms are not affected by the beads of the RP
-    def get_grad_splt( self ):
-        # ---------------------------------------------
-        for i in range( len( self.sele ) ):
-            i3 = 3 * i
-            j3 = 3 * self.sele[i]
-            for j in [0, 1, 2]:
-                self.mole.coor[i3+j] = self.coor[j3+j]
-        # ---------------------------------------------
-        zero = [ 0.0 for i in range( 3 * self.mole.natm ) ]
-        self.mole.func = 0.0
-        self.mole.grad = zero[:]
-        self.engn.get_grad( self.mole )
-        self.func = self.mole.func
-        self.grad = []
-        for i in self.sele:
-            i3 = 3 * i
-            self.grad += self.mole.grad[i3:i3+3]
-        # ---------------------------------------------
-        for i in self.rp_atom:
-            i3 = 3 * i
-            for j in range( self.rp_bead ):
-                j3 = 3 * j
-                self.mole.grad = zero[:]
-                self.mole.coor[i3:i3+3] = self.rp_coor[i][j3:j3+3]
-                self.engn.get_grad( self.mole )
-                if( j == 0 ):
-                    mm = 3 * ( self.rp_bead - 1 )
-                    pp = 3
-                elif( j == self.rp_bead - 1 ):
-                    mm = 3 * ( j - 1 )
-                    pp = 0
-                else:
-                    mm = 3 * ( j - 1 )
-                    pp = 3 * ( j + 1 )
-                for k in [0, 1, 2]:
-                    self.func += self.rp_kumb[i] * ( self.rp_coor[i][j3+k] - self.rp_coor[i][mm+k] )
-                    self.rp_grad[i][j3+k] = self.mole.grad[i3+k] / self.rp_bead + 2.0 * self.rp_kumb[i] * (
                         2.0 * self.rp_coor[i][j3+k] - self.rp_coor[i][mm+k] - self.rp_coor[i][pp+k] )
 
 
@@ -256,9 +251,7 @@ class md_template:
                 o_accl.append( 0.0 )
         bak = [ .0, .0, .0 ]
         for i in [0, 1, 2]:
-            t = 0.0
-            for j in range( self.size ):
-                t += c_accl[j] * self.prjT[i][j]
+            t = qm3.maths.matrix.dot_product( self.prjT[i], c_accl )
             for j in range( self.size ):
                 c_accl[j] -= t * self.prjT[i][j]
             bak[i] = t
@@ -320,9 +313,7 @@ class md_template:
                 c_accl[i] = - self.grad[i] / self.mass[i//3] * 100.0
 
             for i in [0, 1, 2]:
-                t = 0.0
-                for j in range( self.size ):
-                    t += c_accl[j] * self.prjT[i][j]
+                t = qm3.maths.matrix.dot_product( self.prjT[i], c_accl )
                 for j in range( self.size ):
                     c_accl[j] -= t * self.prjT[i][j]
                 bak[i] = t
@@ -347,9 +338,7 @@ class md_template:
             for i in range( self.size ):
                 self.velo[i] = o_accl[i] + __fv2 * c_accl[i]
             for i in [0, 1, 2]:
-                t = 0.0
-                for j in range( self.size ):
-                    t += self.velo[j] * self.prjT[i][j]
+                t = qm3.maths.matrix.dot_product( self.prjT[i], self.velo )
                 for j in range( self.size ):
                     self.velo[j] -= t * self.prjT[i][j]
                 bak[i] = t
@@ -410,3 +399,398 @@ class md_template:
         log_function( savr )
         log_function( srms )
         log_function( 100 * "-" + "\n" )
+
+
+
+
+#
+# J. Phys. Chem. Lett. v7, p4374 (2016) [10.1021/acs.jpclett.6b02115]
+# J. Chem. Phys. v134, p184107 (2011) [10.1063/1.3587240]
+# J. Chem. Phys. v148, p102334 (2018) [10.1063/1.5007180]
+#
+class instanton( object ):
+    def __init__( self, mole, sele, engn, num_beads = 64, temperature = 300.0 ):
+        self.mole = mole
+        self.sele = sele[:]
+        self.engn = engn
+        self.mass = [ self.mole.mass[i] for i in self.sele ]
+        self.temp = temperature
+        self.bead = num_beads
+        self.half = self.bead // 2
+        self.kumb = 2.0 * self.bead * math.pow( self.temp * qm3.constants.KB * math.pi / qm3.constants.H, 2.0 ) * 1.0e-26
+        self.disp = 3 * len( self.sele )
+        self.size = self.disp * ( self.half + 1 )
+        print( "[RP] bead:", self.bead, self.half + 1 )
+        print( "[RP] temp: %.2lf _K"%( self.temp ) )
+        print( "[RP] kumb: %.2lf _kJ/(mol A^2)"%( self.kumb ) )
+
+
+
+    def __rotations( self, coor, symm = 1.0 ):
+        kk = ( 8.0 * math.pi * math.pi * qm3.constants.KB * self.temp ) / ( qm3.constants.H * qm3.constants.H * qm3.constants.NA ) * 1.0e-23
+        mt = sum( self.mass )
+        mc = [ 0.0, 0.0, 0.0 ]
+        for j in self.sele:
+            j3 = j * 3
+            for k in [0, 1, 2]:
+                mc[k] += self.mole.mass[j] * coor[j3+k]
+        mc[0] /= mt; mc[1] /= mt; mc[2] /= mt
+        xx = 0.0; xy = 0.0; xz = 0.0; yy = 0.0; yz = 0.0; zz = 0.0
+        for j in self.sele:
+            j3 = j * 3
+            xx += self.mole.mass[j] * ( coor[j3]   - mc[0] ) * ( coor[j3]   - mc[0] )
+            xy += self.mole.mass[j] * ( coor[j3]   - mc[0] ) * ( coor[j3+1] - mc[1] )
+            xz += self.mole.mass[j] * ( coor[j3]   - mc[0] ) * ( coor[j3+2] - mc[2] )
+            yy += self.mole.mass[j] * ( coor[j3+1] - mc[1] ) * ( coor[j3+1] - mc[1] )
+            yz += self.mole.mass[j] * ( coor[j3+1] - mc[1] ) * ( coor[j3+2] - mc[2] )
+            zz += self.mole.mass[j] * ( coor[j3+2] - mc[2] ) * ( coor[j3+2] - mc[2] )
+        val, vec = qm3.maths.matrix.diag( qm3.maths.matrix.from_upper_diagonal_rows( [ yy + zz, -xy, -xz, xx + zz, -yz, xx + yy ], 3 ), 3 )
+        return( math.log( math.sqrt( math.pi * kk * kk * kk * val[0] * val[1] * val[2] ) / symm ) )
+
+
+
+    def calc_tst( self, r_coor, r_func, r_hess, t_coor, t_func, t_hess, r_symm = 1.0, t_symm = 1.0 ):
+        # activation potential energy
+        efunc = - ( t_func - r_func ) * 1000.0 / ( self.temp * qm3.constants.KB * qm3.constants.NA )
+        print( "[TS]dfunc: %20.10le (%.2lf _kJ/mol)"%( efunc, t_func - r_func ) )
+        # rotational partition function
+        rQR = self.__rotations( r_coor, r_symm )
+        print( "[TS]l_rQR: %20.10le"%( rQR ) )
+        tQR = self.__rotations( t_coor, t_symm )
+        print( "[TS]l_tQR: %20.10le"%( tQR ) )
+        # vibrational partition function
+        kk = 100.0 * qm3.constants.C * qm3.constants.H / ( qm3.constants.KB * self.temp )
+        cc = []
+        for j in self.sele:
+            j3 = j * 3
+            cc += r_coor[j3:j3+3][:]
+        frq = qm3.utils.hessian_frequencies( self.mass, cc, r_hess )[0]
+        rQV = 0.0
+        for f in frq[6:]:
+            rQV -= math.log( 2.0 * math.sinh( f * kk * 0.5 ) )
+        print( "[TS]rfreq: " + ", ".join( [ "%.1lf"%( math.fabs( i ) ) for i in frq[0:7] ] ) + " _cm^-1" )
+        print( "[TS]l_rQV: %20.10le"%( rQV ) )
+        cc = []
+        for j in self.sele:
+            j3 = j * 3
+            cc += t_coor[j3:j3+3][:]
+        frq, vec = qm3.utils.hessian_frequencies( self.mass, cc, t_hess )
+        self.tst_mode = [ vec[i*self.disp] for i in range( self.disp ) ]
+        t = math.sqrt( sum( [ i * i for i in self.tst_mode ] ) )
+        self.tst_mode = [ i / t for i in self.tst_mode ]
+        tQV = 0.0
+        for f in frq[7:]:
+            tQV -= math.log( 2.0 * math.sinh( f * kk * 0.5 ) )
+        print( "[TS]tfreq: " + ", ".join( [ "%.1lf"%( math.fabs( i ) ) for i in frq[0:8] ] ) + " _cm^-1" )
+        print( "[RP] T_co: %.2lf _K"%( math.fabs( frq[0] ) * 100.0 * qm3.constants.C * qm3.constants.H / ( 2.0 * math.pi * qm3.constants.KB ) ) )
+        print( "[TS]l_tQV: %20.10le"%( tQV ) )
+        # kinetic constant
+        self.T_cons = qm3.constants.KB * self.temp / qm3.constants.H * math.exp( tQV + tQR - rQV - rQR + efunc )
+        print( "[TS] kcin: %20.10le _1/s"%( self.T_cons  ) )
+        # initially map TS coordinates
+        self.mole.coor = t_coor
+
+
+
+    def setup( self, step_size = 0.3 ):
+        # build the ring polymers supermolecule (= num_beads / 2 + 1 molecules)
+        self.coor = []
+        dsp = 2 * step_size / self.half
+        for i in range( self.half + 1 ):
+            for j in range( len( self.sele ) ):
+                j3 = j * 3
+                J3 = self.sele[j] * 3
+                for k in [0, 1, 2]:
+                    self.coor.append( self.mole.coor[J3+k] + ( i * dsp - step_size ) * self.tst_mode[j3+k] )
+
+
+
+    def current_step( self, istep ):
+        pass
+#        f = open( "output", "at" )
+#        f.write( "%d\n\n"%( self.size // 3 ) )
+#        for i in range( self.half + 1 ):
+#            i_cc = i * self.disp
+#            for j in range( len( self.sele ) ):
+#                j3 = i_cc + j * 3
+#                f.write( "%-2s%20.10lf%20.10lf%20.10lf\n"%( self.mole.labl[self.sele[j]][0],
+#                    self.coor[j3], self.coor[j3+1], self.coor[j3+2] ) )
+#        f.close()
+
+
+
+    def get_grad( self ):
+        self.ener = []
+        self.func = 0.0
+        self.grad = [ 0.0 for i in range( self.size ) ]
+        for i in range( self.half + 1 ):
+            i_cc = i * self.disp
+            if( i == 0 ):
+                scal = 1.0
+                i_mm = ( i + 1 ) * self.disp
+                i_pp = ( i + 1 ) * self.disp
+            elif( i == self.half ):
+                scal = 1.0
+                i_mm = ( i - 1 ) * self.disp
+                i_pp = ( i - 1 ) * self.disp
+            else:
+                scal = 2.0
+                i_mm = ( i - 1 ) * self.disp
+                i_pp = ( i + 1 ) * self.disp
+            # map current polymer into molecule coordinates
+            for j in range( len( self.sele ) ):
+                j3 = i_cc + j * 3
+                J3 = self.sele[j] * 3
+                self.mole.coor[J3:J3+3] = self.coor[j3:j3+3]
+            # get B.O. potential for current polymer
+            self.engn.get_grad( self.mole )
+            self.ener.append( self.mole.func )
+            self.func += scal * self.mole.func / self.bead
+            for j in range( len( self.sele ) ):
+                j3 = i_cc + j * 3
+                J3 = self.sele[j] * 3
+                for k in [0, 1, 2]:
+                    self.grad[j3+k] += self.mole.grad[J3+k] / self.bead
+            # get R.P. potential among polymers
+            for j in range( len( self.sele ) ):
+                j3 = j * 3
+                kk = self.mass[j] * self.kumb
+                for k in [0, 1, 2]:
+                    self.func += scal * kk * math.pow( self.coor[i_cc+j3+k] - self.coor[i_mm+j3+k], 2.0 )
+                    self.grad[i_cc+j3+k] += 2.0 * kk * ( 2.0 * self.coor[i_cc+j3+k] - self.coor[i_mm+j3+k] - self.coor[i_pp+j3+k] )
+
+
+
+    def get_hess( self ):
+        if( not os.path.isfile( "update.dump" ) ):
+            z    = [ 0.0 for i in range( self.size ) ]
+            hess = [ z[:] for i in range( self.size ) ]
+            for i in range( self.half + 1 ):
+                i_cc = i * self.disp
+                for j in range( len( self.sele ) ):
+                    j3 = i_cc + j * 3
+                    J3 = self.sele[j] * 3
+                    self.mole.coor[J3:J3+3] = self.coor[j3:j3+3]
+                # ---------------------------------
+                self.engn.get_hess( self.mole )
+                hh = []
+                l  = 0
+                for j in range( self.disp ):
+                    hh.append( [] )
+                    for k in range( self.disp ):
+                        hh[-1].append( self.mole.hess[l] / self.bead )
+                        l += 1
+                # ---------------------------------
+                if( i == 0 ):
+                    i_mm = self.size - self.disp
+                    i_pp = self.disp
+                elif( i == self.half ):
+                    i_mm = i_cc - self.disp
+                    i_pp = 0
+                else:
+                    i_mm = i_cc - self.disp
+                    i_pp = i_cc + self.disp
+                for j in range( self.disp ):
+                    for k in range( self.disp ):
+                        hess[i_cc+j][i_cc+k] = hh[j][k]
+                        if( j == k ):
+                            t = self.kumb * self.mass[j//3]
+                            hess[i_cc+j][i_cc+k] += 4.0 * t
+                            hess[i_cc+j][i_mm+k] = -2.0 * t
+                            hess[i_cc+j][i_pp+k] = -2.0 * t
+            self.get_grad()
+            self.hess = []
+            for j in range( self.size ):
+                for k in range( self.size ):
+                    self.hess.append( hess[j][k] )
+            qm3.utils.manage_hessian( self.coor, self.grad, self.hess, should_update = False )
+        else:
+            self.get_grad()
+            self.hess = [ .0 for i in range( self.size * self.size ) ]
+            qm3.utils.manage_hessian( self.coor, self.grad, self.hess, should_update = True )
+        qm3.utils.raise_hessian_RT( self.mass * ( self.half + 1 ), self.coor, self.hess )
+
+
+
+    def calc_rpt( self, r_coor, r_func, r_hess ):
+        # activation potential energy
+        efunc = - ( self.func - r_func ) * 1000.0 / ( self.temp * qm3.constants.KB * qm3.constants.NA )
+        print( "[RP]dfunc: %20.10le (%.2lf _kJ/mol)"%( efunc, self.func - r_func ) )
+        # rotational partition function
+        rQR = self.__rotations( r_coor ) + 3.0 * math.log( self.bead )
+        print( "[RP]l_rQR: %20.10le"%( rQR ) )
+        mt = self.bead * sum( self.mass )
+        mc = [ 0.0, 0.0, 0.0 ]
+        for i in range( self.half + 1 ):
+            i_cc = i * self.disp
+            if( i == 0 ):
+                scal = 1.0
+            elif( i == self.half ):
+                scal = 1.0
+            else:
+                scal = 2.0
+            for j in range( len( self.sele ) ):
+                j3 = i_cc + j * 3
+                for k in [0, 1, 2]:
+                    mc[k] += scal * self.mass[j] * self.coor[j3+k]
+        mc[0] /= mt; mc[1] /= mt; mc[2] /= mt
+        xx = 0.0; xy = 0.0; xz = 0.0; yy = 0.0; yz = 0.0; zz = 0.0
+        for i in range( self.half + 1 ):
+            i_cc = i * self.disp
+            if( i == 0 ):
+                scal = 1.0
+            elif( i == self.half ):
+                scal = 1.0
+            else:
+                scal = 2.0
+            for j in range( len( self.sele ) ):
+                j3 = i_cc + j * 3
+                xx += scal * self.mass[j] * ( self.coor[j3]   - mc[0] ) * ( self.coor[j3]   - mc[0] )
+                xy += scal * self.mass[j] * ( self.coor[j3]   - mc[0] ) * ( self.coor[j3+1] - mc[1] )
+                xz += scal * self.mass[j] * ( self.coor[j3]   - mc[0] ) * ( self.coor[j3+2] - mc[2] )
+                yy += scal * self.mass[j] * ( self.coor[j3+1] - mc[1] ) * ( self.coor[j3+1] - mc[1] )
+                yz += scal * self.mass[j] * ( self.coor[j3+1] - mc[1] ) * ( self.coor[j3+2] - mc[2] )
+                zz += scal * self.mass[j] * ( self.coor[j3+2] - mc[2] ) * ( self.coor[j3+2] - mc[2] )
+        val, vec = qm3.maths.matrix.diag( qm3.maths.matrix.from_upper_diagonal_rows( [ yy + zz, -xy, -xz, xx + zz, -yz, xx + yy ], 3 ), 3 )
+        kk = ( 8.0 * math.pi * math.pi * qm3.constants.KB * self.temp * self.bead ) / ( qm3.constants.H * qm3.constants.H * qm3.constants.NA ) * 1.0e-23
+        tQR = math.log( math.sqrt( math.pi * kk * kk * kk * val[0] * val[1] * val[2] ) )
+        print( "[RP]l_tQR: %20.10le"%( tQR ) )
+        # vibrational partition function
+        size = self.bead * self.disp
+        z    = [ 0.0 for i in range( size ) ]
+        kk   = 100.0 * qm3.constants.C * qm3.constants.H / ( self.bead * qm3.constants.KB * self.temp )
+        # ---- reactants
+        hess = [ z[:] for i in range( size ) ]
+        hh   = []
+        l    = 0
+        for j in range( self.disp ):
+            hh.append( [] )
+            for k in range( self.disp ):
+                hh[-1].append( r_hess[l] / self.bead )
+                l += 1
+        for i in range( self.bead ):
+            i_cc = i * self.disp
+            if( i == 0 ):
+                i_mm = size - self.disp
+                i_pp = i_cc + self.disp
+            elif( i == self.bead - 1 ):
+                i_mm = i_cc - self.disp
+                i_pp = 0
+            else:
+                i_mm = i_cc - self.disp
+                i_pp = i_cc + self.disp
+            for j in range( self.disp ):
+                for k in range( self.disp ):
+                    hess[i_cc+j][i_cc+k] = hh[j][k]
+                    if( j == k ):
+                        t = self.kumb * self.mass[j//3]
+                        hess[i_cc+j][i_cc+k] += 4.0 * t
+                        hess[i_cc+j][i_mm+k] = -2.0 * t
+                        hess[i_cc+j][i_pp+k] = -2.0 * t
+        HESS = []
+        for j in range( size ):
+            for k in range( size ):
+                HESS.append( hess[j][k] )
+        coor = []
+        for j in self.sele:
+            j3 = j * 3
+            coor += r_coor[j3:j3+3]
+        frq = qm3.utils.hessian_frequencies( self.mass * self.bead, coor * self.bead, HESS, True )[0]
+        rQV = 0.0
+        for f in frq[6:]:
+            rQV -= math.log( 2.0 * math.sinh( f * kk * 0.5 ) )
+        print( "[RP]rfreq: " + ", ".join( [ "%.1lf"%( math.fabs( i ) ) for i in frq[0:7] ] ) + " _cm^-1" )
+        print( "[RP]l_rQV: %20.10le"%( rQV ) )
+        # ---- instanton
+        hess = [ z[:] for i in range( size ) ]
+        t0 = time.time()
+        for i in range( self.half + 1 ):
+            i_cc = i * self.disp
+            for j in range( len( self.sele ) ):
+                j3 = i_cc + j * 3
+                J3 = self.sele[j] * 3
+                self.mole.coor[J3:J3+3] = self.coor[j3:j3+3]
+            # ---------------------------------
+            self.engn.get_hess( self.mole )
+            hh = []
+            l  = 0
+            for j in range( self.disp ):
+                hh.append( [] )
+                for k in range( self.disp ):
+                    hh[-1].append( self.mole.hess[l] / self.bead )
+                    l += 1
+            # ---------------------------------
+            if( i == 0 ):
+                i_mm = size - self.disp
+                i_pp = i_cc + self.disp
+            else:
+                i_mm = i_cc - self.disp
+                i_pp = i_cc + self.disp
+            for j in range( self.disp ):
+                for k in range( self.disp ):
+                    hess[i_cc+j][i_cc+k] = hh[j][k]
+                    if( j == k ):
+                        t = self.kumb * self.mass[j//3]
+                        hess[i_cc+j][i_cc+k] += 4.0 * t
+                        hess[i_cc+j][i_mm+k] = -2.0 * t
+                        hess[i_cc+j][i_pp+k] = -2.0 * t
+            if( i != 0 and i != self.half ):
+                i_cc = ( self.bead - i ) * self.disp
+                if( i == 1 ):
+                    i_mm = i_cc - self.disp
+                    i_pp = 0
+                else:
+                    i_mm = i_cc - self.disp
+                    i_pp = i_cc + self.disp
+                for j in range( self.disp ):
+                    for k in range( self.disp ):
+                        hess[i_cc+j][i_cc+k] = hh[j][k]
+                        if( j == k ):
+                            t = self.kumb * self.mass[j//3]
+                            hess[i_cc+j][i_cc+k] += 4.0 * t
+                            hess[i_cc+j][i_mm+k] = -2.0 * t
+                            hess[i_cc+j][i_pp+k] = -2.0 * t
+        print( "(RP_hess: %.1lf _seg)"%( time.time() - t0 ) )
+        HESS = []
+        for j in range( size ):
+            for k in range( size ):
+                HESS.append( hess[j][k] )
+        coor = self.coor[:]
+        for i in range( self.half - 1, 0, -1 ):
+            i_cc = i * self.disp
+            coor += self.coor[i_cc:i_cc+self.disp]
+        t0 = time.time()
+        frq = qm3.utils.hessian_frequencies( self.mass * self.bead, coor, HESS, True )[0]
+        print( "(RP_diaq: %.1lf _seg)"%( time.time() - t0 ) )
+        tQV = 0.0
+        for f in frq[7:]:
+            tQV -= math.log( 2.0 * math.sinh( f * kk * 0.5 ) )
+        tQV -= math.log( 2.0 * math.sinh( math.fabs( frq[0] ) * kk * 0.5 ) )
+        print( "[RP]tfreq: " + ", ".join( [ "%.1lf"%( math.fabs( i ) ) for i in frq[0:9] ] ) + " _cm^-1" )
+        print( "[RP]l_tQV: %20.10le"%( tQV ) )
+        # beads rotational exchange
+        tQP = 0.0
+        for i in range( self.half + 1 ):
+            i_cc = i * self.disp
+            if( i == 0 ):
+                scal = 1.0
+                i_mm = ( i + 1 ) * self.disp
+            elif( i == self.half ):
+                scal = 1.0
+                i_mm = ( i - 1 ) * self.disp
+            else:
+                scal = 2.0
+                i_mm = ( i - 1 ) * self.disp
+            for j in range( len( self.sele ) ):
+                j3 = j * 3
+                for k in [0, 1, 2]:
+                    tQP += scal * self.mass[j] * math.pow( self.coor[i_cc+j3+k] - self.coor[i_mm+j3+k], 2.0 )
+        kk = 2.0 * math.pi * self.bead * self.temp * qm3.constants.KB * 1.0e-23 / ( qm3.constants.NA * qm3.constants.H * qm3.constants.H )
+        tQP = 0.5 * math.log( kk * tQP )
+        print( "[RP]l_tQP: %20.10le"%( tQP ) )
+        # kinetic constant
+        self.R_cons = qm3.constants.KB * self.temp / qm3.constants.H * math.exp( tQP + tQV + tQR - rQV - rQR + efunc )
+        print( "[RP] kcin: %20.10le _1/s"%( self.R_cons  ) )
+        print( "    kappa: %20.10le"%( self.R_cons / self.T_cons ) )
+            
+

@@ -115,9 +115,7 @@ class velocity_verlet( object ):
         if( self.project ):
 #            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
-                t = 0.0
-                for j in range( self.obj.size ):
-                    t += self.obj.prjT[i][j] * self.cacc[j]
+                t = qm3.maths.matrix.dot_product( self.prjT[i], self.cacc )
                 for j in range( self.obj.size ):
                     self.cacc[j] -= t * self.obj.prjT[i][j]
         self.T, self.Kin = current_temperature( self.obj, self.project )
@@ -150,9 +148,7 @@ class velocity_verlet( object ):
         if( self.project ):
 #            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
-                t = 0.0
-                for j in range( self.obj.size ):
-                    t += self.obj.prjT[i][j] * self.cacc[j]
+                t = qm3.maths.matrix.dot_product( self.prjT[i], self.cacc )
                 for j in range( self.obj.size ):
                     self.cacc[j] -= t * self.obj.prjT[i][j]
         for i in range( self.obj.size ):
@@ -185,9 +181,7 @@ class velocity_verlet( object ):
         if( self.project ):
 #            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
-                t = 0.0
-                for j in range( self.obj.size ):
-                    t += self.obj.prjT[i][j] * self.cacc[j]
+                t = qm3.maths.matrix.dot_product( self.prjT[i], self.cacc )
                 for j in range( self.obj.size ):
                     self.cacc[j] -= t * self.obj.prjT[i][j]
         for i in range( self.obj.size ):
@@ -225,9 +219,7 @@ class velocity_verlet( object ):
         if( self.project ):
 #            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
-                t = 0.0
-                for j in range( self.obj.size ):
-                    t += self.obj.prjT[i][j] * self.cacc[j]
+                t = qm3.maths.matrix.dot_product( self.prjT[i], self.cacc )
                 for j in range( self.obj.size ):
                     self.cacc[j] -= t * self.obj.prjT[i][j]
         for i in range( self.obj.size ):
@@ -321,9 +313,7 @@ class langevin_verlet( object ):
         if( self.project ):
 #            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
-                t = 0.0
-                for j in range( self.obj.size ):
-                    t += self.obj.prjT[i][j] * self.cacc[j]
+                t = qm3.maths.matrix.dot_product( self.prjT[i], self.cacc )
                 for j in range( self.obj.size ):
                     self.cacc[j] -= t * self.obj.prjT[i][j]
         self.T, self.Kin = current_temperature( self.obj, self.project )
@@ -364,9 +354,7 @@ class langevin_verlet( object ):
 #                for j in range( self.obj.size ):
 #                    self.cacc[j] -= t * RT[i][j]
             for i in [0, 1, 2]:
-                t = 0.0
-                for j in range( self.obj.size ):
-                    t += self.obj.prjT[i][j] * self.cacc[j]
+                t = qm3.maths.matrix.dot_product( self.prjT[i], self.cacc )
                 for j in range( self.obj.size ):
                     self.cacc[j] -= t * self.obj.prjT[i][j]
         for i in range( self.obj.size ):
@@ -377,9 +365,7 @@ class langevin_verlet( object ):
 #                for j in range( self.obj.size ):
 #                    self.obj.velo[j] -= t * RT[i][j]
             for i in [0, 1, 2]:
-                t = 0.0
-                for j in range( self.obj.size ):
-                    t += self.obj.prjT[i][j] * self.obj.velo[j]
+                t = qm3.maths.matrix.dot_product( self.prjT[i], self.velo )
                 for j in range( self.obj.size ):
                     self.obj.velo[j] -= t * self.obj.prjT[i][j]
         self.T, self.Kin = current_temperature( self.obj, self.project )

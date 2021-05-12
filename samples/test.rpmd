@@ -18,34 +18,9 @@ class my_model:
 
 
 
-class my_rpmd( qm3.actions.ring_polymer.md_template ):
-    def __init__( self ):
-        qm3.actions.ring_polymer.md_template.__init__( self )
-
-        self.mole = qm3.mol.molecule()
-        f = io.StringIO( """6
-
-C       0.02707      0.00232      0.02707
-O       0.83930      0.83494      0.83930
-H      -0.60585     -0.62664      0.66390
-H      -0.60416      0.62975     -0.60416
-H       0.66390     -0.62664     -0.60585
-H       1.39155      0.25024      1.39155
-""" )
-        self.mole.xyz_read( f )
-        self.mole.guess_atomic_numbers() 
-        self.mole.fill_masses()
-
-        self.engn = my_model( self.mole )
-
-        self.sele = list( range( self.mole.natm ) )
-        self.size = 3 * len( self.sele )
-        self.coor = []
-        self.mass = []
-        for i in self.sele:
-            self.coor += self.mole.coor[3*i:3*i+3]
-            self.mass.append( self.mole.mass[i] )
-
+class my_rpmd( qm3.actions.ring_polymer.rpmd ):
+    def __init__( self, mole, sele, engn ):
+        qm3.actions.ring_polymer.rpmd.__init__( self, mole, sele, engn )
         self.fd = open( "trj", "wt" )
 
 
@@ -66,7 +41,21 @@ H       1.39155      0.25024      1.39155
 
 
 
-obj = my_rpmd()
+mol = qm3.mol.molecule()
+f = io.StringIO( """6
+
+C       0.02707      0.00232      0.02707
+O       0.83930      0.83494      0.83930
+H      -0.60585     -0.62664      0.66390
+H      -0.60416      0.62975     -0.60416
+H       0.66390     -0.62664     -0.60585
+H       1.39155      0.25024      1.39155
+""" )
+mol.xyz_read( f )
+mol.guess_atomic_numbers() 
+mol.fill_masses()
+
+obj = my_rpmd( mol, list( range( mol.natm ) ), my_model( mol ) )
 obj.setup( [ 5 ], 8 )
 import  time
 t = time.time()
