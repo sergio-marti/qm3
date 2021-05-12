@@ -6,6 +6,7 @@ if( sys.version_info[0] == 2 ):
     range = xrange
 import math
 import qm3.maths.rand
+import qm3.maths.matrix
 import qm3.utils
 import qm3.constants
 
@@ -47,17 +48,12 @@ def assign_velocities( obj, temperature = 300.0, project = True ):
     if( project ):
 #        qm3.utils.project_RT_modes( obj.mass, obj.coor, obj.velo, [] )
         obj.prjT = [ [], [], [] ]
+        mt = math.sqrt( sum( obj.mass ) )
         for i in range( obj.size // 3 ):
             sm = math.sqrt( obj.mass[i] )
-            obj.prjT[0] += [ sm, 0.0, 0.0 ]
-            obj.prjT[1] += [ 0.0, sm, 0.0 ]
-            obj.prjT[2] += [ 0.0, 0.0, sm ]
-        for i in [0, 1, 2]:
-            t = 0.0
-            for k in range( obj.size ):
-                t += obj.prjT[i][k] * obj.prjT[i][k]
-            for k in range( obj.size ):
-                obj.prjT[i][k] /= t
+            obj.prjT[0] += [ sm / mt, 0.0, 0.0 ]
+            obj.prjT[1] += [ 0.0, sm / mt, 0.0 ]
+            obj.prjT[2] += [ 0.0, 0.0, sm / mt ]
     T, Kin = current_temperature( obj, project )
     scf = math.sqrt( temperature / T )
     for i in range( obj.size ):

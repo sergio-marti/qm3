@@ -33,7 +33,7 @@ def __project_RT_modes( mas, crd, grd, hes = [] ):
     rtm = [ 0.0 for i in range( 6 * siz ) ]
     for i in range( siz // 3 ):
         k              = i * 3
-        rtm[k]           = mas[k]
+        rtm[k]         = mas[k]
         rtm[siz+k+1]   = mas[k]
         rtm[2*siz+k+2] = mas[k]
         rtm[3*siz+k+1] = - ( crd[k+2] - cen[2] * mas[k] )

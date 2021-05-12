@@ -10,7 +10,7 @@ import qm3.utils
 import qm3.maths.matrix
 
 
-#10.1103/PhysRevLett.100.020603
+# 10.1103/PhysRevLett.100.020603
 
 
 class distance( object ):

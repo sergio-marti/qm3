@@ -17,15 +17,14 @@ KB  = 1.3806488e-23    # J.K-1
 R   = 8.3144621        # J.mol-1.K-1
 ME  = 9.10938291e-31   # kg
 A0  = 0.52917721092    # 1e-10.m
-
 EV  = 1.602176565e-19  # eV >> J
 HA  = 4.35974434e-18   # Ha >> J
 
-K2J = 4.184            # kcal >> kJ
-J2K = 0.239005736138   # kJ >> kcal
+K2J = 4.184            # cal >> J
+J2K = 0.239005736138   # J >> cal
 H2K = 627.509474277194 # Ha >> kcal.mol-1
 H2J = 2625.49964037578 # Ha >> kJ.mol-1
-R2D = 180.0/math.pi    # Radians to dregrees
+R2D = 180.0 / math.pi  # Radians to dregrees
 
 
 
