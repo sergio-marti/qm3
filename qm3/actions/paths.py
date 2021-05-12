@@ -142,7 +142,7 @@ def euler( obj,
         gn = [ obj.grad[i] / w[i] for i in range( obj.size ) ]
         if( project_RT ):
             __project_RT_modes( w, x, gn )
-        gg   = math.sqrt( sum( [ gn[i] * gn[i] for i in range( obj.size ) ] ) )
+        gg   = math.sqrt( sum( [ i * i for i in gn ] ) )
         dx   = [ - step_size * gn[i] / gg for i in range( obj.size ) ]
         grms = math.sqrt( sum( [ i * i for i in obj.grad ] ) / float( obj.size ) )
         it1 += 1
@@ -205,7 +205,7 @@ def taylor( obj,
         g = [ obj.grad[i] / w[i] for i in range( obj.size ) ]
         if( project_RT ):
             __project_RT_modes( w, x, g, h )
-        gg = math.sqrt( sum( [ g[i] * g[i] for i in range( obj.size ) ] ) )
+        gg = math.sqrt( sum( [ i * i for i in g ] ) )
         # Eqs 2, 4, 7 & 13 of J. Chem. Phys. v88, p922 (1988) [10.1063/1.454172]
         v0 = [ - g[i] / gg for i in range( obj.size ) ]
         tt = qm3.maths.matrix.mult( h, obj.size, obj.size, v0, obj.size, 1 )
@@ -227,7 +227,7 @@ def taylor( obj,
 def baker( obj, 
             step_number = 100,
             step_size = 0.0053,            # use positive/forward or negative/reverse
-            gradient_tolerance = 0.1,
+            gradient_tolerance = 1,
             print_frequency = 10,
             project_RT = True,
             from_saddle = True,
@@ -286,7 +286,7 @@ def baker( obj,
             __project_RT_modes( w, x, g, h )
         val, vec = qm3.maths.matrix.diag( h, obj.size )
         nskp = sum( [ 1 for i in range( obj.size ) if val[i] < __vcut ] )
-        grms = math.sqrt( sum( [ g[i] * g[i] for i in range( obj.size ) ] ) )
+        grms = math.sqrt( sum( [ i * i for i in g ] ) )
         # transform gradient vector to the local hessian modes
         for i in range( obj.size ):
             dx[i]  = 0.0
@@ -346,7 +346,7 @@ def baker( obj,
 def page_mciver( obj, 
             step_number = 100,
             step_size = 0.0053,            # use positive/forward or negative/reverse
-            gradient_tolerance = 0.1,
+            gradient_tolerance = 1,
             print_frequency = 10,
             project_RT = True,
             from_saddle = True,
@@ -403,7 +403,7 @@ def page_mciver( obj,
             __project_RT_modes( w, x, g, h )
         val, vec = qm3.maths.matrix.diag( h, obj.size )
         nskp = sum( [ 1 for i in range( obj.size ) if val[i] < __vcut ] )
-        grms = math.sqrt( sum( [ g[i] * g[i] for i in range( obj.size ) ] ) )
+        grms = math.sqrt( sum( [ i * i for i in g ] ) )
         # transform gradient vector to the local hessian modes
         for i in range( obj.size ):
             g[i]   /= grms
