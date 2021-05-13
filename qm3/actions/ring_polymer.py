@@ -640,7 +640,7 @@ k_TST = {k_B T} over h { Q_rot^{%Ux2021 } · Q_vib^{%Ux2021 } } over { Q_rot^{R 
 
     def calc_rpt( self, r_coor, r_func, r_hess ):
         """
-Q_rot = left( %pi left( {8 %pi^2 P k_B T 10^-23} over{h^2 N_A} right)^3 det I right)^{ 1 over 2 }
+Q_rot = left[ 1 over %sigma right]_R left( %pi left( {8 %pi^2 P k_B T 10^-23} over{h^2 N_A} right)^3 det I right)^{ 1 over 2 }
 ~~~~~
 size 10 { 
 I = sum from{ i=1 } to{ P }{ sum from{j=1} to{N}{ m_j left[ left( {vec{r}}_{i,j} cdot
@@ -806,7 +806,7 @@ size 10 { B= sum from{ i=1 } to { P }{ sum from{j=1} to{3N} { m_{j/3} left( x_{i
         frq = qm3.utils.hessian_frequencies( self.mass * self.bead, coor, HESS, True )[0]
         print( "(RP_diaq: %.1lf _seg)"%( time.time() - t0 ) )
         tQV = 0.0
-        for f in frq[7:]:
+        for f in frq[8:]:
             tQV -= math.log( 2.0 * math.sinh( f * kk * 0.5 ) )
         tQV -= math.log( 2.0 * math.sinh( math.fabs( frq[0] ) * kk * 0.5 ) )
         print( "[RP]tfreq: " + ", ".join( [ "%.1lf"%( math.fabs( i ) ) for i in frq[0:9] ] ) + " _cm^-1" )
