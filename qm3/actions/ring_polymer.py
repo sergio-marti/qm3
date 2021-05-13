@@ -410,6 +410,21 @@ class rpmd( object ):
 #
 class instanton( object ):
     def __init__( self, mole, sele, engn, num_beads = 64, temperature = 300.0 ):
+        """
+U = 1 over P sum from{ i=1 } to { P }{ V_i left(x_{i,1}, dotslow ,x_{i,3N} right)}+
+sum from{ i=1 } to { P }{ sum from{ j=1 } to { 3N }{
+k color gray { left lbrace  {2 P %pi^2 k_B^2 T^2 } over {h^2} 10^-26 right rbrace }
+m_{j/3} left( x_{i,j} - x_{i-1,j} right)^2  } }
+newline
+{partial U }over{partial x_{i,k} } = 1 over P {partial V_i }over{partial x_{i,k} }left(x_{i,1}, dotslow
+,x_{i,3N} right)+2 k m_{ k/3 }left( 2x_{i,k} - x_{i-1,k} - x_{i+1,k} right)
+newline
+{partial^2 U} over {partial x_{i,k} partial x_{j,l}} =
+%delta_{j=i,l,k} over P 
+{partial^2 V_i} over {partial x_{i,k} partial x_{j,l}}
+left(x_{i,1}, dotslow ,x_{i,3N} right) +4 k m_{ k/3 } %delta_{j=i,l=k} -2 k m_{ k/3 } %delta_{j=i+1,l=k}
+-2 k m_{ k/3 } %delta_{j=i-1,l=k}
+        """
         self.mole = mole
         self.sele = sele[:]
         self.engn = engn
@@ -450,6 +465,17 @@ class instanton( object ):
 
 
     def calc_tst( self, r_coor, r_func, r_hess, t_coor, t_func, t_hess, r_symm = 1.0, t_symm = 1.0 ):
+        """
+Q_rot = 1 over %sigma left( %pi left( {8 %pi^2 k_B T 10^-23} over {h^2 N_A} right)^3 det I right)^{ 1 over 2 }
+~~~~~~~
+size 10 { I =  sum from{j=1} to{N}{ m_j left[ left( {vec{r}}_{j} cdot {vec{r}}_{j} right) I_3 - {vec{r}}_{j} times {vec{r}}_{j} right] } }
+~~~~~~~
+size 10 { {vec{r}}_{j} = left( x_{j},y_{j},z_{j} right) - left( x_{CM},y_{CM},z_{CM} right) }
+newline
+Q_vib =  prod from{k=1} to{3N-6/7} { 1 over {2 sinh left( 1 over 2 {h  %ípsilon_k 100 c} over {k_B T} right) } }
+~~~~~~~
+k_TST = {k_B T} over h { Q_rot^{%Ux2021 } · Q_vib^{%Ux2021 } } over { Q_rot^{R } · Q_vib^{R } } e^{ - {{V^{ %Ux2021 } - V^R} over {k_B T}} 10^3 }
+        """
         # activation potential energy
         efunc = - ( t_func - r_func ) * 1000.0 / ( self.temp * qm3.constants.KB * qm3.constants.NA )
         print( "[TS]dfunc: %20.10le (%.2lf _kJ/mol)"%( efunc, t_func - r_func ) )
@@ -613,6 +639,23 @@ class instanton( object ):
 
 
     def calc_rpt( self, r_coor, r_func, r_hess ):
+        """
+Q_rot = left( %pi left( {8 %pi^2 P k_B T 10^-23} over{h^2 N_A} right)^3 det I right)^{ 1 over 2 }
+~~~~~
+size 10 { 
+I = sum from{ i=1 } to{ P }{ sum from{j=1} to{N}{ m_j left[ left( {vec{r}}_{i,j} cdot
+{vec{r}}_{i,j} right) I_3 - {vec{r}}_{i,j} times {vec{r}}_{i,j} right] } } }
+~~~~~
+size 9{ {vec{r}}_{i,j} = left( x_{i,j},y_{i,j},z_{i,j} right) - left( x_{CM},y_{CM},z_{CM} right) }
+newline
+Q_vib = prod from{k=1} to{3N cdot P-6} { 1 over {2 sinh left( 1 over 2 {h lline %ípsilon_k rline 100 c } over {P k_B T} right) } }
+newline
+k_{RP} = {k_B T P} over h
+left( {2 B %pi k_B T P 10^-23} over{h^2 N_A} right)^{1 over 2} ~~ 
+{ Q_rot^{%Ux2021 } · Q_vib^{%Ux2021 } } over { Q_rot^{R } · Q_vib^{R } } e^{ - {{U^{ %Ux2021 } - V^R} over {k_B T}} 10^3 }
+~~~~~~~~
+size 10 { B= sum from{ i=1 } to { P }{ sum from{j=1} to{3N} { m_{j/3} left( x_{i,j} - x_{i-1,j} right)^2 } } }
+        """
         # activation potential energy
         efunc = - ( self.func - r_func ) * 1000.0 / ( self.temp * qm3.constants.KB * qm3.constants.NA )
         print( "[RP]dfunc: %20.10le (%.2lf _kJ/mol)"%( efunc, self.func - r_func ) )
@@ -789,7 +832,7 @@ class instanton( object ):
         tQP = 0.5 * math.log( kk * tQP )
         print( "[RP]l_tQP: %20.10le"%( tQP ) )
         # kinetic constant
-        self.R_cons = qm3.constants.KB * self.temp / qm3.constants.H * math.exp( tQP + tQV + tQR - rQV - rQR + efunc )
+        self.R_cons = qm3.constants.KB * self.temp * self.bead / qm3.constants.H * math.exp( tQP + tQV + tQR - rQV - rQR + efunc )
         print( "[RP] kcin: %20.10le _1/s"%( self.R_cons  ) )
         print( "    kappa: %20.10le"%( self.R_cons / self.T_cons ) )
             
