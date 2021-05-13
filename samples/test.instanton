@@ -1,4 +1,5 @@
 import  io
+import  os
 import  struct
 import  base64
 import  qm3.mol
@@ -347,7 +348,25 @@ class my_model( qm3.actions.ring_polymer.model ):
         self.eqm.get_grad( molec )
 
 
-obj = qm3.actions.ring_polymer.instanton( mol, list( range( mol.natm ) ), my_model( mol ) )
+class my_insta( qm3.actions.ring_polymer.instanton ):
+    def __init__( self, mole, sele, engn, num_beads = 64, temperature = 300.0 ):
+        qm3.actions.ring_polymer.instanton.__init__( self, mole, sele, engn, num_beads, temperature )
+
+    def current_step( self, istep ):
+        f = open( "output", "at" )
+        f.write( "%d\n\n"%( self.size // 3 ) )
+        for i in range( self.half + 1 ):
+            i_cc = i * self.disp
+            for j in range( len( self.sele ) ):
+                j3 = i_cc + j * 3
+                f.write( "%-2s%20.10lf%20.10lf%20.10lf\n"%( self.mole.labl[self.sele[j]][0],
+                    self.coor[j3], self.coor[j3+1], self.coor[j3+2] ) )
+        f.close()
+#        if( os.path.isfile( "update.dump" ) ):
+#            os.unlink( "update.dump" )
+
+
+obj = my_insta( mol, list( range( mol.natm ) ), my_model( mol ) )
 obj.calc_tst( r_coor, r_func, r_hess, t_coor, t_func, t_hess, t_symm = 2.0 )
 obj.setup()
 
@@ -359,4 +378,4 @@ import matplotlib.pyplot as plt
 plt.clf()
 plt.grid( True )
 plt.plot( obj.ener, '-o' )
-plt.savefig( "test.instanton.pdf" )
+plt.savefig( "output.pdf" )

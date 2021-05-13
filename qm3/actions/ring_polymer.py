@@ -464,7 +464,7 @@ left(x_{i,1}, dotslow ,x_{i,3N} right) +4 k m_{ k/3 } %delta_{j=i,l=k} -2 k m_{ 
 
 
 
-    def calc_tst( self, r_coor, r_func, r_hess, t_coor, t_func, t_hess, r_symm = 1.0, t_symm = 1.0 ):
+    def calc_tst( self, r_coor, r_func, r_hess, t_coor, t_func, t_hess, t_symm = 1.0 ):
         """
 Q_rot = 1 over %sigma left( %pi left( {8 %pi^2 k_B T 10^-23} over {h^2 N_A} right)^3 det I right)^{ 1 over 2 }
 ~~~~~~~
@@ -480,7 +480,7 @@ k_TST = {k_B T} over h { Q_rot^{%Ux2021 } · Q_vib^{%Ux2021 } } over { Q_rot^{R 
         efunc = - ( t_func - r_func ) * 1000.0 / ( self.temp * qm3.constants.KB * qm3.constants.NA )
         print( "[TS]dfunc: %20.10le (%.2lf _kJ/mol)"%( efunc, t_func - r_func ) )
         # rotational partition function
-        rQR = self.__rotations( r_coor, r_symm )
+        rQR = self.__rotations( r_coor )
         print( "[TS]l_rQR: %20.10le"%( rQR ) )
         tQR = self.__rotations( t_coor, t_symm )
         print( "[TS]l_tQR: %20.10le"%( tQR ) )
