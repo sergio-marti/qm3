@@ -312,13 +312,13 @@ dist      atom_i    atom_j
             molec.func += 0.5 * ds * ( cval - self.wall[1] - self.sigm * 0.5 )
             for i in range( self.jcol ):
                 for j in range( self.nwin ):
-                    sder[i] -= ds * jder[j][i] * ( cval / self.delz - j ) * cexp[j] / sumd
+                    sder[i] += ds * jder[j][i] * ( cval / self.delz - j ) * cexp[j] / sumd
         if( cval > self.wall[2] ):
             ds = self.wall[0] * ( cval - self.wall[2] + self.sigm * 0.5 )
             molec.func += 0.5 * ds * ( cval - self.wall[2] + self.sigm * 0.5 )
             for i in range( self.jcol ):
                 for j in range( self.nwin ):
-                    sder[i] -= ds * jder[j][i] * ( cval / self.delz - j ) * cexp[j] / sumd
+                    sder[i] += ds * jder[j][i] * ( cval / self.delz - j ) * cexp[j] / sumd
         # update gradients
         for i in range( len( self.jidx ) ):
             i3 = i * 3
