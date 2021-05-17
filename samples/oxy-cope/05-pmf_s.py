@@ -4,7 +4,7 @@ import  qm3.problem
 import  qm3.elements
 import  qm3.engines.mol_mech
 import  qm3.engines.xtb
-import  qm3.engines.colvar_s
+import  qm3.engines.mmres
 import  qm3.actions.dynamics
 import  os
 import  pickle
@@ -57,7 +57,7 @@ class my_problem( qm3.problem.template ):
 
         kb = 2000
         rx = node * 0.110703125  # s: 7.602 / 0-63 windows
-        self.umb = qm3.engines.colvar_s.colvar_s( kb, rx,
+        self.umb = qm3.engines.mmres.colvar_s( kb, rx,
                 "../05.pmf_s.cnf", "../05.pmf_s.str", "../05.pmf_s.met" )
 
         self.fdat = open( "../05.dat_s.%02d"%( node ), "wt" )

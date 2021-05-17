@@ -11,9 +11,9 @@ cp -vf 04.string.metrics 05.pmf_s.met
 
 $py_exe << EOD | tee 05.pmf_s.rng
 import  qm3.mol
-import  qm3.engines.colvar_s
+import  qm3.engines.mmres
 mol = qm3.mol.molecule( "04.string.21.pdb" )
-qm3.engines.colvar_s.colvar_s( 0.0, 0.0, "05.pmf_s.cnf", "05.pmf_s.str", "05.pmf_s.met" )
+qm3.engines.mmres.colvar_s( 0.0, 0.0, "05.pmf_s.cnf", "05.pmf_s.str", "05.pmf_s.met" )
 EOD
 
 $py_exe << EOD
@@ -21,12 +21,12 @@ import  os
 import  math
 import  glob
 import  qm3.mol
-import  qm3.engines.colvar_s
+import  qm3.engines.mmres
 
 win = 64
 dat = []
 mol = qm3.mol.molecule( "04.string.00.pdb" )
-eng = qm3.engines.colvar_s.colvar_s( 0.0, 0.0, "05.pmf_s.cnf", "05.pmf_s.str", "05.pmf_s.met" )
+eng = qm3.engines.mmres.colvar_s( 0.0, 0.0, "05.pmf_s.cnf", "05.pmf_s.str", "05.pmf_s.met" )
 mol.func = 0.0
 dat.append( eng.get_func( mol ) )
 for i in range( 1, win ):
