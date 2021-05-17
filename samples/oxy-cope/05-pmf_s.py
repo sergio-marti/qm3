@@ -86,7 +86,7 @@ class my_problem( qm3.problem.template ):
         self.mol.func = 0.0
         self.emm.get_func( self.mol )
         self.eqm.get_func( self.mol )
-        self.dat = self.umb.get_func( self.mol )
+        self.dat = self.umb.get_func( self.mol )[0]
         self.func = self.mol.func
 
 
@@ -96,7 +96,7 @@ class my_problem( qm3.problem.template ):
         self.mol.grad = [ 0.0 for i in range( self.mol.natm * 3 ) ]
         self.emm.get_grad( self.mol )
         self.eqm.get_grad( self.mol )
-        self.dat = self.umb.get_grad( self.mol )
+        self.dat = self.umb.get_grad( self.mol )[0]
         self.func = self.mol.func
         self.grad = []
         for i in self.sele:

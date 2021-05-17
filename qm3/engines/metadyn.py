@@ -188,7 +188,7 @@ class colvar_s( object ):
         vpot [kJ/mol]: 2 k_B T [ 2.5 kJ/mol @ 300 K ]
         sigm [A]: rms of the variable (md run in the minimia)
         nstp [md steps]: 50 - 100
-        wall [ 0.0, llim, ulim]  >> use harmonic restraints on distances <<
+        wall [kumb, llim, ulim]: kumb [kJ/mol], llim + sigm/2 [A], ulim - sigm/2 [A]
 ------------------------------------------------------------------------
 ncrd      nwin
 dist      atom_i    atom_j
@@ -306,25 +306,26 @@ dist      atom_i    atom_j
             for i in range( self.jcol ):
                 for j in range( self.nwin ):
                     sder[i] -= ss * ds / self.sigm * jder[j][i] * ( cval / self.delz - j ) * cexp[j] / sumd
-#        # add walls
-#        if( cval < self.wall[1] ):
-#            ds = self.wall[0] * ( cval - self.wall[1] - self.sigm * 0.5 )
-#            molec.func += 0.5 * ds * ( cval - self.wall[1] - self.sigm * 0.5 )
-#            for i in range( self.jcol ):
-#                for j in range( self.nwin ):
-#                    sder[i] += ds * jder[j][i] * ( cval / self.delz - j ) * cexp[j] / sumd
-#        if( cval > self.wall[2] ):
-#            ds = self.wall[0] * ( cval - self.wall[2] + self.sigm * 0.5 )
-#            molec.func += 0.5 * ds * ( cval - self.wall[2] + self.sigm * 0.5 )
-#            for i in range( self.jcol ):
-#                for j in range( self.nwin ):
-#                    sder[i] += ds * jder[j][i] * ( cval / self.delz - j ) * cexp[j] / sumd
+        # add walls
+        if( cval < self.wall[1] ):
+            ds = self.wall[0] * ( cval - self.wall[1] - self.sigm * 0.5 )
+            molec.func += 0.5 * ds * ( cval - self.wall[1] - self.sigm * 0.5 )
+            for i in range( self.jcol ):
+                for j in range( self.nwin ):
+                    sder[i] += ds * jder[j][i] * ( cval / self.delz - j ) * cexp[j] / sumd
+        if( cval > self.wall[2] ):
+            ds = self.wall[0] * ( cval - self.wall[2] + self.sigm * 0.5 )
+            molec.func += 0.5 * ds * ( cval - self.wall[2] + self.sigm * 0.5 )
+            for i in range( self.jcol ):
+                for j in range( self.nwin ):
+                    sder[i] += ds * jder[j][i] * ( cval / self.delz - j ) * cexp[j] / sumd
         # update gradients
         for i in range( len( self.jidx ) ):
             i3 = i * 3
             j3 = self.idxj[i] * 3
             for j in [0, 1, 2]:
                 molec.grad[j3+j] += sder[i3+j]
+        return( cval, ccrd )
 
 
     def distance( self, icrd, molec, jacob ):

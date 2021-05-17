@@ -98,7 +98,7 @@ dist      1     2
             self.grad[3+i] -= cf * ( c1 + 2.0 * c2 ) * d2[i] / r2
             self.grad[6+i] += cf * ( c1 + 2.0 * c2 ) * d2[i] / r2
         self.fix.get_grad( self )
-        self.curr = self.cvs.get_grad( self )
+        self.curr = self.cvs.get_grad( self )[0]
 
 
 

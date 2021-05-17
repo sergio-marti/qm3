@@ -31,7 +31,7 @@ mol.func = 0.0
 dat.append( eng.get_func( mol ) )
 for i in range( 1, win ):
     mol.pdb_read( "04.string.%02d.pdb"%( i ) )
-    dat.append( eng.get_func( mol ) )
+    dat.append( eng.get_func( mol )[0] )
 for i in range( win ):
     rx = eng.delz * i
     w  = sorted( [ ( math.fabs( dat[j] - rx ), j ) for j in range( win ) ] )[0][1] 

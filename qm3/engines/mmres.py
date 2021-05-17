@@ -1067,7 +1067,7 @@ kumb units: kJ / ( mol Angs^2 )
         cexp = [ math.exp( - cdst[i] / self.delz ) for i in range( self.nwin ) ]
         cval = sum( [ i * self.delz * cexp[i] for i in range( self.nwin ) ] ) / sum( cexp )
         molec.func += 0.5 * self.kumb * math.pow( cval - self.xref, 2.0 )
-        return( cval )
+        return( cval, ccrd )
 
 
     def get_grad( self, molec ):
@@ -1101,7 +1101,7 @@ kumb units: kJ / ( mol Angs^2 )
             j3 = self.idxj[i] * 3
             for j in [0, 1, 2]:
                 molec.grad[j3+j] += sder[i3+j]
-        return( cval )
+        return( cval, ccrd )
 
 
     def distance( self, icrd, molec, jacob ):
