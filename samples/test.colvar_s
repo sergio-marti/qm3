@@ -4,7 +4,6 @@ import sys
 import math
 import qm3.problem
 import qm3.engines.mmres
-import qm3.engines.colvar_s
 import qm3.actions.dynamics
 try:
     import cStringIO as io
@@ -30,7 +29,7 @@ dist      1     2
         kumb      = 100.
         # colvar_s: 0 ... 1.4  >> 40 windows / i: 0 ... 39 / 0.0 + i * 0.035
         xref      = 0.0 + node * 0.035
-        self.cvs  = qm3.engines.colvar_s.colvar_s( kumb, xref, f, "string.colvars", "string.metrics" )
+        self.cvs  = qm3.engines.mmres.colvar_s( kumb, xref, f, "string.colvars", "string.metrics" )
         f.close()
         self.dat  = open( "pmf.%03d.dat"%( self.node ), "wt" )
         self.dat.write( "%20.10lf%20.10lf\n"%( kumb, xref ) )

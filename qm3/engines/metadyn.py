@@ -7,6 +7,7 @@ if( sys.version_info[0] == 2 ):
 import math
 import qm3.constants
 import qm3.utils
+import qm3.fio
 import qm3.maths.matrix
 
 
@@ -30,9 +31,12 @@ class distance( object ):
         self.step = 0
         self.valu = []
         self.fd   = None
+        self.name = name
         if( name != None ):
-            self.fd = open( name, "wt" )
+            self.fd = qm3.fio.open_w( name )
             self.fd.write( "%20.10lf%20.10lf\n"%( vpot, sigm ) )
+        else:
+            self.fd = None
 
 
     def get_grad( self, molec ):
@@ -80,8 +84,7 @@ class distance( object ):
 
 
     def close( self ):
-        if( self.fd != None ):
-            self.fd.close()
+        qm3.fio.close( self.fd, self.name )
 
 
 
@@ -106,9 +109,12 @@ class multiple_distance( object ):
         self.step = 0
         self.valu = []
         self.fd   = None
+        self.name = name
         if( name != None ):
-            self.fd = open( name, "wt" )
+            self.fd = qm3.fio.open_w( name )
             self.fd.write( "%20.10lf%20.10lf\n"%( vpot, sigm ) )
+        else:
+            self.fd = None
 
 
     def get_grad( self, molec ):
@@ -172,5 +178,4 @@ class multiple_distance( object ):
 
 
     def close( self ):
-        if( self.fd != None ):
-            self.fd.close()
+        qm3.fio.close( self.fd, self.name )

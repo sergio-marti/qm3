@@ -1,23 +1,43 @@
 \normalsize
 \subsection[mmres]{mmres.py}
-This module offers basic classes for applying harmonic restraints: \func{distance}, \func{angle},
-\func{dihedral}, \func{improper}, \func{multiple\_distance} and \func{tether}. The umbrella energy is
-accumulated to "molec.func", and the gradient to "molec.grad". Additionally,
+This module offers classes for applying harmonic restraints on several kind of geometrical variables: \func{distance}, \func{angle},
+\func{dihedral}, \func{improper}, \func{multiple\_distance} and \func{tether}; and on collective ones: \func{colvar\_v}, \func{colvar\_s} and \func{colvar\_path}.
+The umbrella energy is accumulated to "molec.func", and the gradient to "molec.grad". Additionally,
 all methods return the value of the geometrical parameter (distance, ...).\\
-Moreover, the basic harmonic constraints functions (\textbf{mm\_*}) are also provided (for patching QM-MM partitions,...): The arguments
+Moreover, basic harmonic constraints functions (\textbf{mm\_*}) are also provided (for patching QM-MM partitions,...): The arguments
 \parm{ffac} and \parm{gfac} allow to recover the gradient on the QM atoms without modifying the energy,
 or the gradient in the MM counterpart. These constraints also offer hessian terms (analytical for bonds, and
 auto-numerical for the rest). When used (\parm{hess} = True), the parameter \parm{hind} must be
 supplied (as an argument in functions or property in objects), and should point each atom in the restraint to its place in the hessian matrix, or \textbf{-1}
-whenever it does not participate (MM atom in a LA boundary).
-%For the \func{distance} class, \parm{indx} is a two-elements-list containing the indexes of the atoms. Also,
-%the restraint won't be applied if the distance value is lower (or equal) than \parm{skip\_LE}, 
-%or bigger (or equal) than \parm{skip\_BE}.\\
-%The \func{angle} defines an angle constraint based on the three-elements-list \parm{indx} and the reference
-% value \parm{xref} expressed in \textbf{degrees}.\\
-%In the \func{multiple\_distance}, the parameter \parm{indx} is a list containing as much indexes as twice the number of distances
-%involved in the combination; and \parm{weigh} is a list with the coefficients for the linear combination (sized half 
-%of \parm{indx}).
+whenever it does not participate (MM atom in a LA boundary).\\
+
+The binary \_colvar\_v.so module (must be compiled, for performance...) allows to use the electrostatic potential
+calculated on one atom (or a linear combination of potentials) as a colective variable (used with an umbrella sampling restraint).
+There are two available classes: \func{coulomb} (performing basic Coulomb potential) and \func{fswitch} for a force-switched interaction.
+The common parameters for the constructor are: the value of the umbrella constant (\parm{kmb}), the reference value of the potential (\parm{ref}),
+a list of atoms where calculating the potential (\parm{atm\_lst}),
+a list of atoms to interact with (\parm{nbn\_lst}),
+the weights for the linear combination of potentials (\parm{wei\_lst}) and
+an exlusion list (\parm{exc\_lst}, containing three-elemnts sub-lists of shape:
+\textit{[ atm, nbn, scale\_factor ]}) in order to avoid direct interactions (1-4 and lower actually).\\
+
+The colvar\_s is based on the work of Branduardi\footnote{https://doi.org/10.1002/jcc.23673} \& Zinovjev\footnote{https://doi.org/10.1021/acs.jpca.7b10842} \footnote{https://doi.org/10.1002/wcms.1329}:
+\begin{align*}
+&x\left(\theta\right)=\lim_{\lambda \rightarrow \infty} \frac{\int_{0}^{1}{t e^{-\lambda|\theta - z|} dt}}{\int_{0}^{1}{e^{-\lambda|\theta - z|} dt}}
+\sim
+\frac{ \sum_{i=0}^{N-1}{ i\delta_z e^{ -\frac{|\theta - z|}{\delta_z} } } }{ \sum_{i=0}^{N-1}{ e^{ -\frac{|\theta - z|}{\delta_z} } } }
+\\
+&\delta_z = \left< | x_{i+1} - x_{i} | \right>= \frac{L}{N-1}
+\\
+&|\theta - z| = \left( \left(\theta-z\right)^{T} M^{-1} \left(\theta-z\right) \right)^{\frac{1}{2}}
+\\
+&M_{i,j}=\sum_{k=1}^{3n}{ \frac{\partial\theta_{i}}{\partial x_{k}} m_{k}^{-1} \frac{\partial\theta_{j}}{\partial x_{k}} } 
+\end{align*}
+The metrics are supposed constant during the gradient evaluation. The class \func{colvar\_s} provides
+the basic methods \func{get\_func} and \func{get\_grad} acting on a molecule object. Current implementation only supports
+distances as a building blocks of the collective variable. The constructor parameters are the umbrella force constant (\parm{kumb})
+the reference of the collective variable (\parm{xref}, scalar), and a configuration file with the number of windows, coordinates and kinds (\parm{conf}),
+
 \begin{pyglist}[language=python,fvset={frame=single}]
 def mm_bond( molec, kumb, xref, a_i, a_j, skip_LE = 0.0, skip_BE = 9.e99,
              ffac = 1.0, grad = False, gfac = [ 1.0, 1.0 ],
@@ -140,6 +160,20 @@ class tether( molec, kumb, indx )
     """
     def get_func( molec )
     def get_grad( molec )
+
+
+class colvar_v.coulomb( kmb, ref, atm_lst, nbn_lst, wei_lst, exc_lst )
+    def get_func( mol )
+    def get_grad( mol )
+
+class colvar_v.fswitch( kmb, ref, con, cof, atm_lst, nbn_lst, wei_lst, exc_lst )
+    def get_func( mol )
+    def get_grad( mol )
+
+
+class colvar_s( kumb, xref, conf, str_crd, str_met, molec )
+    def get_func( molec )
+    def get_grad( molec )
 \end{pyglist}
 
 \footnotesize
@@ -150,3 +184,125 @@ class tether( molec, kumb, indx )
 \begin{pyglist}[fvset={frame=single}]
 #SOURCE@../samples/logs/test.mmres.log
 \end{pyglist}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.colvar_v
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.colvar_v.log
+\end{pyglist}
+
+\normalsize
+The shape of the "colvar.def" config file (\parm{conf}) should be like the following:
+\footnotesize
+\begin{pyglist}[fvset={frame=single}]
+ncrd      nwin
+dist      atom_i    atom_j
+...
+dist      atom_i    atom_j
+\end{pyglist}
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.colvar_s
+\end{pyglist}
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.colvar_s.integrate
+\end{pyglist}
+\includegraphics[width=.33\textwidth]{24a.png}
+\includegraphics[width=.33\textwidth]{25a.png}
+\includegraphics[width=.33\textwidth]{26a.png}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+bnd = [ (2240,9405), (9407,2241), (616,2241) ]
+win = 60
+dim = len( bnd )
+dat = [ [] for i in range( dim ) ]
+
+g = open( "pmf_s.cnf", "wt" )
+g.write( "%d %d\n"%( dim, win ) )
+for a1,a2 in bnd:
+    g.write( "dist%10d%10d\n"%( a1, a2 ) )
+g.close()
+for i in range( win ):
+    print( i )
+    m = qm3.mol.molecule( "node.%02d"%( i ) )
+    for j in range( dim ):
+        dat[j].append( qm3.utils.distance( m.coor[3*bnd[j][0]:3*bnd[j][0]+3], m.coor[3*bnd[j][1]:3*bnd[j][1]+3] ) )
+g = open( "string", "wt" )
+for i in range( win ):
+    for j in range( dim ):
+        g.write( "%12.4lf"%( dat[j][i] ) )
+    g.write( "\n" )
+g.close()
+
+class xmet( object ):
+    def __init__( self, conf ):
+        f = open( conf, "rt" )
+        t = f.readline().strip().split()
+        self.ncrd = int( t[0] )
+        self.nwin = int( t[1] )
+        self.jidx = {}
+        self.func = []
+        self.atom = []
+        for i in range( self.ncrd ):
+            t = f.readline().strip().split()
+            if( t[0][0:4] == "dist" and len( t ) == 3 ):
+                self.func.append( self.distance )
+                a_i = int( t[1] )
+                a_j = int( t[2] )
+                self.atom.append( ( a_i, a_j ) )
+                self.jidx[a_i] = True
+                self.jidx[a_j] = True
+        f.close()
+        self.jidx = { jj: ii for ii,jj in zip( range( len( self.jidx ) ), sorted( self.jidx ) ) }
+        self.idxj = { self.jidx[ii]: ii for ii in iter( self.jidx ) }
+        self.jcol = 3 * len( self.jidx )
+
+    def metrics( self, molec ):
+        jaco = [ 0.0 for i in range( self.ncrd * self.jcol ) ]
+        for i in range( self.ncrd ):
+            self.func[i]( i, molec, jaco )
+        cmet = [ 0.0 for i in range( self.ncrd * self.ncrd ) ]
+        for i in range( self.ncrd ):
+            for j in range( i, self.ncrd ):
+                cmet[i*self.ncrd+j] = sum( [ jaco[i*self.jcol+k] * jaco[j*self.jcol+k] for k in range( self.jcol ) ] )
+                cmet[j*self.ncrd+i] = cmet[i*self.ncrd+j]
+        return( cmet )
+
+    def distance( self, icrd, molec, jacob ):
+        ai = self.atom[icrd][0]
+        aj = self.atom[icrd][1]
+        dd = [ (jj-ii) for ii,jj in zip( molec.coor[3*ai:3*ai+3], molec.coor[3*aj:3*aj+3] ) ]
+        vv = math.sqrt( sum( [ ii*ii for ii in dd ] ) )
+        for k in [0, 1, 2]:
+            jacob[icrd*self.jcol+3*self.jidx[ai]+k] -= dd[k] / vv
+            jacob[icrd*self.jcol+3*self.jidx[aj]+k] += dd[k] / vv
+
+x = xmet( "pmf_s.cnf" )
+f = open( "pmf_s.met", "wt" )
+for i in range( win ):
+    print( i )
+    m = qm3.mol.molecule( "node.%02d"%( i ) )
+    c = x.metrics( m )
+    f.write( "".join( [ "%20.10lf"%( i ) for i in c ] ) + "\n" )
+f.close()
+
+eng = qm3.engines.mmres.colvar_s( 0.0, 0.0, "pmf_s.cnf", "string", "pmf_s.met" )
+arc = [ 0.0 ]
+for i in range( win - 1 ):
+    arc.append( arc[-1] + eng.arcl[i] )
+tad = [ [] for i in range( dim ) ]
+x = [ arc[-1] / ( win - 1 ) * i for i in range( win ) ]
+for j in range( dim ):
+    fix = qm3.maths.interpolation.hermite_spline( arc, dat[j] )
+    for i in range( win ):
+        tad[j].append( fix.calc( x[i] )[0] )
+
+g = open( "pmf_s.str", "wt" )
+for i in range( win ):
+    for j in range( dim ):
+        g.write( "%12.4lf"%( tad[j][i] ) )
+    g.write( "\n" )
+g.close()
+\end{pyglist}
+
+

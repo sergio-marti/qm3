@@ -1,0 +1,106 @@
+\normalsize
+\subsection[ring\_polymer]{ring\_polymer.py}
+http://dx.doi.org/10.1021/acs.jpclett.6b02115\\
+http://dx.doi.org/10.1063/1.3267318\\
+http://dx.doi.org/10.1063/1.5007180\\
+\begin{align*}
+U = \frac{1}{P} \sum_{i=1}^{P}{V_{i} \left( x_{i,1}, ..., x_{i,3N}\right)} +
+\sum_{i=1}^{P}{\sum_{j=1}^{3N}{k \left\{ 
+\frac{2 P \pi^2 k_B^2 T^2 }{h^2} 10^{-26}
+\right\}
+m_{j/3}\left( x_{i,j} - x_{i-1,j}\right)^2}}\\
+\frac{\partial U }{\partial x_{i,k} } = \frac{1}{P} \frac{\partial V_i }{\partial x_{i,k} }\left(x_{i,1},...
+,x_{i,3N} \right)+2\, k\, m_{ k/3 }\left( 2x_{i,k} - x_{i-1,k} - x_{i+1,k} \right)
+\\
+\frac{\partial^2 U}{\partial x_{i,k} \partial x_{j,l}} =
+\frac{\delta_{j=i,l,k}}{P} 
+\frac{\partial^2 V_i} {\partial x_{i,k}\partial x_{j,l}}
+\left(x_{i,1}, ... ,x_{i,3N} \right) +4\, k\, m_{ k/3 } \delta_{j=i,l=k} -2\, k\, m_{ k/3 } \delta_{j=i+1,l=k}
+-2\, k\, m_{ k/3 } \delta_{j=i-1,l=k}
+\end{align*}
+
+~\\
+
+\begin{align*}
+Q_{rot} = \left[ \frac{1}{\sigma} \right]_{R} \left( \pi \left( \frac{8 \pi^2 P k_B T 10^{-23}}{h^2 N_A} \right)^3 det I \right)^{ \frac{1}{2} }
+\\
+I = \sum _{ i=1 } ^{ P }{ \sum _{j=1} ^{N}{ m_j \left[ \left( {\vec{r}}_{i,j} \cdot
+{\vec{r}}_{i,j} \right) I_3 - {\vec{r}}_{i,j} \times {\vec{r}}_{i,j} \right] } } 
+\\
+{\vec{r}}_{i,j} = \left( x_{i,j},y_{i,j},z_{i,j} \right) - \left( x_{CM},y_{CM},z_{CM} \right) 
+\\
+Q_{vib} = \prod _{k=1} ^{3N \cdot P-6} { \frac{1}{2 \sinh \left( \frac{1}{2} \frac{h \left| \upsilon_k \right| 100 c } {P k_B T} \right) } }
+\\
+k_{RP} = \frac{k_B T P} {h}
+\left( \frac {2 B \pi k_B T P 10^{-23}} {h^2 N_A} \right)^{\frac{1}{2} } \,
+\frac{ Q_{rot}^{\ddagger } · Q_{vib}^{\ddagger } } { Q_{rot}^{R } · Q_{vib}^{R } } e^{ - {\frac {U^{ \ddagger } - V^R} {k_B T}} 10^3 }
+\\
+B= \sum _{ i=1 } ^{ P }{ \sum _{j=1} ^{3N} { m_{j/3} \left( x_{i,j} - x_{i-1,j} \right)^2 } } 
+\end{align*}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+class model( molec )
+    """
+    define as much engines as needed based on the molec
+    """
+
+    def get_grad( molec )
+    """
+    sequencially accumulate all the engines.get_grad
+    """
+
+    def get_hess( molec, nder = 1.0e-4 )
+    """
+    defaults to numerical hessian
+    """
+
+
+class rpmd( mole, sele, engn )
+
+    def current_step( istep )
+
+    def setup( pi_atoms, num_beads = 8, temperature = 300.0 )
+
+    def current_temperature()
+
+    def integrate( step_size = 0.001, step_number = 1000, gamma_factor = 50.0,
+        print_frequency = 100, log_function = default_log )
+
+
+class instanton( mole, sele, engn, num_beads = 64, temperature = 300.0 )
+
+    def calc_tst( r_coor, r_func, r_hess, t_coor, t_func, t_hess, t_symm = 1.0 )
+
+    def setup( step_size = 0.3 )
+
+    def current_step( istep )
+
+    def calc_rpt( r_coor, r_func, r_hess )
+
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.rpmd
+\end{pyglist}
+
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.rpmd.log
+\end{pyglist}
+
+\begin{center}
+\includegraphics[height=2.9cm]{23.png}
+\end{center}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.instanton
+\end{pyglist}
+
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.instanton.log
+\end{pyglist}
+
+\begin{center}
+\includegraphics[height=6.0cm]{35.png}
+\includegraphics[height=4.0cm]{36.png}
+\end{center}
