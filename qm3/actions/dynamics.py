@@ -115,7 +115,7 @@ class velocity_verlet( object ):
         if( self.project ):
 #            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
-                t = qm3.maths.matrix.dot_product( self.prjT[i], self.cacc )
+                t = qm3.maths.matrix.dot_product( self.obj.prjT[i], self.cacc )
                 for j in range( self.obj.size ):
                     self.cacc[j] -= t * self.obj.prjT[i][j]
         self.T, self.Kin = current_temperature( self.obj, self.project )
@@ -148,7 +148,7 @@ class velocity_verlet( object ):
         if( self.project ):
 #            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
-                t = qm3.maths.matrix.dot_product( self.prjT[i], self.cacc )
+                t = qm3.maths.matrix.dot_product( self.obj.prjT[i], self.cacc )
                 for j in range( self.obj.size ):
                     self.cacc[j] -= t * self.obj.prjT[i][j]
         for i in range( self.obj.size ):
@@ -181,7 +181,7 @@ class velocity_verlet( object ):
         if( self.project ):
 #            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
-                t = qm3.maths.matrix.dot_product( self.prjT[i], self.cacc )
+                t = qm3.maths.matrix.dot_product( self.obj.prjT[i], self.cacc )
                 for j in range( self.obj.size ):
                     self.cacc[j] -= t * self.obj.prjT[i][j]
         for i in range( self.obj.size ):
@@ -219,7 +219,7 @@ class velocity_verlet( object ):
         if( self.project ):
 #            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
-                t = qm3.maths.matrix.dot_product( self.prjT[i], self.cacc )
+                t = qm3.maths.matrix.dot_product( self.obj.prjT[i], self.cacc )
                 for j in range( self.obj.size ):
                     self.cacc[j] -= t * self.obj.prjT[i][j]
         for i in range( self.obj.size ):
@@ -313,9 +313,9 @@ class langevin_verlet( object ):
         if( self.project ):
 #            qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.cacc, [] )
             for i in [0, 1, 2]:
-                t = qm3.maths.matrix.dot_product( obj.prjT[i], self.cacc )
+                t = qm3.maths.matrix.dot_product( self.obj.prjT[i], self.cacc )
                 for j in range( self.obj.size ):
-                    self.cacc[j] -= t * obj.prjT[i][j]
+                    self.cacc[j] -= t * self.obj.prjT[i][j]
         self.T, self.Kin = current_temperature( self.obj, self.project )
         log_function( "%20.5lf%20.5lf%20.5lf%20.5lf%20.5lf"%( 0.0, self.obj.func, self.Kin, self.obj.func + self.Kin, self.T ) )
         self.xavr[0] += self.obj.func
@@ -354,9 +354,9 @@ class langevin_verlet( object ):
 #                for j in range( self.obj.size ):
 #                    self.cacc[j] -= t * RT[i][j]
             for i in [0, 1, 2]:
-                t = qm3.maths.matrix.dot_product( obj.prjT[i], self.cacc )
+                t = qm3.maths.matrix.dot_product( self.obj.prjT[i], self.cacc )
                 for j in range( self.obj.size ):
-                    self.cacc[j] -= t * obj.prjT[i][j]
+                    self.cacc[j] -= t * self.obj.prjT[i][j]
         for i in range( self.obj.size ):
             self.obj.velo[i] = self.oacc[i] + self.fv2 * self.cacc[i]
         if( self.project ):
@@ -365,9 +365,9 @@ class langevin_verlet( object ):
 #                for j in range( self.obj.size ):
 #                    self.obj.velo[j] -= t * RT[i][j]
             for i in [0, 1, 2]:
-                t = qm3.maths.matrix.dot_product( prjT[i], self.velo )
+                t = qm3.maths.matrix.dot_product( self.obj.prjT[i], self.obj.velo )
                 for j in range( self.obj.size ):
-                    self.obj.velo[j] -= t * obj.prjT[i][j]
+                    self.obj.velo[j] -= t * self.obj.prjT[i][j]
         self.T, self.Kin = current_temperature( self.obj, self.project )
         self.xavr[0] += self.obj.func
         self.xavr[1] += self.Kin
