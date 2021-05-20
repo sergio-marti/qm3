@@ -185,6 +185,8 @@ def taylor( obj,
     x  = [ obj.coor[i] * w[i] for i in range( obj.size ) ]
     if( from_saddle ):
         nskp, dx, tt = initial_step( obj, step_size, project_RT )
+        if( avoid_recrossing ):
+            ox   = dx[:]
     step_size = math.fabs( step_size )
     grms      = gradient_tolerance * 2.0
     it1       = 0
@@ -214,6 +216,11 @@ def taylor( obj,
         for i in range( obj.size ):
             v1 = ( tt[i] - pp * v0[i] ) / gg
             dx.append( step_size * ( v0[i] + 0.5 * step_size * v1 ) )
+        # avoid recrossing
+        if( from_saddle and avoid_recrossing and nskp > mskp ):
+            tmp = sum( [ ox[i] * dx[i] for i in range( obj.size ) ] )
+            if( tmp < 0.0 ):
+                dx = [ -dx[i] for i in range( obj.size ) ]
         grms = math.sqrt( sum( [ i * i for i in obj.grad ] ) / float( obj.size ) )
         it1 += 1
         if( it1%print_frequency == 0 ):
@@ -329,7 +336,7 @@ def baker( obj,
             for i in range( obj.size ):
                 dx[i] *= step_size / ovr
         # avoid recrossing
-        if( avoid_recrossing and nskp > mskp ):
+        if( from_saddle and avoid_recrossing and nskp > mskp ):
             tmp = sum( [ ox[i] * dx[i] for i in range( obj.size ) ] )
             if( tmp < 0.0 ):
                 dx = [ -dx[i] for i in range( obj.size ) ]
@@ -447,7 +454,7 @@ def page_mciver( obj,
             for i in range( obj.size ):
                 dx[i] = sum( [ v[j] * vec[i*obj.size+j] for j in range( obj.size ) ] )
             # avoid recrossing
-            if( avoid_recrossing and nskp > mskp ):
+            if( from_saddle and avoid_recrossing and nskp > mskp ):
                 tmp = sum( [ ox[i] * dx[i] for i in range( obj.size ) ] )
                 if( tmp < 0.0 ):
                     dx = [ -dx[i] for i in range( obj.size ) ]
