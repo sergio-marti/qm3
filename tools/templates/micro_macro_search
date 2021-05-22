@@ -53,6 +53,24 @@ class envi_problem( qm3.problem.template ):
                 self.mol.coor[3*self.sel[i]+j] = self.coor[3*i+j]
 
 
+    def copy_coor( self, mol ):
+        for i in range( len( self.sel ) ):
+            i3 = i * 3
+            I3 = self.sel[i] * 3
+            for j in [0, 1, 2]:
+                self.coor[i3+j] = mol.coor[I3+j]
+        self.update_coor()
+        self.emm.update_coor( self.mol )
+
+
+    def paste_coor( self, mol ):
+        for i in range( len( self.sel ) ):
+            i3 = i * 3
+            I3 = self.sel[i] * 3
+            for j in [0, 1, 2]:
+                mol.coor[I3+j] = self.coor[i3+j]
+
+
     def get_func( self ):
         self.update_coor()
         self.mol.func = .0
@@ -132,8 +150,10 @@ qmcharge = +2,
         if( self.envi_min ):
             self.envi.log( str( self.mol.chrg[0:54] ) )
             self.envi.emm.update_chrg( self.mol )
+#            self.envi.copy_coor( self.mol )
             qm3.actions.minimize.fire( self.envi, print_frequency = 10, step_number = 1000,
                 gradient_tolerance = 1.5, step_size = 0.1, fire2 = True, log_function = self.envi.log )
+#            self.envi.paste_coor( self.mol )
         # --------------------------------------------------------
 
 
