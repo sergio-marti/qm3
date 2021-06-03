@@ -132,7 +132,7 @@ def exclusions( sele_QM, molec, bonds = [] ):
                 buf12 += "        self.exc.append( qm3.engines.mmres.distance( kumb_kJ/mol.A^2, xref_A, [ %d, %d ] ) )\n"%( i, j )
                 buf12 += "        self.exc[-1].ffac = 0.0\n"
                 buf12 += "        self.exc[-1].gfac = [ 1.0, 0.0 ]\n"
-                buf12 += "        self.exc[-1].hind = [ self.sele.index( %d ), -1 ]\n"%( i )
+#                buf12 += "        self.exc[-1].hind = [ self.sele.index( %d ), -1 ]\n"%( i )
             for k in conn[j]:
                 if( k != i and atmm[k] ):
                     excl.append( [ i, k, 0.0 ] )
@@ -146,7 +146,7 @@ def exclusions( sele_QM, molec, bonds = [] ):
                         buf13 += "        self.exc.append( qm3.engines.mmres.angle( kumb_kJ/mol.rad^2, xref_deg, [ %d, %d, %d ] ) )\n"%( i, j, k )
                         buf13 += "        self.exc[-1].ffac = 0.0\n"
                         buf13 += "        self.exc[-1].gfac = [ 1.0, 0.0, 0.0 ]\n"
-                        buf13 += "        self.exc[-1].hind = [ self.sele.index( %d ), -1, -1 ]\n"%( i )
+#                        buf13 += "        self.exc[-1].hind = [ self.sele.index( %d ), -1, -1 ]\n"%( i )
                 for l in conn[k]:
                     if( k != i and l != j and l != i and atmm[l] ):
                         excl.append( [ i, l, 0.5 ] )
@@ -161,17 +161,58 @@ def exclusions( sele_QM, molec, bonds = [] ):
                             buf14 += "        self.exc[-1].ffac = 0.0\n"
                             if( atmm[j] ):
                                 buf14 += "        self.exc[-1].gfac = [ 1.0, 0.0, 0.0, 0.0 ]\n"
-                                buf14 += "        self.exc[-1].hind = [ self.sele.index( %d ), -1, -1, -1 ]\n"%( i )
+#                                buf14 += "        self.exc[-1].hind = [ self.sele.index( %d ), -1, -1, -1 ]\n"%( i )
                             else:
                                 buf14 += "        self.exc[-1].gfac = [ 1.0, 1.0, 0.0, 0.0 ]\n"
-                                buf14 += "        self.exc[-1].hind = [ self.sele.index( %d ), self.sele.index( %d ), -1, -1 ]\n"%( i, j )
+#                                buf14 += "        self.exc[-1].hind = [ self.sele.index( %d ), self.sele.index( %d ), -1, -1 ]\n"%( i, j )
     fd = open( "exclusions.src", "wt" )
     fd.write( "        self.exc = []\n" )
+    fd.write( "        #------------------------------------------------------------------\n" )
     fd.write( buf12 )
     fd.write( "        #------------------------------------------------------------------\n" )
     fd.write( buf13 )
     fd.write( "        #------------------------------------------------------------------\n" )
     fd.write( buf14 )
+    fd.write( """
+
+
+    #------------------------------------------------------------------
+    def exc_hess( self, sel, mol, dsp = 1.e-4 ):
+        _func = mol.func
+        _grad = mol.grad[:]
+        _hess = mol.hess[:]
+        zero  = [ 0.0 for i in range( 3 * mol.natm ) ]
+        hess  = []
+        for i in sel:
+            i3 = i * 3
+            for j in [0, 1, 2]:
+                bak = mol.coor[i3+j]
+                mol.coor[i3+j] = bak + dsp
+                mol.grad = zero[:]
+                for itm in self.exc:
+                    itm.get_grad( mol )
+                gp = mol.grad[:]
+                mol.coor[i3+j] = bak - dsp
+                mol.grad = zero[:]
+                for itm in self.exc:
+                    itm.get_grad( mol )
+                mol.coor[i3+j] = bak
+                hess.append( [] )
+                for k in sel:
+                    k3 = k * 3
+                    for l in [0, 1, 2]:
+                        hess[-1].append( ( gp[k3+l] - mol.grad[k3+l] ) / ( 2. * dsp ) )
+        mol.func = _func
+        mol.grad = _grad[:]
+        for itm in self.exc:
+            itm.get_grad( mol )
+        mol.hess = []
+        k = 0
+        for i in range( self.size ):
+            for j in range( self.size ):
+                mol.hess.append( _hess[k] + 0.5 * ( hess[i][j] + hess[j][i] ) )
+                k += 1
+""" )
     fd.close()
     f = open( "sele_LA.pk", "wb" )
     pickle.dump( latm, f )

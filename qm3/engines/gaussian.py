@@ -113,7 +113,10 @@ class gaussian( qm3.engines.qmbase ):
                     # truncate LAs and swap hessian (cols>>rows)
                     i = 3 * len( self.sel )
                     j = i * ( i + 1 ) // 2
-                    mol.hess = qm3.maths.matrix.from_upper_diagonal_columns( h[0:j], i )
+##                    mol.hess = qm3.maths.matrix.from_upper_diagonal_columns( h[0:j], i )
+                    t = qm3.maths.matrix.from_upper_diagonal_columns( h[0:j], i )
+                    for j in range( i * i ):
+                        mol.hess[j] += t[j]
             # read charges
             if( l[0:11] == "ESP Charges" ):
                 i = int( l.split()[-1] )

@@ -145,24 +145,24 @@ while( l != "" ):
                 g.write( "        %s\n"%( " ".join( t[0:2] + [ "%.1lf,"%( _BND[k][0] ), "%.3lf,"%( _BND[k][1] ) ] + t[4:] ) ) )
             else:
                 print( "missed:", l.strip() )
-                f.readline(); f.readline(); f.readline(); f.readline()
+                f.readline(); f.readline(); f.readline()#; f.readline()
         elif( len( t ) == 3 ):
             if( k in _ANG ):
                 t = f.readline().split()
                 g.write( "        %s\n"%( " ".join( t[0:2] + [ "%.1lf,"%( _ANG[k][0] ), "%.1lf,"%( _ANG[k][1] ) ] + t[4:] ) ) )
             else:
                 print( "missed:", l.strip() )
-                f.readline(); f.readline(); f.readline(); f.readline()
+                f.readline(); f.readline(); f.readline()#; f.readline()
         else:
             if( k in _DIE ):
                 if( _DIE[k][0] != 0.0 ):
                     t = f.readline().split()
                     g.write( "        %s\n"%( " ".join( t[0:3] + [ "%d: ["%( _DIE[k][1] ), "%.3lf, %.1lf ],"%( _DIE[k][0], _DIE[k][2] ) ] + t[8:] ) ) )
                 else:
-                    f.readline(); f.readline(); f.readline(); f.readline()
+                    f.readline(); f.readline(); f.readline()#; f.readline()
             else:
                 print( "missed:", l.strip() )
-                f.readline(); f.readline(); f.readline(); f.readline()
+                f.readline(); f.readline(); f.readline()#; f.readline()
     else:
         g.write( l )
     l = f.readline()

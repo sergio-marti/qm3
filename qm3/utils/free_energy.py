@@ -143,7 +143,7 @@ def fep_integrate( dene, temperature = 300.0, clusters = 1, tries = 10 ):
 #
 class umbint( object ):
 
-    def __init__( self, data ):
+    def __init__( self, data, skip = 0 ):
         self.__gs = 1.0 / math.sqrt( 2.0 * math.pi )
         self.__fc = []
         self.__rf = []
@@ -166,18 +166,21 @@ class umbint( object ):
             self.__rf.append( t[1] )
             if( not self.__mx ): self.__mx = t[1]
             if( not self.__Mx ): self.__Mx = t[1]
+            i = 0
             n = 0.0; m = 0.0; s = 0.0
             m3 = 0.0; m4 = 0.0
             for l in f:
-                t = float( l.strip() )
-                n += 1.0
-                m += t
-                s += t * t
-                self.__mx = min( self.__mx, t )
-                self.__Mx = max( self.__Mx, t )
-                t2 = t * t
-                m3 += t2 * t
-                m4 += t2 * t2
+                if( i >= skip ):
+                    t = float( l.strip() )
+                    n += 1.0
+                    m += t
+                    s += t * t
+                    self.__mx = min( self.__mx, t )
+                    self.__Mx = max( self.__Mx, t )
+                    t2 = t * t
+                    m3 += t2 * t
+                    m4 += t2 * t2
+                i += 1
             f.close()
             self.__ff.append( n )
             m /= n
@@ -256,7 +259,7 @@ class umbint( object ):
 #
 class wham( object ):
 
-    def __init__( self, data ):
+    def __init__( self, data, skip = 0 ):
         self.__dd = []
         self.__nw = 0
         self.__fc = []
@@ -278,17 +281,20 @@ class wham( object ):
             self.__rf.append( t[1] )
             if( not self.__mx ): self.__mx = t[1]
             if( not self.__Mx ): self.__Mx = t[1]
-            n = 0.0
             gm = 0.0
             gr = 0.0
+            n  = 0.0
+            i  = 0
             for l in f:
-                t = float( l.strip() )
-                self.__dd.append( t )
-                self.__mx = min( self.__mx, t )
-                self.__Mx = max( self.__Mx, t )
-                n += 1.0
-                gm += t
-                gr += t * t
+                if( i >= skip ):
+                    t = float( l.strip() )
+                    self.__dd.append( t )
+                    self.__mx = min( self.__mx, t )
+                    self.__Mx = max( self.__Mx, t )
+                    n += 1.0
+                    gm += t
+                    gr += t * t
+                i += 1
             f.close()
             # autocorrelated data would divide the amount of samples...
             self.__ss.append( n )
@@ -408,7 +414,7 @@ class wham( object ):
 #
 class umbint_2d( object ):
 
-    def __init__( self, data ):
+    def __init__( self, data, skip = 0 ):
         self.__gs = 1.0 / ( 2.0 * math.pi )
         self.__fc = []
         self.__rf = []
@@ -432,18 +438,21 @@ class umbint_2d( object ):
             if( not self.__mx ): self.__mx = [ t[1], t[3] ]
             if( not self.__Mx ): self.__Mx = [ t[1], t[3] ]
             n = 0.0; m1 = 0.0; s1 = 0.0; m2 = 0.0; s2 = 0.0; cx = 0.0
+            i = 0
             for l in f:
-                t   = [ float( i ) for i in l.strip().split() ]
-                n  += 1.0
-                m1 += t[0]
-                s1 += t[0] * t[0]
-                m2 += t[1]
-                s2 += t[1] * t[1]
-                cx += t[0] * t[1]
-                self.__mx[0] = min( self.__mx[0], t[0] )
-                self.__Mx[0] = max( self.__Mx[0], t[0] )
-                self.__mx[1] = min( self.__mx[1], t[1] )
-                self.__Mx[1] = max( self.__Mx[1], t[1] )
+                if( i >= skip ):
+                    t   = [ float( i ) for i in l.strip().split() ]
+                    n  += 1.0
+                    m1 += t[0]
+                    s1 += t[0] * t[0]
+                    m2 += t[1]
+                    s2 += t[1] * t[1]
+                    cx += t[0] * t[1]
+                    self.__mx[0] = min( self.__mx[0], t[0] )
+                    self.__Mx[0] = max( self.__Mx[0], t[0] )
+                    self.__mx[1] = min( self.__mx[1], t[1] )
+                    self.__Mx[1] = max( self.__Mx[1], t[1] )
+                i += 1
             f.close()
             self.__ff.append( n )
             m1 /= n
@@ -507,7 +516,7 @@ class umbint_2d( object ):
 
 try:
     import matplotlib.pyplot
-    def plot_data( data, dsigma = 2.0, name = "overlap" ):
+    def plot_data( data, dsigma = 2.0, skip = 0, name = "overlap" ):
         __mm = []
         __ss = []
         __dd = []
@@ -518,13 +527,16 @@ try:
             n = 0.0
             m = 0.0
             s = 0.0
+            i = 0
             __dd.append( [] )
             for l in f:
-                t = float( l.strip() )
-                m += t
-                s += t * t
-                n += 1.0
-                __dd[-1].append( t )
+                if( i >= skip ):
+                    t = float( l.strip() )
+                    m += t
+                    s += t * t
+                    n += 1.0
+                    __dd[-1].append( t )
+                i += 1
             f.close()
             m /= n
             __mm.append( m )
