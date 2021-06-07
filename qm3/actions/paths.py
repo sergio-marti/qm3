@@ -161,7 +161,7 @@ def taylor( obj,
             print_frequency = 10,
             project_RT = True,
             from_saddle = True,
-            avoid_recrossing = True,
+            avoid_recrossing = 50,
             log_function = default_log ):
     log_function( "\n---------------------------------------- Minimum Path (Taylor)\n" )
     log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
@@ -190,9 +190,9 @@ def taylor( obj,
     step_size = math.fabs( step_size )
     grms      = gradient_tolerance * 2.0
     it1       = 0
-    it2       = step_number // 10
     # -- the minimal amount of iterations sholud be tunned (no information about the topology: nskp)
-    while( it1 < step_number and ( grms > gradient_tolerance or it1 < it2 ) ):
+    itm       = step_number // 10
+    while( it1 < step_number and ( grms > gradient_tolerance or it1 < itm ) ):
         for i in range( obj.size ):
             x[i] += dx[i]
             obj.coor[i] = x[i] / w[i]
@@ -217,7 +217,7 @@ def taylor( obj,
             v1 = ( tt[i] - pp * v0[i] ) / gg
             dx.append( step_size * ( v0[i] + 0.5 * step_size * v1 ) )
         # avoid recrossing
-        if( from_saddle and avoid_recrossing and nskp > mskp ):
+        if( from_saddle and it1 <= avoid_recrossing ):
             tmp = sum( [ ox[i] * dx[i] for i in range( obj.size ) ] )
             if( tmp < 0.0 ):
                 dx = [ -dx[i] for i in range( obj.size ) ]
@@ -238,7 +238,7 @@ def baker( obj,
             print_frequency = 10,
             project_RT = True,
             from_saddle = True,
-            avoid_recrossing = True,
+            avoid_recrossing = 50,
             log_function = default_log ):
     log_function( "\n---------------------------------------- Minimum Path (Baker)\n" )
     log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
@@ -248,7 +248,7 @@ def baker( obj,
     log_function( "Gradient Tolerance: %20.10lg"%( gradient_tolerance ) )
     log_function( "Project RT modes:   %20s"%( project_RT ) )
     log_function( "From Saddle:        %20s"%( from_saddle ) )
-    log_function( "Avoid Recrossing:   %20s\n"%( avoid_recrossing ) )
+    log_function( "Avoid Recrossing:   %20d\n"%( avoid_recrossing ) )
     log_function( "%10s%20s%20s%10s"%( "Step", "Function", "Gradient", "Nskip" ) )
     log_function( "-" * 60 )
     lrge = 1.0e+6
@@ -336,7 +336,7 @@ def baker( obj,
             for i in range( obj.size ):
                 dx[i] *= step_size / ovr
         # avoid recrossing
-        if( from_saddle and avoid_recrossing and nskp > mskp ):
+        if( from_saddle and it1 <= avoid_recrossing and nskp > mskp ):
             tmp = sum( [ ox[i] * dx[i] for i in range( obj.size ) ] )
             if( tmp < 0.0 ):
                 dx = [ -dx[i] for i in range( obj.size ) ]
@@ -357,7 +357,7 @@ def page_mciver( obj,
             print_frequency = 10,
             project_RT = True,
             from_saddle = True,
-            avoid_recrossing = True,
+            avoid_recrossing = 50,
             log_function = default_log ):
     log_function( "\n---------------------------------------- Minimum Path (Page-McIver:LQA)\n" )
     log_function( "Degrees of Freedom: %20ld"%( obj.size ) )
@@ -367,7 +367,7 @@ def page_mciver( obj,
     log_function( "Gradient Tolerance: %20.10lg"%( gradient_tolerance ) )
     log_function( "Project RT modes:   %20s"%( project_RT ) )
     log_function( "From Saddle:        %20s"%( from_saddle ) )
-    log_function( "Avoid Recrossing:   %20s\n"%( avoid_recrossing ) )
+    log_function( "Avoid Recrossing:   %20d\n"%( avoid_recrossing ) )
     log_function( "%10s%20s%20s%10s"%( "Step", "Function", "Gradient", "Nskip" ) )
     log_function( "-" * 60 )
     it2m = 1000
@@ -454,7 +454,7 @@ def page_mciver( obj,
             for i in range( obj.size ):
                 dx[i] = sum( [ v[j] * vec[i*obj.size+j] for j in range( obj.size ) ] )
             # avoid recrossing
-            if( from_saddle and avoid_recrossing and nskp > mskp ):
+            if( from_saddle and it1 <= avoid_recrossing and nskp > mskp ):
                 tmp = sum( [ ox[i] * dx[i] for i in range( obj.size ) ] )
                 if( tmp < 0.0 ):
                     dx = [ -dx[i] for i in range( obj.size ) ]
