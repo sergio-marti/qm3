@@ -56,7 +56,7 @@ def __project_RT_modes( mas, crd, grd, hes = [] ):
         for k in range( siz ):
             grd[k] -= tmp * rtm[i*siz+k]
     # hessian
-    if( hes != None ):
+    if( hes != [] ):
         ixx = [ 0.0 for i in range( siz * siz ) ]
         for i in range( siz ):
             ixx[siz*i+i] += 1.
