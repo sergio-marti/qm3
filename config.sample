@@ -5,7 +5,7 @@
 #PYL = -lpython
 
 PYX = python3
-PYL = -L/usr/local/Cellar/python@3.9/3.9.4/Frameworks/Python.framework/Versions/3.9/lib -lpython3.9
+PYL = -L/usr/local/Cellar/python@3.9/3.9.5/Frameworks/Python.framework/Versions/3.9/lib -lpython3.9
 
 #PYL = -L/opt/local/Cellar/python/3.7.1/Frameworks/Python.framework/Versions/3.7/lib -lpython3.7
 #PYL = -lpython3.5m

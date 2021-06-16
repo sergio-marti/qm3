@@ -174,15 +174,14 @@ fprintf(stderr,"ERR: %.3lf _A^3\n",err*siz);
 	    		fprintf( fd, "%5ld%12.6lf%12.6lf%12.6lf%12.6lf\n", (long)0, 0.0,
 	    			crd[3*l] / tmp, crd[3*l+1] / tmp, crd[3*l+2] / tmp );
 	    	nit = npt[0] * npt[1];
-	    	l = 0;
 	    	for( i = 0; i < npt[0]; i++ ) {
 	    		for( j = 0; j < npt[1]; j++ ) {
 	    			for( k = 0; k < npt[2]; k++ ) {
 	    				if( grd[i+j*npt[0]+k*nit] > 0 ) { vol += 1.0; }
 	    				fprintf( fd, "%13.5le", (float) grd[i + j * npt[0] + k * nit] );
-	    				l++;
-	    				if( l%6 == 0 ) { fprintf( fd, "\n" ); }
+	    				if( k%6 == 5 ) { fprintf( fd, "\n" ); }
 	    			}
+	    			if( k%6 != 5 ) { fprintf( fd, "\n" ); }
 	    		}
 	    	}
 	    	fclose( fd );
@@ -305,7 +304,7 @@ long __collide( double x, double y, double z, double prb, double dsp, long siz, 
 }
 
 static PyObject* __cavity_grid( PyObject *self, PyObject *args ){
-    PyObject	*o_xyz, *o_rad, *o_cen, *o_flg;
+    PyObject	*o_xyz, *o_rad, *o_cen, *o_flg, *o_cub;
     long		i, j, k, l, siz, wr, w2;
     double		prb = 1.40, vol = 0.0, ri, rj, rk;
     double		bmax[3] = { -9999., -9999., -9999. };
@@ -314,11 +313,12 @@ static PyObject* __cavity_grid( PyObject *self, PyObject *args ){
     long		npt[3], cnt[3];
 	long		cub[24] = { 1, 1, 1, 1, 1,-1, 1,-1, 1, 1,-1,-1, -1, 1, 1, -1, 1,-1, -1,-1, 1, -1,-1,-1 };
     char		***grd;
-    double		*crd, *rad, dsp;
+    double		*crd, *rad, dsp, tmp;
     time_t		t0;
 
     o_flg = Py_False;
-    if( PyArg_ParseTuple( args, "OOOd|Od", &o_rad, &o_xyz, &o_cen, &dsp, &o_flg, &prb ) ) {
+    o_cub = Py_False;
+    if( PyArg_ParseTuple( args, "OOOd|OdO", &o_rad, &o_xyz, &o_cen, &dsp, &o_flg, &prb, &o_cub ) ) {
 
     	t0  = time( NULL );
     	siz = (long) PyList_Size( o_rad );
@@ -419,6 +419,29 @@ fprintf(stderr,"CEN: %8ld%8ld%8ld\n",cnt[0],cnt[1],cnt[2]);
 	    }
 		vol *= dsp * dsp * dsp;
 fprintf(stderr,"VOL: %lf _A^3\n",vol );
+
+    	if( o_cub == Py_True ) {
+    		FILE* fd = fopen( "volume.cube", "wt" );
+	    	fprintf( fd, "QM3:\n-- Molecular Volume --\n" );
+	    	tmp = 0.52917721092;
+	    	fprintf( fd, "%5ld%12.6lf%12.6lf%12.6lf\n", siz, bmin[0] / tmp, bmin[1] / tmp, bmin[2] / tmp );
+	    	fprintf( fd, "%5ld%12.6lf%12.6lf%12.6lf\n", npt[0], dsp / tmp, 0.0, 0.0 );
+	    	fprintf( fd, "%5ld%12.6lf%12.6lf%12.6lf\n", npt[1], 0.0, dsp / tmp, 0.0 );
+	    	fprintf( fd, "%5ld%12.6lf%12.6lf%12.6lf\n", npt[2], 0.0, 0.0, dsp / tmp );
+	    	for( l = 0; l < siz; l++ )
+	    		fprintf( fd, "%5ld%12.6lf%12.6lf%12.6lf%12.6lf\n", (long)0, 0.0,
+	    			crd[3*l] / tmp, crd[3*l+1] / tmp, crd[3*l+2] / tmp );
+	    	for( i = 0; i < npt[0]; i++ ) {
+	    		for( j = 0; j < npt[1]; j++ ) {
+	    			for( k = 0; k < npt[2]; k++ ) {
+	    				fprintf( fd, "%13.5le", (float) grd[i][j][k] );
+	    				if( k%6 == 5 ) { fprintf( fd, "\n" ); }
+	    			}
+					if( k%6 != 5 ) { fprintf( fd, "\n" ); }
+	    		}
+	    	}
+	    	fclose( fd );
+		}
 
     	free( rad ); free( crd );
 		for( i = 0; i < npt[0]; i++ ) {

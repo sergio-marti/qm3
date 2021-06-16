@@ -73,7 +73,7 @@ class model:
 
 
 
-class rpmd( object ):
+class dynamics( object ):
     def __init__( self, mole, sele, engn ):
         self.mole = mole
         self.sele = sele[:]
