@@ -130,6 +130,24 @@ int main() {
 
 	fclose( hd );
 
+	fd = fopen( "within.pdb", "wt" );
+	for( i = 1; i < nx - 1; i++ )
+		for( j = 1; j < ny - 1; j++ )
+			for( k = 1; k < nz - 1; k++ )
+				if( grid[i][j][k] == 2.0 ) { 
+					if( ! ( grid[i-1][j][k] == 2.0 && 
+							grid[i+1][j][k] == 2.0 && 
+							grid[i][j-1][k] == 2.0 && 
+							grid[i][j+1][k] == 2.0 && 
+							grid[i][j][k-1] == 2.0 && 
+							grid[i][j][k+1] == 2.0 ) )
+						fprintf( fd, "ATOM      1  H   SRF     1    %8.3lf%8.3lf%8.3lf  1.00  0.00    SRF\n",
+							( lx + i * dz ) * 0.52917721092,
+							( ly + j * dz ) * 0.52917721092,
+							( lz + k * dz ) * 0.52917721092 );
+				}
+	fclose( fd );
+
 	for( i = 0; i < nx; i++ ) {
 		for( j = 0 ; j < ny; j++ ) free( grid[i][j] );
 		free( grid[i] );
