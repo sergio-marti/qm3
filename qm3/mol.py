@@ -154,7 +154,7 @@ class molecule( object ):
         else:
             t_sel = range( self.natm )
         out = molecule()
-        out.natm = len( sele )
+        out.natm = len( t_sel )
         for i in t_sel:
             i3 = i * 3
             out.segn.append( self.segn[i] )

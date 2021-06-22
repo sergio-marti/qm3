@@ -511,11 +511,14 @@ def baker( obj,
 
             # check for changes in current mode via overlapping
             lowr = follow_mode;
-            if( k > 0 and allow_overlap == 1 ):
+            if( k > 0 and allow_overlap == True ):
                 ovr = 0.0;
                 for i in range( obj.size ):
                     ovr += ev[i*obj.size+follow_mode] * mvec[i]
 #                ovr = math.fabs( ovr )
+                # -- range( obj.size ) >> range( follow_mode )
+                # [OR]
+                # -- if( j != follow_mode and ei[j] < 0.0 ):
                 for j in range( obj.size ):
                     if( j != follow_mode ):
                         tmp = 0.0
