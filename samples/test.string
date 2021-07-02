@@ -37,7 +37,7 @@ class my_pes( qm3.problem.template ):
         self.mass = [ 1.0, 1.0, 1.0 ]
         self.fix  = qm3.engines.mmres.angle( 2., 179., [ 0, 1, 2 ] )
         self.node = node
-        self.cvs  = qm3.actions.string.string( self.node, "string.def", self )
+        self.cvs  = qm3.actions.string.string( self.node, "string.def" )
         self.trj  = open( "string.%03d.xyz"%( self.node ), "wt" )
         self.flg  = open( "string.%03d.log"%( self.node ), "wt" )
         self.log( "Starting point: %12.6lf%12.6lf\n"%( self.distances() ) )
