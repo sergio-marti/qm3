@@ -1,0 +1,28 @@
+--- qm2_extern_module.F90.orig	2020-04-28 03:19:46.000000000 +0200
++++ qm2_extern_module.F90	2021-07-22 07:23:30.431679179 +0200
+@@ -106,16 +106,21 @@
+     if(first_call) then
+       ! If doing post-processing
+       if( nstlim==0 .or. maxcyc==0 ) do_gradient = .false. 
+-      call select_program(extern_program)
+-      call check_electrostatic_embedding(nclatoms, qmmm_nml%qmmm_int, extern_program)
+-      call print_citation_information(extern_program)
+-      call print_constants()
++extern_program = 'none'
++!      call select_program(extern_program)
++!      call check_electrostatic_embedding(nclatoms, qmmm_nml%qmmm_int, extern_program)
++!      call print_citation_information(extern_program)
++!      call print_constants()
+       first_call = .false.
+     end if
+ 
+     ! Call chosen program
+     ! Note that qmmm_nml%spin actually holds spin multiplicity!
+     select case (extern_program)
++    case('none')
++      escf   = 0.0
++      dxyzqm = 0.0
++      dxyzcl = 0.0
+     case('adf')
+       call get_adf_forces(do_gradient, nstep, ntpr, id, nqmatoms, qmcoords,&
+            qmtypes, escf, dxyzqm, qmmm_nml%qmcharge, qmmm_nml%spin)
