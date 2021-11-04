@@ -411,27 +411,30 @@ def intensities( chrg, mods ):
 
 try:
     import matplotlib.pyplot
-    # -----------------------------------------------
-    # adjust frequency values:
-    # https://cccbdb.nist.gov/vibscalejust.asp
-    # -----------------------------------------------
-    # https://en.wikipedia.org/wiki/Spectral_line_shape
-    # Lorentzian: L = 1 over { 1 + x^2 } ~~~~~~ x = { p^0 - p } over { s / 2 }
-    # -----------------------------------------------
-    def spectrum( freq, inte, sigm = 100., minf = 100., maxf = 4000., scal = 1.0 ):
-        nn = len( freq )
-        hs = 0.5 * sigm
-        sx = []
-        sy = []
-        for i in range( int( minf ), int( maxf ) + 1 ):
-            sx.append( i )
-            t = 0.0
-            for j in range( nn ):
-                if( freq[j] >= minf ):
-                    t += inte[j] / ( 1.0 + math.pow( ( freq[j] * scal - i ) / hs, 2.0 ) )
-            sy.append( t )
-        my = max( sy )
-        sy = [ i / my for i in sy ]
+except:
+    pass
+# -----------------------------------------------
+# adjust frequency values:
+# https://cccbdb.nist.gov/vibscalejust.asp
+# -----------------------------------------------
+# https://en.wikipedia.org/wiki/Spectral_line_shape
+# Lorentzian: L = 1 over { 1 + x^2 } ~~~~~~ x = { p^0 - p } over { s / 2 }
+# -----------------------------------------------
+def spectrum( freq, inte, sigm = 100., minf = 100., maxf = 4000., scal = 1.0 ):
+    nn = len( freq )
+    hs = 0.5 * sigm
+    sx = []
+    sy = []
+    for i in range( int( minf ), int( maxf ) + 1 ):
+        sx.append( i )
+        t = 0.0
+        for j in range( nn ):
+            if( freq[j] >= minf ):
+                t += inte[j] / ( 1.0 + math.pow( ( freq[j] * scal - i ) / hs, 2.0 ) )
+        sy.append( t )
+    my = max( sy )
+    sy = [ i / my for i in sy ]
+    try:
         matplotlib.pyplot.clf()
         matplotlib.pyplot.grid( True )
         matplotlib.pyplot.xlim( maxf + sigm, minf - sigm )
@@ -439,8 +442,9 @@ try:
         matplotlib.pyplot.plot( sx, sy, '-' )
         matplotlib.pyplot.tight_layout()
         matplotlib.pyplot.savefig( "spectrum.pdf" )
-except:
-    pass
+    except:
+        pass
+    return( sx, sy )
 
 
 
