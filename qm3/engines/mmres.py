@@ -872,8 +872,8 @@ class colvar_path( object ):
     dz    = L / ( N - 1 )
     dst_i = SUM( j=0:N-1, k=xyz, m_j * ( x_k - r_i,k )^2 ) )^0.5
 
-    force_constant [kJ/mol.A^2.AMU]
-    reference [A.AMU^0.5]
+    force_constant [kJ/mol.A^2]
+    reference [A]
 
 ------------------------------------------------------------------------
 nref[r]      nwin[w]
