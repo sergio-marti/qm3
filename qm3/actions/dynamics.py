@@ -54,6 +54,10 @@ def assign_velocities( obj, temperature = 300.0, project = True ):
             obj.prjT[0] += [ sm / mt, 0.0, 0.0 ]
             obj.prjT[1] += [ 0.0, sm / mt, 0.0 ]
             obj.prjT[2] += [ 0.0, 0.0, sm / mt ]
+        for i in [0, 1, 2]:
+            t = qm3.maths.matrix.dot_product( obj.prjT[i], obj.velo )
+            for j in range( obj.size ):
+                obj.velo[j] -= t * obj.prjT[i][j]
     T, Kin = current_temperature( obj, project )
     scf = math.sqrt( temperature / T )
     for i in range( obj.size ):
