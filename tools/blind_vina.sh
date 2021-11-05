@@ -5,7 +5,7 @@ lig=3sug_ligand.mol2
 
 source ~/Devel/amber/rc
 source ~/Devel/openbabel/rc
-vina=/Users/smarti/Devel/docking/AutoDock-Vina/build/mac/release/vina
+vina=~/Devel/docking/AutoDock-Vina/build/mac/release/vina
 
 rm -f borra.*
 egrep -v "      H\$" $prt > borra.pdb
