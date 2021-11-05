@@ -117,11 +117,12 @@ out = out_%04d
             c += 1
 EOD
 
-rm -f vmd
+echo "load prt.x, format=pdbqt" > view.pml
+rm -f view.vmd
 for ff in inp_????; do
 	gg=`echo $ff | cut -c5-`
 	$vina --cpu 4 --config $ff | tee log_$gg
-	cat >> vmd << EOD
+	cat >> view.vmd << EOD
 mol new out_$gg type pdb first 0 last -1 step 1 filebonds 1 autobonds 1 waitfor all
 mol delrep 0 top
 mol representation Licorice 0.100000 12.000000 12.000000
@@ -130,9 +131,10 @@ mol selection {all}
 mol material Opaque
 mol addrep top
 EOD
+	echo "load out_$gg, format=pdbqt" >> view.pml
 done
 
-cat >> vmd << EOD
+cat >> view.vmd << EOD
 mol new prt.x type pdb first 0 last -1 step 1 filebonds 1 autobonds 1 waitfor all
 mol delrep 0 top
 mol representation Surf 1.400000 0.000000
@@ -140,4 +142,14 @@ mol color Name
 mol selection {all}
 mol material Opaque
 mol addrep top
+EOD
+
+cat >> view.pml << EOD
+util.cba( 144, "all", _self=cmd )
+util.cba(  33, "prt", _self=cmd )
+cmd.hide( "cartoon", "prt" )
+cmd.show( "surface", "prt" )
+set all_states, on
+cmd.zoom( "all", animate=-1 )
+clip atoms, 5, all
 EOD
