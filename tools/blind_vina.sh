@@ -1,14 +1,14 @@
 #!/bin/bash
 
-prt=3sug_protein.pdb
-lig=3sug_ligand.mol2
+prt=enzyme.pdb
+lig=ligand.mol2
 
 source ~/Devel/amber/rc
 source ~/Devel/openbabel/rc
 vina=~/Devel/docking/AutoDock-Vina/build/mac/release/vina
 
 rm -f borra.*
-egrep -v "      H\$" $prt > borra.pdb
+cp $prt borra.pdb
 cat > inp << EOD
 source leaprc.gaff
 source oldff/leaprc.ff03
@@ -87,6 +87,15 @@ for l in f:
     t = l.split()
     w = indx["%s-%s-%s"%( t[3], t[4], t[2] )]
     g.write( l[0:30] + "%8.3lf%8.3lf%8.3lf  0.00  0.00    %6.3lf"%( coor[w,0], coor[w,1], coor[w,2], chrg[w] ) + l[76:] )
+g.close()
+f.close()
+f = open( "borra.pdb", "rt" )
+g = open( "prt.pdb", "wt" )
+w = 0
+for l in f:
+    if( l[0:4] == "ATOM" ):
+        g.write( l[0:30] + "%8.3lf%8.3lf%8.3lf  0.00  0.00\n"%( coor[w,0], coor[w,1], coor[w,2] ) )
+        w += 1
 g.close()
 f.close()
 # -- setup as many centers as needed --
