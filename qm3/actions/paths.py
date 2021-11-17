@@ -185,7 +185,7 @@ def taylor( obj,
     x  = [ obj.coor[i] * w[i] for i in range( obj.size ) ]
     if( from_saddle ):
         nskp, dx, tt = initial_step( obj, step_size, project_RT )
-        if( avoid_recrossing ):
+        if( avoid_recrossing > 0 ):
             ox   = dx[:]
     step_size = math.fabs( step_size )
     grms      = gradient_tolerance * 2.0
@@ -217,7 +217,7 @@ def taylor( obj,
             v1 = ( tt[i] - pp * v0[i] ) / gg
             dx.append( step_size * ( v0[i] + 0.5 * step_size * v1 ) )
         # avoid recrossing
-        if( from_saddle and it1 <= avoid_recrossing ):
+        if( from_saddle and it1 <= avoid_recrossing and avoid_recrossing > 0 ):
             tmp = sum( [ ox[i] * dx[i] for i in range( obj.size ) ] )
             if( tmp < 0.0 ):
                 dx = [ -dx[i] for i in range( obj.size ) ]
@@ -267,7 +267,7 @@ def baker( obj,
     x  = [ obj.coor[i] * w[i] for i in range( obj.size ) ]
     if( from_saddle ):
         nskp, dx, tt = initial_step( obj, step_size, project_RT )
-        if( avoid_recrossing ):
+        if( avoid_recrossing > 0 ):
             ox   = dx[:]
     else:
         nskp = 7
@@ -336,7 +336,7 @@ def baker( obj,
             for i in range( obj.size ):
                 dx[i] *= step_size / ovr
         # avoid recrossing
-        if( from_saddle and it1 <= avoid_recrossing and nskp > mskp ):
+        if( from_saddle and it1 <= avoid_recrossing and nskp > mskp and avoid_recrossing > 0 ):
             tmp = sum( [ ox[i] * dx[i] for i in range( obj.size ) ] )
             if( tmp < 0.0 ):
                 dx = [ -dx[i] for i in range( obj.size ) ]
@@ -384,7 +384,7 @@ def page_mciver( obj,
     x  = [ obj.coor[i] * w[i] for i in range( obj.size ) ]
     if( from_saddle ):
         nskp, dx, tt = initial_step( obj, step_size, project_RT )
-        if( avoid_recrossing ):
+        if( avoid_recrossing > 0 ):
             ox   = dx[:]
     else:
         nskp = 7
@@ -454,7 +454,7 @@ def page_mciver( obj,
             for i in range( obj.size ):
                 dx[i] = sum( [ v[j] * vec[i*obj.size+j] for j in range( obj.size ) ] )
             # avoid recrossing
-            if( from_saddle and it1 <= avoid_recrossing and nskp > mskp ):
+            if( from_saddle and it1 <= avoid_recrossing and nskp > mskp and avoid_recrossing > 0 ):
                 tmp = sum( [ ox[i] * dx[i] for i in range( obj.size ) ] )
                 if( tmp < 0.0 ):
                     dx = [ -dx[i] for i in range( obj.size ) ]
