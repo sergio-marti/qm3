@@ -1,0 +1,38 @@
+\normalsize
+\subsection[metadyn]{metadyn.py}
+This module offers classes for applying metadynamics on several kind of geometrical variables: \func{distance} and \func{multiple\_distance}; and on collective ones: \func{colvar\_s}.
+
+The gaussian energy is accumulated to "molec.func", and the gradient to "molec.grad".
+All the hills are stored in a file object \parm{name}.
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+class distance( indx, vpot, sigm, nstp, wall, name = None )
+        """
+        vpot [kJ/mol]: 2 k_B T [ 2.5 kJ/mol @ 300 K ]
+        sigm [A]: rms of the variable (md run in the minimia)
+        nstp [md steps]: 50 - 100
+        wall [kumb, llim, ulim]: kumb [kJ/mol], llim + sigm/2 [A], ulim - sigm/2 [A]
+        """
+    def get_grad( molec )
+    def close()
+
+class multiple_distance( indx, weig, vpot, sigm, nstp, wall, name = None )
+        """
+        vpot [kJ/mol]: 2 k_B T [ 2.5 kJ/mol @ 300 K ]
+        sigm [A]: rms of the variable (md run in the minimia)
+        nstp [md steps]: 50 - 100
+        wall [kumb, llim, ulim]: kumb [kJ/mol], llim + sigm/2 [A], ulim - sigm/2 [A]
+        """
+    def get_grad( molec )
+    def close()
+
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/04-mdyn.py
+\end{pyglist}
+
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/oxy-cope/04-mdyn-post.py
+\end{pyglist}
