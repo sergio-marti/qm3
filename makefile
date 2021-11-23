@@ -113,10 +113,10 @@ mopac.so:
 
 dftb.so:
 	gfortran $(SHD) -o dftb.so qm3/engines/dftb.f90 -Jbuild -Ibuild \
-		-fPIC -I$(DFTB)/prog/dftb+/include \
-		$(DFTB)/prog/dftb+/libdftbplus.a \
-		$(DFTB)/external/dftd3/origin/lib/libdftd3.a \
-		$(DFTB)external/mudpack/libmudpack.a $(MLB) -fopenmp
+		-fPIC -I$(DFTB)/include/dftbplus/modfiles \
+		$(DFTB)/lib/libdftbplus.a \
+		$(DFTB)/lib/libdftd3.a \
+		$(DFTB)/lib/libmudpack.a $(MLB) -fopenmp
 
 
 xtb.so:
@@ -131,7 +131,9 @@ dftd3.so:
 
 dftd4.so:
 	gfortran $(SHD) -o dftd4.so qm3/engines/dftd4.f90 -Jbuild -Ibuild \
-		-fPIC -I$(DFTD4_INC) $(DFTD4)/libdftd4.a -fopenmp $(MLB)
+		-fPIC -I$(DFTD4)/$(DFTD4_VER) \
+	   	-I$(DFTD4)/subprojects/mctc-lib/libmctc-lib.a.p \
+		$(DFTD4)/libdftd4.a -fopenmp $(MLB)
 
 
 lio.so:

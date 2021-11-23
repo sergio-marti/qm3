@@ -3,7 +3,8 @@
 !
 module qm3
 	use dftbplus
-	use dftbp_constants, only : AA__Bohr
+!	use dftbp_constants, only : AA__Bohr
+	use dftbp_common_constants, only : AA__Bohr
 	implicit none
 	public
 	type( TDftbPlus ) :: dftbp

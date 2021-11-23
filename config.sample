@@ -47,10 +47,10 @@ MPI = CC=mpicc
 
 # ------------------------------------------------------------------
 # External programs
-DFTB = EXTERNAL/dftb_build/
+DFTB = EXTERNAL/dftb_build
 XTB = EXTERNAL/xtb_build
 DFTD3 = EXTERNAL/dftd3_build
 DFTD4 = EXTERNAL/dftd4_build
-DFTD4_INC = EXTERNAL/dftd4_build/dftd4@sta
+DFTD4_VER = libdftd4.3.dylib.p
 AMBER = EXTERNAL/amber_build
 LIO = EXTERNAL/slio_build
