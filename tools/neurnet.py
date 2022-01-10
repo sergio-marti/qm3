@@ -4,7 +4,6 @@ import  numpy
 
 
 
-# f2( f1( f0( inp_1x2 @ w0_2x12 + b0_1x12 )_1x12 @ w1_12x4 + b1_1x4 )_1x4 @ w2_4x1 + b2_1x1 )
 class model( object ):
     def __init__( self, isize, layers ):
         self.isiz = isize
