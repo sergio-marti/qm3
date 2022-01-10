@@ -16,8 +16,8 @@ class model( object ):
 
     def __random( self ):
         for i in range( 0, len( self.coef ), 2 ):
-            self.coef[i]   =  numpy.random.randn( self.coef[i].shape[0], self.coef[i].shape[1] )
-            self.coef[i+1] =  numpy.zeros( self.coef[i+1].shape )
+            self.coef[i]   = numpy.random.randn( self.coef[i].shape[0], self.coef[i].shape[1] )
+            self.coef[i+1] = numpy.zeros( self.coef[i+1].shape )
 
 
     @staticmethod
@@ -79,7 +79,7 @@ class model( object ):
         return( los, numpy.array( out ) )
 
 
-    def __fire( self, iset, oset, step_size = 0.01, step_number = 1000, max_tries = 10 ):
+    def __fire( self, iset, oset, step_size = 0.0001, step_number = 1000, max_tries = 2 ):
         coor = []
         shap = []
         for c in self.coef:
@@ -98,6 +98,7 @@ class model( object ):
         xlss = loss
         xcof = [ m.copy() for m in self.coef ]
         norm = math.sqrt( numpy.dot( grad, grad ) )
+#        print( "          %30.1lf%30.1lf"%( xlss, norm ) )
         nfun = 0
         it = 0
         while( it < step_number and nfun < max_tries ):
@@ -126,24 +127,98 @@ class model( object ):
                 tmp += dsp
             loss, grad = self.__grad( iset, oset )
             norm = math.sqrt( numpy.dot( grad, grad ) )
-            nfun += loss > last
+            nfun += loss >= last
             last = loss
+#            print( "%10d%30.1lf%30.1lf%30.1lf"%( it, loss, norm, loss - xlss ) )
             if( loss < xlss ):
                 xlss = loss
                 xcof = [ m.copy() for m in self.coef ]
+                nfun = 0
             it += 1
         self.coef = xcof
         return( xlss )
 
 
-    def train( self, iset, oset, loss_tolerance = 4.0, population = 10 ):
+    def __fire2( self, iset, oset, step_size = 0.0001, step_number = 1000, max_tries = 2 ):
+        coor = []
+        shap = []
+        for c in self.coef:
+            coor += c.flatten().tolist()
+            shap.append( c.shape )
+        size = len( coor )
+        coor = numpy.array( coor )
+        nstp = 0
+        ssiz = step_size
+        alph = 0.1
+        dstp = 5
+        velo = numpy.zeros( size )
+        step = numpy.zeros( size )
+        loss, grad = self.__grad( iset, oset )
+        last = loss
+        xlss = loss
+        xcof = [ m.copy() for m in self.coef ]
+        norm = math.sqrt( numpy.dot( grad, grad ) )
+        print( "          %30.1lf%30.1lf"%( xlss, norm ) )
+        nfun = 0
+        it = 0
+        while( it < step_number and nfun < max_tries ):
+            if( - numpy.dot( velo, grad ) > 0.0 ):
+                if( nstp > dstp ):
+                    ssiz = min( ssiz * 1.1, step_size )
+                    alph *= 0.99
+                nstp += 1
+            else:
+                alph = 0.1
+                ssiz *= 0.5
+                nstp = 0
+                step = ssiz * velo
+                tmp  = math.sqrt( numpy.dot( step, step ) )
+                if( tmp > ssiz ):
+                    step *= ssiz / tmp
+                coor -= 0.5 * step
+                velo = numpy.zeros( size )
+            velo -= ssiz * grad
+            if( - numpy.dot( velo, grad ) > 0.0 ):
+                vsiz = math.sqrt( numpy.dot( velo, velo ) )
+                velo = ( 1.0 - alph ) * velo - alph * grad / norm * vsiz
+            step = ssiz * velo
+            tmp  = math.sqrt( numpy.dot( step, step ) )
+            if( tmp > ssiz ):
+                step *= ssiz / tmp
+            coor += step
+            tmp = 0
+            for j in range( len( shap ) ):
+                dsp = shap[j][0] * shap[j][1]
+                self.coef[j] = coor[tmp:tmp+dsp].reshape( shap[j] )
+                tmp += dsp
+            loss, grad = self.__grad( iset, oset )
+            norm = math.sqrt( numpy.dot( grad, grad ) )
+            nfun += loss >= last
+            last = loss
+            print( "%10d%30.1lf%30.1lf%30.1lf"%( it, loss, norm, loss - xlss ) )
+            if( loss < xlss ):
+                xlss = loss
+                xcof = [ m.copy() for m in self.coef ]
+                nfun = 0
+            it += 1
+        self.coef = xcof
+        return( xlss )
+
+
+    def train( self, iset, oset, loss_tolerance = 1.0, population = 10 ):
+        dim = len( iset )
+        tol = loss_tolerance * dim
+        print( "cutoff    : %.1lf x %d = %.1lf"%( loss_tolerance, dim, tol ) )
+        print( "population: %d"%( population ) )
         acc = 0
-        x_loss = self.__fire( iset, oset )
+        x_loss = self.__fire( iset, oset, step_size = 0.01, step_number = 2000 )
+#        print( 100 * "-" )
         x_coef = [ m.copy() for m in self.coef ]
         while( acc < population ):
             self.__random()
-            loss = self.__fire( iset, oset )
-            if( loss < loss_tolerance ):
+            loss = self.__fire( iset, oset, step_size = 0.01, step_number = 2000 )
+#            print( 100 * "-" )
+            if( loss < tol ):
                 acc += 1
                 if( loss < x_loss ):
                     x_loss = loss
@@ -171,7 +246,7 @@ if( __name__ == "__main__" ):
             out.append( x[i] * x[i] + x[j] * x[j] )
 
     obj = model( 2, [ 12, 4 ] )
-    obj.train( inp, out )
+    obj.train( inp, out, loss_tolerance = 0.1 )
 
     x  = numpy.linspace( -2, 2, 21 )
     nx = []
