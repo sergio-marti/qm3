@@ -63,7 +63,7 @@ class model( object ):
             los += 0.25 * float( dif ) * float( dif )
             f_idx = -2
             g_idx = -1
-            g_tmp = [ dif * buf[f_idx] ]
+            g_tmp = [ dif * self.g_actv( buf[f_idx] ) ]
             for j in range( len( self.coef ) - 2, 0, -2 ):
                 f_idx -= 1
                 g_tmp.insert( 0, numpy.dot( buf[f_idx].T, g_tmp[g_idx] ) )
@@ -98,7 +98,7 @@ class model( object ):
         xlss = loss
         xcof = [ m.copy() for m in self.coef ]
         norm = math.sqrt( numpy.dot( grad, grad ) )
-#        print( "          %30.1lf%30.1lf"%( xlss, norm ) )
+        print( "          %30.1lf%30.1lf"%( xlss, norm ) )
         nfun = 0
         it = 0
         while( it < step_number and nfun < max_tries ):
@@ -133,74 +133,8 @@ class model( object ):
             if( loss < xlss ):
                 xlss = loss
                 xcof = [ m.copy() for m in self.coef ]
-                nfun = 0
             it += 1
-        self.coef = xcof
-        return( xlss )
-
-
-    def __fire2( self, iset, oset, step_size = 0.0001, step_number = 1000, max_tries = 2 ):
-        coor = []
-        shap = []
-        for c in self.coef:
-            coor += c.flatten().tolist()
-            shap.append( c.shape )
-        size = len( coor )
-        coor = numpy.array( coor )
-        nstp = 0
-        ssiz = step_size
-        alph = 0.1
-        dstp = 5
-        velo = numpy.zeros( size )
-        step = numpy.zeros( size )
-        loss, grad = self.__grad( iset, oset )
-        last = loss
-        xlss = loss
-        xcof = [ m.copy() for m in self.coef ]
-        norm = math.sqrt( numpy.dot( grad, grad ) )
-        print( "          %30.1lf%30.1lf"%( xlss, norm ) )
-        nfun = 0
-        it = 0
-        while( it < step_number and nfun < max_tries ):
-            if( - numpy.dot( velo, grad ) > 0.0 ):
-                if( nstp > dstp ):
-                    ssiz = min( ssiz * 1.1, step_size )
-                    alph *= 0.99
-                nstp += 1
-            else:
-                alph = 0.1
-                ssiz *= 0.5
-                nstp = 0
-                step = ssiz * velo
-                tmp  = math.sqrt( numpy.dot( step, step ) )
-                if( tmp > ssiz ):
-                    step *= ssiz / tmp
-                coor -= 0.5 * step
-                velo = numpy.zeros( size )
-            velo -= ssiz * grad
-            if( - numpy.dot( velo, grad ) > 0.0 ):
-                vsiz = math.sqrt( numpy.dot( velo, velo ) )
-                velo = ( 1.0 - alph ) * velo - alph * grad / norm * vsiz
-            step = ssiz * velo
-            tmp  = math.sqrt( numpy.dot( step, step ) )
-            if( tmp > ssiz ):
-                step *= ssiz / tmp
-            coor += step
-            tmp = 0
-            for j in range( len( shap ) ):
-                dsp = shap[j][0] * shap[j][1]
-                self.coef[j] = coor[tmp:tmp+dsp].reshape( shap[j] )
-                tmp += dsp
-            loss, grad = self.__grad( iset, oset )
-            norm = math.sqrt( numpy.dot( grad, grad ) )
-            nfun += loss >= last
-            last = loss
-            print( "%10d%30.1lf%30.1lf%30.1lf"%( it, loss, norm, loss - xlss ) )
-            if( loss < xlss ):
-                xlss = loss
-                xcof = [ m.copy() for m in self.coef ]
-                nfun = 0
-            it += 1
+        print( "%10d%30.1lf%30.1lf%30.1lf"%( it, loss, norm, loss - xlss ) )
         self.coef = xcof
         return( xlss )
 
@@ -211,13 +145,11 @@ class model( object ):
         print( "cutoff    : %.1lf x %d = %.1lf"%( loss_tolerance, dim, tol ) )
         print( "population: %d"%( population ) )
         acc = 0
-        x_loss = self.__fire( iset, oset, step_size = 0.01, step_number = 2000 )
-#        print( 100 * "-" )
+        x_loss = self.__fire( iset, oset, step_size = 0.01, step_number = 1000 )
         x_coef = [ m.copy() for m in self.coef ]
         while( acc < population ):
             self.__random()
-            loss = self.__fire( iset, oset, step_size = 0.01, step_number = 2000 )
-#            print( 100 * "-" )
+            loss = self.__fire( iset, oset, step_size = 0.01, step_number = 1000 )
             if( loss < tol ):
                 acc += 1
                 if( loss < x_loss ):
