@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+import  os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+import  math
+import	qm3.mol
+import	qm3.engines.ml_model
+import	qm3.maths.matrix
+import  time
+import  io
+
+m = qm3.mol.molecule()
+f = io.StringIO( """26
+
+C           2.9428621029       -1.6780692122       -2.7662813384
+C           2.7381510985       -3.0384376736       -3.2487059360
+C           3.6644181223       -3.6254448615       -4.0463651944
+C           4.9143771590       -2.9029238676       -4.4821523379
+O           4.7570184592       -2.4114752157       -5.8292768960
+C           5.3069275922       -1.6724416661       -3.6525619746
+C           4.1297618432       -1.0411696890       -2.9611317350
+O           6.4175315788       -1.9399267240       -2.8029018680
+C           6.3692645771       -2.2167582380       -1.4612395432
+C           6.7196999416       -1.3143209989       -0.5073888105
+C           1.9020069025       -0.9482909517       -1.9821854090
+O           2.0087151250        0.1999902990       -1.5944938269
+O           0.7893906760       -1.6778171494       -1.7799778636
+C           6.2097872266       -3.6781380229       -1.0496626205
+O           5.9134850014       -4.0317061478        0.0786863473
+O           6.4860700460       -4.5487990666       -2.0559297726
+H           5.7704039543       -3.6038623297       -4.4372092113
+H           4.4982503906       -3.1561853954       -6.4043047470
+H           5.7312471882       -0.9494917400       -4.3735814141
+H           6.8934024673       -0.2590579758       -0.7560201355
+H           6.8260126521       -1.6339691573        0.5269004921
+H           1.8155931194       -3.5580764122       -2.9734838367
+H           3.5106816193       -4.6472487550       -4.4145652569
+H           4.2642381874       -0.0327550965       -2.5471437903
+H           0.1991798957       -1.1042381412       -1.2319602009
+H           6.4354714605       -5.4451496576       -1.6696685096
+""" )
+m.xyz_read( f )
+
+o = qm3.engines.ml_model.delta_coul( None, m, list( range( m.natm ) ) )
+qm3.engines.ml_model.ml_info_so = False
+t1 = time.time()
+r1 = o.get_info( m )
+t1 = time.time() - t1
+qm3.engines.ml_model.ml_info_so = True
+t2 = time.time()
+r2 = o.get_info( m )
+t2 = time.time() - t2
+print( "i_coul:%12.6lf%12.6lf%12.6lf"%( sum( [ math.fabs( i-j ) for i,j in zip( r1, r2 )  ] ), t1, t2 ) )
+
+o = qm3.engines.ml_model.delta_rada( None, m, list( range( m.natm ) ) )
+o.setup( m )
+qm3.engines.ml_model.ml_info_so = False
+t1 = time.time()
+r1 = o.get_info( m )
+t1 = time.time() - t1
+qm3.engines.ml_model.ml_info_so = True
+t2 = time.time()
+r2 = o.get_info( m )
+t2 = time.time() - t2
+print( "i_rada:%12.6lf%12.6lf%12.6lf"%( sum( [ math.fabs( i-j ) for i,j in zip( r1, r2 )  ] ), t1, t2 ) )
+
+o = qm3.engines.ml_model.delta_acsf( None, m, list( range( m.natm ) ) )
+o.setup()
+qm3.engines.ml_model.ml_info_so = False
+t1 = time.time()
+r1 = o.get_info( m )
+t1 = time.time() - t1
+qm3.engines.ml_model.ml_info_so = True
+t2 = time.time()
+r2 = o.get_info( m )
+t2 = time.time() - t2
+print( "i_acsf:%12.6lf%12.6lf%12.6lf"%( sum( [ math.fabs( i-j ) for i,j in zip( r1, r2 )  ] ), t1, t2 ) )
+
+o = qm3.engines.ml_model.delta_coul( qm3.engines.ml_model.tf_model( "test.ml_model.h5" ), m, list( range( m.natm ) ) )
+
+m.func = 0.0
+m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
+t1 = time.time()
+o.num_grad( m )
+t1 = time.time() - t1
+print( m.func )
+qm3.maths.matrix.mprint( m.grad, m.natm, 3 )
+r1 = m.grad[:]
+
+m.func = 0.0
+m.grad = [ 0.0 for i in range( 3 * m.natm ) ]
+t2 = time.time()
+o.get_grad( m )
+t2 = time.time() - t2
+print( m.func )
+qm3.maths.matrix.mprint( m.grad, m.natm, 3 )
+r2 = m.grad[:]
+print( "g_coul:%12.6lf%12.6lf%12.6lf"%( sum( [ math.fabs( i-j ) for i,j in zip( r1, r2 )  ] ), t1, t2 ) )
+print( "%20.10lf"%( sum( [ i / j for i,j in zip( r1, r2 )  ] ) / len( r1 ) ) )

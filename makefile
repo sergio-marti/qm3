@@ -1,7 +1,7 @@
 include config
 
 
-all: matrix minimize cions volume colvar_v mmint mol_mech ode fitpack grids dynamo shm conn dcd mopac.so
+all: matrix minimize cions volume colvar_v mmint ml_info mol_mech ode fitpack grids dynamo shm conn dcd mopac.so
 
 
 dcd:
@@ -54,6 +54,10 @@ long_elec:
 
 mmint:
 	$(PYX) setup/mmint build_ext --build-lib qm3/engines
+
+
+ml_info:
+	$(PYX) setup/ml_info build_ext --build-lib qm3/engines
 
 
 mol_mech:
