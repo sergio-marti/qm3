@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /Users/smarti/Applications/Pygments-2.2.0/rc
+source /Users/smarti/Applications/pygments/rc
 
 for ff in src.*; do
 	./parser.py $ff
