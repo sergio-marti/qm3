@@ -16,6 +16,7 @@ cs = qm3.maths.interpolation.cubic_spline( x, y )
 ss = qm3.maths.interpolation.hermite_spline( x, y, "steffen" )
 aa = qm3.maths.interpolation.hermite_spline( x, y, "akima" )
 fc = qm3.maths.interpolation.hermite_spline( x, y, "fritsch_carlson" )
+ai = qm3.maths.interpolation.aitken( x, y )
 
 r = 3.05
 print( "Real:     ", r, math.sin( r ), math.cos( r ) )
@@ -25,6 +26,8 @@ print( "CSpline:  ", cs.calc( r ) )
 print( "Steffen:  ", ss.calc( r ) )
 print( "Akima:    ", aa.calc( r ) )
 print( "Fritsch.C:", fc.calc( r ) )
+print( "Atiken-P3:", ai.calc( r ) )
+ai.calc( r )
 print( 80*'-' )
 
 r = ( x[0] + x[1] ) * 0.5
@@ -35,6 +38,7 @@ print( "CSpline:  ", cs.calc( r ) )
 print( "Steffen:  ", ss.calc( r ) )
 print( "Akima:    ", aa.calc( r ) )
 print( "Fritsch.C:", fc.calc( r ) )
+print( "Atiken-P3:", ai.calc( r ) )
 print( 80*'-' )
 
 r = ( x[-1] + x[-2] ) * 0.5
@@ -45,6 +49,7 @@ print( "CSpline:  ", cs.calc( r ) )
 print( "Steffen:  ", ss.calc( r ) )
 print( "Akima:    ", aa.calc( r ) )
 print( "Fritsch.C:", fc.calc( r ) )
+print( "Atiken-P3:", ai.calc( r ) )
 
 n = 10
 x = [ -1 + i * 2.0/(n-1.0) for i in range( n ) ]

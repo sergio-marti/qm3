@@ -168,6 +168,60 @@ class lagrange( object ):
 
 
 
+class aitken( object ):
+
+    def __init__( self, x, y ):
+        self.n = len( x )
+        self.x = []
+        self.y = []
+        for i,j in sorted( [ ( x[k], y[k] ) for k in range( self.n ) ] ):
+            self.x.append( i )
+            self.y.append( j )
+
+
+    def calc( self, rx ):
+        i  = find_center( rx, self.x )
+        # -----------------------------------------------
+        if( i < 1 ):
+            x = self.x[0:4]
+            y = self.y[0:4]
+        elif( i > self.n - 3 ):
+            x = self.x[-4:]
+            y = self.y[-4:]
+        else:
+            x = self.x[i-1:i+3]
+            y = self.y[i-1:i+3]
+        # -----------------------------------------------
+        x0s  = x[0] * x[0]
+        x1s  = x[1] * x[1]
+        x2s  = x[2] * x[2]
+        x3s  = x[3] * x[3]
+        dx01 = x[0] - x[1]
+        dx02 = x[0] - x[2]
+        dx03 = x[0] - x[3]
+        dx12 = x[1] - x[2]
+        dx13 = x[1] - x[3]
+        dx23 = x[2] - x[3]
+        den  = dx01 * dx02 * dx03 * dx12 * dx13 * dx23
+        dy01 = y[0] - y[1]
+        dy02 = y[0] - y[2]
+        dy03 = y[0] - y[3]
+        dy12 = y[1] - y[2]
+        dy13 = y[1] - y[3]
+        dy23 = y[2] - y[3]
+        # -----------------------------------------------
+        a0  = x[0] * dx02 * x[2] * dx03 * dx23 * x[3] * y[1] + x1s * x[1] * ( x[0] * dx03 * x[3] * y[2] + x2s * ( x[0] * y[3] - x[3] * y[0] ) + x[2] * ( x3s * y[0] - x0s * y[3] ) ) + x[1] * ( x0s * dx03 * x3s *y[2] + x2s * x[2] * ( x0s * y[3] - x3s * y[0] ) + x2s * ( x3s * x[3] * y[0] - x0s * x[0] * y[3] ) ) + x1s * ( x[0] * x[3] *( x3s - x0s ) * y[2] + x2s * x[2] * ( x[3] * y[0] - x[0] * y[3] ) + x[2] * ( x0s * x[0] * y[3] - x3s * x[3] * y[0] ) )
+        a1 = x0s * dx03 * x3s * dy12 + x2s * x[2] * ( x3s * dy01 + x0s * dy13 ) + x1s * ( x3s * x[3] * dy02 + x0s * x[0] * dy23 - x2s * x[2] * dy03 ) - x2s * ( x3s * x[3] * dy01 + x0s * x[0] * dy13 ) + x1s * x[1] * ( - x3s * dy02 + x2s * dy03 - x0s * dy23 )
+        a2 = - x[0] * x[3] * ( x0s - x3s ) * dy12 + x[2] * ( x3s * x[3] * dy01 + x0s * x[0] * dy13 ) + x1s * x[1] * ( x[3] * dy02 + x[0] * dy23 - x[2] * dy03 ) - x2s * x[2] * ( x[3]* dy01 + x[0] * dy13 ) + x[1] * ( - x3s * x[3] * dy02 + x2s * x[2] * dy03 - x0s * x[0] * dy23 )
+        
+        a3 = x[0] * dx03 * x[3] * dy12 + x2s * ( x[3] * dy01 + x[0] * dy13 ) + x[1] * ( x3s * dy02 + x0s * dy23 - x2s * dy03 ) - x[2] * ( x3s * dy01 + x0s * dy13 ) + x1s * ( - x[3] * dy02 + x[2] * dy03 - x[0] * dy23 )
+        # -----------------------------------------------
+        ry = ( a0 + rx * ( a1 + rx * ( a2 + rx * a3 ) ) ) / den
+        dy = ( a1 + rx * ( 2.0 * a2 + 3.0 * rx * a3 ) ) / den
+        return( ry, dy )
+
+
+
 class cubic_spline( object ):
 
     def __init__( self, x, y ):
