@@ -69,7 +69,6 @@ static struct PyMethodDef methods [] = {
 };
 
 
-#if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef moddef = {
     PyModuleDef_HEAD_INIT,
     "_grids",
@@ -83,9 +82,3 @@ PyMODINIT_FUNC PyInit__grids( void ) {
     my_module = PyModule_Create( &moddef );
     return( my_module );
 }
-#else
-void init_grids( void ) {
-    PyObject    *my_module;
-    my_module = Py_InitModule( "_grids", methods );
-}
-#endif

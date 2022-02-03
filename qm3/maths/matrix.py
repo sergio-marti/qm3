@@ -1,9 +1,4 @@
 # -*- coding: iso-8859-1 -*-
-
-from __future__ import print_function, division
-import sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
 import math
 
 
@@ -256,6 +251,7 @@ def solve( mat, vec, eps = 1.e-14 ):
 
 
 try:
+    import numpy
     def np_jacobi( mat, maxit = 10000, epsi = 1.e-10 ):
         siz = len( mat ) 
         val = mat.copy()

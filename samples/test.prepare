@@ -5,11 +5,8 @@ import qm3.constants
 import qm3.utils
 import os
 import sys
+import io
 
-try:
-    import cStringIO as io
-except:
-    import io
 
 f = io.StringIO( """ATOM      1  N   NH3     1       0.040   0.029  -0.171  0.00  0.00      A   
 ATOM      2  H1  NH3     1       0.917  -0.069  -0.589  0.00  0.00      A   

@@ -7,10 +7,7 @@ import    qm3.engines.dftb
 import    qm3.actions.minimize
 import    pickle
 import    os
-try:
-    import    cStringIO as io
-except:
-    import    io
+import    io
 
 
 #qm3.engines.mol_mech.mol_mech_so = False

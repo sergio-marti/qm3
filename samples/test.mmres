@@ -1,9 +1,6 @@
 import qm3.mol
 import qm3.engines.mmres
-try:
-    import cStringIO as io
-except:
-    import io
+import io
 import qm3.maths.matrix
 
 f = io.StringIO( """4

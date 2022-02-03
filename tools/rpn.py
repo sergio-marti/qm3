@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: iso-8859-1 -*-
-
-from __future__ import print_function, division
-import	sys
-if( sys.version_info[0] == 2 ):
-	range = xrange
 import  re
 import  math
 
@@ -224,10 +219,7 @@ def calc( text ):
 
 
 if( __name__ == "__main__" ):
-	try:
-		import	Tkinter as tkinter
-	except:
-		import	tkinter
+	import	tkinter
 
 	def cback( evnt ):
 		global	stack, formt, stk, cmd

@@ -1,9 +1,4 @@
 # -*- coding: iso-8859-1 -*-
-
-from __future__ import print_function, division
-import sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
 import math
 import qm3.maths.rand
 import qm3.maths.matrix
@@ -61,6 +56,11 @@ def pearson( x, y ):
 # The value of the sampling ratio that arises from any given data sequence is the factor 
 # by which the number of configurations sampled must be increased in order to obtain the
 # same precision that would result from randomly distributed data points.
+# -----------------------
+#r_1 = { sum from{2} to{N} { (x_i - langle x rangle ) (x_{i-1} - langle x rangle ) } } over{ sum { (x - langle x rangle )^2} }
+# = { sum from{2} to{N}{ x_i cdot x_{i-1}} + langle x rangle ( x_1 + x_N ) - langle x rangle ^2 ( 1 + N ) } over { N langle x^2 rangle - N langle x rangle^2 }
+#~~~~ 1 + 2 %tau = { 1 + r_1 } over { 1 - r_1 }
+# -----------------------
 def sampling_ratio( v ):
     n = len( v )
     m = sum( v ) / float( n )
@@ -68,7 +68,19 @@ def sampling_ratio( v ):
     for i in range( 1, n ):
         o += ( v[i] - m ) * ( v[i-1] - m )
     o /= sum( [ (i-m)*(i-m) for i in v ] )
+#    n = len( v )
+#    m = v[0]
+#    r = v[0] * v[0]
+#    s = 0.0
+#    for i in range( 1, n ):
+#        m += v[i]
+#        r += v[i] * v[i]
+#        s += v[i] * v[i-1]
+#    m /= n
+#    r /= n
+#    o = ( s + m * ( v[0] + v[-1] ) - m * m * ( 1 + n ) ) / ( n * ( r - m * m ) )
     return( ( 1.0 + o ) / ( 1.0 - o ) )
+
 
 
 

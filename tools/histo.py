@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import  sys
 import  qm3.mol
 import  qm3.fio.dcd

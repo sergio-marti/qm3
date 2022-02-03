@@ -1,11 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: iso-8859-1 -*-
-
-from __future__ import print_function, division
+#!/usr/bin/env python3
 import	sys
-if( sys.version_info[0] == 2 ):
-	range = xrange
-
 import	os
 import	math
 import	qm3.mol

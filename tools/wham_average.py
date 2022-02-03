@@ -1,10 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: iso-8859-1 -*-
-
-from __future__ import print_function, division
 import    sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
 import    math
 import    qm3.constants
 import    qm3.maths.rand

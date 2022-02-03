@@ -2,10 +2,6 @@
 
 # Message Socket interface
 
-from __future__ import print_function, division
-import sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
 import socket
 import struct
 import time

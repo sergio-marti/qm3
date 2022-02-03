@@ -173,7 +173,6 @@ static struct PyMethodDef methods [] = {
 
 
 
-#if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef moddef = {
     PyModuleDef_HEAD_INIT,
     "_ode",
@@ -187,9 +186,3 @@ PyMODINIT_FUNC PyInit__ode( void ) {
     my_module = PyModule_Create( &moddef );
     return( my_module );
 }
-#else
-void init_ode( void ) {
-    PyObject	*my_module;
-    my_module = Py_InitModule( "_ode", methods );
-}
-#endif

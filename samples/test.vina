@@ -1,9 +1,6 @@
 import qm3.mol
 import qm3.actions.vina
-try:
-    import cStringIO as io
-except:
-    import io
+import io
 
 f = io.StringIO( """
 ATOM      1  OH2 HOH     1       0.121   0.069  -0.225  0.00  0.00      W   

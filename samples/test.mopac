@@ -3,10 +3,7 @@ import qm3.mol
 import qm3.problem
 import qm3.engines.mopac
 import qm3.maths.matrix
-try:
-  import cStringIO as io
-except:
-  import io
+import io
 
 
 os.environ["QM3_LIBMOPAC"] = "./bin/mopac.so"

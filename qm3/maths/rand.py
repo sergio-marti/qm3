@@ -1,11 +1,4 @@
 # -*- coding: iso-8859-1 -*-
-
-from __future__ import print_function, division
-import sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
-
-
 import random as py_random
 import os
 import struct

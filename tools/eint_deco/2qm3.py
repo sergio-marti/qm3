@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import  pickle
 import  qm3.mol
 import  qm3.engines.sander

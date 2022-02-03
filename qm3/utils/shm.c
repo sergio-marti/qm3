@@ -46,11 +46,7 @@ static PyObject* __read( PyObject *self, PyObject *args ){
 
     if( PyArg_ParseTuple( args, "ii", &xid, &siz ) ) {
     	mem = (char*) shmat( xid, 0, 0 );
-#if PY_MAJOR_VERSION >= 3
     	out = Py_BuildValue( "y#", (unsigned char*) mem, siz );
-#else
-    	out = Py_BuildValue( "s#", mem, siz );
-#endif
     	shmdt( mem );
     	return( out );
     }
@@ -117,7 +113,6 @@ static struct PyMethodDef methods [] = {
 };
 
 
-#if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef moddef = {
     PyModuleDef_HEAD_INIT,
     "_shm",
@@ -131,9 +126,3 @@ PyMODINIT_FUNC PyInit__shm( void ) {
     my_module = PyModule_Create( &moddef );
     return( my_module );
 }
-#else
-void init_shm( void ) {
-    PyObject    *my_module;
-    my_module = Py_InitModule( "_shm", methods );
-}
-#endif

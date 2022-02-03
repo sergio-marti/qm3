@@ -3,11 +3,6 @@
 #    http://es.wikipedia.org/wiki/Método_de_Romberg
 #    http://en.wikipedia.org/wiki/Simpson%27s_rule
 #
-
-from __future__ import print_function, division
-import sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
 import math
 
 

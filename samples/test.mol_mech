@@ -2,11 +2,7 @@ import qm3.mol
 import qm3.engines.mol_mech
 import qm3.maths.matrix
 import qm3.actions.minimize
-
-try:
-    import cStringIO as io
-except:
-    import io
+import io
 
 f = io.StringIO( """21
 

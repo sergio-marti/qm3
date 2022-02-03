@@ -1,9 +1,6 @@
 import qm3.maths.grids
-try:
-    import cStringIO as io
-except:
-    import io
-import  random
+import io
+import random
 
 random.seed()
 nx = 40

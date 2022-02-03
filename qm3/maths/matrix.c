@@ -133,7 +133,6 @@ static struct PyMethodDef methods [] = {
 
 
 
-#if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef moddef = {
     PyModuleDef_HEAD_INIT,
     "_matrix",
@@ -151,13 +150,3 @@ PyMODINIT_FUNC PyInit__matrix( void ) {
     Py_DECREF( t );
     return( my_module );
 }
-#else
-void init_matrix( void ) {
-    PyObject	*my_module, *d, *t;
-    my_module = Py_InitModule( "_matrix", methods );
-    d = PyModule_GetDict( my_module );
-    t = PyString_FromString( MCORE );
-    PyDict_SetItemString( d, "version", t );
-    Py_DECREF( t );
-}
-#endif

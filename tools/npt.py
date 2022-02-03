@@ -1,10 +1,5 @@
 # -*- coding: iso-8859-1 -*-
-
-
-from __future__ import print_function, division
 import	sys
-if( sys.version_info[0] == 2 ):
-	range = xrange
 import	math
 import	qm3.actions.dynamics
 import	qm3.utils
@@ -19,7 +14,7 @@ class leapfrog_verlet( object ):
 							pressure = 1.0,
 							pressure_coupling = 1.0,
 							print_frequency = 100,
-							project_RT = True,
+							project = True,
 							step_number = -1,
 							log_function = qm3.actions.dynamics.default_log ):
 		self.obj = obj
@@ -27,7 +22,7 @@ class leapfrog_verlet( object ):
 		self.temperature = temperature
 		self.pressure = pressure
 		self.print_frequency = print_frequency
-		self.project_RT = project_RT
+		self.project = project
 		self.log_function = log_function
 
 		self.log_function( "---------------------------------------- Dynamics: Leapfrog-Verlet (NpT, Berendsen)\n" )
@@ -54,10 +49,14 @@ class leapfrog_verlet( object ):
 			i3 = i * 3
 			for j in [0, 1, 2]:
 				self.vacc.append( - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0 )
-		if( self.project_RT ):
-			qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.vacc, None )
+		if( self.project ):
+#			qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.vacc, None )
+            for i in [0, 1, 2]:
+                t = qm3.maths.matrix.dot_product( self.obj.prjT[i], self.vacc )
+                for j in range( self.obj.size ):
+                    self.vacc[j] -= t * self.obj.prjT[i][j]
 		func = self.obj.func
-		self.T, self.Kin = qm3.actions.dynamics.current_temperature( self.obj, self.project_RT )
+		self.T, self.Kin = qm3.actions.dynamics.current_temperature( self.obj, self.project )
 		self.volu = self.obj.boxl[0] * self.obj.boxl[1] * self.obj.boxl[2]
 		self.pres = ( 2.0 * self.Kin / self.volu - self.__potential_vs_volume() ) / self.obj.size * self.pcnv 
 		self.log_function( "%20.5lf%20.5lf%20.5lf%20.5lf%20.5lf%20.5lf%20.5lf"%( 0.0, func, self.Kin, self.obj.func + self.Kin, self.T, self.pres, self.volu ) )
@@ -108,12 +107,12 @@ class leapfrog_verlet( object ):
 		for i in range( self.obj.size ):
 			self.obj.velo[i] += self.step_size * self.vacc[i]
 		# scale temperature
-		self.T, self.Kin = qm3.actions.dynamics.current_temperature( self.obj, self.project_RT )
+		self.T, self.Kin = qm3.actions.dynamics.current_temperature( self.obj, self.project )
 		scv = math.sqrt( 1.0 + self.tc * ( self.temperature / self.T - 1.0 ) )
 		scv = min( max( scv, 0.9 ), 1.1 )
 		for i in range( self.obj.size ):
 			self.obj.velo[i] *= scv
-		self.T, self.Kin = qm3.actions.dynamics.current_temperature( self.obj, self.project_RT )
+		self.T, self.Kin = qm3.actions.dynamics.current_temperature( self.obj, self.project )
 		# update coordinates
 		for i in range( self.obj.size ):
 			self.obj.coor[i] += self.step_size * self.obj.velo[i]
@@ -132,8 +131,12 @@ class leapfrog_verlet( object ):
 			i3 = i * 3
 			for j in [0, 1, 2]:
 				self.vacc.append( - self.obj.grad[i3+j] / self.obj.mass[i] * 100.0 )
-		if( self.project_RT ):
-			qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.vacc, None )
+		if( self.project ):
+#			qm3.utils.project_RT_modes( self.obj.mass, self.obj.coor, self.vacc, None )
+            for i in [0, 1, 2]:
+                t = qm3.maths.matrix.dot_product( self.obj.prjT[i], self.vacc )
+                for j in range( self.obj.size ):
+                    self.vacc[j] -= t * self.obj.prjT[i][j]
 		# stats
 		self.xavr[0] += self.obj.func
 		self.xavr[1] += self.Kin
@@ -282,10 +285,10 @@ if( __name__ == "__main__" ):
 #	obj.xyz_write( "xyz" )
 	
 	obj.xyz_read( "xyz" )
-	qm3.actions.dynamics.assign_velocities( obj, 80.0, project_RT = True )
+	qm3.actions.dynamics.assign_velocities( obj, 80.0, project = True )
 	obj.flg = True
 	
 	leapfrog_verlet( obj, step_size = 0.001, temperature = 80.0, pressure_coupling = 1.0,
-		print_frequency = 1, project_RT = True, step_number = 10000 )
+		print_frequency = 1, project = True, step_number = 10000 )
 	obj.dcd.close()
 	print( obj.boxl, "_A" )

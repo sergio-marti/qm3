@@ -8,11 +8,6 @@ http://en.wikipedia.org/wiki/Cooley–Tukey_FFT_algorithm
 http://en.wikipedia.org/wiki/Discrete_Fourier_transform
 http://es.wikipedia.org/wiki/Transformada_de_Fourier_discreta
 """
-
-from __future__ import print_function, division
-import sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
 import math
 import qm3.maths.integration
 import qm3.maths.interpolation

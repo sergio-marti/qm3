@@ -5,10 +5,6 @@
 # https://en.wikipedia.org/wiki/Verlet_integration#Velocity_Verlet
 # https://en.wikipedia.org/wiki/Midpoint_method
 
-from __future__ import print_function, division
-import sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
 import math
 
 try:

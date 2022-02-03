@@ -1,18 +1,10 @@
 # -*- coding: iso-8859-1 -*-
-
-from __future__ import print_function, division
-import sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
 import os
 import math
 import qm3.constants
 import qm3.fio
 import qm3.utils
-try:
-    import cPickle as pickle
-except:
-    import pickle
+import pickle
 
 
 

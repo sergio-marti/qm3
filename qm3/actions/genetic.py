@@ -1,18 +1,10 @@
 # -*- coding: iso-8859-1 -*-
-
-from __future__ import print_function, division
 import sys
-if( sys.version_info[0] == 2 ):
-        range = xrange
 import math
 import qm3.maths.rand
 import qm3.utils.queue
 import threading
-
-try:
-    import cPickle as pickle
-except:
-    import pickle
+import pickle
 
 
 def default_log( txt ):

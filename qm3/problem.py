@@ -1,12 +1,5 @@
 # -*- coding: iso-8859-1 -*-
 
-from __future__ import print_function, division
-import sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
-
-
-
 class template( object ):
     """
     Interface class for generic problem (energy/gradient/hessian)

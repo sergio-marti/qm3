@@ -71,11 +71,7 @@ static PyObject* __send_i4( PyObject *self, PyObject *args ) {
     if( PyArg_ParseTuple( args, "iO", &who, &o_dat ) ) {
     	siz = (int) PyList_Size( o_dat );
     	r_dat = (int*) malloc( siz * sizeof( int ) );
-#if PY_MAJOR_VERSION >= 3
     	for( i = 0; i < siz; i++ ) r_dat[i] = (int) PyLong_AsSize_t( PyList_GetItem( o_dat, i ) );
-#else
-    	for( i = 0; i < siz; i++ ) r_dat[i] = (int) PyInt_AsSsize_t( PyList_GetItem( o_dat, i ) );
-#endif
     	MPI_Send( r_dat, siz, MPI_INTEGER, who, 0, MPI_COMM_WORLD );
     	free( r_dat );
     }
@@ -94,11 +90,7 @@ static PyObject* __recv_i4( PyObject *self, PyObject *args ) {
     	r_dat = (int*) malloc( siz * sizeof( int ) );
     	MPI_Recv( r_dat, siz, MPI_INTEGER, who, MPI_ANY_TAG, MPI_COMM_WORLD, &sts );
     	o_dat = PyList_New( siz );
-#if PY_MAJOR_VERSION >= 3
     	for( i = 0; i < siz; i++ ) PyList_SetItem( o_dat, i, PyLong_FromSize_t( r_dat[i] ) );
-#else
-    	for( i = 0; i < siz; i++ ) PyList_SetItem( o_dat, i, PyInt_FromSsize_t( r_dat[i] ) );
-#endif
     	free( r_dat );
     	return( o_dat );
     } else { Py_INCREF( Py_None ); return( Py_None ); }
@@ -117,7 +109,6 @@ static struct PyMethodDef methods [] = {
 };
 
 
-#if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef moddef = {
     PyModuleDef_HEAD_INIT,
     "_mpi",
@@ -131,9 +122,3 @@ PyMODINIT_FUNC PyInit__mpi( void ) {
     my_module = PyModule_Create( &moddef );
     return( my_module );
 }
-#else
-void init_mpi( void ) {
-    PyObject    *my_module;
-    my_module = Py_InitModule( "_mpi", methods );
-}
-#endif

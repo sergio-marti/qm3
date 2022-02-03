@@ -1,22 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: iso-8859-1 -*-
-from __future__ import print_function, division
 import  sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
-
 import  os
 import  time
-
-try:
-    import cPickle as pickle
-except:
-    import pickle
-try:
-    import cStringIO as io
-except:
-    import io
-
+import  pickle
+import  io
 import  qm3.mol
 import  qm3.problem
 import  qm3.engines.sqm

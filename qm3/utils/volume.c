@@ -466,7 +466,6 @@ static struct PyMethodDef methods [] = {
 };
 
 
-#if PY_MAJOR_VERSION >= 3
 static struct PyModuleDef moddef = {
     PyModuleDef_HEAD_INIT,
     "_volume",
@@ -480,9 +479,3 @@ PyMODINIT_FUNC PyInit__volume( void ) {
     my_module = PyModule_Create( &moddef );
     return( my_module );
 }
-#else
-void init_volume( void ) {
-    PyObject    *my_module;
-    my_module = Py_InitModule( "_volume", methods );
-}
-#endif

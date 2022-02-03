@@ -1,18 +1,11 @@
 # -*- coding: iso-8859-1 -*-
-
-from __future__ import print_function, division
 import sys
-if( sys.version_info[0] == 2 ):
-    range = xrange
 import os
 import math
 import socket
 import struct
 import qm3.engines
-try:
-    import cStringIO as io
-except:
-    import io
+import io
 
 
 
