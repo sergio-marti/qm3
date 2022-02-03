@@ -42,7 +42,8 @@ static PyObject* __clean( PyObject *self, PyObject *args ){
 
 static PyObject* __read( PyObject *self, PyObject *args ){
     PyObject	*out;
-    int			xid, siz;
+    int			xid;
+	Py_ssize_t	siz;
     char		*mem;
 
     if( PyArg_ParseTuple( args, "ii", &xid, &siz ) ) {
@@ -57,10 +58,11 @@ static PyObject* __read( PyObject *self, PyObject *args ){
 
 
 static PyObject* __write( PyObject *self, PyObject *args ){
-    int		i, xid, siz;
-    char	*buf, *mem;
+    int			i, xid;
+	Py_ssize_t	siz;
+    char		*buf, *mem;
 
-    if( PyArg_ParseTuple( args, "is#", &xid, &buf, &siz ) ) {
+    if( PyArg_ParseTuple( args, "iy#", &xid, &buf, &siz ) ) {
     	mem = (char*) shmat( xid, 0, 0 );
     	for( i = 0; i < siz; i++ ) mem[i] = buf[i];
     	shmdt( mem );
