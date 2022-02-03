@@ -16,7 +16,7 @@ f.close()
 
 pdb = parmed.load_file( "pdb" )
 pdb.box = [ 100, 100, 100, 90., 90., 90. ]
-parmed.write_PDB( pdb, "pdb" )
+pdb.write_pdb( "pdb" )
 
 f = open( "top.rtf", "wt" )
 f.write( """* Topology File.
