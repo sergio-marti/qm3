@@ -233,6 +233,7 @@ def fire( obj,
     obj.get_grad()
     qfun = True
     norm, grms = __grms( obj.grad )
+    log_function( "%10s%20.5lf%20.8lf"%( "", obj.func, grms ) )
     i = 0
     while( i < step_number and grms > gradient_tolerance and qfun ):
         if( - sum( [ velo[j] * obj.grad[j] for j in range( obj.size ) ] ) > 0.0 ):
