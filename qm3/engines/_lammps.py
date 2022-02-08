@@ -68,10 +68,10 @@ def lammps_read( fname = None ):
 
 
 
-sys.path.insert( 0, os.getenv( "QM3_LAMMPS" ) )
 try:
     import lammps as x_lammps
-    class py_lammps( object ):
+
+    class qm3_lammps( object ):
         def __init__( self, inp, name = "serial", cmdargs = [ "-sc", "none" ] ):
             self.lmp = x_lammps.lammps( name, cmdargs )
             self.lmp.file( inp )

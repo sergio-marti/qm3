@@ -138,7 +138,7 @@ qm3.maths.matrix.mprint( mol.grad, mol.natm, 3 )
 eng.stop()
 
 print( 80*"-" )
-eng = qm3.engines._lammps.py_lammps( "lammps.inp" )
+eng = qm3.engines._lammps.qm3_lammps( "lammps.inp" )
 mol.func = 0
 mol.grad = [ 0 for i in range( 3 * mol.natm ) ]
 eng.get_grad( mol )

@@ -1,5 +1,5 @@
 import qm3.mol
-import qm3.engines.openmm
+import qm3.engines._openmm
 import qm3.maths.matrix
 
 import openmm
@@ -10,7 +10,7 @@ mol = qm3.mol.molecule( "pdb" )
 prm = openmm.app.ForceField( "prm.xml" )
 psf = openmm.app.CharmmPsfFile( "psf" )
 omm = prm.createSystem( psf.topology, nonbondedMethod = openmm.app.CutoffNonPeriodic, nonbondedCutoff = 6. * openmm.unit.angstrom, rigidWater = False )
-eng = qm3.engines.openmm.py_openmm( omm, psf.topology, [0, 1, 2] )
+eng = qm3.engines._openmm.qm3_openmm( omm, psf.topology, [0, 1, 2] )
 mol.chrg = [ .0, .0, .0, -0.834, 0.417, 0.417 ] 
 eng.update_chrg( mol )
 mol.func = 0.0

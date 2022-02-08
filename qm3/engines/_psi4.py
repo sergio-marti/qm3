@@ -10,16 +10,25 @@ import qm3.engines
 #
 # Set environment variable: PSI_SCRATCH
 #
-sys.path.insert( 0, os.getenv( "QM3_PSI4" ) )
 try:
     import psi4
 
-    class py_psi4( object ):
+    options = { "reference": "rks",
+                "basis": "6-31g*",
+                "d_convergence": 6,
+                "scf_type": "direct",
+                "guess": "read",
+                "output": False,
+                "charge": 0,
+                "method": "b3lyp",
+                "ncpus": 1,
+                "memory": "4096 MB" }
+
+    class qm3_psi4( object ):
 
         def __init__( self, mol, opts, sele, nbnd = [], link = [] ):
             """
-        opts = { "reference": "rks", "basis": "6-31g*", "d_convergence": 6, "scf_type": "direct", "guess": "read",
-                "output": False, "charge": 0, "method": "b3lyp", "ncpus": 1, "memory": "1024 MB" }
+        opts = 
             """
             self._ce = qm3.constants.H2J
             self._cg = self._ce / qm3.constants.A0
