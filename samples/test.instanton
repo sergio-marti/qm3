@@ -129,7 +129,7 @@ class my_model( qm3.actions.ring_polymer.model ):
         qm3.actions.ring_polymer.model.__init__( self, molec )
         self.sele = list( range( molec.natm ) )
         self.size = 3 * len( self.sele )
-        self.eqm = qm3.engines.mopac.dl_mopac( molec, "AM1", 0, 1, self.sele )
+        self.eqm = qm3.engines.mopac.run_dynlib( molec, "AM1", 0, 1, self.sele )
 
     def get_grad( self, molec ):
         molec.func = 0.0

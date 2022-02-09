@@ -1,0 +1,20 @@
+\normalsize
+\subsection[mopac]{mopac.py}
+This module allows to use the MOPAC package (isolated from fDynamo\footnote{https://sites.google.com/site/pdynamomodeling/fdynamo-2.2.tgz?attredirects=0}) as a QM engine.\\
+It is compiled as a library (mopac.so, set \textbf{QM3\_LIBMOPAC} environment variable) so it can be accessed via ctypes (\func{run\_dynlib}).
+The available semi-empirical Hamiltonians are: MNDO, AM1, RM1, PM3, and PDDG.\\
+Since the density matrix remains in memory, it can be used to perform a 0SCF calculation by setting the \parm{maxit} parameter to \textbf{0}.
+In addition, allows to use a force-switch function for the QM/MM interactions (set parameters \parm{con} and \parm{cof}).
+\begin{pyglist}[language=python,fvset={frame=single}]
+class run_dynlib( mol, meth, chrg, mult, sele, nbnd = [], link = [], con = -1, cof = -1 )
+    def get_func( mol, maxit = 200 )
+    def get_grad( mol, maxit = 200 )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.xtb
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.xtb.log
+\end{pyglist}
