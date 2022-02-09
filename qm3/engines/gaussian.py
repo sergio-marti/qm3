@@ -14,7 +14,7 @@ class gaussian( qm3.engines.qmbase ):
     def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
         qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
         self.exe = "bash r.gauss"
-        self.gmm = ( self.inp.find( "prop=(field,read)" ) > -1 )
+        self.gmm = ( self.inp.lower().find( "prop=(field,read)" ) > -1 )
 
 
     def mk_input( self, mol, run ):
