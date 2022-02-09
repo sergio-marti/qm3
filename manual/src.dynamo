@@ -1,6 +1,6 @@
 \normalsize
 \subsection[dynamo]{dynamo.py}
-This module allows to use fDynamo\footnote{https://sites.google.com/site/pdynamomodeling/fdynamo-2.2.tgz?attredirects=0}
+This module allows to use fDynamo\footnote{https://sites.google.com/site/pdynamomodeling/downloads?authuser=0}
  as a MM engine (or semi-empirical QM/MM), as well as provides functions for working with fDynamo files.
 The \func{dynamo} class makes use of a compiled binary (see frame examples), which hangs on a pipe for exchanging
 data. 

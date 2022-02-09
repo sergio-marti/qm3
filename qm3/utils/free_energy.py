@@ -405,6 +405,101 @@ class wham( object ):
 
 
 #
+#"PMF from average force integration using trapezoidal rule:"
+#newline
+#∆G_{ i rightarrow i+1 } approx { 1 over 2 } left lbrace k_{i+1} ( r_{i+1} - langle x_{i+1} rangle ) + k_i ( r_i - langle x_i rangle ) right rbrace cdot left( langle x_{i+1} rangle - langle x_i rangle  right )
+#
+#newline
+#J_{i,i+1} = left( {partial ∆G_{ i rightarrow i+1 }} over{partial langle x_i rangle}, {∆G_{ i rightarrow i+1 }}over{partial langle x_{i+1} rangle} right )_{ 1x2 }
+#~~~~
+#C_{ i,i+1 } = left(
+#matrix{
+#{1+ 2%tau_i} over N_i sum{ (x_i - langle x_i rangle )^2} #
+#sqrt{(1+ 2%tau_i)(1+ 2%tau_{i+1})} over {N_i N_{i+1}} sum{ (x_i - langle x_i rangle ) (x_{i+1} - langle x_{i+1} rangle )} ##
+#dotsup #
+#{1+ 2%tau_{i+1}} over N_{i+1} sum{ (x_{i+1} - langle x_{i+1} rangle )^2}
+#} right )_{ 2x2 }
+#newline
+#s^2( ∆G_{ i rightarrow i+1 } ) = J_{i,i+1} cdot C_{ i,i+1 } cdot J_{i,i+1}^T
+#newline
+#r_1 =  sum from{2} to{N}{ (x_i - langle x_i rangle ) (x_{i-1} - langle x_i rangle ) } over sum{ (x_i - langle x_i rangle )^2 } 
+#~~~~
+#1 + 2 %tau = { 1 + r_1 } over { 1 - r_1 }
+#
+class afi_pmf( object ):
+
+    def __init__( self, data, skip = 0 ):
+        self.__kmb = []
+        self.__ref = []
+        self.__dat = []
+        self.__avr = []
+        self.__rms = []
+        self.__npt = []
+        self.__rat = []
+        # ---------------------------------------------
+        for fn in data:
+            f = open( fn, "rt" )
+            t = [ float( i ) for i in f.readline().strip().split() ]
+            self.__kmb.append( float( t[0] ) )
+            self.__ref.append( float( t[1] ) )
+            self.__dat.append( [] )
+            self.__avr.append( 0.0 )
+            self.__rms.append( 0.0 )
+            self.__npt.append( 0.0 )
+            i = 0
+            for l in f:
+                if( i >= skip ):
+                    x = float( l.strip() )
+                    self.__dat[-1].append( x )
+                    self.__avr[-1] += x
+                    self.__rms[-1] += x * x
+                    self.__npt[-1] += 1.0
+                i += 1
+            f.close()
+            self.__avr[-1] /= self.__npt[-1]
+            self.__rms[-1] = self.__rms[-1] / self.__npt[-1] - self.__avr[-1] * self.__avr[-1]
+            r1 = 0.0
+            for i in range( 1, int( self.__npt[-1] ) ):
+                r1 += ( self.__dat[-1][i] - self.__avr[-1] ) * ( self.__dat[-1][i-1] - self.__avr[-1] )
+            r1 /= self.__npt[-1] * self.__rms[-1]
+            self.__rat.append( ( 1 + r1 ) / ( 1 - r1 ) )
+        self.__idx = []
+        for i,j in sorted( [ ( self.__ref[k], k ) for k in range( len( data ) ) ] ):
+            self.__idx.append( j )
+        self.__npt = min( self.__npt )
+
+
+    def integrate( self ):
+        self.crd = []
+        self.pmf = []
+        self.rms = []
+        f_lst    = 0.0
+        e_lst    = 0.0
+        for i in range( len( self.__idx ) - 1 ):
+            self.crd.append( 0.5 * ( self.__avr[self.__idx[i]] + self.__avr[self.__idx[i+1]] ) )
+            ene  = self.__kmb[self.__idx[i+1]] * ( self.__ref[self.__idx[i+1]] - self.__avr[self.__idx[i+1]] )
+            ene += self.__kmb[self.__idx[i]] * ( self.__ref[self.__idx[i]] - self.__avr[self.__idx[i]] )
+            ene *= 0.5 * ( self.__avr[self.__idx[i+1]] - self.__avr[self.__idx[i]] )
+            self.pmf.append( ene + f_lst )
+            f_lst += ene
+            jac = [ .0, .0 ]
+            jac[0]  = -0.5 * ( self.__kmb[self.__idx[i]] * self.__ref[self.__idx[i]] + self.__kmb[self.__idx[i+1]] * self.__ref[self.__idx[i+1]] )
+            jac[0] += self.__kmb[self.__idx[i]] * self.__avr[self.__idx[i]] + 0.5 * self.__avr[self.__idx[i+1]] * ( self.__kmb[self.__idx[i+1]] - self.__kmb[self.__idx[i]] )
+            jac[1]  =  0.5 * ( self.__kmb[self.__idx[i]] * self.__ref[self.__idx[i]] + self.__kmb[self.__idx[i+1]] * self.__ref[self.__idx[i+1]] ) 
+            jac[1] += - self.__kmb[self.__idx[i+1]] * self.__avr[self.__idx[i+1]] + 0.5 * self.__avr[self.__idx[i]] * ( self.__kmb[self.__idx[i+1]] - self.__kmb[self.__idx[i]] )
+            cov = [ self.__rms[self.__idx[i]] * self.__rat[self.__idx[i]] / self.__npt, 0.0,
+                    self.__rms[self.__idx[i+1]] * self.__rat[self.__idx[i+1]] / self.__npt ]
+            for j in range( int( self.__npt ) ):
+                cov[1] += ( self.__dat[self.__idx[i]][j] - self.__avr[self.__idx[i]] ) * ( self.__dat[self.__idx[i+1]][j] - self.__avr[self.__idx[i+1]] )
+            cov[1] *= math.sqrt( self.__rat[self.__idx[i]] * self.__rat[self.__idx[i+1]] ) / ( self.__npt * self.__npt )
+            err = jac[0] * ( cov[0] * jac[0] + cov[1] * jac[1] ) + jac[1] * ( cov[1] * jac[0] + cov[2] * jac[1] )
+            self.rms.append( math.sqrt( err + e_lst ) )
+            e_lst += err
+
+
+
+
+#
 # J. Chem. Phys. v131, p34109 (2009) [10.1063/1.3175798]
 #
 class umbint_2d( object ):
@@ -511,6 +606,7 @@ class umbint_2d( object ):
 
 try:
     import matplotlib.pyplot
+
     def plot_data( data, dsigma = 2.0, skip = 0, name = "overlap" ):
         __mm = []
         __ss = []
