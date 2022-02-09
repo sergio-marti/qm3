@@ -3,7 +3,7 @@
 This module allows to use Orca\footnote{https://orcaforum.kofo.mpg.de/app.php/portal} as a QM engine.
 
 \begin{pyglist}[language=python,fvset={frame=single}]
-class orca( mol, ini, sele, nbnd = [], link = [] )
+class run_single( mol, ini, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
 \end{pyglist}

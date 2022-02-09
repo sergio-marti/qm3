@@ -173,7 +173,7 @@ class my_eng( qm3.problem.template ):
         self.mol.epsi = [ 0.9374, 0.0000, 0.0000, 0.9374, 0.000, 0.000 ] # Sqrt( eps * 4.184 ) >> Sqrt(kJ/mol)
         self.mol.rmin = [ 1.6610, 0.0000, 0.0000, 1.6610, 0.000, 0.000 ] # rmin/2 >> Ang
 
-        self.eng = qm3.engines.sander.sander()
+        self.eng = qm3.engines.sander.run_single()
         self.eng.exe = "./bin/sander -O"
         self.eng.update_chrg( self.mol )
 
@@ -226,104 +226,104 @@ qm3.maths.matrix.mprint( obj.grad, obj.mol.natm, 3 )
 
 
 ##############################################################################################
-# Python: MM
-class my_eng( qm3.problem.template ):
-
-    def __init__( self ):
-        self.mol = qm3.mol.molecule( "pdb" )
-        self.mol.boxl = [ 100, 100, 100 ]
-
-        self.eng = qm3.engines.sander.py_sander( self.mol, "prmtop",
-             cutoff = 16.0, PBC = False, qmsel = [ 0, 1, 2 ], method = "EXTERN" )
-
-        self.size = 3 * self.mol.natm
-        self.coor = self.mol.coor
-        self.func = 0.0
-        self.grad = []
-
-
-    def get_func( self ):
-        self.mol.func = 0.0
-        self.eng.get_func( self.mol )
-        self.func = self.mol.func
-
-
-    def get_grad( self ):
-        self.mol.func = 0.0
-        self.mol.grad = [ 0.0 for i in range( self.size ) ]
-        self.eng.get_grad( self.mol )
-        self.func = self.mol.func
-        self.grad = self.mol.grad
-
-
-
-obj = my_eng()
-obj.get_grad()
-print( obj.func )
-import qm3.maths.matrix
-qm3.maths.matrix.mprint( obj.grad, obj.mol.natm, 3 )
+## Python: MM
+#class my_eng( qm3.problem.template ):
+#
+#    def __init__( self ):
+#        self.mol = qm3.mol.molecule( "pdb" )
+#        self.mol.boxl = [ 100, 100, 100 ]
+#
+#        self.eng = qm3.engines.sander.run_native( self.mol, "prmtop",
+#             cutoff = 16.0, PBC = False, qmsel = [ 0, 1, 2 ], method = "EXTERN" )
+#
+#        self.size = 3 * self.mol.natm
+#        self.coor = self.mol.coor
+#        self.func = 0.0
+#        self.grad = []
+#
+#
+#    def get_func( self ):
+#        self.mol.func = 0.0
+#        self.eng.get_func( self.mol )
+#        self.func = self.mol.func
+#
+#
+#    def get_grad( self ):
+#        self.mol.func = 0.0
+#        self.mol.grad = [ 0.0 for i in range( self.size ) ]
+#        self.eng.get_grad( self.mol )
+#        self.func = self.mol.func
+#        self.grad = self.mol.grad
+#
+#
+#
+#obj = my_eng()
+#obj.get_grad()
+#print( obj.func )
+#import qm3.maths.matrix
+#qm3.maths.matrix.mprint( obj.grad, obj.mol.natm, 3 )
 
 
 ##############################################################################################
-# Extern(QM) MM
-class my_eng( qm3.problem.template ):
-    def __init__( self ):
-        self.mol = qm3.mol.molecule( "pdb" )
-        qm3.engines.sander.topology_read( self.mol, "prmtop" )
-        self.mol.boxl = [ 100, 100, 100 ]
-        self.mol.chrg = [ 0.000, 0.000, 0.000, -0.834, 0.417, 0.417 ]
-        self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
-        self.mol.epsi = [ 0.9374, 0.0000, 0.0000, 0.9374, 0.000, 0.000 ] # Sqrt( eps * 4.184 ) >> Sqrt(kJ/mol)
-        self.mol.rmin = [ 1.6610, 0.0000, 0.0000, 1.6610, 0.000, 0.000 ] # rmin/2 >> Ang
-
-        self.eng = qm3.engines.sander.sander()
-        self.eng.exe = "./bin/sander -O"
-        self.eng.update_chrg( self.mol )
-
-        self.size = 3 * self.mol.natm
-        self.coor = self.mol.coor
-        self.func = 0.0
-        self.grad = []
-
-
-    def get_func( self ):
-        self.mol.func = 0.0
-        self.eng.get_func( self.mol )
-        self.func = self.mol.func
-
-
-    def get_grad( self ):
-        self.mol.func = 0.0
-        self.mol.grad = [ 0.0 for i in range( self.size ) ]
-        self.eng.get_grad( self.mol )
-        self.func = self.mol.func
-        self.grad = self.mol.grad
-
-
-f = open( "mdin", "wt" )
-f.write( """slave_frozen_QM
-&cntrl
- imin   = 0, ntx    = 1, irest  = 0,
- ntxo   = 1, ntpr   = 1, ntave  = 0,
- ntwr   = 1, iwrap  = 0, ntwx   = 0,
- ntwv   = 0, ntwf   = 1, ntwe   = 1,
- ioutfm = 1, ntwprt = 0, ntt    = 0,
- ntr    = 0, nstlim = 0, nscm   = 0,
- ntp    = 0, ntb    = 0, ifqnt  = 1,
- cut       = 16.0,
-/
-&qmmm
- qmcut     = 16.0,
- qmmask    = ':1',
- qmcharge  = 0,
- spin      = 1,
- qm_ewald  = 0,
- qm_theory = 'EXTERN',
-/
-""" )
-f.close()
-
-obj = my_eng()
-obj.get_grad()
-print( obj.func )
-qm3.maths.matrix.mprint( obj.grad, obj.mol.natm, 3 )
+## Extern(QM) MM
+#class my_eng( qm3.problem.template ):
+#    def __init__( self ):
+#        self.mol = qm3.mol.molecule( "pdb" )
+#        qm3.engines.sander.topology_read( self.mol, "prmtop" )
+#        self.mol.boxl = [ 100, 100, 100 ]
+#        self.mol.chrg = [ 0.000, 0.000, 0.000, -0.834, 0.417, 0.417 ]
+#        self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
+#        self.mol.epsi = [ 0.9374, 0.0000, 0.0000, 0.9374, 0.000, 0.000 ] # Sqrt( eps * 4.184 ) >> Sqrt(kJ/mol)
+#        self.mol.rmin = [ 1.6610, 0.0000, 0.0000, 1.6610, 0.000, 0.000 ] # rmin/2 >> Ang
+#
+#        self.eng = qm3.engines.sander.run_single()
+#        self.eng.exe = "./bin/sander -O"
+#        self.eng.update_chrg( self.mol )
+#
+#        self.size = 3 * self.mol.natm
+#        self.coor = self.mol.coor
+#        self.func = 0.0
+#        self.grad = []
+#
+#
+#    def get_func( self ):
+#        self.mol.func = 0.0
+#        self.eng.get_func( self.mol )
+#        self.func = self.mol.func
+#
+#
+#    def get_grad( self ):
+#        self.mol.func = 0.0
+#        self.mol.grad = [ 0.0 for i in range( self.size ) ]
+#        self.eng.get_grad( self.mol )
+#        self.func = self.mol.func
+#        self.grad = self.mol.grad
+#
+#
+#f = open( "mdin", "wt" )
+#f.write( """slave_frozen_QM
+#&cntrl
+# imin   = 0, ntx    = 1, irest  = 0,
+# ntxo   = 1, ntpr   = 1, ntave  = 0,
+# ntwr   = 1, iwrap  = 0, ntwx   = 0,
+# ntwv   = 0, ntwf   = 1, ntwe   = 1,
+# ioutfm = 1, ntwprt = 0, ntt    = 0,
+# ntr    = 0, nstlim = 0, nscm   = 0,
+# ntp    = 0, ntb    = 0, ifqnt  = 1,
+# cut       = 16.0,
+#/
+#&qmmm
+# qmcut     = 16.0,
+# qmmask    = ':1',
+# qmcharge  = 0,
+# spin      = 1,
+# qm_ewald  = 0,
+# qm_theory = 'EXTERN',
+#/
+#""" )
+#f.close()
+#
+#obj = my_eng()
+#obj.get_grad()
+#print( obj.func )
+#qm3.maths.matrix.mprint( obj.grad, obj.mol.natm, 3 )

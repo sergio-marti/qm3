@@ -1,6 +1,6 @@
 import qm3.mol
 import qm3.problem
-import qm3.engines._psi4
+import qm3.engines.psi4
 import qm3.maths.matrix
 
 class my_eng( qm3.problem.template ):
@@ -10,7 +10,7 @@ class my_eng( qm3.problem.template ):
         self.mol.xyz_read( "xyz" )
         self.mol.chrg = [ -0.834, 0.417, 0.417, -0.834, 0.417, 0.417 ]
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
-        self.eng = qm3.engines._psi4.qm3_psi4( self.mol, qm3.engines._psi4.options, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.psi4.run_native( self.mol, qm3.engines.psi4.options, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

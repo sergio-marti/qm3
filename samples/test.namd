@@ -15,7 +15,7 @@ class my_eng( qm3.problem.template ):
         self.mol.chrg[1] = 0.0
         self.mol.chrg[2] = 0.0
 
-        self.eng = qm3.engines.namd.namd()
+        self.eng = qm3.engines.namd.run_single()
         self.eng.exe = "./bin/namd2 +ppn 2 namd.inp > namd.out"
         qm3.fio.xplor.psf_write( self.mol, "psf" )
 

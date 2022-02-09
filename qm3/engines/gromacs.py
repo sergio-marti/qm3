@@ -55,7 +55,7 @@ def coordinates_write( mol, fname = None ):
 
 
 
-class gromacs( object ):
+class run_single( object ):
     """
     rm -f \#* borra.*
 
@@ -131,12 +131,12 @@ class gromacs( object ):
         except:
             pass
         os.system( self.exe )
-        mol.func += gromacs.__parse_edr( "gromacs.edr" )["Potential"]
+        mol.func += run_single.__parse_edr( "gromacs.edr" )["Potential"]
 
 
     def get_grad( self, mol ):
         self.get_func( mol )
-        g = gromacs.__parse_trr( "gromacs.trr" )
+        g = run_single.__parse_trr( "gromacs.trr" )
         for i in range( mol.natm ):
             i3 = i * 3
             for j in [0, 1, 2]:

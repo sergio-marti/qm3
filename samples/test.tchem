@@ -30,7 +30,7 @@ qm3_charges
 end
 """ )
         f.seek( 0 )
-        self.eng = qm3.engines.tchem.tchem( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.tchem.run_single( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
         self.eng.exe = "bash r.tchem"
 
         self.size = 3 * self.mol.natm

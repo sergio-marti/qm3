@@ -2,7 +2,7 @@
 \subsection[qchem]{qchem.py}
 
 \begin{pyglist}[language=python,fvset={frame=single}]
-class qchem( mol, ini, sele, nbnd = [], link = [] )
+class run_single( mol, inp, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
 \end{pyglist}

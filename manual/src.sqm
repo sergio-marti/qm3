@@ -2,14 +2,14 @@
 \subsection[sqm]{sqm.py}
 The SQM binary used by this module is a \textbf{modified version} of the one coming in the free AmberTools\footnote{http://ambermd.org/AmberTools.php}.
 \\
-If compiled as a library (sqm.so, set \textbf{QM3\_LIBSQM} environment variable) it can be accessed via ctypes (\func{dl\_sqm}),
+If compiled as a library (sqm.so, set \textbf{QM3\_LIBSQM} environment variable) it can be accessed via ctypes (\func{run\_dynlib}),
 thus reducing the amount of IO needed.
 \begin{pyglist}[language=python,fvset={frame=single}]
-class sqm( mol, ini, sele, nbnd = [], link = [] )
+class run_single( mol, inp, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
 
-class dl_sqm( mol, ini, sele, nbnd = [], link = [] )
+class run_dynlib( mol, inp, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
 \end{pyglist}

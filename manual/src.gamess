@@ -3,7 +3,7 @@
 This module allows to use GAMESS-US\footnote{https://www.msg.chem.iastate.edu/GAMESS/download/register/} as a QM engine.
 
 \begin{pyglist}[language=python,fvset={frame=single}]
-class gamess( mol, ini, sele, nbnd = [], link = [] )
+class run_single( mol, inp, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
     def get_hess( mol )

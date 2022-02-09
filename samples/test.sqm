@@ -6,9 +6,6 @@ import qm3.maths.matrix
 import io
 
 
-os.environ["QM3_LIBSQM"] = "./bin/sqm.so"
-
-
 class my_eng( qm3.problem.template ):
 
     def __init__( self ):
@@ -29,9 +26,9 @@ qm3_atoms
 qm3_charges
 """ )
         f.seek( 0 )
-#        self.eng = qm3.engines.sqm.sqm( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+#        self.eng = qm3.engines.sqm.run_single( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 #        self.eng.exe = "./bin/sqm"
-        self.eng = qm3.engines.sqm.dl_sqm( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.sqm.run_dynlib( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

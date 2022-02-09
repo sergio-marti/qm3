@@ -34,7 +34,7 @@ qm3_charges
 qm3_job
 """ )
         f.seek( 0 )
-        self.eng = qm3.engines.nwchem.nwchem( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.nwchem.run_single( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
         self.eng.exe = "NWCHEM_BASIS_LIBRARY=./bin/nwchemlib/"
         self.eng.exe += " mpirun -n 2 ./bin/nwchem nwchem.nw > nwchem.log"
 

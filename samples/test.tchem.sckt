@@ -13,7 +13,7 @@ class my_eng( qm3.problem.template ):
         self.mol.xyz_read( "xyz" )
         self.mol.chrg = [ -0.834, 0.417, 0.417, -0.834, 0.417, 0.417 ]
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
-        self.eng = qm3.engines.tchem.tchem_sckt( "sckt_", self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.tchem.run_socket( "sckt_", self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ] )
         self.eng.exe = "bash r.tchem"
 
         self.size = 3 * self.mol.natm

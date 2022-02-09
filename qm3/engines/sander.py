@@ -236,7 +236,8 @@ def topology_write( mol, fname = None ):
 
 try:
     import qm3.engines._sander
-    class py_sander( qm3.engines._sander.sander ):
+
+    class run_native( qm3.engines._sander.sander ):
         def __init__( self, mol, prmtop, cutoff = 10.0, PBC = True, qmsel = None, method = "AM1", charge = 0 ):
             qm3.engines._sander.sander.__init__( self, mol, prmtop, cutoff, PBC, qmsel, method, charge )
 except:
@@ -244,7 +245,7 @@ except:
 
 
 
-class sander( object ):
+class run_single( object ):
 
     def __init__( self ):
         self.exe = "bash r.sander"

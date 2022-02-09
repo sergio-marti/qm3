@@ -20,7 +20,7 @@ class my_eng( qm3.problem.template ):
         os.mkfifo( "dynamo.pipe" )
         os.system( "./a.out dynamo.pipe > dynamo.log &" )
         time.sleep( 10 )
-        self.eng = qm3.engines.dynamo.dynamo_pipe()
+        self.eng = qm3.engines.dynamo.run_pipe()
         self.eng.update_chrg( self.mol )
 
         self.fix = qm3.engines.mmint.QMLJ( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ], [] )

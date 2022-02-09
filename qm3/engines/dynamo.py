@@ -156,7 +156,8 @@ def selection( mol, sele, fname = None ):
 
 try:
     import qm3.engines._dynamo
-    class py_dynamo( qm3.engines._dynamo.dynamo ):
+
+    class run_native( qm3.engines._dynamo.dynamo ):
         def __init__( self, path = "./dynamo.so" ):
             qm3.engines._dynamo.dynamo.__init__( self, path )
 except:
@@ -164,7 +165,7 @@ except:
 
 
 
-class dynamo_pipe( object ):
+class run_pipe( object ):
 
     def __init__( self ):
         self.pfd = open( "dynamo.pipe", "wt" )

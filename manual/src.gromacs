@@ -6,7 +6,7 @@ Right now it only provides (inefficient) limited single execution, and basic G96
 def coordinates_read( fname = None )
 def coordinates_write( mol, fname = None )
 
-class gromacs()
+class run_single()
     def update_coor( mol )
     def get_func( mol )
     def get_grad( mol )

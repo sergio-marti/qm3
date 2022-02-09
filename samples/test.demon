@@ -29,7 +29,7 @@ geometry cartesian angstrom
 qm3_atoms
 """ )
         f.seek( 0 )
-        self.eng = qm3.engines.demon.demon( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.demon.run_single( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
         self.eng.exe = "./bin/deMon_4.4.1"
 
         self.size = 3 * self.mol.natm

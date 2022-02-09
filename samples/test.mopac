@@ -6,9 +6,6 @@ import qm3.maths.matrix
 import io
 
 
-os.environ["QM3_LIBMOPAC"] = "./bin/mopac.so"
-
-
 class my_eng( qm3.problem.template ):
 
     def __init__( self ):
@@ -25,7 +22,7 @@ H       0.05804      1.92714      2.01036
         self.mol.xyz_read( f )
         self.mol.chrg = [ -0.834, 0.417, 0.417, -0.834, 0.417, 0.417 ]
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
-        self.eng = qm3.engines.mopac.dl_mopac( self.mol, "AM1", 0, 1, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.mopac.run_dynlib( self.mol, "AM1", 0, 1, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

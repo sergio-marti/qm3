@@ -33,7 +33,7 @@ import time
 
 
 
-class tinker( object ):
+class run_single( object ):
 
     def __init__( self, ini, cpu = os.sysconf( 'SC_NPROCESSORS_ONLN' ) ):
         f = open( "tinker.key", "wt" )

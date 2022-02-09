@@ -7,7 +7,7 @@ import qm3.elements
 
 
 
-class xtb( qm3.engines.qmbase ):
+class run_single( qm3.engines.qmbase ):
 
     def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
         qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
@@ -93,7 +93,7 @@ class xtb( qm3.engines.qmbase ):
 try:
     import ctypes
 
-    class dl_xtb:
+    class run_dynlib:
     
         def __init__( self, mol, chrg, nope, sele, nbnd = [], link = [] ):
             self._cx = qm3.constants.A0

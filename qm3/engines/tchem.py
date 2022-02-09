@@ -9,7 +9,7 @@ import io
 
 
 
-class tchem( qm3.engines.qmbase ):
+class run_single( qm3.engines.qmbase ):
 
     def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
         qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
@@ -89,7 +89,7 @@ class tchem( qm3.engines.qmbase ):
 
 
 
-class tchem_sckt( qm3.engines.qmbase ):
+class run_socket( qm3.engines.qmbase ):
 
     def __init__( self, unx, mol, sele, nbnd = [], link = [] ):
         f = io.StringIO( "" )

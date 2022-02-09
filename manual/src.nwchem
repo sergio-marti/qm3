@@ -3,7 +3,7 @@
 This module allows to use NWChem\footnote{https://github.com/nwchemgit/nwchem} as a QM engine.
 
 \begin{pyglist}[language=python,fvset={frame=single}]
-class nwchem( mol, ini, sele, nbnd = [], link = [] )
+class run_single( mol, inp, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
 \end{pyglist}

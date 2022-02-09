@@ -1,0 +1,20 @@
+\normalsize
+\subsection[pyscf]{pyscf.py}
+For being able to use this module, pyscf\footnote{https://pyscf.org} must be installed, and
+the appropriate \textbf{lib} folder\\ (for example: /Users/smarti/Devel/pyscf/dist/lib) should be added
+to the \textbf{PYTHONPATH} environment variable.\\
+\begin{pyglist}[language=python,fvset={frame=single}]
+class run_native( mol, sele, opts = { "basis": "def2-svp", "conv_tol": 1.e-9, "charge": 0,
+    "spin": 0, "method": "b3lypg", "memory": 4096, # MB "grid": 3, "max_cyc": 50 },
+    nbnd = [], link = [] )
+    def get_func( mol )
+    def get_grad( mol )
+\end{pyglist}
+
+\footnotesize
+\begin{pyglist}[language=python,fvset={frame=single}]
+#SOURCE@../samples/test.pyscf
+\end{pyglist}
+\begin{pyglist}[fvset={frame=single}]
+#SOURCE@../samples/logs/test.pyscf.log
+\end{pyglist}

@@ -55,7 +55,7 @@ class model( molec )
     """
 
 
-class rpmd( mole, sele, engn )
+class dynamics( mole, sele, engn )
 
     def current_step( istep )
 

@@ -19,7 +19,7 @@ class my_eng( qm3.problem.template ):
 
         os.mkfifo( "charmm.pipe" )    
         os.system( "./bin/charmm < charmm.pipe > charmm.log &" )
-        self.eng = qm3.engines.charmm.charmm_pipe( "charmm.inp" )
+        self.eng = qm3.engines.charmm.run_pipe( "charmm.inp" )
         time.sleep( 10 )
         self.eng.update_chrg( self.mol, [ 0, 1, 2 ] )
 

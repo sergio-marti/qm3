@@ -1,14 +1,14 @@
 \normalsize
 \subsection[xtb]{xtb.py}
 This module allows to use xTB\footnote{https://github.com/grimme-lab/xtb} as a QM engine.\\
-If compiled as a library (xtb.so, set \textbf{QM3\_LIBXTB} environment variable) it can be accessed via ctypes (\func{dl\_xtb}),
+If compiled as a library (xtb.so, set \textbf{QM3\_LIBXTB} environment variable) it can be accessed via ctypes (\func{run\_dynlib}),
 thus reducing the amount of IO needed.
 \begin{pyglist}[language=python,fvset={frame=single}]
-class xtb( mol, ini, sele, nbnd = [], link = [] )
+class run_single( mol, ini, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
 
-class dl_xtb( mol, chrg, nope, sele, nbnd = [], link = [] )
+class run_dynlib( mol, chrg, nope, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
 \end{pyglist}

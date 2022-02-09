@@ -12,7 +12,7 @@ class my_eng( qm3.problem.template ):
         self.mol.chrg = [ -0.834, 0.417, 0.417, -0.834, 0.417, 0.417 ]
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
 
-        self.eng = qm3.engines.tmole.tmole( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.tmole.run_single( self.mol, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

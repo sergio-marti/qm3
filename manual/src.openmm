@@ -1,10 +1,10 @@
 \normalsize
 \subsection[openmm]{openmm.py}
-This module allows to use OpenMM\footnote{https://github.com/pandegroup/openmm} as a MM engine (set \textbf{QM3\_OPENMM} environment variable).
-Since any non-bonding interaction among QM atoms is excluded (\parm{qm\_excl}: list with the QM atoms selection)
+This module allows to use OpenMM\footnote{https://github.com/pandegroup/openmm} as a MM engine (set \textbf{PYTHONPATH} environment variable).
+Since any (bonding and) non-bonding interaction among QM atoms is excluded (\parm{qm\_atom}: list with the QM atoms selection)
 there is no need for an additional \_qmmm.Int\_QMLJ fix.
 \begin{pyglist}[language=python,fvset={frame=single}]
-class py_openmm( omm_system, topology, qm_excl = [], platform = "CPU" )
+class run_native( omm_system, topology, qm_atom = [], platform = "CPU" )
     def update_charges( mol )
     def update_coor( mol )
     def get_func( mol )

@@ -110,7 +110,7 @@ def selection( mol, sele, fname = None ):
 
 
 
-class charmm_pipe( object ):
+class run_pipe( object ):
 
     def __init__( self, fname ):
         self.pfd = open( "charmm.pipe", "wt" )
@@ -235,7 +235,8 @@ class charmm_pipe( object ):
 
 try:
     import qm3.utils._shm
-    class charmm_shm( object ):
+
+    class run_shmem( object ):
         def __init__( self, fname ):
             self.clr = struct.pack( "d", 0.0 )
             self.eok = struct.pack( "d", 1.0 )

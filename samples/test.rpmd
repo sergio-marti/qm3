@@ -6,21 +6,19 @@ import  qm3.engines.xtb
 import  qm3.actions.ring_polymer
 
 
-os.environ["QM3_LIBXTB"] = "./bin/xtb.so"
-
 
 class my_model:
     def __init__( self, molec ):
-        self.eqm = qm3.engines.xtb.dl_xtb( molec, 0, 0, list( range( molec.natm ) ) )
+        self.eqm = qm3.engines.xtb.run_dynlib( molec, 0, 0, list( range( molec.natm ) ) )
 
     def get_grad( self, molec ):
         self.eqm.get_grad( molec )
 
 
 
-class my_rpmd( qm3.actions.ring_polymer.rpmd ):
+class my_rpmd( qm3.actions.ring_polymer.dynamics ):
     def __init__( self, mole, sele, engn ):
-        qm3.actions.ring_polymer.rpmd.__init__( self, mole, sele, engn )
+        qm3.actions.ring_polymer.dynamics.__init__( self, mole, sele, engn )
         self.fd = open( "trj", "wt" )
 
 

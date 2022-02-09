@@ -5,8 +5,6 @@ import qm3.maths.matrix
 import io
 import os
 
-os.environ["QM3_LIBDFTB"] = "./dftb.so"
-
 
 class my_eng( qm3.problem.template ):
 
@@ -65,9 +63,9 @@ qm3_job
 ParserOptions { WriteHSDInput = No }
 """ )
         f.seek( 0 )
-#        self.eng = qm3.engines.dftb.dftb( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+#        self.eng = qm3.engines.dftb.run_single( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 #        self.eng.exe = "./dftb+ > dftb_in.log"
-        self.eng = qm3.engines.dftb.dl_dftb( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.dftb.run_dynlib( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

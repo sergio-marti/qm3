@@ -7,11 +7,6 @@ import qm3.maths.matrix
 import io
 
 
-os.environ["LIOHOME"] = "./bin/slio"
-os.environ["OMP_NUM_THREADS"] = "2"
-os.environ["QM3_LIBLIO"] = "./bin/lio.so"
-
-
 class my_eng( qm3.problem.template ):
 
     def __init__( self ):
@@ -59,9 +54,9 @@ ec_functional_id = %s
  told        = 1.0d-9
 &end
 """ )
-#        self.eng = qm3.engines.lio.lio( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+#        self.eng = qm3.engines.lio.run_single( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 #        self.eng.exe = "bash r.lio"
-        self.eng = qm3.engines.lio.dl_lio( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.lio.run_dynlib( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

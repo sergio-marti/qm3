@@ -59,7 +59,7 @@ D   1   1.00
 qm3_field
 """ )
         f.seek( 0 )
-        self.eng = qm3.engines.gaussian.gaussian( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.gaussian.run_single( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
         self.eng.exe = "source ./bin/g09.profile; g09 gauss.com"
 
         self.size = 3 * self.mol.natm

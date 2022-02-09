@@ -2,7 +2,7 @@
 \subsection[bagel]{bagel.py}
 
 \begin{pyglist}[language=python,fvset={frame=single}]
-class bagel( mol, ini, sele, nbnd = [], link = [] )
+class run_single( mol, inp, sele, nbnd = [], link = [] )
     def get_func( mol )
     def get_grad( mol )
 \end{pyglist}

@@ -11,9 +11,6 @@ import    io
 
 
 #qm3.engines.mol_mech.mol_mech_so = False
-os.environ["QM3_LIBSQM"] = "./bin/sqm.so"
-os.environ["QM3_LIBXTB"] = "./bin/xtb.so"
-os.environ["QM3_LIBDFTB"] = "./bin/dftb.so"
 
 
 def kind( idx, lst ):
@@ -119,7 +116,7 @@ verbosity = 4
 qm3_atoms
 qm3_charges
 """ )
-#        self.eQM = qm3.engines.sqm.dl_sqm( self.mol, f, sqm, smm, [ [ 11-1, 8-1 ] ] )
+#        self.eQM = qm3.engines.sqm.run_dynlib( self.mol, f, sqm, smm, [ [ 11-1, 8-1 ] ] )
 
         f = io.StringIO( """
 Driver = {}
@@ -170,11 +167,11 @@ qm3_job
 }
 ParserOptions { WriteHSDInput = No }
 """ )
-#        self.eQM = qm3.engines.dftb.dl_dftb( self.mol, f, sqm, smm, [ [ 11-1, 8-1 ] ] )
+#        self.eQM = qm3.engines.dftb.run_dynlib( self.mol, f, sqm, smm, [ [ 11-1, 8-1 ] ] )
 
         f.close()
 
-        self.eQM = qm3.engines.xtb.dl_xtb( self.mol, 1, 0, sqm, smm, [ [ 11-1, 8-1 ] ] )
+        self.eQM = qm3.engines.xtb.run_dynlib( self.mol, 1, 0, sqm, smm, [ [ 11-1, 8-1 ] ] )
 
         self.eMM.qm_atoms( sqm )
         for i,j in self.eMM.bond:

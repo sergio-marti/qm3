@@ -54,7 +54,7 @@ def pdb_write( mol, fname = None, fixed = [] ):
 
 
 
-class namd_pipe( object ):
+class run_pipe( object ):
 
     def __init__( self ):
         self.pfd = open( "namd.pipe", "wt" )
@@ -136,7 +136,8 @@ class namd_pipe( object ):
 
 try:
     import qm3.utils._shm
-    class namd_shm( object ):
+
+    class run_shmem( object ):
 
         def __init__( self ):
             f = open( "namd.shmid", "rt" )
@@ -190,11 +191,11 @@ try:
                 for j in [0, 1, 2]:
                     mol.grad[i3+j] -= tmp[2+i3+j] * qm3.constants.K2J
 except:
-    pass
+    raise Exception( "Unable to load qm3.utils._shm" )
 
 
 
-class namd( object ):
+class run_single( object ):
 
     def __init__( self ):
         self.exe = "bash r.namd"

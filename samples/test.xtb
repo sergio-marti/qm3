@@ -6,9 +6,6 @@ import qm3.maths.matrix
 import io
 
 
-os.environ["QM3_LIBXTB"] = "./bin/xtb.so"
-
-
 class my_eng( qm3.problem.template ):
 
     def __init__( self ):
@@ -54,9 +51,9 @@ $write
 $end
 """ )
         f.seek( 0 )
-        self.eng = qm3.engines.xtb.xtb( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.xtb.run_single( self.mol, f, [ 0, 1, 2 ], [ 3, 4, 5 ] )
         self.eng.exe = "bash r.xtb"
-        self.eng = qm3.engines.xtb.dl_xtb( self.mol, 0, 0, [ 0, 1, 2 ], [ 3, 4, 5 ] )
+        self.eng = qm3.engines.xtb.run_dynlib( self.mol, 0, 0, [ 0, 1, 2 ], [ 3, 4, 5 ] )
 
         self.size = 3 * self.mol.natm
         self.coor = self.mol.coor

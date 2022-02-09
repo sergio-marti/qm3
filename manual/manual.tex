@@ -106,6 +106,12 @@ MM terms that should be added whenever a QM-MM partition (using the Link Atom ap
 \begin{pyglist}[language=python,fvset={frame=single}]
 def exclusions( sele_QM, molec, bonds = None )
 \end{pyglist}
+Most of the engines are used as external programs by means of a single execution scheme
+(thus parsing the outputs, \func{run\_single}).
+In addition, some of them offer other ways of
+execution, such as via pipes (\func{run\_pipe}, usually for MM programs where the
+initialization is time consuming), through pipes and shared memory (\func{run\_shmem}) or directly by using
+shared libraries (\func{run\_dynlib}) or programs with a python interface enabled (\func{run\_native}).
 \input{mmres}
 \input{metadyn}
 \input{plumed}
@@ -131,6 +137,7 @@ def exclusions( sele_QM, molec, bonds = None )
 \input{nwchem}
 \input{orca}
 \input{psi4}
+\input{pyscf}
 \input{qchem}
 \input{smash}
 \input{tmole}

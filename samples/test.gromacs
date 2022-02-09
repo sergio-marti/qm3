@@ -11,7 +11,7 @@ class my_eng( qm3.problem.template ):
     def __init__( self ):
         self.mol = qm3.engines.gromacs.coordinates_read( "gromacs.g96" )
 
-        self.eng = qm3.engines.gromacs.gromacs()
+        self.eng = qm3.engines.gromacs.run_single()
         self.eng.exe  = "source ./bin/gmx_rc; "
         self.eng.exe += "gmx mdrun -s gromacs.tpr -e gromacs.edr -o gromacs.trr -g gromacs.log -rerun gromacs.g96 >& gromacs.out2"
 

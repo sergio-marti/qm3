@@ -9,7 +9,7 @@ import qm3.engines
 # detects whether return the electrostatic charges gradient (_mmint.QMLJ) searching for "prop=(field,read)" 
 # or it will be calcualted after classically (_mmint.QMLJ_MMEL)
 #
-class gaussian( qm3.engines.qmbase ):
+class run_single( qm3.engines.qmbase ):
 
     def __init__( self, mol, inp, sele, nbnd = [], link = [] ):
         qm3.engines.qmbase.__init__( self, mol, inp, sele, nbnd, link )
