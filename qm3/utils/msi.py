@@ -2,6 +2,7 @@
 
 # Message Socket interface
 
+import sys
 import socket
 import struct
 import time
