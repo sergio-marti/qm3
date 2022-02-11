@@ -1,0 +1,28 @@
+* Adding Elements Dynamically:
+
+The addElement() function is simple if you understand its arguments. The way it works is by appending a new child element to a parent element. The parent element is specified using the parentId argument. The type of element to be created is specified using the elementTag argument. The new element's ID is specified using the elementId argument. Lastly, the innerHTML of the new element is specified using the html argument.
+
+    function addElement(parentId, elementTag, elementId, html) {
+        // Adds an element to the document
+        var p = document.getElementById(parentId);
+        var newElement = document.createElement(elementTag);
+        newElement.setAttribute('id', elementId);
+        newElement.innerHTML = html;
+        p.appendChild(newElement);
+    }
+
+You could take advantage of this by creating a container with addElement() and sneaking some more elements inside html, as you'll see in the example below.
+Alternatively:
+
+        document.body.appendChild(newElement);
+
+
+* Removing Elements Dynamically:
+
+Removing an element is much easier, as it only requires the element's ID.
+
+    function removeElement(elementId) {
+        // Removes an element from the document
+        var element = document.getElementById(elementId);
+        element.parentNode.removeChild(element);
+    }

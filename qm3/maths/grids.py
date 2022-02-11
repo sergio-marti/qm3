@@ -70,6 +70,12 @@ class grid( object ):
         return( None )
 
 
+    def update_spline( self ):
+        if( self.__intp != None ):
+            self.__spln = qm3.maths.interpolation.interpolate_2d( self.x, self.y, self.z, self.__intp )
+            self.calc = self.__spln.calc
+
+
     # Whatever the ordering ALWAYS returns: fixed_X, changing_Y
     def parse( self, fname = None, sele = "0:1:2" ):
         s = [ int( i ) for i in sele.split( ":" ) ]
@@ -90,9 +96,7 @@ class grid( object ):
         self.x = [ d[i*ny][0] for i in range( nx ) ]
         self.y = [ d[i][1] for i in range( ny ) ]
         self.z = [ d[i][2] for i in range( nz ) ]
-        if( self.__intp != None ):
-            self.__spln = qm3.maths.interpolation.interpolate_2d( self.x, self.y, self.z, self.__intp )
-            self.calc = self.__spln.calc
+        self.update_spline()
 
 
     # Transform Z into: changing_X, fixed_Y
@@ -165,9 +169,7 @@ class grid( object ):
                         rz += c * w
                         rw += w
                     self.z.append( rz / rw )
-        if( self.__intp != None ):
-            self.__spln = qm3.maths.interpolation.interpolate_2d( self.x, self.y, self.z, self.__intp )
-            self.calc = self.__spln.calc
+        self.update_spline()
 
 
     def save( self, fname = None ):
