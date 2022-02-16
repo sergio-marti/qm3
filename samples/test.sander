@@ -166,6 +166,7 @@ f.close()
 class my_eng( qm3.problem.template ):
     def __init__( self ):
         self.mol = qm3.mol.molecule( "pdb" )
+        qm3.engines.sander.topology_read( self.mol, "prmtop" )
         self.mol.boxl = [ 100, 100, 100 ]
         self.mol.chrg = [ 0.000, 0.000, 0.000, -0.834, 0.417, 0.417 ]
         self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
@@ -268,6 +269,7 @@ qm3.maths.matrix.mprint( obj.grad, obj.mol.natm, 3 )
 #class my_eng( qm3.problem.template ):
 #    def __init__( self ):
 #        self.mol = qm3.mol.molecule( "pdb" )
+#        qm3.engines.sander.topology_read( self.mol, "prmtop" )
 #        self.mol.boxl = [ 100, 100, 100 ]
 #        self.mol.chrg = [ 0.000, 0.000, 0.000, -0.834, 0.417, 0.417 ]
 #        self.mol.anum = [ 8, 1, 1, 8, 1, 1 ]
