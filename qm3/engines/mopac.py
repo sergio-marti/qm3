@@ -6,7 +6,7 @@ import qm3.elements
 import ctypes
 
 
-class run_dynlib:
+class run_dynlib( object ):
 
     def __init__( self, mol, meth, chrg, mult, sele, nbnd = [], link = [], con = -1, cof = -1 ):
         self.sel = sorted( sele )

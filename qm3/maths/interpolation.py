@@ -356,7 +356,8 @@ class interpolate_2d( object ):
 
 try:
     import qm3.maths._fitpack
-    class tensioned_spline:
+
+    class tensioned_spline( object ):
 
         def __init__( self, x, y, tension = 0.0 ):
             self.n = len( x )

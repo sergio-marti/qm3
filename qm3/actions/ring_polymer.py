@@ -16,7 +16,7 @@ def default_log( txt ):
 
 
 
-class model:
+class model( object ):
     def __init__( self, molec ):
         """
         define as much engines as needed based on the molec

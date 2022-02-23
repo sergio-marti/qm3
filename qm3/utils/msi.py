@@ -9,7 +9,7 @@ import time
 import threading
 
 
-class server:
+class server( object ):
     def __recv( self, sckt ):
         msg = sckt.recv( self.slen )
         try:
@@ -117,7 +117,7 @@ class server:
 
 
 
-class client:
+class client( object ):
     def __send( self, sckt, msg ):
         s = len( msg )
         j = 0

@@ -5,7 +5,7 @@ import qm3.constants
 
 
 
-class run_single():
+class run_single( object ):
 
     def __init__( self, mol, sele ):
         self.exe = "bash r.dftd3"
@@ -61,7 +61,7 @@ class run_single():
 try:
     import ctypes
 
-    class run_dynlib():
+    class run_dynlib( object ):
     
         def __init__( self, mol, parm, sele ):
             self._ce = qm3.constants.H2J

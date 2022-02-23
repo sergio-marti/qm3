@@ -23,8 +23,8 @@ module qm3
     use xtb_disp_ncoord, only: ncoord_erf
     use xtb_type_solvation, only : TSolvation
 
-	implicit none
-	public
+    implicit none
+    public
     integer, parameter  :: maxiter = 1000
     integer, parameter  :: prlevel = 0
     logical, parameter  :: lgrad = .true.

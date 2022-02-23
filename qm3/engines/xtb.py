@@ -93,7 +93,7 @@ class run_single( qm3.engines.qmbase ):
 try:
     import ctypes
 
-    class run_dynlib:
+    class run_dynlib( object ):
     
         def __init__( self, mol, chrg, nope, sele, nbnd = [], link = [] ):
             self._cx = qm3.constants.A0
