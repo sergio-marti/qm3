@@ -79,7 +79,7 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
     end if
 
     if( .not. restart ) then
-        gfn_method = 2
+        set%gfn_method = 2
         call init( env )
         call init( mol, atn, xyz )
         wfn%nel = dint( sum( mol%z ) -  dat(1) )
@@ -96,7 +96,7 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
         call eeq_chrgeq( mol, env, chrgeq, cn, wfn%q )
         deallocate( cn )
 
-        call iniqshell( xtbData, mol%n, mol%at, mol%z, basis%nshell, wfn%q, wfn%qsh, gfn_method )
+        call iniqshell( xtbData, mol%n, mol%at, mol%z, basis%nshell, wfn%q, wfn%qsh, set%gfn_method )
     else
         mol%xyz = xyz
     end if
