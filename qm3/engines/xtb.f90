@@ -9,7 +9,6 @@ module qm3
     use xtb_type_param
     use xtb_type_data
     use xtb_type_pcem
-    use xtb_type_environment
     use xtb_setparam
     use xtb_basis
     use xtb_scf
@@ -87,10 +86,11 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
         call use_parameterset( "param_gfn2-xtb.txt", globpar, xtbData, okpar )
         call newBasisset( xtbData, mol%n, mol%at, basis, okbas )
         call wfn%allocate( mol%n, basis%nshell, basis%nao )
+        mol%chrg = dat(1)
         !wfn%q = mol%chrg / real( mol%n, kind=8 )
 
         ! EEQ guess
-        allocate( cn(mol%n), source = 0.0_wp )
+        allocate( cn(mol%n), source = 0.0d0 )
         call new_charge_model_2019( chrgeq, mol%n, mol%at )
         call ncoord_erf( mol%n, mol%at, mol%xyz, cn )
         call eeq_chrgeq( mol, env, chrgeq, cn, wfn%q )
