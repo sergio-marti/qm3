@@ -57,7 +57,7 @@ class run_native( object ):
             k = len( self.sel )
             for i,j in self.lnk:
                 c, v = qm3.engines.LA_coordinates( i, j, mol )
-                self.aQM.atom += "%-2s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] )
+                aQM.atom += "%-2s%20.10lf%20.10lf%20.10lf\n"%( "H", c[0], c[1], c[2] )
                 self.vla.append( ( self.sel.index( i ), k, v[:] ) )
                 k += 1
         aQM.build()

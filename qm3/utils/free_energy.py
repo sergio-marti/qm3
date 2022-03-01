@@ -415,7 +415,7 @@ class wham( object ):
 #C_{ i,i+1 } = left(
 #matrix{
 #{1+ 2%tau_i} over N_i sum{ (x_i - langle x_i rangle )^2} #
-#sqrt{(1+ 2%tau_i)(1+ 2%tau_{i+1})} over {N_i N_{i+1}} sum{ (x_i - langle x_i rangle ) (x_{i+1} - langle x_{i+1} rangle )} ##
+#sqrt{(1+ 2%tau_i)(1+ 2%tau_{i+1})} over sqrt{N_i N_{i+1}} sum{ (x_i - langle x_i rangle ) (x_{i+1} - langle x_{i+1} rangle )} ##
 #dotsup #
 #{1+ 2%tau_{i+1}} over N_{i+1} sum{ (x_{i+1} - langle x_{i+1} rangle )^2}
 #} right )_{ 2x2 }
@@ -491,7 +491,7 @@ class afi_pmf( object ):
                     self.__rms[self.__idx[i+1]] * self.__rat[self.__idx[i+1]] / self.__npt ]
             for j in range( int( self.__npt ) ):
                 cov[1] += ( self.__dat[self.__idx[i]][j] - self.__avr[self.__idx[i]] ) * ( self.__dat[self.__idx[i+1]][j] - self.__avr[self.__idx[i+1]] )
-            cov[1] *= math.sqrt( self.__rat[self.__idx[i]] * self.__rat[self.__idx[i+1]] ) / ( self.__npt * self.__npt )
+            cov[1] *= sqrt( self.__rat[self.__idx[i]] * self.__rat[self.__idx[i+1]] ) / self.__npt
             err = jac[0] * ( cov[0] * jac[0] + cov[1] * jac[1] ) + jac[1] * ( cov[1] * jac[0] + cov[2] * jac[1] )
             self.rms.append( math.sqrt( err + e_lst ) )
             e_lst += err
