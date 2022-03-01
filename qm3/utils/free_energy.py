@@ -479,6 +479,7 @@ class afi_pmf( object ):
             self.crd.append( 0.5 * ( self.__avr[self.__idx[i]] + self.__avr[self.__idx[i+1]] ) )
             ene  = self.__kmb[self.__idx[i+1]] * ( self.__ref[self.__idx[i+1]] - self.__avr[self.__idx[i+1]] )
             ene += self.__kmb[self.__idx[i]] * ( self.__ref[self.__idx[i]] - self.__avr[self.__idx[i]] )
+            # I'm considering the averages instead of the references... (this also affects the jacobian)
             ene *= 0.5 * ( self.__avr[self.__idx[i+1]] - self.__avr[self.__idx[i]] )
             self.pmf.append( ene + f_lst )
             f_lst += ene
