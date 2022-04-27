@@ -87,6 +87,7 @@ subroutine qm3_xtb_calc( nQM, nMM, siz, dat )
         call newBasisset( xtbData, mol%n, mol%at, basis, okbas )
         call wfn%allocate( mol%n, basis%nshell, basis%nao )
         mol%chrg = dat(1)
+        mol%uhf  = dint( dat(2) )
         !wfn%q = mol%chrg / real( mol%n, kind=8 )
 
         ! EEQ guess
