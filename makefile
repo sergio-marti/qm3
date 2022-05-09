@@ -125,7 +125,8 @@ dftb.so:
 
 xtb.so:
 	gfortran $(SHD) -o xtb.so qm3/engines/xtb.f90 -Jbuild -Ibuild \
-		-fPIC -I$(XTB)/include $(XTB)/libxtb.a $(MLB)
+		-fPIC -I$(XTB)/include \
+		$(XTB)/libxtb.a $(XTB)/_deps/mctc-lib-build/libmctc-lib.a $(MLB)
 
 
 dftd3.so:
