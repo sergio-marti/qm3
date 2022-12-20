@@ -20,7 +20,7 @@ def dynamic_cross_correlation_map( mol, dcd, fname ):
     mas = [ 1.0 for i in sel ]
     dri = []
     nfr = 0
-    while( mol.dcd_read( dcd ) ):
+    while( dcd.next( mol ) ):
         cur = []
         for i in sel:
             cur += mol.coor[3*i:3*i+3][:]
