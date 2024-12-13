@@ -1,8 +1,13 @@
+Note:
+The current version is no longer under development or maintenance.
+Please check: https://github.com/sergio-marti/ren-qm3
+for a more firendly NumPy-based version of QMCube.
+
 QMCube is a suite written in the Python programming language initially focused
 on multiscale QM/MM simulations of biological systems, but open enough to 
 address other kinds of problems.
 It allows the user to interface and combine highly efficient QM and MM programs,
-providing a unified access to a wide range of computational methods.
+providinga unified access to a wide range of computational methods.
 The suite also supplies additional modules with extra functionalities which
 facilitate common tasks such as performing the setup of the models, or processing
 the data generated in the simulations.
